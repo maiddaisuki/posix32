@@ -1,0 +1,18 @@
+##
+# pkg-confif file for posix32 library
+#
+
+prefix=@prefix@
+includedir=@includedir@
+libdir=@libdir@
+
+Name: posix32
+Description: POSIX API Library for Windows
+Version: @version@
+URL: https://github.com/maiddaisuki/posix32
+
+Cflags: -I${includedir}/posix32 -I${includedir}/posix32/posix32-wrap @posix32_Cflags@
+Cflags.private: @posix32_Cflags_private@
+Libs: -L${libdir} @posix32_Libs@
+Libs.private: @posix32_Libs_private@
+Requires: pkgconf @posix32_Requires@

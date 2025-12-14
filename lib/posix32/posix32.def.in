@@ -1,0 +1,194 @@
+; Export definition file for posix32 redirection library
+
+EXPORTS
+
+; ctype.h
+
+    isascii     = @posix32_crt@.p32_isascii
+    toascii     = @posix32_crt@.p32_toascii
+
+    isalnum     = @posix32_crt@.p32_isalnum
+    isalnum_l   = @posix32_crt@.p32_isalnum_l
+    isalpha     = @posix32_crt@.p32_isalpha
+    isalpha_l   = @posix32_crt@.p32_isalpha_l
+    isblank     = @posix32_crt@.p32_isblank
+    isblank_l   = @posix32_crt@.p32_isblank_l
+    iscntrl     = @posix32_crt@.p32_iscntrl
+    iscntrl_l   = @posix32_crt@.p32_iscntrl_l
+    isdigit     = @posix32_crt@.p32_isdigit
+    isdigit_l   = @posix32_crt@.p32_isdigit_l
+    isgraph     = @posix32_crt@.p32_isgraph
+    isgraph_l   = @posix32_crt@.p32_isgraph_l
+    islower     = @posix32_crt@.p32_islower
+    islower_l   = @posix32_crt@.p32_islower_l
+    isprint     = @posix32_crt@.p32_isprint
+    isprint_l   = @posix32_crt@.p32_isprint_l
+    ispunct     = @posix32_crt@.p32_ispunct
+    ispunct_l   = @posix32_crt@.p32_ispunct_l
+    isspace     = @posix32_crt@.p32_isspace
+    isspace_l   = @posix32_crt@.p32_isspace_l
+    isupper     = @posix32_crt@.p32_isupper
+    isupper_l   = @posix32_crt@.p32_isupper_l
+    isxdigit    = @posix32_crt@.p32_isxdigit
+    isxdigit_l  = @posix32_crt@.p32_isxdigit_l
+
+    tolower     = @posix32_crt@.p32_tolower
+    tolower_l   = @posix32_crt@.p32_tolower_l
+    toupper     = @posix32_crt@.p32_toupper
+    toupper_l   = @posix32_crt@.p32_toupper_l
+
+; langinfo.h
+
+    nl_langinfo     = @posix32_crt@.p32_nl_langinfo
+    nl_langinfo_l   = @posix32_crt@.p32_nl_langinfo_l
+
+; locale.h
+
+    setlocale       = @posix32_crt@.p32_setlocale
+    newlocale       = @posix32_crt@.p32_newlocale
+    freelocale      = @posix32_crt@.p32_freelocale
+    duplocale       = @posix32_crt@.p32_duplocale
+    uselocale       = @posix32_crt@.p32_uselocale
+    getlocalename_l = @posix32_crt@.p32_getlocalename_l
+
+; stdlib.h
+
+    mblen      = @posix32_crt@.p32_mblen
+    mblen_l    = @posix32_crt@.p32_mblen_l
+    mbtowc     = @posix32_crt@.p32_mbtowc
+    mbtowc_l   = @posix32_crt@.p32_mbtowc_l
+    mbstowcs   = @posix32_crt@.p32_mbstowcs
+    mbstowcs_l = @posix32_crt@.p32_mbstowcs_l
+    wctomb     = @posix32_crt@.p32_wctomb
+    wctomb_l   = @posix32_crt@.p32_wctomb_l
+    wcstombs   = @posix32_crt@.p32_wcstombs
+    wcstombs_l = @posix32_crt@.p32_wcstombs_l
+
+; strings.h
+
+    strcasecmp      = @posix32_crt@.p32_strcasecmp
+    strcasecmp_l    = @posix32_crt@.p32_strcasecmp_l
+    strncasecmp     = @posix32_crt@.p32_strncasecmp
+    strncasecmp_l   = @posix32_crt@.p32_strncasecmp_l
+
+; uchar.h
+
+    c8rtomb     = @posix32_crt@.p32_c8rtomb
+    c8rtomb_l   = @posix32_crt@.p32_c8rtomb_l
+    mbrtoc8     = @posix32_crt@.p32_mbrtoc8
+    mbrtoc8_l   = @posix32_crt@.p32_mbrtoc8_l
+    c16rtomb    = @posix32_crt@.p32_c16rtomb
+    c16rtomb_l  = @posix32_crt@.p32_c16rtomb_l
+    mbrtoc16    = @posix32_crt@.p32_mbrtoc16
+    mbrtoc16_l  = @posix32_crt@.p32_mbrtoc16_l
+    c32rtomb    = @posix32_crt@.p32_c32rtomb
+    c32rtomb_l  = @posix32_crt@.p32_c32rtomb_l
+    mbrtoc32    = @posix32_crt@.p32_mbrtoc32
+    mbrtoc32_l  = @posix32_crt@.p32_mbrtoc32_l
+
+; wchar.h
+
+    wcsdup         = @posix32_crt@.p32_wcsdup
+    wcsndup        = @posix32_crt@.p32_wcsndup
+
+    wcscasecmp     = @posix32_crt@.p32_wcscasecmp
+    wcscasecmp_l   = @posix32_crt@.p32_wcscasecmp_l
+    wcsncasecmp    = @posix32_crt@.p32_wcsncasecmp
+    wcsncasecmp_l  = @posix32_crt@.p32_wcsncasecmp_l
+
+    wcscoll        = @posix32_crt@.p32_wcscoll
+    wcscoll_l      = @posix32_crt@.p32_wcscoll_l
+    wcsxfrm        = @posix32_crt@.p32_wcsxfrm
+    wcsxfrm_l      = @posix32_crt@.p32_wcsxfrm_l
+
+    btowc          = @posix32_crt@.p32_btowc
+    btowc_l        = @posix32_crt@.p32_btowc_l
+    wctob          = @posix32_crt@.p32_wctob
+    wctob_l        = @posix32_crt@.p32_wctob_l
+
+    mbsinit        = @posix32_crt@.p32_mbsinit
+
+    mbrlen         = @posix32_crt@.p32_mbrlen
+    mbrlen_l       = @posix32_crt@.p32_mbrlen_l
+    mbrtowc        = @posix32_crt@.p32_mbrtowc
+    mbrtowc_l      = @posix32_crt@.p32_mbrtowc_l
+    mbsrtowcs      = @posix32_crt@.p32_mbsrtowcs
+    mbsrtowcs_l    = @posix32_crt@.p32_mbsrtowcs_l
+    mbsnrtowcs     = @posix32_crt@.p32_mbsnrtowcs
+    mbsnrtowcs_l   = @posix32_crt@.p32_mbsnrtowcs_l
+    wcrtomb        = @posix32_crt@.p32_wcrtomb
+    wcrtomb_l      = @posix32_crt@.p32_wcrtomb_l
+    wcsrtombs      = @posix32_crt@.p32_wcsrtombs
+    wcsrtombs_l    = @posix32_crt@.p32_wcsrtombs_l
+    wcsnrtombs     = @posix32_crt@.p32_wcsnrtombs
+    wcsnrtombs_l   = @posix32_crt@.p32_wcsnrtombs_l
+
+; string.h
+
+    strdup     = @posix32_crt@.p32_strdup
+    strndup    = @posix32_crt@.p32_strndup
+
+    ; strcat     = @posix32_crt@.p32_strcat
+    ; strncat    = @posix32_crt@.p32_strncat
+    ; strcmp     = @posix32_crt@.p32_strcmp
+    ; strncmp    = @posix32_crt@.p32_strncmp
+    ; strcpy     = @posix32_crt@.p32_strcpy
+    ; strncpy    = @posix32_crt@.p32_strncpy
+    ; strlen     = @posix32_crt@.p32_strlen
+    ; strnlen    = @posix32_crt@.p32_strnlen
+
+    strchr     = @posix32_crt@.p32_strchr
+    strcspn    = @posix32_crt@.p32_strcspn
+    strpbrk    = @posix32_crt@.p32_strpbrk
+    strrchr    = @posix32_crt@.p32_strrchr
+    strspn     = @posix32_crt@.p32_strspn
+    strstr     = @posix32_crt@.p32_strstr
+    strtok     = @posix32_crt@.p32_strtok
+    strtok_r   = @posix32_crt@.p32_strtok_r
+
+    strcoll    = @posix32_crt@.p32_strcoll
+    strcoll_l  = @posix32_crt@.p32_strcoll_l
+    strxfrm    = @posix32_crt@.p32_strxfrm
+    strxfrm_l  = @posix32_crt@.p32_strxfrm_l
+
+; wctype.h
+
+    wctype      = @posix32_crt@.p32_wctype
+    wctype_l    = @posix32_crt@.p32_wctype_l
+    iswctype    = @posix32_crt@.p32_iswctype
+    iswctype_l  = @posix32_crt@.p32_iswctype_l
+
+    iswalnum    = @posix32_crt@.p32_iswalnum
+    iswalnum_l  = @posix32_crt@.p32_iswalnum_l
+    iswalpha    = @posix32_crt@.p32_iswalpha
+    iswalpha_l  = @posix32_crt@.p32_iswalpha_l
+    iswcntrl    = @posix32_crt@.p32_iswcntrl
+    iswcntrl_l  = @posix32_crt@.p32_iswcntrl_l
+    iswblank    = @posix32_crt@.p32_iswblank
+    iswblank_l  = @posix32_crt@.p32_iswblank_l
+    iswdigit    = @posix32_crt@.p32_iswdigit
+    iswdigit_l  = @posix32_crt@.p32_iswdigit_l
+    iswgraph    = @posix32_crt@.p32_iswgraph
+    iswgraph_l  = @posix32_crt@.p32_iswgraph_l
+    iswlower    = @posix32_crt@.p32_iswlower
+    iswlower_l  = @posix32_crt@.p32_iswlower_l
+    iswprint    = @posix32_crt@.p32_iswprint
+    iswprint_l  = @posix32_crt@.p32_iswprint_l
+    iswpunct    = @posix32_crt@.p32_iswpunct
+    iswpunct_l  = @posix32_crt@.p32_iswpunct_l
+    iswspace    = @posix32_crt@.p32_iswspace
+    iswspace_l  = @posix32_crt@.p32_iswspace_l
+    iswupper    = @posix32_crt@.p32_iswupper
+    iswupper_l  = @posix32_crt@.p32_iswupper_l
+    iswxdigit   = @posix32_crt@.p32_iswxdigit
+    iswxdigit_l = @posix32_crt@.p32_iswxdigit_l
+
+    wctrans     = @posix32_crt@.p32_wctrans
+    wctrans_l   = @posix32_crt@.p32_wctrans_l
+    towctrans   = @posix32_crt@.p32_towctrans
+    towctrans_l = @posix32_crt@.p32_towctrans_l
+
+    towlower    = @posix32_crt@.p32_towlower
+    towlower_l  = @posix32_crt@.p32_towlower_l
+    towupper    = @posix32_crt@.p32_towupper
+    towupper_l  = @posix32_crt@.p32_towupper_l

@@ -1,0 +1,296 @@
+# Required version: >= 21.0
+---
+#Language: C
+#BasedOnStyle: LLVM
+AccessModifierOffset: -2
+AlignAfterOpenBracket: BlockIndent
+AlignArrayOfStructures: Left
+AlignConsecutiveAssignments:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+  AlignCompound: true
+  PadOperators: true
+AlignConsecutiveBitFields:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+AlignConsecutiveDeclarations:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+  AlignFunctionPointers: true
+AlignConsecutiveMacros:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: true
+AlignConsecutiveShortCaseStatements:
+  Enabled: false
+  AcrossEmptyLines: false
+  AcrossComments: false
+  AlignCaseArrows: false
+  AlignCaseColons: false
+AlignEscapedNewlines: LeftWithLastLine
+AlignOperands: Align
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 0
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowBreakBeforeNoexceptSpecifier: OnlyWithParen
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseExpressionOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortCompoundRequirementOnASingleLine: true
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: InlineOnly
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: false
+AllowShortNamespacesOnASingleLine: false
+AlwaysBreakBeforeMultilineStrings: false
+AttributeMacros:
+  - "__cdecl"
+  - "CALLBACK"
+  - "APIENTRY"
+  - "P32_CRT_DECL"
+  - "P32_INLINE_DECL"
+  - "P32_TEST_DECL"
+  - "P32_DEPRECATE_POSIX2001"
+  - "P32_DEPRECATE_POSIX2008"
+  - "P32_DEPRECATE_POSIX2024"
+  - "P32_INLINE"
+  - "P32_ALWAYS_INLINE"
+  - "P32_RESTRICT"
+BinPackArguments: true
+BinPackLongBracedList: true
+# I would prefer AlwaysOnePerLine for definitions and no breaks at all for
+# declarations, but there is no option to do so
+BinPackParameters: false
+BitFieldColonSpacing: Both
+BraceWrapping:
+  AfterCaseLabel: false
+  AfterClass: false
+  AfterControlStatement: Never
+  AfterEnum: false
+  AfterExternBlock: false
+  AfterFunction: false
+  AfterNamespace: false
+  AfterObjCDeclaration: false
+  AfterStruct: false
+  AfterUnion: false
+  BeforeCatch: true
+  BeforeElse: false
+  BeforeLambdaBody: false
+  BeforeWhile: false
+  IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+BracedInitializerIndentWidth: 2
+BreakAdjacentStringLiterals: true
+BreakAfterAttributes: Leave
+# I would prefer no breaks at all
+BreakAfterReturnType: Automatic
+BreakArrays: true
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeConceptDeclarations: Always
+BreakBeforeBraces: Attach
+BreakBeforeInlineASMColon: OnlyMultiline
+BreakBeforeTemplateCloser: true
+BreakBeforeTernaryOperators: true
+BreakBinaryOperations: Never
+BreakConstructorInitializers: AfterColon
+# Maybe? I would like to prevent this from happening in headers files and
+# func (void) definitions
+BreakFunctionDefinitionParameters: false
+BreakInheritanceList: AfterColon
+BreakStringLiterals: true
+ColumnLimit: 120
+#CommentPragmas:
+#  -
+CompactNamespaces: false
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 2
+Cpp11BracedListStyle: true
+DerivePointerAlignment: false
+DisableFormat: false
+EmptyLineAfterAccessModifier: Never
+EmptyLineBeforeAccessModifier: LogicalBlock
+EnumTrailingComma: Leave
+ExperimentalAutoDetectBinPacking: false
+FixNamespaceComments: true
+#ForEachMacros:
+#  -
+#IfMacros:
+#  -
+IncludeBlocks: Regroup
+# I do not understand interaction between Priority and SortPriority
+IncludeCategories:
+  # CRT header files
+  - Regex: "^<sys/"
+    Priority: 1
+    SortPriority: 1
+    CaseSensitive: false
+  - Regex: "^<"
+    Priority: 1
+    SortPriority: 2
+    CaseSensitive: false
+  # Public header files
+  - Regex: '^"posix32\.h'
+    Priority: 2
+    SortPriority: 3
+    CaseSensitive: false
+  - Regex: '^"sys/p32_types'
+    Priority: 2
+    SortPriority: 4
+    CaseSensitive: false
+  - Regex: '^"sys/p32_stat'
+    Priority: 2
+    SortPriority: 5
+    CaseSensitive: false
+  - Regex: '^"sys/'
+    Priority: 2
+    SortPriority: 6
+    CaseSensitive: false
+  - Regex: '^"p32_'
+    Priority: 2
+    SortPriority: 7
+    CaseSensitive: false
+  - Regex: '^"posix32-ext/'
+    Priority: 2
+    SortPriority: 8
+    CaseSensitive: false
+  # Internal header files
+  - Regex: '^".*-internal'
+    Priority: 3
+    SortPriority: 9
+    CaseSensitive: false
+  - Regex: '^".*'
+    Priority: 3
+    SortPriority: 10
+    CaseSensitive: false
+#IncludeIsMainRegex:
+#IncludeIsMainSourceRegex:
+IndentAccessModifiers: false
+IndentCaseBlocks: false
+IndentCaseLabels: true
+IndentExportBlock: false
+IndentExternBlock: NoIndent
+IndentGotoLabels: false
+IndentPPDirectives: AfterHash
+IndentRequiresClause: true
+IndentWidth: 2
+IndentWrappedFunctionNames: false
+InsertBraces: true
+InsertNewlineAtEOF: true
+InsertTrailingCommas: None
+IntegerLiteralSeparator:
+  Binary: 0
+  BinaryMinDigits: 0
+  Decimal: 0
+  DecimalMinDigits: 0
+  Hex: 0
+  HexMinDigits: 0
+KeepEmptyLines:
+  AtStartOfFile: false
+  AtEndOfFile: false
+  AtStartOfBlock: false
+KeepFormFeed: false
+LambdaBodyIndentation: Signature
+LineEnding: LF
+MacroBlockBegin: ""
+MacroBlockEnd: ""
+#Macros:
+#  - "NAME=EXPR"
+#MacrosSkippedByRemoveParentheses:
+#  -
+MainIncludeChar: Quote
+MaxEmptyLinesToKeep: 1
+NamespaceIndentation: None
+#NamespaceMacros:
+#  -
+PackConstructorInitializers: CurrentLine
+PenaltyBreakAssignment: 2
+PenaltyBreakBeforeFirstCallParameter: 19
+PenaltyBreakBeforeMemberAccess: 150
+PenaltyBreakComment: 300
+PenaltyBreakFirstLessLess: 120
+PenaltyBreakOpenParenthesis: 0
+PenaltyBreakScopeResolution: 500
+PenaltyBreakString: 1000
+PenaltyBreakTemplateDeclaration: 10
+PenaltyExcessCharacter: 1000000
+PenaltyIndentedWhitespace: 0
+PenaltyReturnTypeOnItsOwnLine: 100000
+PointerAlignment: Right
+# I wish we could indent only in headers
+PPIndentWidth: 0
+QualifierAlignment: Left
+#QualifierOrder:
+#  -
+ReferenceAlignment: Pointer
+ReflowComments: Always
+RemoveBracesLLVM: false
+RemoveEmptyLinesInUnwrappedLines: true
+RemoveParentheses: Leave
+RemoveSemicolon: false
+RequiresClausePosition: OwnLine
+RequiresExpressionIndentation: OuterScope
+SeparateDefinitionBlocks: Leave
+ShortNamespaceLines: 1
+SkipMacroDefinitionBody: false
+SortIncludes:
+  Enabled: true
+  IgnoreCase: true
+SortUsingDeclarations: Lexicographic
+SpaceAfterCStyleCast: true
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: true
+SpaceAroundPointerQualifiers: Default
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCaseColon: false
+SpaceBeforeCpp11BracedList: false
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeParens: Always
+SpaceBeforeParensOptions:
+  AfterControlStatements: true
+  AfterForeachMacros: true
+  AfterFunctionDefinitionName: false
+  AfterFunctionDeclarationName: false
+  AfterIfMacros: true
+  AfterOverloadedOperator: false
+  AfterPlacementOperator: true
+  AfterRequiresInClause: false
+  AfterRequiresInExpression: false
+  BeforeNonEmptyParentheses: false
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeSquareBrackets: false
+SpacesBeforeTrailingComments: 1
+SpaceInEmptyBlock: false
+SpacesInAngles: Never
+SpacesInContainerLiterals: false
+SpacesInLineCommentPrefix:
+  Minimum: 1
+  Maximum: -1
+SpacesInParens: Never
+SpacesInParensOptions:
+  ExceptDoubleParentheses: false
+  InCStyleCasts: false
+  InConditionalStatements: false
+  InEmptyParentheses: false
+  Other: false
+SpacesInSquareBrackets: false
+Standard: Latest
+#StatementAttributeLikeMacros:
+#  -
+#StatementMacros:
+#  -
+TabWidth: 2
+#TypenameMacros:
+#  -
+UseTab: Never
+#WhitespaceSensitiveMacros:
+#  -
+WrapNamespaceBodyWithEmptyLines: Never

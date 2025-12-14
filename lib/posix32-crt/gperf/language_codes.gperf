@@ -1,0 +1,469 @@
+%{
+/**
+ * Copyright 2025 Kirill Makurin
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#else
+#include "config-internal.h"
+#endif
+
+#include <string.h>
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
+#include "locale-internal.h"
+
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#elif defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4267)
+#endif
+%}
+%language=ANSI-C
+%define hash-function-name P32LanguageCodeHash
+%define lookup-function-name P32LanguageCodeLookup
+%define slot-name name
+%struct-type
+struct language { const char *name; BaseLanguageIndex Index; };
+%%
+aa,  BaseLanguage_aa
+aar, BaseLanguage_aa
+af,  BaseLanguage_af
+afr, BaseLanguage_af
+agq, BaseLanguage_agq
+ak,  BaseLanguage_ak
+aka, BaseLanguage_ak
+am,  BaseLanguage_am
+amh, BaseLanguage_am
+ar,  BaseLanguage_ar
+ara, BaseLanguage_ar
+arn, BaseLanguage_arn
+as,  BaseLanguage_as
+asm, BaseLanguage_as
+asa, BaseLanguage_asa
+ast, BaseLanguage_ast
+az,  BaseLanguage_az
+aze, BaseLanguage_az
+ba,  BaseLanguage_ba
+bak, BaseLanguage_ba
+bas, BaseLanguage_bas
+be,  BaseLanguage_be
+bel, BaseLanguage_be
+bem, BaseLanguage_bem
+bez, BaseLanguage_bez
+bg,  BaseLanguage_bg
+bul, BaseLanguage_bg
+bgc, BaseLanguage_bgc
+bho, BaseLanguage_bho
+bin, BaseLanguage_bin
+bm,  BaseLanguage_bm
+bam, BaseLanguage_bm
+bn,  BaseLanguage_bn
+ben, BaseLanguage_bn
+bo,  BaseLanguage_bo
+bod, BaseLanguage_bo
+br,  BaseLanguage_br
+bre, BaseLanguage_br
+brx, BaseLanguage_brx
+bs,  BaseLanguage_bs
+bos, BaseLanguage_bs
+byn, BaseLanguage_byn
+ca,  BaseLanguage_ca
+cat, BaseLanguage_ca
+ccp, BaseLanguage_ccp
+ce,  BaseLanguage_ce
+che, BaseLanguage_ce
+ceb, BaseLanguage_ceb
+cgg, BaseLanguage_cgg
+chr, BaseLanguage_chr
+co,  BaseLanguage_co
+cos, BaseLanguage_co
+cs,  BaseLanguage_cs
+ces, BaseLanguage_cs
+cu,  BaseLanguage_cu
+chu, BaseLanguage_cu
+cv,  BaseLanguage_cv
+chv, BaseLanguage_cv
+cy,  BaseLanguage_cy
+cym, BaseLanguage_cy
+da,  BaseLanguage_da
+dan, BaseLanguage_da
+dav, BaseLanguage_dav
+de,  BaseLanguage_de
+deu, BaseLanguage_de
+dje, BaseLanguage_dje
+doi, BaseLanguage_doi
+dsb, BaseLanguage_dsb
+dua, BaseLanguage_dua
+dv,  BaseLanguage_dv
+div, BaseLanguage_dv
+dyo, BaseLanguage_dyo
+dz,  BaseLanguage_dz
+dzo, BaseLanguage_dz
+ebu, BaseLanguage_ebu
+ee,  BaseLanguage_ee
+ewe, BaseLanguage_ee
+el,  BaseLanguage_el
+ell, BaseLanguage_el
+en,  BaseLanguage_en
+eng, BaseLanguage_en
+eo,  BaseLanguage_eo
+epo, BaseLanguage_eo
+es,  BaseLanguage_es
+spa, BaseLanguage_es
+et,  BaseLanguage_et
+est, BaseLanguage_et
+eu,  BaseLanguage_eu
+eus, BaseLanguage_eu
+ewo, BaseLanguage_ewo
+fa,  BaseLanguage_fa
+fas, BaseLanguage_fa
+ff,  BaseLanguage_ff
+ful, BaseLanguage_ff
+fi,  BaseLanguage_fi
+fin, BaseLanguage_fi
+fil, BaseLanguage_fil
+fo,  BaseLanguage_fo
+fao, BaseLanguage_fo
+fr,  BaseLanguage_fr
+fra, BaseLanguage_fr
+fur, BaseLanguage_fur
+fy,  BaseLanguage_fy
+fry, BaseLanguage_fy
+ga,  BaseLanguage_ga
+gle, BaseLanguage_ga
+gd,  BaseLanguage_gd
+gla, BaseLanguage_gd
+gl,  BaseLanguage_gl
+glg, BaseLanguage_gl
+gn,  BaseLanguage_gn
+grn, BaseLanguage_gn
+gsw, BaseLanguage_gsw
+gu,  BaseLanguage_gu
+guj, BaseLanguage_gu
+guz, BaseLanguage_guz
+gv,  BaseLanguage_gv
+glv, BaseLanguage_gv
+ha,  BaseLanguage_ha
+hau, BaseLanguage_ha
+haw, BaseLanguage_haw
+he,  BaseLanguage_he
+heb, BaseLanguage_he
+hi,  BaseLanguage_hi
+hin, BaseLanguage_hi
+hr,  BaseLanguage_hr
+hrv, BaseLanguage_hr
+hsb, BaseLanguage_hsb
+hu,  BaseLanguage_hu
+hun, BaseLanguage_hu
+hy,  BaseLanguage_hy
+hye, BaseLanguage_hy
+ia,  BaseLanguage_ia
+ina, BaseLanguage_ia
+ibb, BaseLanguage_ibb
+id,  BaseLanguage_id
+ind, BaseLanguage_id
+ig,  BaseLanguage_ig
+ibo, BaseLanguage_ig
+ii,  BaseLanguage_ii
+iii, BaseLanguage_ii
+is,  BaseLanguage_is
+isl, BaseLanguage_is
+it,  BaseLanguage_it
+ita, BaseLanguage_it
+iu,  BaseLanguage_iu
+iku, BaseLanguage_iu
+ja,  BaseLanguage_ja
+jpn, BaseLanguage_ja
+jgo, BaseLanguage_jgo
+jmc, BaseLanguage_jmc
+jv,  BaseLanguage_jv
+jav, BaseLanguage_jv
+ka,  BaseLanguage_ka
+kat, BaseLanguage_ka
+kab, BaseLanguage_kab
+kam, BaseLanguage_kam
+kde, BaseLanguage_kde
+kea, BaseLanguage_kea
+kgp, BaseLanguage_kgp
+khq, BaseLanguage_khq
+ki,  BaseLanguage_ki
+kik, BaseLanguage_ki
+kk,  BaseLanguage_kk
+kaz, BaseLanguage_kk
+kkj, BaseLanguage_kkj
+kl,  BaseLanguage_kl
+kal, BaseLanguage_kl
+kln, BaseLanguage_kln
+km,  BaseLanguage_km
+khm, BaseLanguage_km
+kn,  BaseLanguage_kn
+kan, BaseLanguage_kn
+ko,  BaseLanguage_ko
+kor, BaseLanguage_ko
+kok, BaseLanguage_kok
+kr,  BaseLanguage_kr
+kau, BaseLanguage_kr
+ks,  BaseLanguage_ks
+kas, BaseLanguage_ks
+ksb, BaseLanguage_ksb
+ksf, BaseLanguage_ksf
+ksh, BaseLanguage_ksh
+ku,  BaseLanguage_ku
+kur, BaseLanguage_ku
+kw,  BaseLanguage_kw
+cor, BaseLanguage_kw
+ky,  BaseLanguage_ky
+kir, BaseLanguage_ky
+la,  BaseLanguage_la
+lat, BaseLanguage_la
+lag, BaseLanguage_lag
+lb,  BaseLanguage_lb
+ltz, BaseLanguage_lb
+lg,  BaseLanguage_lg
+lug, BaseLanguage_lg
+lkt, BaseLanguage_lkt
+ln,  BaseLanguage_ln
+lin, BaseLanguage_ln
+lo,  BaseLanguage_lo
+lao, BaseLanguage_lo
+lrc, BaseLanguage_lrc
+lt,  BaseLanguage_lt
+lit, BaseLanguage_lt
+lu,  BaseLanguage_lu
+lub, BaseLanguage_lu
+luo, BaseLanguage_luo
+luy, BaseLanguage_luy
+lv,  BaseLanguage_lv
+lav, BaseLanguage_lv
+mai, BaseLanguage_mai
+mas, BaseLanguage_mas
+mer, BaseLanguage_mer
+mfe, BaseLanguage_mfe
+mg,  BaseLanguage_mg
+mlg, BaseLanguage_mg
+mgh, BaseLanguage_mgh
+mgo, BaseLanguage_mgo
+mi,  BaseLanguage_mi
+mri, BaseLanguage_mi
+mk,  BaseLanguage_mk
+mkd, BaseLanguage_mk
+ml,  BaseLanguage_ml
+mal, BaseLanguage_ml
+mn,  BaseLanguage_mn
+mon, BaseLanguage_mn
+mni, BaseLanguage_mni
+moh, BaseLanguage_moh
+mr,  BaseLanguage_mr
+mar, BaseLanguage_mr
+ms,  BaseLanguage_ms
+msa, BaseLanguage_ms
+mt,  BaseLanguage_mt
+mlt, BaseLanguage_mt
+mua, BaseLanguage_mua
+my,  BaseLanguage_my
+mya, BaseLanguage_my
+mzn, BaseLanguage_mzn
+naq, BaseLanguage_naq
+no,  BaseLanguage_nb
+nb,  BaseLanguage_nb
+nob, BaseLanguage_nb
+nd,  BaseLanguage_nd
+nde, BaseLanguage_nd
+nds, BaseLanguage_nds
+ne,  BaseLanguage_ne
+nep, BaseLanguage_ne
+nl,  BaseLanguage_nl
+nld, BaseLanguage_nl
+nmg, BaseLanguage_nmg
+nn,  BaseLanguage_nn
+nno, BaseLanguage_nn
+nnh, BaseLanguage_nnh
+nqo, BaseLanguage_nqo
+nr,  BaseLanguage_nr
+nbl, BaseLanguage_nr
+nso, BaseLanguage_nso
+nus, BaseLanguage_nus
+nyn, BaseLanguage_nyn
+oc,  BaseLanguage_oc
+oci, BaseLanguage_oc
+om,  BaseLanguage_om
+orm, BaseLanguage_om
+or,  BaseLanguage_or
+ori, BaseLanguage_or
+os,  BaseLanguage_os
+oss, BaseLanguage_os
+pa,  BaseLanguage_pa
+pan, BaseLanguage_pa
+pap, BaseLanguage_pap
+pcm, BaseLanguage_pcm
+pl,  BaseLanguage_pl
+pol, BaseLanguage_pl
+prg, BaseLanguage_prg
+prs, BaseLanguage_prs
+ps,  BaseLanguage_ps
+pus, BaseLanguage_ps
+pt,  BaseLanguage_pt
+por, BaseLanguage_pt
+quc, BaseLanguage_quc
+quz, BaseLanguage_quz
+qub, BaseLanguage_quz_BO
+que, BaseLanguage_quz_EC
+qup, BaseLanguage_quz_PE
+raj, BaseLanguage_raj
+rm,  BaseLanguage_rm
+roh, BaseLanguage_rm
+rn,  BaseLanguage_rn
+run, BaseLanguage_rn
+ro,  BaseLanguage_ro
+ron, BaseLanguage_ro
+rof, BaseLanguage_rof
+ru,  BaseLanguage_ru
+rus, BaseLanguage_ru
+rw,  BaseLanguage_rw
+kin, BaseLanguage_rw
+rwk, BaseLanguage_rwk
+sa,  BaseLanguage_sa
+san, BaseLanguage_sa
+sah, BaseLanguage_sah
+saq, BaseLanguage_saq
+sat, BaseLanguage_sat
+sbp, BaseLanguage_sbp
+sc,  BaseLanguage_sc
+srd, BaseLanguage_sc
+sd,  BaseLanguage_sd
+snd, BaseLanguage_sd
+se,  BaseLanguage_se
+sme, BaseLanguage_se
+seh, BaseLanguage_seh
+ses, BaseLanguage_ses
+sg,  BaseLanguage_sg
+sag, BaseLanguage_sg
+shi, BaseLanguage_shi
+si,  BaseLanguage_si
+sin, BaseLanguage_si
+sk,  BaseLanguage_sk
+slk, BaseLanguage_sk
+sl,  BaseLanguage_sl
+slv, BaseLanguage_sl
+sma, BaseLanguage_sma
+smj, BaseLanguage_smj
+smn, BaseLanguage_smn
+sms, BaseLanguage_sms
+sn,  BaseLanguage_sn
+sna, BaseLanguage_sn
+so,  BaseLanguage_so
+som, BaseLanguage_so
+sq,  BaseLanguage_sq
+sqi, BaseLanguage_sq
+sr,  BaseLanguage_sr
+srp, BaseLanguage_sr
+ss,  BaseLanguage_ss
+ssw, BaseLanguage_ss
+ssy, BaseLanguage_ssy
+st,  BaseLanguage_st
+sot, BaseLanguage_st
+su,  BaseLanguage_su
+sun, BaseLanguage_su
+sv,  BaseLanguage_sv
+swe, BaseLanguage_sv
+sw,  BaseLanguage_sw
+swa, BaseLanguage_sw
+syr, BaseLanguage_syr
+ta,  BaseLanguage_ta
+tam, BaseLanguage_ta
+te,  BaseLanguage_te
+tel, BaseLanguage_te
+teo, BaseLanguage_teo
+tg,  BaseLanguage_tg
+tgk, BaseLanguage_tg
+th,  BaseLanguage_th
+tha, BaseLanguage_th
+ti,  BaseLanguage_ti
+tir, BaseLanguage_ti
+tig, BaseLanguage_tig
+tk,  BaseLanguage_tk
+tuk, BaseLanguage_tk
+tn,  BaseLanguage_tn
+tsn, BaseLanguage_tn
+to,  BaseLanguage_to
+ton, BaseLanguage_to
+tr,  BaseLanguage_tr
+tur, BaseLanguage_tr
+ts,  BaseLanguage_ts
+tso, BaseLanguage_ts
+tt,  BaseLanguage_tt
+tat, BaseLanguage_tt
+twq, BaseLanguage_twq
+tzm, BaseLanguage_tzm
+ug,  BaseLanguage_ug
+uig, BaseLanguage_ug
+uk,  BaseLanguage_uk
+ukr, BaseLanguage_uk
+ur,  BaseLanguage_ur
+urd, BaseLanguage_ur
+uz,  BaseLanguage_uz
+uzb, BaseLanguage_uz
+vai, BaseLanguage_vai
+ve,  BaseLanguage_ve
+ven, BaseLanguage_ve
+vi,  BaseLanguage_vi
+vie, BaseLanguage_vi
+vo,  BaseLanguage_vo
+vol, BaseLanguage_vo
+vun, BaseLanguage_vun
+wae, BaseLanguage_wae
+wal, BaseLanguage_wal
+wo,  BaseLanguage_wo
+wol, BaseLanguage_wo
+xog, BaseLanguage_xog
+xh,  BaseLanguage_xh
+xho, BaseLanguage_xh
+yav, BaseLanguage_yav
+yi,  BaseLanguage_yi
+yid, BaseLanguage_yi
+yo,  BaseLanguage_yo
+yor, BaseLanguage_yo
+yrl, BaseLanguage_yrl
+zh,  BaseLanguage_zh
+zho, BaseLanguage_zh
+cch, BaseLanguage_zh_Hant_HK
+chi, BaseLanguage_zh_Hans_SG
+zgh, BaseLanguage_zgh
+zu,  BaseLanguage_zu
+zul, BaseLanguage_zu
+%%
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+#pragma warning(pop)
+#endif
+
+bool p32_lookup_language_code (LanguageInfo *info) {
+  struct language *language = P32LanguageCodeLookup (info->String, info->Length);
+
+  if (language == NULL) {
+    return false;
+  }
+
+  info->BaseLanguage = language->Index;
+
+  return true;
+}

@@ -1,0 +1,348 @@
+%{
+/**
+ * Copyright 2025 Kirill Makurin
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#else
+#include "config-internal.h"
+#endif
+
+#include <string.h>
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
+#include "locale-internal.h"
+
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#elif defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4267)
+#endif
+%}
+%language=ANSI-C
+%define hash-function-name P32CountryNameHash
+%define lookup-function-name P32CountryNameLookup
+%define slot-name name
+%ignore-case
+%struct-type
+struct country { const char *name; CountryIndex Index; };
+%%
+World,                                       R_001
+Caribbean,                                   R_029
+Europe,                                      R_150
+Latin America,                               R_419
+Andorra,                                     AD
+United Arab Emirates,                        AE
+Afghanistan,                                 AF
+Antigua & Barbuda,                           AG
+Antigua and Barbuda,                         AG
+Anguilla,                                    AI
+Albania,                                     AL
+Armenia,                                     AM
+Angola,                                      AO
+Argentina,                                   AR
+American Samoa,                              AS
+Austria,                                     AT
+Australia,                                   AU
+Aruba,                                       AW
+Aland Islands,                               AX
+Azerbaijan,                                  AZ
+Bosnia & Herzegovina,                        BA
+Bosnia and Herzegovina,                      BA
+Barbados,                                    BB
+Bangladesh,                                  BD
+Belgium,                                     BE
+Burkina Faso,                                BF
+Bulgaria,                                    BG
+Bahrain,                                     BH
+Burundi,                                     BI
+Benin,                                       BJ
+Saint Barthelemy,                            BL
+Bermuda,                                     BM
+Brunei,                                      BN
+Bolivia,                                     BO
+"Bonaire, Sint Eustatius and Saba",          BQ
+Brazil,                                      BR
+Bahamas,                                     BS
+Bhutan,                                      BT
+Botswana,                                    BW
+Belarus,                                     BY
+Belize,                                      BZ
+Canada,                                      CA
+Cocos Islands,                               CC
+Cocos (Keeling) Islands,                     CC
+Keeling Islands,                             CC
+Congo (DRC),                                 CD
+Central African Republic,                    CF
+Congo,                                       CG
+Switzerland,                                 CH
+Cote d'Ivoire,                               CI
+Cook Islands,                                CK
+Chile,                                       CL
+Cameroon,                                    CM
+China,                                       CN
+pr china,                                    CN
+pr-china,                                    CN
+Colombia,                                    CO
+Costa Rica,                                  CR
+Serbia and Montenegro,                       CS
+Cuba,                                        CU
+Cabo Verde,                                  CV
+Curacao,                                     CW
+Christmas Island,                            CX
+Cyprus,                                      CY
+Czechia,                                     CZ
+czech,                                       CZ
+Germany,                                     DE
+Djibouti,                                    DJ
+Denmark,                                     DK
+Dominica,                                    DM
+Dominican Republic,                          DO
+Algeria,                                     DZ
+Ecuador,                                     EC
+Estonia,                                     EE
+Egypt,                                       EG
+Eritrea,                                     ER
+Spain,                                       ES
+ES-valencia,                                 ES_valencia
+Ethiopia,                                    ET
+Finland,                                     FI
+Fiji,                                        FJ
+Falkland Islands,                            FK
+Micronesia,                                  FM
+Faroe Islands,                               FO
+France,                                      FR
+Gabon,                                       GA
+britain,                                     GB
+england,                                     GB
+great britain,                               GB
+United Kingdom,                              GB
+united-kingdom,                              GB
+Grenada,                                     GD
+Georgia,                                     GE
+French Guiana,                               GF
+Guernsey,                                    GG
+Ghana,                                       GH
+Gibraltar,                                   GI
+Greenland,                                   GL
+Gambia,                                      GM
+Guinea,                                      GN
+Guadeloupe,                                  GP
+Equatorial Guinea,                           GQ
+Greece,                                      GR
+Guatemala,                                   GT
+Guam,                                        GU
+Guinea-Bissau,                               GW
+Guyana,                                      GY
+Hong Kong,                                   HK
+hong-kong,                                   HK
+Hong Kong SAR,                               HK
+Honduras,                                    HN
+Croatia,                                     HR
+Haiti,                                       HT
+Hungary,                                     HU
+Indonesia,                                   ID
+Ireland,                                     IE
+Israel,                                      IL
+Isle of Man,                                 IM
+India,                                       IN
+British Indian Ocean Territory,              IO
+Iraq,                                        IQ
+Iran,                                        IR
+Iceland,                                     IS
+Italy,                                       IT
+Invariant Country,                           IV
+Jersey,                                      JE
+Jamaica,                                     JM
+Jordan,                                      JO
+Japan,                                       JP
+Kenya,                                       KE
+Kyrgyzstan,                                  KG
+Cambodia,                                    KH
+Kiribati,                                    KI
+Comoros,                                     KM
+Saint Kitts & Nevis,                         KN
+Saint Kitts and Nevis,                       KN
+North Korea,                                 KP
+Korea,                                       KR
+south korea,                                 KR
+south-korea,                                 KR
+Kuwait,                                      KW
+Cayman Islands,                              KY
+Kazakhstan,                                  KZ
+Laos,                                        LA
+Lebanon,                                     LB
+Saint Lucia,                                 LC
+Liechtenstein,                               LI
+Sri Lanka,                                   LK
+Liberia,                                     LR
+Lesotho,                                     LS
+Lithuania,                                   LT
+Luxembourg,                                  LU
+Latvia,                                      LV
+Libya,                                       LY
+Morocco,                                     MA
+Monaco,                                      MC
+Moldova,                                     MD
+Montenegro,                                  ME
+Saint Martin,                                MF
+Madagascar,                                  MG
+Marshall Islands,                            MH
+North Macedonia,                             MK
+Mali,                                        ML
+Myanmar,                                     MM
+Mongolia,                                    MN
+Macao,                                       MO
+Macao SAR,                                   MO
+Northern Mariana Islands,                    MP
+Martinique,                                  MQ
+Mauritania,                                  MR
+Montserrat,                                  MS
+Malta,                                       MT
+Mauritius,                                   MU
+Maldives,                                    MV
+Malawi,                                      MW
+Mexico,                                      MX
+Malaysia,                                    MY
+Mozambique,                                  MZ
+Namibia,                                     NA
+New Caledonia,                               NC
+Niger,                                       NE
+Norfolk Island,                              NF
+Nigeria,                                     NG
+Nicaragua,                                   NI
+Netherlands,                                 NL
+holland,                                     NL
+Norway,                                      NO
+Nepal,                                       NP
+Nauru,                                       NR
+Niue,                                        NU
+New Zealand,                                 NZ
+new-zealand,                                 NZ
+Oman,                                        OM
+Panama,                                      PA
+Peru,                                        PE
+French Polynesia,                            PF
+Papua New Guinea,                            PG
+Philippines,                                 PH
+Pakistan,                                    PK
+Poland,                                      PL
+Saint Pierre & Miquelon,                     PM
+Saint Pierre and Miquelon,                   PM
+Pitcairn Islands,                            PN
+Puerto Rico,                                 PR
+puerto-rico,                                 PR
+Palestinian Authority,                       PS
+Portugal,                                    PT
+Palau,                                       PW
+Paraguay,                                    PY
+Qatar,                                       QA
+Reunion,                                     RE
+Romania,                                     RO
+Serbia,                                      RS
+Russia,                                      RU
+Rwanda,                                      RW
+Saudi Arabia,                                SA
+Solomon Islands,                             SB
+Seychelles,                                  SC
+Sudan,                                       SD
+Sweden,                                      SE
+Singapore,                                   SG
+"Saint Helena, Ascension, Tristan da Cunha", SH
+Slovenia,                                    SI
+Svalbard & Jan Mayen,                        SJ
+Svalbard and Jan Mayen,                      SJ
+Slovakia,                                    SK
+slovak,                                      SK
+Sierra Leone,                                SL
+San Marino,                                  SM
+Senegal,                                     SN
+Somalia,                                     SO
+Suriname,                                    SR
+South Sudan,                                 SS
+Sao Tome & Principe,                         ST
+El Salvador,                                 SV
+Sint Maarten,                                SX
+Syria,                                       SY
+Eswatini,                                    SZ
+Swaziland,                                   SZ
+Turks & Caicos Islands,                      TC
+Turks and Caicos Islands,                    TC
+Chad,                                        TD
+Togo,                                        TG
+Thailand,                                    TH
+Tajikistan,                                  TJ
+Tokelau,                                     TK
+Timor-Leste,                                 TL
+Turkmenistan,                                TM
+Tunisia,                                     TN
+Tonga,                                       TO
+Turkey,                                      TR
+Turkiye,                                     TR
+Trinidad & Tobago,                           TT
+Trinidad and Tobago,                         TT
+Taiwan,                                      TW
+Tuvalu,                                      TV
+Tanzania,                                    TZ
+Ukraine,                                     UA
+Uganda,                                      UG
+US Outlying Islands,                         UM
+US Minor Outlying Islands,                   UM
+United States,                               US
+america,                                     US
+united-states,                               US
+Uruguay,                                     UY
+Uzbekistan,                                  UZ
+Vatican City,                                VA
+Saint Vincent & Grenadines,                  VC
+Saint Vincent and the Grenadines,            VC
+Venezuela,                                   VE
+British Virgin Islands,                      VG
+US Virgin Islands,                           VI
+Vietnam,                                     VN
+Vanuatu,                                     VU
+Wallis & Futuna,                             WF
+Wallis and Futuna,                           WF
+Samoa,                                       WS
+Kosovo,                                      XK
+Yemen,                                       YE
+Mayotte,                                     YT
+South Africa,                                ZA
+south-africa,                                ZA
+Zambia,                                      ZM
+Zimbabwe,                                    ZW
+%%
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+#pragma warning(pop)
+#endif
+
+bool p32_lookup_country_name (CountryInfo *info) {
+  struct country *cc = P32CountryNameLookup (info->String, info->Length);
+
+  if (cc == NULL) {
+    return false;
+  }
+
+  info->Country = cc->Index;
+
+  return true;
+}

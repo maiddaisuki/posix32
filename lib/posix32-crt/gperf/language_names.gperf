@@ -1,0 +1,460 @@
+%{
+/**
+ * Copyright 2025 Kirill Makurin
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#else
+#include "config-internal.h"
+#endif
+
+#include <string.h>
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
+#include "locale-internal.h"
+
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#elif defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4267)
+#endif
+%}
+%language=ANSI-C
+%define hash-function-name P32LanguageNameHash
+%define lookup-function-name P32LanguageNameLookup
+%define slot-name name
+%ignore-case
+%struct-type
+struct language { const char *name; BaseLanguageIndex Index; };
+%%
+Afar,                                   BaseLanguage_aa
+Afrikaans,                              BaseLanguage_af
+Aghem,                                  BaseLanguage_agq
+Akan,                                   BaseLanguage_ak
+Amharic,                                BaseLanguage_am
+Arabic,                                 BaseLanguage_ar
+Mapuche,                                BaseLanguage_arn
+Mapudungun,                             BaseLanguage_arn
+Assamese,                               BaseLanguage_as
+Asu,                                    BaseLanguage_asa
+Asturian,                               BaseLanguage_ast
+Azerbaijani,                            BaseLanguage_az
+Azerbaijani (Cyrillic),                 BaseLanguage_az_Cyrl
+Azerbaijani (Latin),                    BaseLanguage_az_Latn
+Bashkir,                                BaseLanguage_ba
+Basaa,                                  BaseLanguage_bas
+Belarusian,                             BaseLanguage_be
+Bemba,                                  BaseLanguage_bem
+Bena,                                   BaseLanguage_bez
+Bulgarian,                              BaseLanguage_bg
+Haryanvi,                               BaseLanguage_bgc
+Haryanvi (Devanagari),                  BaseLanguage_bgc_Deva
+Bhojpuri,                               BaseLanguage_bho
+Bhojpuri (Devanagari),                  BaseLanguage_bho_Deva
+Edo,                                    BaseLanguage_bin
+Bamanankan,                             BaseLanguage_bm
+Bamanankan (Latin),                     BaseLanguage_bm_Latn
+Bangla,                                 BaseLanguage_bn
+Bengali,                                BaseLanguage_bn
+Tibetan,                                BaseLanguage_bo
+Breton,                                 BaseLanguage_br
+Bodo,                                   BaseLanguage_brx
+Bosnian,                                BaseLanguage_bs
+Bosnian (Cyrillic),                     BaseLanguage_bs_Cyrl
+Bosnian (Latin),                        BaseLanguage_bs_Latn
+Blin,                                   BaseLanguage_byn
+Catalan,                                BaseLanguage_ca
+Valencian,                              BaseLanguage_ca_ES_valencia
+Chakma,                                 BaseLanguage_ccp
+Chakma (Chakma),                        BaseLanguage_ccp_Cakm
+Chechen,                                BaseLanguage_ce
+Cebuano,                                BaseLanguage_ceb
+Cebuano (Latin),                        BaseLanguage_ceb_Latn
+Chiga,                                  BaseLanguage_cgg
+Cherokee,                               BaseLanguage_chr
+Corsican,                               BaseLanguage_co
+Czech,                                  BaseLanguage_cs
+Church Slavic,                          BaseLanguage_cu
+Chuvash,                                BaseLanguage_cv
+Chuvash (Cyrillic),                     BaseLanguage_cv_Cyrl
+Welsh,                                  BaseLanguage_cy
+Danish,                                 BaseLanguage_da
+Taita,                                  BaseLanguage_dav
+German,                                 BaseLanguage_de
+german-austrian,                        BaseLanguage_de_AT
+german-swiss,                           BaseLanguage_de_CH
+swiss,                                  BaseLanguage_de_CH
+german-lichtenstein,                    BaseLanguage_de_LI
+german-luxembourg,                      BaseLanguage_de_LU
+Zarma,                                  BaseLanguage_dje
+Dogri,                                  BaseLanguage_doi
+Dogri (Devanagari),                     BaseLanguage_doi_Deva
+Lower Sorbian,                          BaseLanguage_dsb
+Duala,                                  BaseLanguage_dua
+Divehi,                                 BaseLanguage_dv
+Jola-Fonyi,                             BaseLanguage_dyo
+Dzongkha,                               BaseLanguage_dz
+Embu,                                   BaseLanguage_ebu
+Ewe,                                    BaseLanguage_ee
+Greek,                                  BaseLanguage_el
+English,                                BaseLanguage_en
+english-caribbean,                      BaseLanguage_en_029
+australian,                             BaseLanguage_en_AU
+english-aus,                            BaseLanguage_en_AU
+english-belize,                         BaseLanguage_en_BZ
+canadian,                               BaseLanguage_en_CA
+english-can,                            BaseLanguage_en_CA
+english-uk,                             BaseLanguage_en_GB
+english-ire,                            BaseLanguage_en_IE
+irish-english,                          BaseLanguage_en_IE
+english-jamaica,                        BaseLanguage_en_JM
+english-nz,                             BaseLanguage_en_NZ
+english-trinidad y tobago,              BaseLanguage_en_TT
+american,                               BaseLanguage_en_US
+american english,                       BaseLanguage_en_US
+american-english,                       BaseLanguage_en_US
+english-american,                       BaseLanguage_en_US
+english-us,                             BaseLanguage_en_US
+english-usa,                            BaseLanguage_en_US
+us,                                     BaseLanguage_en_US
+usa,                                    BaseLanguage_en_US
+english-south africa,                   BaseLanguage_en_ZA
+Esperanto,                              BaseLanguage_eo
+Spanish,                                BaseLanguage_es
+spanish-argentina,                      BaseLanguage_es_AR,
+spanish-bolivia,                        BaseLanguage_es_BO
+spanish-chile,                          BaseLanguage_es_CL
+spanish-colombia,                       BaseLanguage_es_CO
+spanish-costa rica,                     BaseLanguage_es_CR
+spanish-dominican republic,             BaseLanguage_es_DO
+spanish-ecuador,                        BaseLanguage_es_EC
+spanish-modern,                         BaseLanguage_es_ES
+spanish-guatemala,                      BaseLanguage_es_GT
+spanish-honduras,                       BaseLanguage_es_HN
+spanish-mexican,                        BaseLanguage_es_MX
+spanish-nicaragua,                      BaseLanguage_es_NI
+spanish-panama,                         BaseLanguage_es_PA
+spanish-peru,                           BaseLanguage_es_PE
+spanish-puerto rico,                    BaseLanguage_es_PR
+spanish-paraguay,                       BaseLanguage_es_PY
+spanish-el salvador,                    BaseLanguage_es_SV
+spanish-uruguay,                        BaseLanguage_es_UY
+spanish-venezuela,                      BaseLanguage_es_VE
+Estonian,                               BaseLanguage_et
+Basque,                                 BaseLanguage_eu
+Ewondo,                                 BaseLanguage_ewo
+Persian,                                BaseLanguage_fa
+Fula,                                   BaseLanguage_ff
+Fulah,                                  BaseLanguage_ff
+Fula (Adlam),                           BaseLanguage_ff_Adlm
+Fulah (Adlam),                          BaseLanguage_ff_Adlm
+Fula (Latin),                           BaseLanguage_ff_Latn
+Fulah (Latin),                          BaseLanguage_ff_Latn
+Finnish,                                BaseLanguage_fi
+Filipino,                               BaseLanguage_fil
+Faroese,                                BaseLanguage_fo
+French,                                 BaseLanguage_fr
+french-belgian,                         BaseLanguage_fr_BE
+french-canadian,                        BaseLanguage_fr_CA
+french-swiss,                           BaseLanguage_fr_CH
+french-luxembourg,                      BaseLanguage_fr_LU
+Friulian,                               BaseLanguage_fur
+Frisian,                                BaseLanguage_fy
+Western Frisian,                        BaseLanguage_fy
+Irish,                                  BaseLanguage_ga
+Scottish Gaelic,                        BaseLanguage_gd
+Galician,                               BaseLanguage_gl
+Guarani,                                BaseLanguage_gn
+Swiss German,                           BaseLanguage_gsw
+Alsatian,                               BaseLanguage_gsw
+Gujarati,                               BaseLanguage_gu
+Gusii,                                  BaseLanguage_guz
+Manx,                                   BaseLanguage_gv
+Hausa,                                  BaseLanguage_ha
+Hausa (Latin),                          BaseLanguage_ha_Latn
+Hawaiian,                               BaseLanguage_haw
+Hebrew,                                 BaseLanguage_he
+Hindi,                                  BaseLanguage_hi
+Hindi (Latin),                          BaseLanguage_hi_Latn
+Croatian,                               BaseLanguage_hr
+Upper Sorbian,                          BaseLanguage_hsb
+Hungarian,                              BaseLanguage_hu
+Armenian,                               BaseLanguage_hy
+Interlingua,                            BaseLanguage_ia
+Ibibio,                                 BaseLanguage_ibb
+Indonesian,                             BaseLanguage_id
+Igbo,                                   BaseLanguage_ig
+Yi,                                     BaseLanguage_ii
+Icelandic,                              BaseLanguage_is
+Italian,                                BaseLanguage_it
+italian-swiss,                          BaseLanguage_it_CH
+Inuktitut,                              BaseLanguage_iu
+Inuktitut (Syllabics),                  BaseLanguage_iu_Cans
+Inuktitut (Latin),                      BaseLanguage_iu_Latn
+Japanese,                               BaseLanguage_ja
+Ngomba,                                 BaseLanguage_jgo
+Machame,                                BaseLanguage_jmc
+Javanese,                               BaseLanguage_jv
+Javanese (Javanese),                    BaseLanguage_jv_Java
+Javanese (Latin),                       BaseLanguage_jv_Latn
+Georgian,                               BaseLanguage_ka
+Kabyle,                                 BaseLanguage_kab
+Kamba,                                  BaseLanguage_kam
+Makonde,                                BaseLanguage_kde
+Kabuverdianu,                           BaseLanguage_kea
+Kaingang,                               BaseLanguage_kgp
+Kaingang (Latin),                       BaseLanguage_kgp_Latn
+Koyra Chiini,                           BaseLanguage_khq
+Kikuyu,                                 BaseLanguage_ki
+Kazakh,                                 BaseLanguage_kk
+Kako,                                   BaseLanguage_kkj
+Kalaallisut,                            BaseLanguage_kl
+Greenlandic,                            BaseLanguage_kl
+Kalenjin,                               BaseLanguage_kln
+Khmer,                                  BaseLanguage_km
+Kannada,                                BaseLanguage_kn
+Korean,                                 BaseLanguage_ko
+Konkani,                                BaseLanguage_kok
+Kanuri,                                 BaseLanguage_kr
+Kanuri (Latin),                         BaseLanguage_kr_Latn
+Kashmiri,                               BaseLanguage_ks
+Kashmiri (Arabic),                      BaseLanguage_ks_Arab
+Kashmiri (Devanagari),                  BaseLanguage_ks_Deva
+Shambala,                               BaseLanguage_ksb
+Bafia,                                  BaseLanguage_ksf
+Colognian,                              BaseLanguage_ksh
+Ripuarian,                              BaseLanguage_ksh
+Central Kurdish,                        BaseLanguage_ku
+Kurdish,                                BaseLanguage_ku
+Kurdish (Arabic),                       BaseLanguage_ku_Arab
+Cornish,                                BaseLanguage_kw
+Kyrgyz,                                 BaseLanguage_ky
+Latin,                                  BaseLanguage_la
+Langi,                                  BaseLanguage_lag
+Luxembourgish,                          BaseLanguage_lb
+Ganda,                                  BaseLanguage_lg
+Lakota,                                 BaseLanguage_lkt
+Lingala,                                BaseLanguage_ln
+Lao,                                    BaseLanguage_lo
+Northern Luri,                          BaseLanguage_lrc
+Lithuanian,                             BaseLanguage_lt
+Luba-Katanga,                           BaseLanguage_lu
+Luo,                                    BaseLanguage_luo
+Luyia,                                  BaseLanguage_luy
+Latvian,                                BaseLanguage_lv
+Maithili,                               BaseLanguage_mai
+Masai,                                  BaseLanguage_mas
+Meru,                                   BaseLanguage_mer
+Morisyen,                               BaseLanguage_mfe
+Malagasy,                               BaseLanguage_mg
+Makhuwa-Meetto,                         BaseLanguage_mgh
+Meta',                                  BaseLanguage_mgo
+Meta,                                   BaseLanguage_mgo
+Maori,                                  BaseLanguage_mi
+Macedonian,                             BaseLanguage_mk
+Malayalam,                              BaseLanguage_ml
+Mongolian,                              BaseLanguage_mn
+Mongolian (Cyrillic),                   BaseLanguage_mn_Cyrl
+Mongolian (Traditional Mongolian),      BaseLanguage_mn_Mong
+Manipuri,                               BaseLanguage_mni
+Manipuri (Bangla),                      BaseLanguage_mni_Beng
+Mohawk,                                 BaseLanguage_moh
+Marathi,                                BaseLanguage_mr
+Malay,                                  BaseLanguage_ms
+Maltese,                                BaseLanguage_mt
+Mundang,                                BaseLanguage_mua
+Burmese,                                BaseLanguage_my
+Mazanderani,                            BaseLanguage_mzn
+Nama,                                   BaseLanguage_naq
+Norwegian,                              BaseLanguage_nb
+Norwegian (Bokmal),                     BaseLanguage_nb
+Norwegian Bokmal,                       BaseLanguage_nb
+norwegian-bokmal,                       BaseLanguage_nb_NO
+North Ndebele,                          BaseLanguage_nd
+Low German,                             BaseLanguage_nds
+Nepali,                                 BaseLanguage_ne
+Dutch,                                  BaseLanguage_nl
+belgian,                                BaseLanguage_nl_BE
+dutch-belgian,                          BaseLanguage_nl_BE
+Kwasio,                                 BaseLanguage_nmg
+Norwegian (Nynorsk),                    BaseLanguage_nn
+Norwegian Nynorsk,                      BaseLanguage_nn
+norwegian-nynorsk,                      BaseLanguage_nn_NO
+Ngiemboon,                              BaseLanguage_nnh
+N'ko,                                   BaseLanguage_nqo
+South Ndebele,                          BaseLanguage_nr
+Sesotho sa Leboa,                       BaseLanguage_nso
+Nuer,                                   BaseLanguage_nus
+Nyankole,                               BaseLanguage_nyn
+Occitan,                                BaseLanguage_oc
+Oromo,                                  BaseLanguage_om
+Odia,                                   BaseLanguage_or
+Ossetic,                                BaseLanguage_os
+Ossetian,                               BaseLanguage_os
+Punjabi,                                BaseLanguage_pa
+Punjabi (Arabic),                       BaseLanguage_pa_Arab
+Papiamento,                             BaseLanguage_pap
+Nigerian Pidgin,                        BaseLanguage_pcm
+Nigerian Pidgin (Latin),                BaseLanguage_pcm_Latn
+Polish,                                 BaseLanguage_pl
+Prussian,                               BaseLanguage_prg
+Dari,                                   BaseLanguage_prs
+Pashto,                                 BaseLanguage_ps
+Portuguese,                             BaseLanguage_pt
+Portuguese (Brazil),                    BaseLanguage_pt_BR
+portuguese-brazilian,                   BaseLanguage_pt_BR
+Portuguese (Portugal),                  BaseLanguage_pt_PT
+K'iche',                                BaseLanguage_quc
+Kiche,                                  BaseLanguage_quc
+K'iche' (Latin),                        BaseLanguage_quc_Latn
+Kiche (Latin),                          BaseLanguage_quc_Latn
+Quechua,                                BaseLanguage_quz
+Rajasthani,                             BaseLanguage_raj
+Rajasthani (Devanagari),                BaseLanguage_raj_Deva
+Romansh,                                BaseLanguage_rm
+Rundi,                                  BaseLanguage_rn
+Romanian,                               BaseLanguage_ro
+Rombo,                                  BaseLanguage_rof
+Russian,                                BaseLanguage_ru
+Kinyarwanda,                            BaseLanguage_rw
+Rwa,                                    BaseLanguage_rwk
+Sanskrit,                               BaseLanguage_sa
+Sakha,                                  BaseLanguage_sah
+Yakut,                                  BaseLanguage_sah
+Samburu,                                BaseLanguage_saq
+Santali,                                BaseLanguage_sat
+Santali (Ol Chiki),                     BaseLanguage_sat_Olck
+Sangu,                                  BaseLanguage_sbp
+Sardinian,                              BaseLanguage_sc
+Sardinian (Latin),                      BaseLanguage_sc_Latn
+Sindhi,                                 BaseLanguage_sd
+Sindhi (Devanagari),                    BaseLanguage_sd_Deva
+Sami (Northern),                        BaseLanguage_se
+Northern Sami,                          BaseLanguage_se
+Sena,                                   BaseLanguage_seh
+Koyraboro Senni,                        BaseLanguage_ses
+Sango,                                  BaseLanguage_sg
+Tachelhit,                              BaseLanguage_shi
+Tachelhit (Latin),                      BaseLanguage_shi_Latn
+Tachelhit (Tifinagh),                   BaseLanguage_shi_Tfng
+Sinhala,                                BaseLanguage_si
+Slovak,                                 BaseLanguage_sk
+Slovenian,                              BaseLanguage_sl
+Sami (Southern),                        BaseLanguage_sma
+Sami (Lule),                            BaseLanguage_smj
+Sami (Inari),                           BaseLanguage_smn
+Sami (Skolt),                           BaseLanguage_sms
+Shona,                                  BaseLanguage_sn
+Shona (Latin),                          BaseLanguage_sn_Latn
+Somali,                                 BaseLanguage_so
+Albanian,                               BaseLanguage_sq
+Serbian,                                BaseLanguage_sr
+Serbian (Cyrillic),                     BaseLanguage_sr_Cyrl,
+Serbian (Latin),                        BaseLanguage_sr_Latn
+siSwati,                                BaseLanguage_ss
+Swati,                                  BaseLanguage_ss
+Saho,                                   BaseLanguage_ssy
+Sesotho,                                BaseLanguage_st
+Sotho,                                  BaseLanguage_st
+Southern Sotho,                         BaseLanguage_st
+Sundanese,                              BaseLanguage_su
+Sundanese (Latin),                      BaseLanguage_su_Latn
+Swedish,                                BaseLanguage_sv
+swedish-finland,                        BaseLanguage_sv_FI
+Kiswahili,                              BaseLanguage_sw
+Syriac,                                 BaseLanguage_syr
+Tamil,                                  BaseLanguage_ta
+Telugu,                                 BaseLanguage_te
+Teso,                                   BaseLanguage_teo
+Tajik,                                  BaseLanguage_tg
+Tajik (Cyrillic),                       BaseLanguage_tg_Cyrl
+Thai,                                   BaseLanguage_th
+Tigrinya,                               BaseLanguage_ti
+Tigre,                                  BaseLanguage_tig
+Turkmen,                                BaseLanguage_tk
+Setswana,                               BaseLanguage_tn
+Tongan,                                 BaseLanguage_to
+Turkish,                                BaseLanguage_tr
+Tsonga,                                 BaseLanguage_ts
+Xitsonga,                               BaseLanguage_ts
+Tatar,                                  BaseLanguage_tt
+Tasawaq,                                BaseLanguage_twq
+Central Atlas Tamazight,                BaseLanguage_tzm
+Tamazight,                              BaseLanguage_tzm
+Central Atlas Tamazight (Arabic),       BaseLanguage_tzm_Arab
+Tamazight (Arabic),                     BaseLanguage_tzm_Arab
+Central Atlas Tamazight (Latin),        BaseLanguage_tzm_Latn
+Tamazight (Latin),                      BaseLanguage_tzm_Latn
+Central Atlas Tamazight (Tifinagh),     BaseLanguage_tzm_Tfng
+Tamazight (Tifinagh),                   BaseLanguage_tzm_Tfng
+Uyghur,                                 BaseLanguage_ug
+Ukrainian,                              BaseLanguage_uk
+Urdu,                                   BaseLanguage_ur
+Uzbek,                                  BaseLanguage_uz
+Uzbek (Arabic),                         BaseLanguage_uz_Arab
+Uzbek (Cyrillic),                       BaseLanguage_uz_Cyrl
+Uzbek (Latin),                          BaseLanguage_uz_Latn
+Vai,                                    BaseLanguage_vai
+Vai (Latin),                            BaseLanguage_vai_Latn
+Vai (Vai),                              BaseLanguage_vai_Vaii
+Venda,                                  BaseLanguage_ve
+Vietnamese,                             BaseLanguage_vi
+Volapuk,                                BaseLanguage_vo
+Vunjo,                                  BaseLanguage_vun
+Walser,                                 BaseLanguage_wae
+Wolaytta,                               BaseLanguage_wal
+Wolof,                                  BaseLanguage_wo
+isiXhosa,                               BaseLanguage_xh
+Xhosa,                                  BaseLanguage_xh
+Soga,                                   BaseLanguage_xog
+Yangben,                                BaseLanguage_yav
+Yiddish,                                BaseLanguage_yi
+Yoruba,                                 BaseLanguage_yo
+Nheengatu,                              BaseLanguage_yrl
+Nheengatu (Latin),                      BaseLanguage_yrl_Latn
+Standard Moroccan Tamazight,            BaseLanguage_zgh
+Standard Moroccan Tamazight (Tifinagh), BaseLanguage_zgh_Tfng
+Chinese,                                BaseLanguage_zh
+Chinese (Simplified),                   BaseLanguage_zh_Hans
+chinese-simplified,                     BaseLanguage_zh_Hans_CN
+chinese-singapore,                      BaseLanguage_zh_Hans_SG
+Chinese (Traditional),                  BaseLanguage_zh_Hant
+chinese-hongkong,                       BaseLanguage_zh_Hant_HK
+chinese-traditional,                    BaseLanguage_zh_Hant_TW
+isiZulu,                                BaseLanguage_zu
+Zulu,                                   BaseLanguage_zu
+%%
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+#pragma warning(pop)
+#endif
+
+bool p32_lookup_language_name (LanguageInfo *info) {
+  struct language *language = P32LanguageNameLookup (info->String, info->Length);
+
+  if (language == NULL) {
+    return false;
+  }
+
+  info->BaseLanguage = language->Index;
+
+  return true;
+}

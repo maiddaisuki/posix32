@@ -1,0 +1,193 @@
+; Export definition file for posix32-crt library
+
+EXPORTS
+
+; ctype.h
+
+    isascii     = p32_isascii
+    toascii     = p32_toascii
+
+    isalnum     = p32_isalnum
+    isalnum_l   = p32_isalnum_l
+    isalpha     = p32_isalpha
+    isalpha_l   = p32_isalpha_l
+    isblank     = p32_isblank
+    isblank_l   = p32_isblank_l
+    iscntrl     = p32_iscntrl
+    iscntrl_l   = p32_iscntrl_l
+    isdigit     = p32_isdigit
+    isdigit_l   = p32_isdigit_l
+    isgraph     = p32_isgraph
+    isgraph_l   = p32_isgraph_l
+    islower     = p32_islower
+    islower_l   = p32_islower_l
+    isprint     = p32_isprint
+    isprint_l   = p32_isprint_l
+    ispunct     = p32_ispunct
+    ispunct_l   = p32_ispunct_l
+    isspace     = p32_isspace
+    isspace_l   = p32_isspace_l
+    isupper     = p32_isupper
+    isupper_l   = p32_isupper_l
+    isxdigit    = p32_isxdigit
+    isxdigit_l  = p32_isxdigit_l
+
+    tolower     = p32_tolower
+    tolower_l   = p32_tolower_l
+    toupper     = p32_toupper
+    toupper_l   = p32_toupper_l
+
+; langinfo.h
+
+    nl_langinfo     = p32_nl_langinfo
+    nl_langinfo_l   = p32_nl_langinfo_l
+
+; locale.h
+
+    setlocale       = p32_setlocale
+    newlocale       = p32_newlocale
+    freelocale      = p32_freelocale
+    duplocale       = p32_duplocale
+    uselocale       = p32_uselocale
+    getlocalename_l = p32_getlocalename_l
+
+; stdlib.h
+
+    mblen      = p32_mblen
+    mblen_l    = p32_mblen_l
+    mbtowc     = p32_mbtowc
+    mbtowc_l   = p32_mbtowc_l
+    mbstowcs   = p32_mbstowcs
+    mbstowcs_l = p32_mbstowcs_l
+    wctomb     = p32_wctomb
+    wctomb_l   = p32_wctomb_l
+    wcstombs   = p32_wcstombs
+    wcstombs_l = p32_wcstombs_l
+
+; strings.h
+
+    strcasecmp      = p32_strcasecmp
+    strcasecmp_l    = p32_strcasecmp_l
+    strncasecmp     = p32_strncasecmp
+    strncasecmp_l   = p32_strncasecmp_l
+
+; uchar.h
+
+    c8rtomb     = p32_c8rtomb
+    c8rtomb_l   = p32_c8rtomb_l
+    mbrtoc8     = p32_mbrtoc8
+    mbrtoc8_l   = p32_mbrtoc8_l
+    c16rtomb    = p32_c16rtomb
+    c16rtomb_l  = p32_c16rtomb_l
+    mbrtoc16    = p32_mbrtoc16
+    mbrtoc16_l  = p32_mbrtoc16_l
+    c32rtomb    = p32_c32rtomb
+    c32rtomb_l  = p32_c32rtomb_l
+    mbrtoc32    = p32_mbrtoc32
+    mbrtoc32_l  = p32_mbrtoc32_l
+
+; wchar.h
+
+    wcsdup         = p32_wcsdup
+    wcsndup        = p32_wcsndup
+
+    wcscasecmp     = p32_wcscasecmp
+    wcscasecmp_l   = p32_wcscasecmp_l
+    wcsncasecmp    = p32_wcsncasecmp
+    wcsncasecmp_l  = p32_wcsncasecmp_l
+
+    wcscoll        = p32_wcscoll
+    wcscoll_l      = p32_wcscoll_l
+    wcsxfrm        = p32_wcsxfrm
+    wcsxfrm_l      = p32_wcsxfrm_l
+
+    btowc          = p32_btowc
+    btowc_l        = p32_btowc_l
+    wctob          = p32_wctob
+    wctob_l        = p32_wctob_l
+
+    mbsinit        = p32_mbsinit
+
+    mbrlen         = p32_mbrlen
+    mbrlen_l       = p32_mbrlen_l
+    mbrtowc        = p32_mbrtowc
+    mbrtowc_l      = p32_mbrtowc_l
+    mbsrtowcs      = p32_mbsrtowcs
+    mbsrtowcs_l    = p32_mbsrtowcs_l
+    mbsnrtowcs     = p32_mbsnrtowcs
+    mbsnrtowcs_l   = p32_mbsnrtowcs_l
+    wcrtomb        = p32_wcrtomb
+    wcrtomb_l      = p32_wcrtomb_l
+    wcsrtombs      = p32_wcsrtombs
+    wcsrtombs_l    = p32_wcsrtombs_l
+    wcsnrtombs     = p32_wcsnrtombs
+    wcsnrtombs_l   = p32_wcsnrtombs_l
+
+; string.h
+
+    strdup     = p32_strdup
+    strndup    = p32_strndup
+
+    ; strlen     = p32_strlen
+    ; strcat     = p32_strcat
+    ; strncat    = p32_strncat
+    ; strcmp     = p32_strcmp
+    ; strncmp    = p32_strncmp
+    ; strcpy     = p32_strcpy
+    ; strncpy    = p32_strncpy
+
+    strchr     = p32_strchr
+    strcspn    = p32_strcspn
+    strpbrk    = p32_strpbrk
+    strrchr    = p32_strrchr
+    strspn     = p32_strspn
+    strstr     = p32_strstr
+    strtok     = p32_strtok
+    strtok_r   = p32_strtok_r
+
+    strcoll    = p32_strcoll
+    strcoll_l  = p32_strcoll_l
+    strxfrm    = p32_strxfrm
+    strxfrm_l  = p32_strxfrm_l
+
+; wctype.h
+
+    wctype      = p32_wctype
+    wctype_l    = p32_wctype_l
+    iswctype    = p32_iswctype
+    iswctype_l  = p32_iswctype_l
+
+    iswalnum    = p32_iswalnum
+    iswalnum_l  = p32_iswalnum_l
+    iswalpha    = p32_iswalpha
+    iswalpha_l  = p32_iswalpha_l
+    iswcntrl    = p32_iswcntrl
+    iswcntrl_l  = p32_iswcntrl_l
+    iswblank    = p32_iswblank
+    iswblank_l  = p32_iswblank_l
+    iswdigit    = p32_iswdigit
+    iswdigit_l  = p32_iswdigit_l
+    iswgraph    = p32_iswgraph
+    iswgraph_l  = p32_iswgraph_l
+    iswlower    = p32_iswlower
+    iswlower_l  = p32_iswlower_l
+    iswprint    = p32_iswprint
+    iswprint_l  = p32_iswprint_l
+    iswpunct    = p32_iswpunct
+    iswpunct_l  = p32_iswpunct_l
+    iswspace    = p32_iswspace
+    iswspace_l  = p32_iswspace_l
+    iswupper    = p32_iswupper
+    iswupper_l  = p32_iswupper_l
+    iswxdigit   = p32_iswxdigit
+    iswxdigit_l = p32_iswxdigit_l
+
+    wctrans     = p32_wctrans
+    wctrans_l   = p32_wctrans_l
+    towctrans   = p32_towctrans
+    towctrans_l = p32_towctrans_l
+
+    towlower    = p32_towlower
+    towlower_l  = p32_towlower_l
+    towupper    = p32_towupper
+    towupper_l  = p32_towupper_l
