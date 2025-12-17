@@ -1591,7 +1591,7 @@ static locale_t P32UseGlobalLocale (ThreadStorage *tls, ThreadLocaleState *threa
 fail:
   /**
    * We need to make sure that CRT's thread locale is the same as it was
-   * before calling `p32_uselocale`.
+   * before calling `uselocale`.
    */
   if (!P32SetLocale (tls->ThreadLocale->Locale)) {
     p32_terminate (L"Thread Locale: failed to restore previous locale.");
@@ -2056,7 +2056,7 @@ char *p32_setlocale (int category, const char *localeString) {
   locale_t activeThreadLocale = P32GetActiveLocale (false);
 
   /**
-   * `p32_setlocale` must always operate on Global Locale.
+   * `setlocale` must always operate on Global Locale.
    *
    * Change thread locale state to `_DISABLE_PER_THREAD_LOCALE`, and restore
    * it afterwards.
