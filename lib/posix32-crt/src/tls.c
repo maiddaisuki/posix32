@@ -134,7 +134,7 @@ static void P32FreeTls (ThreadStorage *tls, uint32_t tlsIndex) {
     p32_terminate (L"TLS: failed to deallocate storage.");
   }
 
-#if defined(LIBPOSIX32_TEST) && defined(HAVE_CRTDBG_H)
+#if defined(LIBPOSIX32_TEST) && defined(_DEBUG)
   HEAP_SUMMARY heapSummary = {0};
   heapSummary.cb           = sizeof (heapSummary);
 
