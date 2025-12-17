@@ -299,7 +299,7 @@ int p32_ext_wcstombs_fs (char **address, const wchar_t *wcs) {
 #ifdef LIBPOSIX32_UWP
   UINT codePage = GetACP ();
 #else
-  UINT codePage = AreFileApisANSI () ? GetACP () : GetOEMCP ();
+  UINT codePage = (AreFileApisANSI () ? GetACP () : GetOEMCP ());
 #endif
   return p32_ext_wcstombs_cp (address, wcs, codePage);
 }
@@ -308,7 +308,7 @@ int p32_ext_mbstowcs_fs (wchar_t **address, const char *mbs) {
 #ifdef LIBPOSIX32_UWP
   UINT codePage = GetACP ();
 #else
-  UINT codePage = AreFileApisANSI () ? GetACP () : GetOEMCP ();
+  UINT codePage = (AreFileApisANSI () ? GetACP () : GetOEMCP ());
 #endif
   return p32_ext_mbstowcs_cp (address, mbs, codePage);
 }

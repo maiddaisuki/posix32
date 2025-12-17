@@ -1846,7 +1846,7 @@ static locale_t P32NewLocale (int mask, const wchar_t *localeString, locale_t ba
    * LC_ALL: format using single locale string for all categories.
    * LC_ALL_MASK: format as list including locale string for each category.
    */
-  int lcAllFormatMask = singleLocale ? LC_ALL : LC_ALL_MASK;
+  int lcAllFormatMask = (singleLocale ? LC_ALL : LC_ALL_MASK);
 
   locale->WindowsLocaleStrings.Mask = lcAllFormatMask;
   locale->CrtLocaleStrings.Mask     = lcAllFormatMask;
