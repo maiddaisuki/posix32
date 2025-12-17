@@ -82,9 +82,9 @@ and once for _test_ version used by testsuite.
 
 ### Using winpthreads
 
-The build system uses `pkgconf` to locale `winpthreads` when building with MSVC.
+The build system uses `pkgconf` to locate `winpthreads` when building with MSVC.
 
-You can enable this option if you want to locale `winpthreads` using `pkgconf`
+You can enable this option if you want to locate `winpthreads` using `pkgconf`
 even when using mingw-w64. This may be useful if want to use your own build of
 `winpthreads` library.
 

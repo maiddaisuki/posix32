@@ -29,7 +29,7 @@ No changes to source code are required to use the library.
 ### Autotools
 
 If you want to add dependency on `posix32`, it is recommended to use `PKG_*`
-Autotools macros from `pkg.m4` to locale and use the library.
+Autotools macros from `pkg.m4` to locate and use the library.
 
 You may also try to transparently use `posix32` with:
 
@@ -51,4 +51,4 @@ path/to/configure                         \
 Use cmake's `FindPkgConfig` module to locate `posix32` using `pkgconf`.
 
 In future, cmake will be added as a build system for `posix32`, and it will be
-possible to use cmake's `find_package` command to locale and use `posix32`.
+possible to use cmake's `find_package` command to locate and use `posix32`.
