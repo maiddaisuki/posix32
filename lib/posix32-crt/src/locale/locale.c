@@ -1228,7 +1228,7 @@ static _locale_t P32CreateLocaleObject (int category, const wchar_t *localeStrin
    */
   if (locale == NULL) {
 #if P32_CRT >= P32_MSVCR110
-    _RPTW1 (_CRT_ERROR, L"Call to _wcreate_locale (%d, \"%s\") has failed.\n", category, localeStringW);
+    _RPTW2 (_CRT_ERROR, L"Call to _wcreate_locale (%d, \"%s\") has failed.\n", category, localeStringW);
 #endif
     locale = _create_locale (category, localeStringA);
   }
