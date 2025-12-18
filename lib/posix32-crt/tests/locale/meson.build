@@ -33,6 +33,7 @@ foreach test : tests
 endforeach
 
 tests = [
+  'bad-charset',
   'from-crt.fail',
   'from-crt.pass',
   'from-env.pass',
@@ -66,6 +67,7 @@ foreach test : tests
 endforeach
 
 tests = [
+  'bad-charset',
   'from-crt.fail',
   'from-crt.pass',
   'uselocale',

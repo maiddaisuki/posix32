@@ -1476,6 +1476,15 @@ fail:
  * Set Thread Tocale.
  */
 static locale_t P32UseLocale (ThreadStorage *tls, ThreadLocaleState *threadLocaleState, locale_t locale) {
+#if P32_CRT >= P32_MSVCR80
+  /**
+   * Check if `locale`'s code page is supported by CRT.
+   */
+  if (!p32_charset_usable (locale->Charset.CodePage, P32_CHARSET_REJECT_CRT, 0)) {
+    return NULL;
+  }
+#endif
+
   locale_t oldThreadLocale = tls->ThreadLocale->Handle;
   locale_t newThreadLocale = P32DupLocale (locale, tls->Heap);
 
