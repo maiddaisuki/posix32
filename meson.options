@@ -1,41 +1,41 @@
 # Target system
 option (
-	'winver',
-	description: 'Windows version to target',
-	type: 'combo',
-	choices: ['winxp', 'winvista', 'win7', 'win8', 'win8.1', 'win10', 'win10+'],
-	value: 'win10'
+  'winver',
+  description: 'Windows version to target',
+  type: 'combo',
+  choices: ['winxp', 'winvista', 'win7', 'win8', 'win8.1', 'win10', 'win10+'],
+  value: 'win10'
 )
 option (
-	'uwp',
-	description: 'Build library for Universal Windows Platform (UWP)',
-	type: 'boolean',
-	value: false
+  'uwp',
+  description: 'Build library for Universal Windows Platform (UWP)',
+  type: 'boolean',
+  value: false
 )
 # Dependencies
 option (
-	'winpthreads',
-	description: 'Use winpthreads explicitly',
-	type: 'feature',
-	value: 'auto'
+  'winpthreads',
+  description: 'Use winpthreads explicitly',
+  type: 'feature',
+  value: 'auto'
 )
 # Options controlling interface
 option (
-	'lfs',
-	description: 'Use _FILE_OFFEST_BITS=64',
-	type: 'feature',
-	value: 'auto'
+  'lfs',
+  description: 'Use _FILE_OFFEST_BITS=64',
+  type: 'feature',
+  value: 'auto'
 )
 option (
-	'y2k',
-	description: 'Use _TIME_BITS=64',
-	type: 'feature',
-	value: 'auto'
+  'y2k',
+  description: 'Use _TIME_BITS=64',
+  type: 'feature',
+  value: 'auto'
 )
 # Build options
 option (
-	'tests',
-	description: 'Build and run tests',
-	type: 'boolean',
-	value: true
+  'tests',
+  description: 'Build and run tests',
+  type: 'boolean',
+  value: true
 )

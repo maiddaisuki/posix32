@@ -90,7 +90,7 @@
 /**
  * Whether to define macros such as
  *
- * 	#define funcname p32_funcname
+ *  #define funcname p32_funcname
  *
  * This approach is only used for C compilation and only for static library.
  *
@@ -113,8 +113,8 @@
  * result in linking against posix32's functions while using standard names.
  *
  * FIXME: since functions are declared with their standard names, gcc and clang
- * 	may replace them with built-in functions, which may result in behavior
- * 	which differs from posix32's implementaion.
+ *  may replace them with built-in functions, which may result in behavior
+ *  which differs from posix32's implementaion.
  *
  * Otherwise, they are declared with posix32 names.
  */

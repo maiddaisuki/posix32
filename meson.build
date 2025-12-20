@@ -46,7 +46,7 @@ p32_deps = []
 # Macros to define based on value of `winver` option
 windows_versions = {
   # _WIN32_WINNT_WINXP
-  'winxp': 	  ['-D_WIN32_WINNT=0x0501'],
+  'winxp':    ['-D_WIN32_WINNT=0x0501'],
   # _WIN32_WINNT_VISTA
   'winvista': ['-D_WIN32_WINNT=0x0600'],
   # _WIN32_WINNT_WIN7

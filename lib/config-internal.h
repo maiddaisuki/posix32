@@ -100,8 +100,8 @@
  *
  * Depending on whether we're building shared or static library:
  *
- * 	P32_DECL: expands, respectively, to __declspec(dllimport) or empty token
- * 	P32_DEFN: expands, respectively, to __declspec(dllexport) or empty token
+ *  P32_DECL: expands, respectively, to __declspec(dllimport) or empty token
+ *  P32_DEFN: expands, respectively, to __declspec(dllexport) or empty token
  *
  * P32_DECL must be used in declaration of symbols in our own libraries we
  * want to link against.

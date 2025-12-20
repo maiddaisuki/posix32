@@ -50,8 +50,8 @@ foreach test : tests
 endforeach
 
 tests = [
-	'btowc',
-	'wctob',
+  'btowc',
+  'wctob',
 ]
 
 variants = [
