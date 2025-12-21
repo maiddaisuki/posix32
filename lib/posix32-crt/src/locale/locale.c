@@ -239,6 +239,11 @@ static bool P32RestoreThreadLocaleState (ThreadLocaleState *threadLocaleState) {
  */
 
 /**
+ * Destroy Global Locale.
+ */
+static int __cdecl P32DestroyGlobalLocale (void);
+
+/**
  * Structure to store Default and Global Locale.
  */
 typedef struct {
@@ -308,6 +313,10 @@ static void P32InitDefaultLocale (void) {
   if (P32GlobalLocale.DefaultLocale == NULL) {
     p32_terminate (L"Global locale: initialization has failed.");
   }
+
+#ifndef LIBPOSIX32_DLL
+  _onexit (P32DestroyGlobalLocale);
+#endif
 }
 
 /**
@@ -471,7 +480,7 @@ static void P32InitGlobalLocale (void) {
 #endif
 }
 
-void p32_destroy_global_locale (void) {
+static int P32DestroyGlobalLocale (void) {
   if (P32GlobalLocale.GlobalLocale != NULL) {
     P32FreeLocale (P32GlobalLocale.GlobalLocale, P32GlobalLocale.Heap);
     P32GlobalLocale.GlobalLocale = NULL;
@@ -482,7 +491,15 @@ void p32_destroy_global_locale (void) {
   }
 
   P32DestroyDefaultLocale ();
+
+  return 0;
 }
+
+#ifdef LIBPOSIX32_DLL
+void p32_destroy_global_locale (void) {
+  P32DestroyGlobalLocale ();
+}
+#endif
 
 locale_t p32_global_locale (void) {
 #ifndef LIBPOSIX32_TEST
