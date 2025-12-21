@@ -20,57 +20,6 @@
 #include "p32_stdlib.h"
 #include "p32_wchar.h"
 
-#ifdef P32_CRT_BUILD
-/**
- * wchar.h: wide character strings
- */
-#undef wcsdup
-#undef wcsndup
-#undef wcscasecmp
-#undef wcscasecmp_l
-#undef wcsncasecmp
-#undef wcsncasecmp_l
-#undef wcscoll
-#undef wcscoll_l
-#undef wcsxfrm
-#undef wcsxfrm_l
-/**
- * stdlib.h: C89 conversion functions
- */
-#undef mblen
-#undef mblen_l
-#undef mbtowc
-#undef mbtowc_l
-#undef mbstowcs
-#undef mbstowcs_l
-#undef wctomb
-#undef wctomb_l
-#undef wcstombs
-#undef wcstombs_l
-/**
- * wchar.h: C95 conversion functions
- */
-#undef btowc
-#undef btowc_l
-#undef wctob
-#undef wctob_l
-#undef mbsinit
-#undef mbrlen
-#undef mbrlen_l
-#undef mbrtowc
-#undef mbrtowc_l
-#undef mbsrtowcs
-#undef mbsrtowcs_l
-#undef mbsnrtowcs
-#undef mbsnrtowcs_l
-#undef wcrtomb
-#undef wcrtomb_l
-#undef wcsrtombs
-#undef wcsrtombs_l
-#undef wcsnrtombs
-#undef wcsnrtombs_l
-#endif
-
 size_t p32_private_mbrlen_l (const char *P32_RESTRICT, size_t, mbstate_t *P32_RESTRICT, locale_t);
 size_t p32_private_mbrtowc_l (
   wchar_t *P32_RESTRICT,

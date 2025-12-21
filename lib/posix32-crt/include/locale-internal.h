@@ -25,23 +25,6 @@
 #include "p32_langinfo.h"
 #include "p32_locale.h"
 
-#ifdef P32_CRT_BUILD
-/**
- * langinfo.h
- */
-#undef nl_langinfo
-#undef nl_langinfo_l
-/**
- * locale.h
- */
-#undef setlocale
-#undef newlocale
-#undef duplocale
-#undef freelocale
-#undef uselocale
-#undef getlocalename_l
-#endif
-
 /**
  * Locale names were introduced in Windows Vista.
  * CRT supports locale names since msvcr110.dll.

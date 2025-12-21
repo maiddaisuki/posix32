@@ -20,39 +20,6 @@
 #include "p32_string.h"
 #include "p32_strings.h"
 
-#ifdef P32_CRT_BUILD
-/**
- * posix32's replacements for CRT functions
- */
-#undef strlen
-#undef strnlen
-#undef strcpy
-#undef strncpy
-#undef strcat
-#undef strncat
-#undef strcmp
-#undef strncmp
-#undef strcoll
-#undef strxfrm
-#undef strchr
-#undef strrchr
-#undef strstr
-#undef strpbrk
-#undef strspn
-#undef strcspn
-#undef strtok
-/**
- * posix32's string.h and strings.h functions
- */
-#undef strtok_r
-#undef strcasecmp
-#undef strcasecmp_l
-#undef strncasecmp
-#undef strncasecmp_l
-#undef strcoll_l
-#undef strxfrm_l
-#endif
-
 P32_TEST_DECL size_t p32_private_strlen_l (const char *str, locale_t locale);
 P32_TEST_DECL size_t p32_private_strnlen_l (const char *str, size_t count, locale_t locale);
 P32_TEST_DECL char  *p32_private_strcpy_l (char *dest, const char *src, locale_t locale);

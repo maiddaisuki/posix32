@@ -22,21 +22,6 @@
 
 #include "locale-internal.h"
 
-#ifdef P32_CRT_BUILD
-#undef mbrtoc8
-#undef mbrtoc8_l
-#undef c8rtomb
-#undef c8rtomb_l
-#undef mbrtoc16
-#undef mbrtoc16_l
-#undef c16rtomb
-#undef c16rtomb_l
-#undef mbrtoc32
-#undef mbrtoc32_l
-#undef c32rtomb
-#undef c32rtomb_l
-#endif
-
 size_t p32_private_mbrtoc8_posix (char8_t *, const char *, size_t, mbstate_t *, Charset *);
 size_t p32_private_c8rtomb_posix (char *, char8_t, mbstate_t *, Charset *);
 size_t p32_private_mbrtoc16_posix (char16_t *, const char *, size_t, mbstate_t *, Charset *);
