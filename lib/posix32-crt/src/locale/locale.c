@@ -71,7 +71,7 @@
  * Use user's default locale instead of quering LC_* and LANG environment
  * variables.
  */
-#define NEWLOCALE_USER_DEFAULT (1 << 3)
+#define NEWLOCALE_USER_DEFAULT (1 << 2)
 
 /**
  * Create new `locale_t` object.
