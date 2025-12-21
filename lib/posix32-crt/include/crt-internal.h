@@ -43,6 +43,7 @@ typedef struct {
  */
 ThreadStorage *p32_tls (bool allowNullTls);
 
+#ifdef LIBPOSIX32_DLL
 /**
  * Deallocate Thread Locale from TLS structure `tls`.
  *
@@ -50,7 +51,6 @@ ThreadStorage *p32_tls (bool allowNullTls);
  */
 void p32_destroy_thread_locale (ThreadStorage *tls);
 
-#ifdef LIBPOSIX32_DLL
 /**
  * Destroy Global Locale and free related resources.
  *

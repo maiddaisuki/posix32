@@ -605,7 +605,10 @@ static void P32InitThreadLocaleUnsafe (ThreadStorage *tls) {
 }
 #endif
 
-void p32_destroy_thread_locale (ThreadStorage *tls) {
+/**
+ * Destroy Thread Locale stored in `tls`.
+ */
+static void P32DestroyThreadLocale (ThreadStorage *tls) {
   HANDLE heapHandle = (HANDLE) tls->Heap;
 
   /**
@@ -626,6 +629,12 @@ void p32_destroy_thread_locale (ThreadStorage *tls) {
 
   tls->ThreadLocale = NULL;
 }
+
+#ifdef LIBPOSIX32_DLL
+void p32_destroy_thread_locale (ThreadStorage *tls) {
+  P32DestroyThreadLocale (tls);
+}
+#endif
 
 /**
  * Return `locale_t` object for active Thread Locale.
@@ -1598,7 +1607,7 @@ static locale_t P32UseGlobalLocale (ThreadStorage *tls, ThreadLocaleState *threa
       tls->ThreadLocale->Locale = LC_GLOBAL_LOCALE;
     }
 #else
-    p32_destroy_thread_locale (tls);
+    P32DestroyThreadLocale (tls);
     p32_tls_check ();
 #endif
   }
