@@ -46,18 +46,19 @@
 #endif
 
 /**
- * Function attributes.
+ * Compiler-specific attributes.
  **/
-
 #if defined(__GNUC__) || defined(__clang__)
 #define P32_RESTRICT      __restrict__
 #define P32_INLINE        __inline__
 #define P32_ALWAYS_INLINE __inline__ __attribute__ ((__always_inline__))
+#define P32_NOINLINE      __attribute__ ((__noinline__))
 #define P32_NORETURN      __attribute__ ((__noreturn__))
 #elif defined(_MSC_VER)
 #define P32_RESTRICT      __restrict
 #define P32_INLINE        __inline
 #define P32_ALWAYS_INLINE __inline __forceinline
+#define P32_NOINLINE      __declspec (noinline)
 #define P32_NORETURN      __declspec (noreturn)
 #endif
 

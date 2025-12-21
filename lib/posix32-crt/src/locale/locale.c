@@ -561,7 +561,7 @@ static bool P32InitThreadLocale (ThreadStorage *tls) {
 /**
  * Initialize Thread Locale from CRT's thread locale.
  */
-static void P32InitThreadLocaleUnsafe (ThreadStorage *tls) {
+static P32_NOINLINE void P32InitThreadLocaleUnsafe (ThreadStorage *tls) {
   pthread_once (&P32GlobalLocale.DefaultInit, P32InitDefaultLocale);
 
   HANDLE heapHandle = (HANDLE) tls->Heap;
