@@ -2013,11 +2013,6 @@ char *p32_setlocale (int category, const char *localeString) {
   }
 
   /**
-   * Return value.
-   */
-  char *ret = NULL;
-
-  /**
    * Obtain write lock for Global Locale.
    */
   if (pthread_rwlock_wrlock (&P32GlobalLocale.GlobalLock) != 0) {
@@ -2026,6 +2021,11 @@ char *p32_setlocale (int category, const char *localeString) {
 
   uintptr_t heap       = P32GlobalLocale.Heap;
   HANDLE    heapHandle = (HANDLE) heap;
+
+  /**
+   * Return value.
+   */
+  char *ret = NULL;
 
   /**
    * Locale categories to set.
@@ -2080,7 +2080,19 @@ char *p32_setlocale (int category, const char *localeString) {
    * If current thread locale state is `_ENABLE_PER_THREAD_LOCALE`,
    * we will need to restore CRT's thread locale afterwards.
    */
-  locale_t activeThreadLocale = P32GetActiveLocale (false);
+  ThreadLocaleState state = {0};
+
+  P32GetThreadLocaleState (&state);
+
+  /**
+   * Active thread locale.
+   */
+  locale_t activeThreadLocale = LC_GLOBAL_LOCALE;
+
+  if (state.CurrentState == _ENABLE_PER_THREAD_LOCALE) {
+    activeThreadLocale = P32GetThreadLocale (true);
+    assert (activeThreadLocale != LC_GLOBAL_LOCALE);
+  }
 
   /**
    * `setlocale` must always operate on Global Locale.
@@ -2088,51 +2100,59 @@ char *p32_setlocale (int category, const char *localeString) {
    * Change thread locale state to `_DISABLE_PER_THREAD_LOCALE`, and restore
    * it afterwards.
    */
-  ThreadLocaleState state = {0};
-
   if (!P32SetThreadLocaleState (_DISABLE_PER_THREAD_LOCALE, &state)) {
-    goto fail_free;
+    P32FreeLocale (locale, heap);
+    goto unlock;
   }
 #endif
 
-  if (!P32SetLocale (locale)) {
-    goto fail_restore;
-  }
+  if (P32SetLocale (locale)) {
+    locale_t oldLocale = InterlockedExchangePointer ((void *volatile *) &P32GlobalLocale.GlobalLocale, locale);
+    assert (oldLocale != NULL);
 
-  locale_t oldLocale = InterlockedExchangePointer ((void *volatile *) &P32GlobalLocale.GlobalLocale, locale);
-
-  /**
-   * Free previous Global Locale.
-   */
-  if (oldLocale != NULL) {
+    /**
+     * Free previous Global Locale.
+     */
     P32FreeLocale (oldLocale, heap);
-  }
 
-  switch (category) {
-    case LC_ALL:
-      ret = P32GlobalLocale.GlobalLocale->WindowsLocaleStrings.A.LcAll;
-      break;
-    case LC_COLLATE:
-      ret = P32GlobalLocale.GlobalLocale->WindowsLocaleStrings.A.LcCollate;
-      break;
-    case LC_CTYPE:
-      ret = P32GlobalLocale.GlobalLocale->WindowsLocaleStrings.A.LcCtype;
-      break;
-    case LC_MESSAGES:
-      ret = P32GlobalLocale.GlobalLocale->WindowsLocaleStrings.A.LcMessages;
-      break;
-    case LC_MONETARY:
-      ret = P32GlobalLocale.GlobalLocale->WindowsLocaleStrings.A.LcMonetary;
-      break;
-    case LC_NUMERIC:
-      ret = P32GlobalLocale.GlobalLocale->WindowsLocaleStrings.A.LcNumeric;
-      break;
-    case LC_TIME:
-      ret = P32GlobalLocale.GlobalLocale->WindowsLocaleStrings.A.LcTime;
-      break;
+    switch (category) {
+      case LC_ALL:
+        ret = P32GlobalLocale.GlobalLocale->WindowsLocaleStrings.A.LcAll;
+        break;
+      case LC_COLLATE:
+        ret = P32GlobalLocale.GlobalLocale->WindowsLocaleStrings.A.LcCollate;
+        break;
+      case LC_CTYPE:
+        ret = P32GlobalLocale.GlobalLocale->WindowsLocaleStrings.A.LcCtype;
+        break;
+      case LC_MESSAGES:
+        ret = P32GlobalLocale.GlobalLocale->WindowsLocaleStrings.A.LcMessages;
+        break;
+      case LC_MONETARY:
+        ret = P32GlobalLocale.GlobalLocale->WindowsLocaleStrings.A.LcMonetary;
+        break;
+      case LC_NUMERIC:
+        ret = P32GlobalLocale.GlobalLocale->WindowsLocaleStrings.A.LcNumeric;
+        break;
+      case LC_TIME:
+        ret = P32GlobalLocale.GlobalLocale->WindowsLocaleStrings.A.LcTime;
+        break;
+    }
+  } else {
+    P32FreeLocale (locale, heap);
+
+    /**
+     * Restore previous Global Locale.
+     */
+    if (!P32SetLocale (P32GlobalLocale.GlobalLocale)) {
+      p32_terminate (L"Global Locale: failed to restore previous locale.");
+    }
   }
 
 #if P32_CRT >= P32_MSVCR80
+  /**
+   * Restore previous thread locale state.
+   */
   if (!P32RestoreThreadLocaleState (&state)) {
     p32_terminate (L"Global Locale: failed to restore thread locale state.");
   }
@@ -2144,27 +2164,13 @@ char *p32_setlocale (int category, const char *localeString) {
    * Restore previous CRT's thread locale.
    */
   if (state.CurrentState == _ENABLE_PER_THREAD_LOCALE) {
+    assert (activeThreadLocale != LC_GLOBAL_LOCALE);
+
     if (!P32SetLocale (activeThreadLocale)) {
       p32_terminate (L"Ghread Locale: failed to restore previous locale.");
     }
   }
 #endif
-
-  goto unlock;
-
-fail_restore:
-  if (!P32SetLocale (P32GlobalLocale.GlobalLocale)) {
-    p32_terminate (L"Global Locale: failed to restore previous locale.");
-  }
-
-#if P32_CRT >= P32_MSVCR80
-  if (!P32RestoreThreadLocaleState (&state)) {
-    p32_terminate (L"Global Locale: failed to restore thread locale state.");
-  }
-
-fail_free:
-#endif
-  P32FreeLocale (locale, heap);
 
 unlock:
   if (pthread_rwlock_unlock (&P32GlobalLocale.GlobalLock) != 0) {
