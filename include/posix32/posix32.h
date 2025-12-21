@@ -114,6 +114,35 @@
 #define P32_MSVCRT (P32_CRT >= P32_MSVCRT42 && P32_CRT <= P32_MSVCRT60)
 
 /**
+ * P32_ARCH: target architecture.
+ *
+ * Defined to one of macros below.
+ */
+
+#define P32_ARCH_X86   (1)
+#define P32_ARCH_X64   (1 << 1)
+#define P32_ARCH_ARM32 (1 << 2)
+#define P32_ARCH_ARM64 (1 << 3)
+
+#if defined(_M_IX86)
+#define P32_ARCH P32_ARCH_X86
+#elif defined(_M_X64) || defined(_M_ARM64EC)
+#define P32_ARCH P32_ARCH_X64
+#elif defined(_M_ARM)
+#define P32_ARCH P32_ARCH_ARM32
+#elif defined(_M_ARM64)
+#define P32_ARCH P32_ARCH_ARM64
+#else
+#error Unknown architecture
+#endif
+
+/**
+ * Evaluates to non-zero if compiling for `arch`, which can be any combination
+ * of `P32_ARCH_*` macros defined above.
+ */
+#define P32_IS_ARCH(arch) (P32_ARCH & (arch))
+
+/**
  * Handle _FILE_OFFSET_BITS and _TIME_BITS.
  **/
 

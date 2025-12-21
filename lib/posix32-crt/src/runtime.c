@@ -35,9 +35,9 @@
  * This file defines various internal runtime-related functions.
  */
 
-#if defined(_M_X64)
+#if P32_IS_ARCH(P32_ARCH_X64)
 #define P32_CONTEXT_PC(context) (context).Rip
-#elif defined(_M_IX86)
+#elif P32_IS_ARCH(P32_ARCH_X86)
 #define P32_CONTEXT_PC(context) (context).Eip
 #else
 #define P32_CONTEXT_PC(context) (context).Pc
