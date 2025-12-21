@@ -18,6 +18,21 @@
 #define LIBPOSIX32_POSIX32_DECL_H_INCLUDED
 
 /**
+ * P32_PRAGMA.
+ */
+#ifndef P32_PRAGMA
+#if defined(_cplusplus) && __cplusplus >= 201103L
+#define P32_PRAGMA(expr) _Pragma (#expr)
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#define P32_PRAGMA(expr) _Pragma (#expr)
+#elif defined(_MSC_VER)
+#define P32_PRAGMA(expr) __pragma (expr)
+#else
+#define P32_PRAGMA(expr)
+#endif
+#endif
+
+/**
  * P32_STATIC_ASSERT.
  **/
 #if defined(__cplusplus) && __cplusplus >= 201103L
@@ -156,7 +171,7 @@
  *  -Wdll-attribute-on-redeclaration.
  */
 #if defined(__clang__) && !defined(_MSC_VER)
-#pragma clang diagnostic ignored "-Wdll-attribute-on-redeclaration"
+P32_PRAGMA (clang diagnostic ignored "-Wdll-attribute-on-redeclaration")
 #endif
 
 /**
@@ -166,7 +181,7 @@
  * This is harmless, but result in many annoying C4028 warnings.
  */
 #ifdef _MSC_VER
-#pragma warning(disable : 4028)
+P32_PRAGMA (warning (disable : 4028))
 #endif
 
 #endif /* LIBPOSIX32_POSIX32_DECL_H_INCLUDED */
