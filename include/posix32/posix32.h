@@ -131,11 +131,15 @@
  **/
 
 #ifdef _FILE_OFFSET_BITS
-P32_STATIC_ASSERT (_FILE_OFFSET_BITS == 64 || _FILE_OFFSET_BITS == 32, "_FILE_OFFSET_BITS must be either 32 or 64");
+#if _FILE_OFFSET_BITS != 64 && _FILE_OFFSET_BITS != 32
+#error Value of _FILE_OFFSET_BITS must be 32 or 64
+#endif
 #endif
 
 #ifdef _TIME_BITS
-P32_STATIC_ASSERT (_TIME_BITS == 64 || _TIME_BITS == 32, "_TIME_BITS must be either 32 or 64");
+#if _TIME_BITS != 64 && _TIME_BITS != 32
+#error Value of _TIME_BITS must be 32 or 64
+#endif
 #endif
 
 #ifdef _WIN64
