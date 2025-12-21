@@ -1218,20 +1218,13 @@ fail:
 static _locale_t P32CreateLocaleObject (int category, const wchar_t *localeStringW, const char *localeStringA) {
   _locale_t locale = NULL;
 
+  /**
+   * `_wcreate_locale` is available starting with msvcr110.dll.
+   */
 #if P32_CRT >= P32_MSVCR110
   locale = _wcreate_locale (category, localeStringW);
-#endif
-
-#if P32_CRT < P32_UCRT
-  /**
-   * If `_wcreate_locale` has failed, try to fallback to `_create_locale`.
-   */
-  if (locale == NULL) {
-#if P32_CRT >= P32_MSVCR110
-    _RPTW2 (_CRT_ERROR, L"Call to _wcreate_locale (%d, \"%s\") has failed.\n", category, localeStringW);
-#endif
-    locale = _create_locale (category, localeStringA);
-  }
+#else
+  locale = _create_locale (category, localeStringA);
 #endif
 
   return locale;
@@ -1406,7 +1399,7 @@ static bool P32SetLocale (locale_t locale) {
     *(wchar_t *) separator = L';';
   }
 #endif
-#if P32_CRT < P32_UCRT
+#if P32_CRT < P32_MSVCR110
   /**
    * In some cases `_wsetlocale` may fail to set locale, while `setlocale`
    * succeeds with the same string converted to locale's default ANSI code page.
