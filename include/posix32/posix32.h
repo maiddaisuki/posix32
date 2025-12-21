@@ -114,19 +114,6 @@
 #define P32_MSVCRT (P32_CRT >= P32_MSVCRT42 && P32_CRT <= P32_MSVCRT60)
 
 /**
- * P32_STATIC_ASSERT.
- **/
-#if defined(__cplusplus) && __cplusplus >= 201103L
-#define P32_STATIC_ASSERT(expr, msg) static_assert ((expr), msg)
-#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L
-#define P32_STATIC_ASSERT(expr, msg) static_assert ((expr), msg)
-#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-#define P32_STATIC_ASSERT(expr, msg) _Static_assert ((expr), msg)
-#else
-#define P32_STATIC_ASSERT(expr, msg) extern int p32_static_assert[((expr) ? 1 : -1)]
-#endif
-
-/**
  * Handle _FILE_OFFSET_BITS and _TIME_BITS.
  **/
 
