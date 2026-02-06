@@ -68,7 +68,7 @@
 #define NEWLOCALE_INIT (1 << 1)
 
 /**
- * Use user's default locale instead of quering LC_* and LANG environment
+ * Use User Default Locale instead of quering LC_* and LANG environment
  * variables.
  */
 #define NEWLOCALE_USER_DEFAULT (1 << 2)
@@ -1793,7 +1793,7 @@ static locale_t P32NewLocale (int mask, const wchar_t *localeString, locale_t ba
 
   if (localeString[0] == L'\0') {
     /**
-     * Explicit request to use user's default locale.
+     * Explicit request to use User Default Locale.
      */
     if (flags & NEWLOCALE_USER_DEFAULT) {
       if (!p32_localestr_user_default (&localeStrings, heap)) {
@@ -2039,14 +2039,14 @@ char *p32_setlocale (int category, const char *localeString) {
 
   /**
    * Use LC_* and LANG environment variables.
-   * If they are not set, use user's default locale.
+   * If they are not set, use User Default Locale.
    */
   if (localeString[0] == '\0') {
     locale = P32NewLocale (mask, L"", P32GlobalLocale.GlobalLocale, heap, NEWLOCALE_GLOBAL);
 
     /**
      * If `setlocale (LC_ALL, "")` has failed, try to explicitly fallback to
-     * user's default locale.
+     * User Default Locale.
      */
     if (locale == NULL && mask == LC_ALL_MASK) {
       locale = P32NewLocale (mask, L"", P32GlobalLocale.GlobalLocale, heap, NEWLOCALE_GLOBAL | NEWLOCALE_USER_DEFAULT);

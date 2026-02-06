@@ -171,7 +171,7 @@ static bool P32TrySortOrder (ResolvedLocaleMap *locale, uintptr_t heap, Language
  *
  * Returns `true` on success, and `false` otherwise.
  */
-static bool P32LocaleFromLCID (ResolvedLocaleMap *map, uintptr_t heap, Locale *locale) {
+static bool P32FromLCID (ResolvedLocaleMap *map, uintptr_t heap, Locale *locale) {
   HANDLE heapHandle = (HANDLE) heap;
 
   /**
@@ -358,7 +358,7 @@ static bool P32Ll (ResolvedLocaleMap *locale, LocaleMap *map, uintptr_t heap) {
 
     l.LocaleId = localeId;
 
-    return P32LocaleFromLCID (locale, heap, &l);
+    return P32FromLCID (locale, heap, &l);
   }
 
   return false;
@@ -538,12 +538,15 @@ fail:
   return false;
 }
 
-bool p32_winlocale_default (Locale *locale, uintptr_t heap) {
+/**
+ * Construct `Locale` object for valid `LCID` locale `locale->LocaleId`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+static bool P32LocaleFromLCID (Locale *locale, uintptr_t heap) {
   ResolvedLocaleMap map = {0};
 
-  locale->LocaleId = GetUserDefaultLCID ();
-
-  if (!P32LocaleFromLCID (&map, heap, locale)) {
+  if (!P32FromLCID (&map, heap, locale)) {
     goto fail;
   }
 
@@ -561,6 +564,20 @@ fail:
   p32_winlocale_destroy (locale, heap);
 
   return false;
+}
+
+bool p32_winlocale_user_default (Locale *locale, uintptr_t heap) {
+  locale->LocaleId = GetUserDefaultLCID ();
+
+  /**
+   * Fallback to System Default Locale if User Default Locale
+   * is a custom locale.
+   */
+  if (locale->LocaleId == LOCALE_CUSTOM_DEFAULT) {
+    locale->LocaleId = GetSystemDefaultLCID ();
+  }
+
+  return P32LocaleFromLCID (locale, heap);
 }
 
 bool p32_winlocale_resolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap) {

@@ -6,7 +6,7 @@
 tests = [
   'locale_map',
   'locale_resolver',
-  'user_default',
+  'user_default_locale',
 ]
 
 foreach test : tests

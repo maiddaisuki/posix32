@@ -31,7 +31,7 @@
 /**
  * Test Summary:
  *
- * Construct `Locale` object corresponding to user's default locale.
+ * Construct `Locale` object corresponding to User Default Locale.
  */
 
 int main (void) {
@@ -42,7 +42,7 @@ int main (void) {
 
   Locale locale = {0};
 
-  assert (p32_winlocale_default (&locale, heap));
+  assert (p32_winlocale_user_default (&locale, heap));
   assert (locale.LocaleName != NULL);
   _RPTW1 (_CRT_WARN, L"%s\n", locale.LocaleName);
   p32_winlocale_destroy (&locale, heap);

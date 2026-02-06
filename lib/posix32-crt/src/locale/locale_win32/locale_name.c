@@ -29,6 +29,14 @@ static WCHAR UnknownLanguage[] = TEXT ("Unknown Language");
 static WCHAR UnknownCountry[] = TEXT ("Unknown Region");
 
 /**
+ * Known Default Locales.
+ */
+typedef enum DefaultLocaleType {
+  SystemDefaultLocale,
+  UserDefaultLocale,
+} DefaultLocaleType;
+
+/**
  * Structure used during locale resolution.
  */
 typedef struct ResolvedLocaleMap {
@@ -458,7 +466,12 @@ static bool P32LlSsCc (ResolvedLocaleMap *locale, uintptr_t heap, LocaleMap *map
   return true;
 }
 
-bool p32_winlocale_default (Locale *locale, uintptr_t heap) {
+/**
+ * Construct `Locale` object for a known `defaultLocaleType`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+static bool P32DefaultLocale (Locale *locale, uintptr_t heap, DefaultLocaleType defaultLocaleType) {
   HANDLE heapHandle = (HANDLE) heap;
 
   locale->LocaleName = HeapAlloc (heapHandle, 0, LOCALE_NAME_MAX_LENGTH * sizeof (WCHAR));
@@ -467,7 +480,13 @@ bool p32_winlocale_default (Locale *locale, uintptr_t heap) {
     goto fail;
   }
 
-  INT written = GetUserDefaultLocaleName (locale->LocaleName, LOCALE_NAME_MAX_LENGTH);
+  INT written = 0;
+
+  if (defaultLocaleType == SystemDefaultLocale) {
+    written = GetSystemDefaultLocaleName (locale->LocaleName, LOCALE_NAME_MAX_LENGTH);
+  } else if (defaultLocaleType == UserDefaultLocale) {
+    written = GetUserDefaultLocaleName (locale->LocaleName, LOCALE_NAME_MAX_LENGTH);
+  }
 
   if (written == 0) {
     goto fail_free;
@@ -492,6 +511,10 @@ fail_free:
 
 fail:
   return false;
+}
+
+bool p32_winlocale_user_default (Locale *locale, uintptr_t heap) {
+  return P32DefaultLocale (locale, heap, UserDefaultLocale);
 }
 
 bool p32_winlocale_resolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap) {

@@ -141,11 +141,11 @@ typedef struct CrtLocale {
 #endif
 
 /**
- * Construct `Locale` object representing user's default locale.
+ * Construct `Locale` object corresponding to User Default Locale.
  *
  * Returns `true` on success, and `false` otherwise.
  */
-P32_TEST_DECL bool p32_winlocale_default (Locale *locale, uintptr_t heap);
+P32_TEST_DECL bool p32_winlocale_user_default (Locale *locale, uintptr_t heap);
 
 /**
  * Construct best-fitting `Locale` object from `localeMap`.

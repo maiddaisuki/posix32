@@ -421,7 +421,7 @@ fail:
 }
 
 /**
- * Stores locale string corresponding to user default locale in `localeStrings`.
+ * Stores locale string corresponding to User Default Locale in `localeStrings`.
  *
  * If `localeStrings->Mask` is 0, store single string in `localeStrings->LcAll`.
  *
@@ -432,11 +432,11 @@ fail:
  */
 static bool P32UserDefaultLocale (LocaleStrings *localeStrings, uintptr_t heap, int mask) {
   /**
-   * User's default locale.
+   * User Default Locale.
    */
   Locale defaultLocale = {0};
 
-  if (!p32_winlocale_default (&defaultLocale, heap)) {
+  if (!p32_winlocale_user_default (&defaultLocale, heap)) {
     return false;
   }
 
@@ -632,7 +632,7 @@ bool p32_localestr_from_env (LocaleStrings *localeStrings, uintptr_t heap, int m
   }
 
   /**
-   * Fill the rest using user's default locale.
+   * Fill the rest using User Default Locale.
    */
   if (!P32UserDefaultLocale (localeStrings, heap, mask)) {
     goto fail;

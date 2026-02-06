@@ -117,7 +117,7 @@ typedef struct LocaleStrings {
 P32_TEST_DECL bool p32_localestr_split (LocaleStrings *localeStrings, uintptr_t heap, const wchar_t *string);
 
 /**
- * Obtain locale string corresponding to user's default locale.
+ * Obtain locale string corresponding to User Default Locale.
  *
  * Single locale string is stored in `localeStrings->LcAll`.
  *
@@ -135,7 +135,7 @@ P32_TEST_DECL bool p32_localestr_user_default (LocaleStrings *localeStrings, uin
  * fallback to `LANG` for each one that is not set.
  *
  * For each locale category in `mask` which are not retrieved from environment,
- * use user's default locale.
+ * use User Default Locale.
  *
  * Returns `true` on success, and `false` otherwise.
  */
