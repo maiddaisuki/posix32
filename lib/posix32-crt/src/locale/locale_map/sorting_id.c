@@ -46,7 +46,7 @@ static const SortingId SortingIds[] = {
   SORTING_DECL (SORT_JAPANESE_RADICALSTROKE, ja, radstr),
   SORTING_DECL (SORT_JAPANESE_UNICODE,       ja, SortingIndex_invalid),
   SORTING_DECL (SORT_GEORGIAN_TRADITIONAL,   ka, SortingIndex_default),
-  SORTING_DECL (SORT_GEORGIAN_MODERN,        ka, SortingIndex_default),
+  SORTING_DECL (SORT_GEORGIAN_MODERN,        ka, modern),
   SORTING_DECL (SORT_KOREAN_KSC,             ko, SortingIndex_default),
   SORTING_DECL (SORT_KOREAN_UNICODE,         ko, SortingIndex_invalid),
   SORTING_DECL (SORT_CHINESE_BIG5,           zh, SortingIndex_default),
