@@ -565,7 +565,17 @@ fail:
 
 bool p32_winlocale_resolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap) {
   /**
-   * Default locale for language described by `localeMap->Language`.
+   * Locale resolved from implicit information in `localeMap->Language`.
+   *
+   * This locale is used as a base when resolving locale using explicit
+   * information in `localeMap`.
+   *
+   * This base locale is always complete, which means it includes country
+   * information and, for locales which have script-specific variant,
+   * script information.
+   *
+   * If explicit information does not specify country or script information,
+   * we will first try to inherit this information from this base locale.
    */
   ResolvedLocaleMap defaultLocale = {0, -1, -1};
 
@@ -573,6 +583,12 @@ bool p32_winlocale_resolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap
     return false;
   }
 
+  /**
+   * Locale resolved from explicit information in `localeMap`.
+   *
+   * If we fail to resolve locale using explicit information,
+   * then resolved locale in `defaultLocale` will be used.
+   */
   ResolvedLocaleMap resolvedLocale = {0, -1, -1};
 
   if (localeMap->Country != -1 && localeMap->Script != -1) {
@@ -593,6 +609,10 @@ bool p32_winlocale_resolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap
     }
   }
 
+  /**
+   * If we failed to resolve locale using explicit information,
+   * use resolved locale from `defaultLocale`.
+   */
   if (resolvedLocale.Locale == 0) {
     resolvedLocale = defaultLocale;
   }

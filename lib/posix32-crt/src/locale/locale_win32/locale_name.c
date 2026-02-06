@@ -527,7 +527,17 @@ bool p32_winlocale_resolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap
   }
 
   /**
+   * Locale resolved from implicit information in `localeMap->Language`.
    *
+   * This locale is used as a base when resolving locale using explicit
+   * information in `localeMap`.
+   *
+   * This base locale is always complete, which means it includes country
+   * information and, for locales which have script-specific variant,
+   * script information.
+   *
+   * If explicit information does not specify country or script information,
+   * we will first try to inherit this information from this base locale.
    */
   ResolvedLocaleMap defaultLocale = {NULL, -1, -1, -1, -1};
 
@@ -536,7 +546,10 @@ bool p32_winlocale_resolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap
   }
 
   /**
+   * Locale resolved from explicit information in `localeMap`.
    *
+   * If we fail to resolve locale using explicit information,
+   * then resolved locale in `defaultLocale` will be used.
    */
   ResolvedLocaleMap resolvedLocale = {NULL, -1, -1, -1, -1};
 
@@ -558,6 +571,12 @@ bool p32_winlocale_resolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap
     }
   }
 
+  /**
+   * If we failed to resolve locale using explicit information,
+   * store resolved locale name from `defaultLocale` in `resolvedLocale`.
+   *
+   * Otherwise, free resolved locale name in `defaultLocale`.
+   */
   if (resolvedLocale.Locale == NULL) {
     resolvedLocale       = defaultLocale;
     defaultLocale.Locale = NULL;
@@ -566,6 +585,9 @@ bool p32_winlocale_resolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap
     defaultLocale.Locale = NULL;
   }
 
+  /**
+   * Try to apply sorting order to resolved locale.
+   */
   if (localeMap->Sorting != SortingIndex_invalid) {
     if (!P32TrySortOrder (&resolvedLocale, heap, localeMap->Sorting)) {
       goto fail;
@@ -573,13 +595,13 @@ bool p32_winlocale_resolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap
   }
 
   /**
-   *
+   * This makes `locale` usable with `p32_winlocale_getinfo`.
    */
   locale->LocaleName    = resolvedLocale.Locale;
   resolvedLocale.Locale = NULL;
 
   /**
-   *
+   * Gather basic infromation for `locale->LocaleName`.
    */
   if (!P32FillLocaleInfo (locale, heap)) {
     goto fail_destroy;
