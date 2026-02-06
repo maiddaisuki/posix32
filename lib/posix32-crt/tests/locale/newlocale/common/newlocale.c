@@ -443,6 +443,9 @@ static bool __cdecl Test (Locale *locale) {
   uintptr_t heap       = (uintptr_t) heapHandle;
 
 #if P32_LOCALE_NAMES
+  /**
+   * Skip partial locale names which do not include country/region code.
+   */
   switch (wcslen (locale->LocaleName)) {
     case 2:
     case 3:
@@ -458,31 +461,6 @@ static bool __cdecl Test (Locale *locale) {
       }
       break;
   }
-#else
-  /**
-   * Language name
-   */
-  LPWSTR LanguageName = NULL;
-
-  /**
-   * Country name
-   */
-  LPWSTR LanguageCode = NULL;
-
-  /**
-   * ISO 639 language code
-   */
-  LPWSTR Ll = NULL;
-
-  /**
-   * ISO 3166 country code
-   */
-  LPWSTR Cc = NULL;
-
-  assert (p32_winlocale_getinfo (&LanguageName, heap, locale, LOCALE_SENGLANGUAGE));
-  assert (p32_winlocale_getinfo (&LanguageCode, heap, locale, LOCALE_SENGCOUNTRY));
-  assert (p32_winlocale_getinfo (&Ll, heap, locale, LOCALE_SISO639LANGNAME));
-  assert (p32_winlocale_getinfo (&Cc, heap, locale, LOCALE_SISO3166CTRYNAME));
 #endif
 
   UINT ansiCodePage   = 0;
@@ -532,38 +510,15 @@ static bool __cdecl Test (Locale *locale) {
   if (usableCharset && doTest) {
     LPSTR localeString = NULL;
 
-#if P32_LOCALE_NAMES
     assert (p32_private_asprintf (&localeString, heap, L"%s.%u", locale->LocaleName, codePage) != -1);
-#else
-    if (p32_private_asprintf (&localeString, heap, L"%s_%s.%u", LanguageName, LanguageCode, codePage) == -1) {
-      assert (p32_private_asprintf (&localeString, heap, L"%s_%s.%u", Ll, Cc, codePage) != -1);
-    }
-#endif
-
     TestLocale (locale, localeString);
 
     assert (HeapFree (heapHandle, 0, localeString));
   } else if (!usableCharset && doTest) {
-#if P32_LOCALE_NAMES
     _RPTW2 (_CRT_WARN, L"UNSUPPORTED: %s.%u\n", locale->LocaleName, codePage);
-#else
-    _RPTW3 (_CRT_WARN, L"UNSUPPORTED: %s-%s.%u\n", Ll, Cc, codePage);
-#endif
   } else {
-#if P32_LOCALE_NAMES
     _RPTW1 (_CRT_WARN, L"SKIP: %s\n", locale->LocaleName);
-#else
-    _RPTW2 (_CRT_WARN, L"SKIP: %s-%s\n", Ll, Cc);
-#endif
   }
-
-#if P32_LOCALE_NAMES
-#else
-  assert (HeapFree (heapHandle, 0, LanguageName));
-  assert (HeapFree (heapHandle, 0, LanguageCode));
-  assert (HeapFree (heapHandle, 0, Ll));
-  assert (HeapFree (heapHandle, 0, Cc));
-#endif
 
   return true;
 }
