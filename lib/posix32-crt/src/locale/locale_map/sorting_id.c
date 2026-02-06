@@ -52,6 +52,10 @@ static const SortingId SortingIds[] = {
   SORTING_DECL (SORT_KOREAN_UNICODE,         ko, SortingIndex_invalid),
   SORTING_DECL (SORT_CHINESE_BIG5,           zh, SortingIndex_default),
   SORTING_DECL (SORT_CHINESE_PRCP,           zh, SortingIndex_default),
+#ifndef SORT_CHINESE_PHONE_BOOK
+#define SORT_CHINESE_PHONE_BOOK 0x05
+#endif
+  SORTING_DECL (SORT_CHINESE_PHONE_BOOK,     zh, phoneb),
   SORTING_DECL (SORT_CHINESE_BOPOMOFO,       zh, pronun),
   SORTING_DECL (SORT_CHINESE_RADICALSTROKE,  zh, radstr),
   SORTING_DECL (SORT_CHINESE_PRC,            zh, stroke),

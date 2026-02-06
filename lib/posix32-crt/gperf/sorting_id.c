@@ -71,12 +71,12 @@
 #line 45 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
 struct sorting_id { const char *name; SortingIdIndex Index; };
 
-#define TOTAL_KEYWORDS 20
+#define TOTAL_KEYWORDS 21
 #define MIN_WORD_LENGTH 2
 #define MAX_WORD_LENGTH 10
 #define MIN_HASH_VALUE 2
-#define MAX_HASH_VALUE 39
-/* maximum key range = 38, duplicates = 0 */
+#define MAX_HASH_VALUE 44
+/* maximum key range = 43, duplicates = 0 */
 
 #ifdef __GNUC__
 __inline
@@ -90,32 +90,32 @@ P32SortingIdHash (register const char *str, register size_t len)
 {
   static unsigned char asso_values[] =
     {
-      40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
-      40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
-      40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
-      40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
-      40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
-      40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
-      40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
-      40,  3, 40, 40, 40, 30, 40, 40, 25, 20,
-      40, 40, 40, 40, 40, 40, 40,  0, 40, 40,
-      40, 40, 40, 40, 40, 40, 40,  0, 10, 40,
-      20,  0, 40, 40,  0, 40,  5, 10, 20, 40,
-      15,  5, 40, 40,  5, 40, 40,  0, 40, 40,
-      40, 40,  0, 40, 40, 40, 40, 40, 40, 40,
-      40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
-      40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
-      40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
-      40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
-      40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
-      40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
-      40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
-      40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
-      40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
-      40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
-      40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
-      40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
-      40, 40, 40, 40, 40, 40
+      45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
+      45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
+      45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
+      45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
+      45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
+      45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
+      45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
+      45,  3, 45, 45, 45, 30, 45, 45, 25, 20,
+      45, 45, 45, 45, 45, 45, 45,  0, 45, 45,
+      45, 45, 45, 45, 45, 45, 45,  5, 30, 45,
+       5,  0, 45, 45,  0, 45,  5, 10, 20, 45,
+      15, 10, 45, 45,  5, 45, 45,  0, 45, 45,
+      45, 45,  0, 45, 45, 45, 45, 45, 45, 45,
+      45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
+      45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
+      45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
+      45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
+      45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
+      45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
+      45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
+      45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
+      45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
+      45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
+      45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
+      45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
+      45, 45, 45, 45, 45, 45
     };
   return len + asso_values[(unsigned char)str[len - 1]] + asso_values[(unsigned char)str[0]];
 }
@@ -136,35 +136,35 @@ P32SortingIdLookup (register const char *str, register size_t len)
 #line 62 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"zh-TW",      Sorting_zh_Hant_default},
       {""},
-#line 51 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
-      {"ja",         Sorting_ja_default},
+#line 47 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+      {"de",         Sorting_de_default},
 #line 61 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"zh-SG",      Sorting_zh_Hans_default},
-#line 65 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
-      {"zh_stroke",  Sorting_zh_stroke},
 #line 66 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+      {"zh_stroke",  Sorting_zh_stroke},
+#line 67 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"zh_unicode", Sorting_zh_unicode},
       {""},
-#line 54 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
-      {"ka",         Sorting_ka_default},
+#line 51 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+      {"ja",         Sorting_ja_default},
       {""},
-#line 64 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 65 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"zh_radstr",  Sorting_zh_radstr},
 #line 53 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"ja_unicode", Sorting_ja_unicode},
       {""},
-#line 56 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
-      {"ko",         Sorting_ko_default},
+#line 54 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+      {"ka",         Sorting_ka_default},
       {""},
 #line 52 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"ja_radstr",  Sorting_ja_radstr},
 #line 57 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"ko_unicode", Sorting_ko_unicode},
       {""},
-#line 47 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
-      {"de",         Sorting_de_default},
+#line 56 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+      {"ko",         Sorting_ko_default},
       {""},
-#line 63 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 64 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"zh_pronun",  Sorting_zh_pronun},
 #line 60 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"zh-MO",      Sorting_zh_Hant_default},
@@ -179,6 +179,9 @@ P32SortingIdLookup (register const char *str, register size_t len)
 #line 59 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"zh-HK",      Sorting_zh_Hant_default},
       {""}, {""}, {""},
+#line 63 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+      {"zh_phoneb",  Sorting_zh_phoneb},
+      {""}, {""}, {""}, {""},
 #line 48 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"de_phoneb",  Sorting_de_phoneb}
     };
@@ -200,21 +203,13 @@ P32SortingIdLookup (register const char *str, register size_t len)
     }
   return (struct sorting_id *) 0;
 }
-#line 67 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 68 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
 
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #elif defined(_MSC_VER)
 #pragma warning(pop)
 #endif
-
-/**
- * Microsoft documentation mentions one more sorting order constant:
- *
- * SORT_CHINESE_PHONE_BOOK (zh-CN_phoneb)
- *
- * However, this constant is not defined.
- */
 
 bool p32_lookup_sorting_id (SortingIdInfo *info) {
   struct sorting_id *ss = P32SortingIdLookup (info->String, info->Length);

@@ -60,6 +60,7 @@ zh-HK,      Sorting_zh_Hant_default
 zh-MO,      Sorting_zh_Hant_default
 zh-SG,      Sorting_zh_Hans_default
 zh-TW,      Sorting_zh_Hant_default
+zh_phoneb,  Sorting_zh_phoneb
 zh_pronun,  Sorting_zh_pronun
 zh_radstr,  Sorting_zh_radstr
 zh_stroke,  Sorting_zh_stroke
@@ -70,14 +71,6 @@ zh_unicode, Sorting_zh_unicode
 #elif defined(_MSC_VER)
 #pragma warning(pop)
 #endif
-
-/**
- * Microsoft documentation mentions one more sorting order constant:
- *
- * SORT_CHINESE_PHONE_BOOK (zh-CN_phoneb)
- *
- * However, this constant is not defined.
- */
 
 bool p32_lookup_sorting_id (SortingIdInfo *info) {
   struct sorting_id *ss = P32SortingIdLookup (info->String, info->Length);
