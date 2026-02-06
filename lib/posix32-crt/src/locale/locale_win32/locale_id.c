@@ -571,6 +571,13 @@ fail:
   return false;
 }
 
+#ifdef LIBPOSIX32_TEST
+bool p32_winlocale_from_lcid (Locale *locale, uintptr_t heap, uint32_t localeId) {
+  locale->LocaleId = localeId;
+  return P32LocaleFromLCID (locale, heap);
+}
+#endif
+
 bool p32_winlocale_system_default (Locale *locale, uintptr_t heap) {
   locale->LocaleId = GetSystemDefaultLCID ();
   return P32LocaleFromLCID (locale, heap);

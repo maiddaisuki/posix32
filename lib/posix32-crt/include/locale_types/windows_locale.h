@@ -140,6 +140,15 @@ typedef struct CrtLocale {
 } CrtLocale;
 #endif
 
+#if defined(LIBPOSIX32_TEST) && !P32_LOCALE_NAMES
+/**
+ * Attempt to construct `Locale` object from existing valid `localeId`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+P32_TEST_DECL bool p32_winlocale_from_lcid (Locale *locale, uintptr_t heap, uint32_t localeId);
+#endif
+
 /**
  * Construct `Locale` object corresponding to System Default Locale.
  *
