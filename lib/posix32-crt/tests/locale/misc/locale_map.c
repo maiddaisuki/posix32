@@ -77,20 +77,26 @@ static void DoTest (LPCWSTR ll, LPCWSTR cc) {
   assert (HeapFree (heapHandle, 0, localeString));
 }
 
+/**
+ * Try to parse locale name `locale->LocaleName`.
+ */
+static void DoTestLocaleName (Locale *locale) {
+  HANDLE    heapHandle = GetProcessHeap ();
+  uintptr_t heap       = (uintptr_t) heapHandle;
+
+  LocaleMap localeMap = {0};
+
+  if (!p32_locale_map (&localeMap, locale->LocaleName, heap)) {
+    exit_code = EXIT_FAILURE;
+    fwprintf (stderr, L"FAIL: %s\n", locale->LocaleName);
+  }
+}
+
 static bool __cdecl Test (Locale *locale) {
   HANDLE    heapHandle = GetProcessHeap ();
   uintptr_t heap       = (uintptr_t) heapHandle;
 
-#if P32_LOCALE_NAMES
-  do {
-    LocaleMap localeMap = {0};
-
-    if (!p32_locale_map (&localeMap, locale->LocaleName, heap)) {
-      exit_code = EXIT_FAILURE;
-      fwprintf (stderr, L"FAIL: %s\n", locale->LocaleName);
-    }
-  } while (0);
-#endif
+  DoTestLocaleName (locale);
 
   /**
    * Language name
