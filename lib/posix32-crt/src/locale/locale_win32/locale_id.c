@@ -260,20 +260,20 @@ static bool P32Ll (ResolvedLocaleMap *locale, LocaleMap *map, uintptr_t heap) {
 
   Script script = {0};
 
-  if (map->Language.Script != -1) {
+  if (map->Language.Script != ScriptIndex_invalid) {
     p32_script (map->Language.Script, &script);
   }
 
   Country country = {0};
 
-  if (map->Language.Country != -1) {
+  if (map->Language.Country != CountryIndex_invalid) {
     p32_country (map->Language.Country, &country);
   }
 
   /**
    * Attempt to apply both `map->Language.Script` and `map->Language.Country`.
    */
-  if (map->Language.Script != -1 && map->Language.Country != -1) {
+  if (map->Language.Script != ScriptIndex_invalid && map->Language.Country != CountryIndex_invalid) {
     if (!P32TryResolve (locale, heap, map->Language.Language, map->Language.Script, map->Language.Country)) {
       return false;
     }
@@ -286,7 +286,7 @@ static bool P32Ll (ResolvedLocaleMap *locale, LocaleMap *map, uintptr_t heap) {
   /**
    * Attempt to apply `map->Language.Script`.
    */
-  if (map->Language.Script != -1) {
+  if (map->Language.Script != ScriptIndex_invalid) {
     if (!P32TryResolve (locale, heap, map->Language.Language, map->Language.Script, CountryIndex_invalid)) {
       return false;
     }
@@ -299,7 +299,7 @@ static bool P32Ll (ResolvedLocaleMap *locale, LocaleMap *map, uintptr_t heap) {
   /**
    * Attempt to apply `map->Language.Country`.
    */
-  if (map->Language.Country != -1) {
+  if (map->Language.Country != CountryIndex_invalid) {
     if (!P32TryResolve (locale, heap, map->Language.Language, ScriptIndex_invalid, map->Language.Country)) {
       return false;
     }
@@ -393,7 +393,7 @@ static bool P32LlCc (ResolvedLocaleMap *locale, LocaleMap *map, uintptr_t heap, 
 
     p32_sublanguage (base->Sublanguage, &sublanguage);
 
-    if (sublanguage.Map.Script != -1) {
+    if (sublanguage.Map.Script != ScriptIndex_invalid) {
       if (!P32TryResolve (locale, heap, map->Language.Language, sublanguage.Map.Script, map->Country)) {
         return false;
       }
@@ -432,7 +432,7 @@ static bool P32LlSs (ResolvedLocaleMap *locale, LocaleMap *map, uintptr_t heap, 
 
     p32_sublanguage (base->Sublanguage, &sublanguage);
 
-    if (sublanguage.Map.Country != -1) {
+    if (sublanguage.Map.Country != CountryIndex_invalid) {
       if (!P32TryResolve (locale, heap, map->Language.Language, map->Script, sublanguage.Map.Country)) {
         return false;
       }
@@ -577,7 +577,7 @@ bool p32_winlocale_resolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap
    * If explicit information does not specify country or script information,
    * we will first try to inherit this information from this base locale.
    */
-  ResolvedLocaleMap defaultLocale = {0, -1, -1};
+  ResolvedLocaleMap defaultLocale = {0, SublanguageIndex_invalid, SortingIndex_invalid};
 
   if (!P32Ll (&defaultLocale, localeMap, heap)) {
     return false;
@@ -589,21 +589,21 @@ bool p32_winlocale_resolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap
    * If we fail to resolve locale using explicit information,
    * then resolved locale in `defaultLocale` will be used.
    */
-  ResolvedLocaleMap resolvedLocale = {0, -1, -1};
+  ResolvedLocaleMap resolvedLocale = {0, SublanguageIndex_invalid, SortingIndex_invalid};
 
-  if (localeMap->Country != -1 && localeMap->Script != -1) {
+  if (localeMap->Country != CountryIndex_invalid && localeMap->Script != ScriptIndex_invalid) {
     if (!P32LlSsCc (&resolvedLocale, localeMap, heap)) {
       return false;
     }
   }
 
-  if (resolvedLocale.Locale == 0 && localeMap->Script != -1) {
+  if (resolvedLocale.Locale == 0 && localeMap->Script != ScriptIndex_invalid) {
     if (!P32LlSs (&resolvedLocale, localeMap, heap, &defaultLocale)) {
       return false;
     }
   }
 
-  if (resolvedLocale.Locale == 0 && localeMap->Country != -1) {
+  if (resolvedLocale.Locale == 0 && localeMap->Country != CountryIndex_invalid) {
     if (!P32LlCc (&resolvedLocale, localeMap, heap, &defaultLocale)) {
       return false;
     }
@@ -620,7 +620,7 @@ bool p32_winlocale_resolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap
   /**
    * Try to apply sorting order to resolved locale.
    */
-  if (localeMap->Sorting != -1) {
+  if (localeMap->Sorting != SortingIndex_invalid) {
     if (!P32TrySortOrder (&resolvedLocale, heap, localeMap->Language.Language, localeMap->Sorting)) {
       return false;
     }
