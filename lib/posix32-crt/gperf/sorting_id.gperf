@@ -60,9 +60,9 @@ zh-HK,      Sorting_zh_Hant_default
 zh-MO,      Sorting_zh_Hant_default
 zh-SG,      Sorting_zh_Hans_default
 zh-TW,      Sorting_zh_Hant_default
+zh_pronun,  Sorting_zh_pronun
 zh_radstr,  Sorting_zh_radstr
 zh_stroke,  Sorting_zh_stroke
-zh_pronun,  Sorting_zh_pronun
 zh_unicode, Sorting_zh_unicode
 %%
 #if defined(__GNUC__) || defined(__clang__)

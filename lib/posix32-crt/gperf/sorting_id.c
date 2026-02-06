@@ -140,7 +140,7 @@ P32SortingIdLookup (register const char *str, register size_t len)
       {"ja",         Sorting_ja_default},
 #line 61 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"zh-SG",      Sorting_zh_Hans_default},
-#line 64 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 65 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"zh_stroke",  Sorting_zh_stroke},
 #line 66 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"zh_unicode", Sorting_zh_unicode},
@@ -148,7 +148,7 @@ P32SortingIdLookup (register const char *str, register size_t len)
 #line 54 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"ka",         Sorting_ka_default},
       {""},
-#line 63 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 64 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"zh_radstr",  Sorting_zh_radstr},
 #line 53 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"ja_unicode", Sorting_ja_unicode},
@@ -164,7 +164,7 @@ P32SortingIdLookup (register const char *str, register size_t len)
 #line 47 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"de",         Sorting_de_default},
       {""},
-#line 65 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 63 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"zh_pronun",  Sorting_zh_pronun},
 #line 60 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"zh-MO",      Sorting_zh_Hant_default},

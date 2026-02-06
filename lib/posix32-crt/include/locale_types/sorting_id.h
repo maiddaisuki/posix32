@@ -31,9 +31,9 @@ typedef enum SortingIdIndex {
   Sorting_ko_unicode,
   Sorting_zh_Hans_default,
   Sorting_zh_Hant_default,
+  Sorting_zh_pronun,
   Sorting_zh_radstr,
   Sorting_zh_stroke,
-  Sorting_zh_pronun,
   Sorting_zh_unicode,
 } SortingIdIndex;
 
