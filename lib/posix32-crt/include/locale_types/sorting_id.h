@@ -18,6 +18,7 @@
 #define LIBPOSIX32_SORTING_ID_H_INCLUDED
 
 typedef enum SortingIdIndex {
+#define SortingIdIndex_MIN Sorting_de_default
   Sorting_de_default = 0,
   Sorting_de_phoneb,
   Sorting_hu_default,
@@ -36,6 +37,7 @@ typedef enum SortingIdIndex {
   Sorting_zh_radstr,
   Sorting_zh_stroke,
   Sorting_zh_unicode,
+#define SortingIdIndex_MAX Sorting_zh_unicode
 } SortingIdIndex;
 
 #endif /* LIBPOSIX32_SORTING_ID_H_INCLUDED */

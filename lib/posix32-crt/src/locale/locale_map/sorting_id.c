@@ -31,12 +31,6 @@
 #if !P32_LOCALE_NAMES
 #define SORTING_DECL(id, ll, sorting) {id, ll, sorting}
 
-typedef struct SortingId {
-  uint16_t      SortingId;
-  LanguageIndex Language;
-  SortingIndex  Sorting;
-} SortingId;
-
 static const SortingId SortingIds[] = {
   /* clang-format off */
   SORTING_DECL (SORT_DEFAULT,                de, SortingIndex_default),
@@ -62,6 +56,11 @@ static const SortingId SortingIds[] = {
   SORTING_DECL (SORT_CHINESE_UNICODE,        zh, SortingIndex_invalid),
   /* clang-format on */
 };
+
+void p32_sorting_id (SortingIdIndex index, SortingId *sortingId) {
+  assert (index >= SortingIdIndex_MIN && index <= SortingIdIndex_MAX);
+  *sortingId = SortingIds[index];
+}
 
 SortingIndex p32_sorting_from_id (uint16_t sortingId, LanguageIndex ll) {
   for (SortingIdIndex i = 0; i < (SortingIdIndex) _countof (SortingIds); ++i) {

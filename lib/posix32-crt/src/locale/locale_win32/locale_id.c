@@ -152,8 +152,13 @@ static bool P32TrySortOrder (ResolvedLocaleMap *locale, uintptr_t heap, Language
   info.Length = length;
 
   if (p32_lookup_sorting_id (&info)) {
+    SortingId sortingId = {0};
+
+    p32_sorting_id (info.SortingId, &sortingId);
+    assert (sortingId.Sorting == ss);
+
     LANGID langId   = LANGIDFROMLCID (locale->Locale);
-    LCID   localeId = MAKELCID (langId, info.SortId);
+    LCID   localeId = MAKELCID (langId, sortingId.SortingId);
 
     if (IsValidLocale (localeId, LCID_INSTALLED)) {
       locale->Locale  = localeId;

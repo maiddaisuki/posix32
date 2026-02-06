@@ -79,9 +79,9 @@ typedef struct SubLangInfo {
 bool p32_lookup_sublanguage (SubLangInfo *info);
 
 typedef struct SortingIdInfo {
-  const char *String;
-  size_t      Length;
-  uint16_t    SortId;
+  const char    *String;
+  size_t         Length;
+  SortingIdIndex SortingId;
 } SortingIdInfo;
 
 bool p32_lookup_sorting_id (SortingIdInfo *info);

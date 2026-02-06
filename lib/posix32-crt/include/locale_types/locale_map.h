@@ -166,6 +166,20 @@ void p32_sorting (SortingIndex index, Sorting *sorting);
 
 #if !P32_LOCALE_NAMES
 /**
+ * Information about sorting order ID used to construct `LCID` locale.
+ */
+typedef struct SortingId {
+  uint16_t      SortingId;
+  LanguageIndex Language;
+  SortingIndex  Sorting;
+} SortingId;
+
+/**
+ * Retrieve `SortingId` structure for `index`.
+ */
+void p32_sorting_id (SortingIdIndex index, SortingId *sortingId);
+
+/**
  * Lookup `SortingIndex` for sorting order ID `sortingId` and language `ll`.
  *
  * On success, returns either

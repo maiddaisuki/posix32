@@ -218,7 +218,7 @@ bool p32_lookup_sorting_id (SortingIdInfo *info) {
     return false;
   }
 
-  info->SortId = ss->Index;
+  info->SortingId = ss->Index;
 
   return true;
 }
