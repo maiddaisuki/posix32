@@ -88,6 +88,8 @@ typedef bool (__cdecl *LocaleCallback4) (locale_t, const wchar_t *);
  *
  * The first argument passed to `callback` is `Locale` object which can be
  * used with `p32_winlocale_getinfo`.
+ *
+ * In addition, `LocaleName` field of passed `Locale` object is always set.
  */
 P32_TEST_DECL void p32_locale_test_func1 (LocaleCallback1 callback);
 

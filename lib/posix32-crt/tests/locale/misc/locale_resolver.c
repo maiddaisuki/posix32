@@ -291,12 +291,6 @@ static bool __cdecl Test (Locale *locale) {
   uintptr_t heap       = (uintptr_t) heapHandle;
 
 #if P32_LOCALE_NAMES
-  if (locale->LocaleName[0] == L'\0') {
-    return true;
-  } else if (wcscmp (locale->LocaleName, L"x-IV_mathan") == 0) {
-    return true;
-  }
-
   DoTestLocaleName (locale);
 #endif
 

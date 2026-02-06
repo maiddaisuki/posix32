@@ -26,18 +26,39 @@ static BOOL CALLBACK CallbackWrapper1 (LPWSTR localeString) {
   assert (callback1 != NULL);
 #endif
 
+  HANDLE    heapHandle = GetProcessHeap ();
+  uintptr_t heap       = (uintptr_t) heapHandle;
+
   LocaleCallback1 callback = NULL;
   Locale          locale   = {0};
 
 #if P32_LOCALE_NAMES
-  locale.LocaleName = localeString;
-  callback          = (LocaleCallback1) param;
+  if (localeString[0] == L'\0') {
+    return true;
+  } else if (wcscmp (localeString, L"x-IV_mathan") == 0) {
+    return true;
+  }
+
+  assert (p32_private_wcsdup (&locale.LocaleName, localeString, heap) != -1);
+
+  callback = (LocaleCallback1) param;
 #else
-  locale.LocaleId = wcstoul (localeString, NULL, 16);
-  callback        = callback1;
+  uint32_t localeId = wcstoul (localeString, NULL, 16);
+
+  if (PRIMARYLANGID (LANGIDFROMLCID (localeId)) == LANG_INVARIANT) {
+    return true;
+  }
+
+  assert (p32_winlocale_from_lcid (&locale, heap, localeId));
+  assert (locale.LocaleName != NULL);
+
+  callback = callback1;
 #endif
 
-  return callback (&locale);
+  bool keepGoing = callback (&locale);
+  p32_winlocale_destroy (&locale, heap);
+
+  return keepGoing;
 }
 
 void p32_locale_test_func1 (LocaleCallback1 callback) {
@@ -45,6 +66,6 @@ void p32_locale_test_func1 (LocaleCallback1 callback) {
   EnumSystemLocalesEx (CallbackWrapper1, LOCALE_ALL, (LPARAM) callback, NULL);
 #else
   callback1 = callback;
-  EnumSystemLocalesW (CallbackWrapper1, LCID_SUPPORTED);
+  EnumSystemLocalesW (CallbackWrapper1, LCID_INSTALLED | LCID_ALTERNATE_SORTS);
 #endif
 }
