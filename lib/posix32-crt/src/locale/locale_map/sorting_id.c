@@ -39,6 +39,7 @@ typedef struct SortingId {
 
 static const SortingId SortingIds[] = {
   /* clang-format off */
+  SORTING_DECL (SORT_DEFAULT,                de, SortingIndex_default),
   SORTING_DECL (SORT_GERMAN_PHONE_BOOK,      de, phoneb),
   SORTING_DECL (SORT_HUNGARIAN_DEFAULT,      hu, SortingIndex_default),
   SORTING_DECL (SORT_HUNGARIAN_TECHNICAL,    hu, technl),

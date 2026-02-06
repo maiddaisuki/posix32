@@ -44,6 +44,7 @@
 %struct-type
 struct sorting_id { const char *name; SortingIdIndex Index; };
 %%
+de,         Sorting_de_default
 de_phoneb,  Sorting_de_phoneb
 hu,         Sorting_hu_default
 hu_technl,  Sorting_hu_technl

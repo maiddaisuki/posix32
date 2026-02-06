@@ -71,7 +71,7 @@
 #line 45 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
 struct sorting_id { const char *name; SortingIdIndex Index; };
 
-#define TOTAL_KEYWORDS 19
+#define TOTAL_KEYWORDS 20
 #define MIN_WORD_LENGTH 2
 #define MAX_WORD_LENGTH 10
 #define MIN_HASH_VALUE 2
@@ -99,8 +99,8 @@ P32SortingIdHash (register const char *str, register size_t len)
       40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
       40,  3, 40, 40, 40, 30, 40, 40, 25, 20,
       40, 40, 40, 40, 40, 40, 40,  0, 40, 40,
-      40, 40, 40, 40, 40, 40, 40,  0, 15, 40,
-      15,  0, 40, 40,  0, 40,  5, 10, 20, 40,
+      40, 40, 40, 40, 40, 40, 40,  0, 10, 40,
+      20,  0, 40, 40,  0, 40,  5, 10, 20, 40,
       15,  5, 40, 40,  5, 40, 40,  0, 40, 40,
       40, 40,  0, 40, 40, 40, 40, 40, 40, 40,
       40, 40, 40, 40, 40, 40, 40, 40, 40, 40,
@@ -130,53 +130,56 @@ P32SortingIdLookup (register const char *str, register size_t len)
   static struct sorting_id wordlist[] =
     {
       {""}, {""},
-#line 48 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 49 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"hu",         Sorting_hu_default},
       {""}, {""},
-#line 61 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 62 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"zh-TW",      Sorting_zh_Hant_default},
       {""},
-#line 50 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 51 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"ja",         Sorting_ja_default},
-#line 60 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 61 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"zh-SG",      Sorting_zh_Hans_default},
-#line 63 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 64 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"zh_stroke",  Sorting_zh_stroke},
-#line 65 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 66 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"zh_unicode", Sorting_zh_unicode},
       {""},
-#line 53 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 54 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"ka",         Sorting_ka_default},
       {""},
-#line 62 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 63 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"zh_radstr",  Sorting_zh_radstr},
-#line 52 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 53 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"ja_unicode", Sorting_ja_unicode},
       {""},
-#line 55 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 56 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"ko",         Sorting_ko_default},
       {""},
-#line 51 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 52 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"ja_radstr",  Sorting_ja_radstr},
-#line 56 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 57 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"ko_unicode", Sorting_ko_unicode},
-      {""}, {""}, {""},
-#line 64 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+      {""},
+#line 47 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+      {"de",         Sorting_de_default},
+      {""},
+#line 65 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"zh_pronun",  Sorting_zh_pronun},
-#line 59 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 60 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"zh-MO",      Sorting_zh_Hant_default},
       {""}, {""}, {""},
-#line 49 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 50 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"hu_technl",  Sorting_hu_technl},
-#line 57 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 58 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"zh-CN",      Sorting_zh_Hans_default},
       {""}, {""}, {""},
-#line 54 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 55 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"ka_modern",  Sorting_ka_modern},
-#line 58 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 59 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"zh-HK",      Sorting_zh_Hant_default},
       {""}, {""}, {""},
-#line 47 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 48 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"de_phoneb",  Sorting_de_phoneb}
     };
 #if (defined __GNUC__ && __GNUC__ + (__GNUC_MINOR__ >= 6) > 4) || (defined __clang__ && __clang_major__ >= 3)
@@ -197,7 +200,7 @@ P32SortingIdLookup (register const char *str, register size_t len)
     }
   return (struct sorting_id *) 0;
 }
-#line 66 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
+#line 67 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
 
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
