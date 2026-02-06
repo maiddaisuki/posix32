@@ -6,6 +6,7 @@
 tests = [
   'locale_map',
   'locale_resolver',
+  'system_default_locale',
   'user_default_locale',
 ]
 

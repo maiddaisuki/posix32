@@ -566,6 +566,11 @@ fail:
   return false;
 }
 
+bool p32_winlocale_system_default (Locale *locale, uintptr_t heap) {
+  locale->LocaleId = GetSystemDefaultLCID ();
+  return P32LocaleFromLCID (locale, heap);
+}
+
 bool p32_winlocale_user_default (Locale *locale, uintptr_t heap) {
   locale->LocaleId = GetUserDefaultLCID ();
 

@@ -513,6 +513,10 @@ fail:
   return false;
 }
 
+bool p32_winlocale_system_default (Locale *locale, uintptr_t heap) {
+  return P32DefaultLocale (locale, heap, SystemDefaultLocale);
+}
+
 bool p32_winlocale_user_default (Locale *locale, uintptr_t heap) {
   return P32DefaultLocale (locale, heap, UserDefaultLocale);
 }
