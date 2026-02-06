@@ -19,10 +19,10 @@ static LocaleCallback2 callback2 = NULL;
 #endif
 
 #if P32_LOCALE_NAMES
-static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeName, DWORD flags, LPARAM param) {
+static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeString, DWORD flags, LPARAM param) {
   UNREFERENCED_PARAMETER (flags);
 #else
-static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeId) {
+static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeString) {
   assert (callback2 != NULL);
 #endif
 
@@ -33,58 +33,45 @@ static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeId) {
   Locale          locale   = {0};
 
 #if P32_LOCALE_NAMES
-  if (localeName[0] == L'\0') {
+  if (localeString[0] == L'\0') {
     return TRUE;
-  } else if (wcscmp (localeName, L"x-IV_mathan") == 0) {
+  } else if (wcscmp (localeString, L"x-IV_mathan") == 0) {
     return TRUE;
   }
 
-  switch (wcslen (localeName)) {
+  /**
+   * Skip partial locale names which do not include country/region code.
+   */
+  switch (wcslen (localeString)) {
     case 2:
     case 3:
       return TRUE;
     case 7:
-      if (localeName[2] == L'-') {
+      if (localeString[2] == L'-') {
         return TRUE;
       }
       break;
     case 8:
-      if (localeName[3] == L'-') {
+      if (localeString[3] == L'-') {
         return TRUE;
       }
       break;
   }
 
-  locale.LocaleName = localeName;
-  callback          = (LocaleCallback2) param;
+  assert (p32_private_wcsdup (&locale.LocaleName, localeString, heap) != -1);
+
+  callback = (LocaleCallback2) param;
 #else
-  locale.LocaleId = wcstoul (localeId, NULL, 16);
-  callback        = callback2;
+  uint32_t localeId = wcstoul (localeString, NULL, 16);
 
-  /**
-   * Language name
-   */
-  LPWSTR LanguageName = NULL;
+  if (PRIMARYLANGID (LANGIDFROMLCID (localeId)) == LANG_INVARIANT) {
+    return true;
+  }
 
-  /**
-   * Country name
-   */
-  LPWSTR CountryName = NULL;
+  assert (p32_winlocale_from_lcid (&locale, heap, localeId));
+  assert (locale.LocaleName != NULL);
 
-  /**
-   * ISO 639 language code
-   */
-  LPWSTR Ll = NULL;
-
-  /**
-   * ISO 3166 country code
-   */
-  LPWSTR Cc = NULL;
-
-  assert (p32_winlocale_getinfo (&LanguageName, heap, &locale, LOCALE_SENGLANGUAGE));
-  assert (p32_winlocale_getinfo (&CountryName, heap, &locale, LOCALE_SENGCOUNTRY));
-  assert (p32_winlocale_getinfo (&Ll, heap, &locale, LOCALE_SISO639LANGNAME));
-  assert (p32_winlocale_getinfo (&Cc, heap, &locale, LOCALE_SISO3166CTRYNAME));
+  callback = callback2;
 #endif
 
   bool flagSetlocale = !!(P32LocaleTestFlags & P32_LOCALE_TEST_SETLOCALE);
@@ -132,17 +119,10 @@ static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeId) {
    * Test locale with its default ANSI code page.
    */
   if (testAnsi) {
-    LPSTR localeString = NULL;
+    LPSTR testLocaleString = NULL;
 
-#if P32_LOCALE_NAMES
-    assert (p32_private_asprintf (&localeString, heap, L"%s.%u", locale.LocaleName, ansiCodePage) != -1);
-#else
-    if (p32_private_asprintf (&localeString, heap, L"%s_%s.%u", LanguageName, CountryName, ansiCodePage) == -1) {
-      assert (p32_private_asprintf (&localeString, heap, L"%s_%s.%u", Ll, Cc, ansiCodePage) != -1);
-    }
-#endif
-
-    locale_t testLocale = p32_newlocale (LC_ALL_MASK, localeString, NULL);
+    assert (p32_private_asprintf (&testLocaleString, heap, L"%s.%u", locale.LocaleName, ansiCodePage) != -1);
+    locale_t testLocale = p32_newlocale (LC_ALL_MASK, testLocaleString, NULL);
 
     if (testLocale != NULL) {
       if (!flagSetlocale) {
@@ -165,7 +145,7 @@ static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeId) {
       p32_freelocale (testLocale);
     }
 
-    assert (HeapFree (heapHandle, 0, localeString));
+    assert (HeapFree (heapHandle, 0, testLocaleString));
   }
 
   if (!keep_going || (flagOnce && tested)) {
@@ -176,17 +156,10 @@ static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeId) {
    * Test locale with its default OEM code page.
    */
   if (testOem) {
-    LPSTR localeString = NULL;
+    LPSTR testLocaleString = NULL;
 
-#if P32_LOCALE_NAMES
-    assert (p32_private_asprintf (&localeString, heap, L"%s.%u", locale.LocaleName, oemCodePage) != -1);
-#else
-    if (p32_private_asprintf (&localeString, heap, L"%s_%s.%u", LanguageName, CountryName, oemCodePage) == -1) {
-      assert (p32_private_asprintf (&localeString, heap, L"%s_%s.%u", Ll, Cc, oemCodePage) != -1);
-    }
-#endif
-
-    locale_t testLocale = p32_newlocale (LC_ALL_MASK, localeString, NULL);
+    assert (p32_private_asprintf (&testLocaleString, heap, L"%s.%u", locale.LocaleName, oemCodePage) != -1);
+    locale_t testLocale = p32_newlocale (LC_ALL_MASK, testLocaleString, NULL);
 
     if (testLocale != NULL) {
       if (!flagSetlocale) {
@@ -209,7 +182,7 @@ static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeId) {
       p32_freelocale (testLocale);
     }
 
-    assert (HeapFree (heapHandle, 0, localeString));
+    assert (HeapFree (heapHandle, 0, testLocaleString));
   }
 
   if (!keep_going || (flagOnce && tested)) {
@@ -220,17 +193,10 @@ static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeId) {
    * Test locale with UTF-8.
    */
   if (testUnicode) {
-    LPSTR localeString = NULL;
+    LPSTR testLocaleString = NULL;
 
-#if P32_LOCALE_NAMES
-    assert (p32_private_asprintf (&localeString, heap, L"%s.%u", locale.LocaleName, CP_UTF8) != -1);
-#else
-    if (p32_private_asprintf (&localeString, heap, L"%s_%s.%u", LanguageName, CountryName, CP_UTF8) == -1) {
-      assert (p32_private_asprintf (&localeString, heap, L"%s_%s.%u", Ll, Cc, CP_UTF8) != -1);
-    }
-#endif
-
-    locale_t testLocale = p32_newlocale (LC_ALL_MASK, localeString, NULL);
+    assert (p32_private_asprintf (&testLocaleString, heap, L"%s.%u", locale.LocaleName, CP_UTF8) != -1);
+    locale_t testLocale = p32_newlocale (LC_ALL_MASK, testLocaleString, NULL);
 
     if (testLocale != NULL) {
       if (!flagSetlocale) {
@@ -253,7 +219,7 @@ static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeId) {
       p32_freelocale (testLocale);
     }
 
-    assert (HeapFree (heapHandle, 0, localeString));
+    assert (HeapFree (heapHandle, 0, testLocaleString));
   }
 
   if (!keep_going || (flagOnce && tested)) {
@@ -261,13 +227,7 @@ static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeId) {
   }
 
 stop:
-#if P32_LOCALE_NAMES
-#else
-  assert (HeapFree (heapHandle, 0, Ll));
-  assert (HeapFree (heapHandle, 0, Cc));
-  assert (HeapFree (heapHandle, 0, LanguageName));
-  assert (HeapFree (heapHandle, 0, CountryName));
-#endif
+  p32_winlocale_destroy (&locale, heap);
 
   return keep_going;
 }
@@ -326,6 +286,6 @@ void p32_locale_test_func2 (LocaleCallback2 callback, int flags) {
   EnumSystemLocalesEx (CallbackWrapper2, LOCALE_ALL, (LPARAM) callback, NULL);
 #else
   callback2 = callback;
-  EnumSystemLocalesW (CallbackWrapper2, LCID_SUPPORTED);
+  EnumSystemLocalesW (CallbackWrapper2, LCID_INSTALLED | LCID_ALTERNATE_SORTS);
 #endif
 }
