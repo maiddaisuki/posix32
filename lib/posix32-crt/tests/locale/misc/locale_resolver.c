@@ -214,15 +214,21 @@ static bool IsEqualLocale (Locale *from, Locale *to) {
     return wcscmp (from->LocaleName, to->LocaleName) == 0;
   }
 #else /* !P32_LOCALE_NAMES */
-  LANGID fromLangId        = LANGIDFROMLCID (from->LocaleId);
-  LANGID fromPrimaryLangId = PRIMARYLANGID (fromLangId);
-  LANGID fromSubLangId     = SUBLANGID (fromLangId);
+  LANGID fromLangId = LANGIDFROMLCID (from->LocaleId);
+  LANGID toLangId   = LANGIDFROMLCID (to->LocaleId);
 
-  LANGID toLangId        = LANGIDFROMLCID (to->LocaleId);
-  LANGID toPrimaryLangId = PRIMARYLANGID (toLangId);
-  LANGID toSubLangId     = SUBLANGID (toLangId);
+  if (fromLangId != toLangId) {
+    return false;
+  }
 
-  return fromPrimaryLangId == toPrimaryLangId && fromSubLangId == toSubLangId;
+  WORD fromSortingId = SORTIDFROMLCID (from->LocaleId);
+  WORD toSortingId   = SORTIDFROMLCID (to->LocaleId);
+
+  if (fromSortingId != toSortingId) {
+    fwprintf (stdout, L"UNRESOLVED: %s -> %s\n", from->LocaleName, to->LocaleName);
+  }
+
+  return true;
 #endif
 }
 
@@ -245,11 +251,7 @@ static void DoTest (Locale *originaLocale, LPCWSTR ll, LPCWSTR cc) {
   if (p32_winlocale_resolve (&resolvedLocale, heap, &localeMap)) {
     if (!IsEqualLocale (originaLocale, &resolvedLocale) && !IsKnownFailure (originaLocale, &resolvedLocale)) {
       exit_code = EXIT_FAILURE;
-#if P32_LOCALE_NAMES
       fwprintf (stderr, L"FAIL: %s -> %s -> %s\n", originaLocale->LocaleName, LocaleString, resolvedLocale.LocaleName);
-#else
-      fwprintf (stderr, L"FAIL: %s -> %s\n", LocaleString, resolvedLocale.LocaleName);
-#endif
     }
 
     p32_winlocale_destroy (&resolvedLocale, heap);
@@ -261,9 +263,8 @@ static void DoTest (Locale *originaLocale, LPCWSTR ll, LPCWSTR cc) {
   assert (HeapFree (heapHandle, 0, LocaleString));
 }
 
-#if P32_LOCALE_NAMES
 /**
- * Resolve locale from `originalLocale->LocaleName.
+ * Resolve locale from `originalLocale->LocaleName`.
  *
  * Resolved locale must be equivalent to `originalLocale`.
  */
@@ -275,24 +276,25 @@ static void DoTestLocaleName (Locale *originalLocale) {
   Locale    resolvedLocale = {0};
 
   assert (p32_locale_map (&localeMap, originalLocale->LocaleName, heap));
-  assert (p32_winlocale_resolve (&resolvedLocale, heap, &localeMap));
 
-  if (!IsEqualLocale (originalLocale, &resolvedLocale) && !IsKnownFailure (originalLocale, &resolvedLocale)) {
+  if (p32_winlocale_resolve (&resolvedLocale, heap, &localeMap)) {
+    if (!IsEqualLocale (originalLocale, &resolvedLocale) && !IsKnownFailure (originalLocale, &resolvedLocale)) {
+      exit_code = EXIT_FAILURE;
+      fwprintf (stderr, L"FAIL: %s -> %s\n", originalLocale->LocaleName, resolvedLocale.LocaleName);
+    }
+
+    p32_winlocale_destroy (&resolvedLocale, heap);
+  } else {
     exit_code = EXIT_FAILURE;
-    fwprintf (stderr, L"%s -> %s\n", originalLocale->LocaleName, resolvedLocale.LocaleName);
+    fwprintf (stderr, L"ERROR: %s\n", originalLocale->LocaleName);
   }
-
-  p32_winlocale_destroy (&resolvedLocale, heap);
 }
-#endif
 
 static bool __cdecl Test (Locale *locale) {
   HANDLE    heapHandle = GetProcessHeap ();
   uintptr_t heap       = (uintptr_t) heapHandle;
 
-#if P32_LOCALE_NAMES
   DoTestLocaleName (locale);
-#endif
 
   /**
    * Language name
