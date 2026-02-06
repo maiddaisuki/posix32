@@ -1,5 +1,5 @@
-/* ANSI-C code produced by gperf version 3.1 */
-/* Command-line: /usr/bin/gperf --output-file=F:/posix32/lib/posix32-crt/gperf/country_codes.c F:/posix32/lib/posix32-crt/gperf/country_codes.gperf  */
+/* ANSI-C code produced by gperf version 3.3 */
+/* Command-line: gperf --output-file=F:/posix32/lib/posix32-crt/gperf/country_codes.c F:/posix32/lib/posix32-crt/gperf/country_codes.gperf  */
 /* Computed positions: -k'1-3' */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
@@ -32,7 +32,7 @@
 #line 1 "F:/posix32/lib/posix32-crt/gperf/country_codes.gperf"
 
 /**
- * Copyright 2025 Kirill Makurin
+ * Copyright 2025-2026 Kirill Makurin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -125,9 +125,19 @@ P32CountryCodeHash (register const char *str, register size_t len)
     {
       default:
         hval += asso_values[(unsigned char)str[2]+12];
+#if (defined __cplusplus && (__cplusplus >= 201703L || (__cplusplus >= 201103L && defined __clang__ && __clang_major__ + (__clang_minor__ >= 9) > 3))) || (defined __STDC_VERSION__ && __STDC_VERSION__ >= 202000L && ((defined __GNUC__ && __GNUC__ >= 10) || (defined __clang__ && __clang_major__ >= 9)))
+      [[fallthrough]];
+#elif (defined __GNUC__ && __GNUC__ >= 7) || (defined __clang__ && __clang_major__ >= 10)
+      __attribute__ ((__fallthrough__));
+#endif
       /*FALLTHROUGH*/
       case 2:
         hval += asso_values[(unsigned char)str[1]+1];
+#if (defined __cplusplus && (__cplusplus >= 201703L || (__cplusplus >= 201103L && defined __clang__ && __clang_major__ + (__clang_minor__ >= 9) > 3))) || (defined __STDC_VERSION__ && __STDC_VERSION__ >= 202000L && ((defined __GNUC__ && __GNUC__ >= 10) || (defined __clang__ && __clang_major__ >= 9)))
+      [[fallthrough]];
+#elif (defined __GNUC__ && __GNUC__ >= 7) || (defined __clang__ && __clang_major__ >= 10)
+      __attribute__ ((__fallthrough__));
+#endif
       /*FALLTHROUGH*/
       case 1:
         hval += asso_values[(unsigned char)str[0]+26];
@@ -139,6 +149,10 @@ P32CountryCodeHash (register const char *str, register size_t len)
 struct country *
 P32CountryCodeLookup (register const char *str, register size_t len)
 {
+#if (defined __GNUC__ && __GNUC__ + (__GNUC_MINOR__ >= 6) > 4) || (defined __clang__ && __clang_major__ >= 3)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
   static struct country wordlist[] =
     {
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
@@ -1484,6 +1498,9 @@ P32CountryCodeLookup (register const char *str, register size_t len)
 #line 501 "F:/posix32/lib/posix32-crt/gperf/country_codes.gperf"
       {"UKR", UA}
     };
+#if (defined __GNUC__ && __GNUC__ + (__GNUC_MINOR__ >= 6) > 4) || (defined __clang__ && __clang_major__ >= 3)
+#pragma GCC diagnostic pop
+#endif
 
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
@@ -1497,7 +1514,7 @@ P32CountryCodeLookup (register const char *str, register size_t len)
             return &wordlist[key];
         }
     }
-  return 0;
+  return (struct country *) 0;
 }
 #line 542 "F:/posix32/lib/posix32-crt/gperf/country_codes.gperf"
 

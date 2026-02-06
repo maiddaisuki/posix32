@@ -1,5 +1,5 @@
-/* ANSI-C code produced by gperf version 3.1 */
-/* Command-line: /usr/bin/gperf --output-file=F:/posix32/lib/posix32-crt/gperf/sorting.c F:/posix32/lib/posix32-crt/gperf/sorting.gperf  */
+/* ANSI-C code produced by gperf version 3.3 */
+/* Command-line: gperf --output-file=F:/posix32/lib/posix32-crt/gperf/sorting.c F:/posix32/lib/posix32-crt/gperf/sorting.gperf  */
 /* Computed positions: -k'2,5' */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
@@ -32,7 +32,7 @@
 #line 1 "F:/posix32/lib/posix32-crt/gperf/sorting.gperf"
 
 /**
- * Copyright 2025 Kirill Makurin
+ * Copyright 2025-2026 Kirill Makurin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -160,12 +160,17 @@ P32SortingHash (register const char *str, register size_t len)
       21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
       21, 21, 21, 21, 21, 21
     };
+  (void) len;
   return asso_values[(unsigned char)str[4]] + asso_values[(unsigned char)str[1]];
 }
 
 struct sorting *
 P32SortingLookup (register const char *str, register size_t len)
 {
+#if (defined __GNUC__ && __GNUC__ + (__GNUC_MINOR__ >= 6) > 4) || (defined __clang__ && __clang_major__ >= 3)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
   static struct sorting wordlist[] =
     {
 #line 52 "F:/posix32/lib/posix32-crt/gperf/sorting.gperf"
@@ -189,6 +194,9 @@ P32SortingLookup (register const char *str, register size_t len)
 #line 51 "F:/posix32/lib/posix32-crt/gperf/sorting.gperf"
       {"phoneb", phoneb}
     };
+#if (defined __GNUC__ && __GNUC__ + (__GNUC_MINOR__ >= 6) > 4) || (defined __clang__ && __clang_major__ >= 3)
+#pragma GCC diagnostic pop
+#endif
 
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
@@ -202,7 +210,7 @@ P32SortingLookup (register const char *str, register size_t len)
             return &wordlist[key];
         }
     }
-  return 0;
+  return (struct sorting *) 0;
 }
 #line 57 "F:/posix32/lib/posix32-crt/gperf/sorting.gperf"
 

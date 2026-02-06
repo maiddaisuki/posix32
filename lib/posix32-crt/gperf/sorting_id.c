@@ -1,5 +1,5 @@
-/* ANSI-C code produced by gperf version 3.1 */
-/* Command-line: /usr/bin/gperf --output-file=F:/posix32/lib/posix32-crt/gperf/sorting_id.c F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf  */
+/* ANSI-C code produced by gperf version 3.3 */
+/* Command-line: gperf --output-file=F:/posix32/lib/posix32-crt/gperf/sorting_id.c F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf  */
 /* Computed positions: -k'1,$' */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
@@ -32,7 +32,7 @@
 #line 1 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
 
 /**
- * Copyright 2025 Kirill Makurin
+ * Copyright 2025-2026 Kirill Makurin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,6 +123,10 @@ P32SortingIdHash (register const char *str, register size_t len)
 struct sorting_id *
 P32SortingIdLookup (register const char *str, register size_t len)
 {
+#if (defined __GNUC__ && __GNUC__ + (__GNUC_MINOR__ >= 6) > 4) || (defined __clang__ && __clang_major__ >= 3)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
   static struct sorting_id wordlist[] =
     {
       {""}, {""},
@@ -175,6 +179,9 @@ P32SortingIdLookup (register const char *str, register size_t len)
 #line 47 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
       {"de_phoneb",  Sorting_de_phoneb}
     };
+#if (defined __GNUC__ && __GNUC__ + (__GNUC_MINOR__ >= 6) > 4) || (defined __clang__ && __clang_major__ >= 3)
+#pragma GCC diagnostic pop
+#endif
 
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
@@ -188,7 +195,7 @@ P32SortingIdLookup (register const char *str, register size_t len)
             return &wordlist[key];
         }
     }
-  return 0;
+  return (struct sorting_id *) 0;
 }
 #line 66 "F:/posix32/lib/posix32-crt/gperf/sorting_id.gperf"
 

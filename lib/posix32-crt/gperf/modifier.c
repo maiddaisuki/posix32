@@ -1,5 +1,5 @@
-/* ANSI-C code produced by gperf version 3.1 */
-/* Command-line: /usr/bin/gperf --output-file=F:/posix32/lib/posix32-crt/gperf/modifier.c F:/posix32/lib/posix32-crt/gperf/modifier.gperf  */
+/* ANSI-C code produced by gperf version 3.3 */
+/* Command-line: gperf --output-file=F:/posix32/lib/posix32-crt/gperf/modifier.c F:/posix32/lib/posix32-crt/gperf/modifier.gperf  */
 /* Computed positions: -k'' */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
@@ -32,7 +32,7 @@
 #line 1 "F:/posix32/lib/posix32-crt/gperf/modifier.gperf"
 
 /**
- * Copyright 2025 Kirill Makurin
+ * Copyright 2025-2026 Kirill Makurin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,17 +131,26 @@ inline
 static unsigned int
 P32ModifierHash (register const char *str, register size_t len)
 {
+  (void) str;
+  (void) len;
   return 0;
 }
 
 struct modifier *
 P32ModifierLookup (register const char *str, register size_t len)
 {
+#if (defined __GNUC__ && __GNUC__ + (__GNUC_MINOR__ >= 6) > 4) || (defined __clang__ && __clang_major__ >= 3)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
   static struct modifier wordlist[] =
     {
 #line 49 "F:/posix32/lib/posix32-crt/gperf/modifier.gperf"
       {"valencia", Modifier_valencia}
     };
+#if (defined __GNUC__ && __GNUC__ + (__GNUC_MINOR__ >= 6) > 4) || (defined __clang__ && __clang_major__ >= 3)
+#pragma GCC diagnostic pop
+#endif
 
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
@@ -155,7 +164,7 @@ P32ModifierLookup (register const char *str, register size_t len)
             return &wordlist[key];
         }
     }
-  return 0;
+  return (struct modifier *) 0;
 }
 #line 50 "F:/posix32/lib/posix32-crt/gperf/modifier.gperf"
 
