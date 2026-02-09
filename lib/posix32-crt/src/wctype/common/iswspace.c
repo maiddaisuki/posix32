@@ -23,14 +23,15 @@ int p32_iswspace_l (wint_t wc, locale_t locale) {
 int p32_iswspace (wint_t wc) {
   locale_t activeLocale = p32_active_locale ();
 
-  if (activeLocale == NULL) {
 #ifdef LIBPOSIX32_TEST
-    return iswctype (wc, _SPACE);
-    // return iswspace (wc);
+  if (activeLocale == NULL) {
+#if 1
+    return iswspace (wc);
 #else
-    activeLocale = p32_default_locale ();
+    return iswctype (wc, _SPACE);
 #endif
   }
+#endif
 
   return p32_iswspace_l (wc, activeLocale);
 }
