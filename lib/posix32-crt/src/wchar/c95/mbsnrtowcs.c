@@ -206,9 +206,11 @@ size_t p32_mbsnrtowcs_l (wchar_t *wcs, const char **mbs, size_t count, size_t si
 size_t p32_mbsnrtowcs (wchar_t *wcs, const char **mbs, size_t count, size_t size, mbstate_t *state) {
   locale_t locale = p32_active_locale ();
 
+#ifdef LIBPOSIX32_TEST
   if (locale == NULL) {
     locale = p32_default_locale ();
   }
+#endif
 
   return p32_mbsnrtowcs_l (wcs, mbs, count, size, state, locale);
 }

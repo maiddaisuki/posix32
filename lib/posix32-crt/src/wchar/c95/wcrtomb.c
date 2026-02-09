@@ -76,9 +76,11 @@ size_t p32_wcrtomb_l (char *mbc, wchar_t wc, mbstate_t *state, locale_t locale) 
 size_t p32_wcrtomb (char *mbc, wchar_t wc, mbstate_t *state) {
   locale_t locale = p32_active_locale ();
 
+#ifdef LIBPOSIX32_TEST
   if (locale == NULL) {
     locale = p32_default_locale ();
   }
+#endif
 
   return p32_wcrtomb_l (mbc, wc, state, locale);
 }

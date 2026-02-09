@@ -47,9 +47,11 @@ size_t p32_mbrlen_l (const char *mbs, size_t count, mbstate_t *state, locale_t l
 size_t p32_mbrlen (const char *mbs, size_t count, mbstate_t *state) {
   locale_t locale = p32_active_locale ();
 
+#ifdef LIBPOSIX32_TEST
   if (locale == NULL) {
     locale = p32_default_locale ();
   }
+#endif
 
   return p32_mbrlen_l (mbs, count, state, locale);
 }

@@ -152,9 +152,11 @@ size_t p32_wcsrtombs_l (char *mbs, const wchar_t **wcs, size_t count, mbstate_t 
 size_t p32_wcsrtombs (char *mbs, const wchar_t **wcs, size_t count, mbstate_t *state) {
   locale_t locale = p32_active_locale ();
 
+#ifdef LIBPOSIX32_TEST
   if (locale == NULL) {
     locale = p32_default_locale ();
   }
+#endif
 
   return p32_wcsrtombs_l (mbs, wcs, count, state, locale);
 }

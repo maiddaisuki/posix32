@@ -232,9 +232,11 @@ static INT P32WcsToMbs (char **address, const wchar_t *wcs, Charset *charset) {
 int p32_ext_mbstowcs (wchar_t **address, const char *mbs) {
   locale_t activeLocale = p32_active_locale ();
 
+#ifdef LIBPOSIX32_TEST
   if (activeLocale == NULL) {
     activeLocale = p32_default_locale ();
   }
+#endif
 
   return P32MbsToWcs (address, mbs, &activeLocale->Charset);
 }
@@ -242,9 +244,11 @@ int p32_ext_mbstowcs (wchar_t **address, const char *mbs) {
 int p32_ext_wcstombs (char **address, const wchar_t *wcs) {
   locale_t activeLocale = p32_active_locale ();
 
+#ifdef LIBPOSIX32_TEST
   if (activeLocale == NULL) {
     activeLocale = p32_default_locale ();
   }
+#endif
 
   return P32WcsToMbs (address, wcs, &activeLocale->Charset);
 }

@@ -85,9 +85,11 @@ size_t p32_mbrtowc_l (wchar_t *wc, const char *mbc, size_t count, mbstate_t *sta
 size_t p32_mbrtowc (wchar_t *wc, const char *mbc, size_t count, mbstate_t *state) {
   locale_t locale = p32_active_locale ();
 
+#ifdef LIBPOSIX32_TEST
   if (locale == NULL) {
     locale = p32_default_locale ();
   }
+#endif
 
   return p32_mbrtowc_l (wc, mbc, count, state, locale);
 }
