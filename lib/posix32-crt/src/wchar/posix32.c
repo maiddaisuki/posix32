@@ -272,49 +272,33 @@ int p32_ext_wcstombs_cp (char **address, const wchar_t *wcs, unsigned codePage) 
 }
 
 int p32_ext_wcstombs_ansi (char **address, const wchar_t *wcs) {
-  UINT codePage = GetACP ();
-  return p32_ext_wcstombs_cp (address, wcs, codePage);
+  locale_t locale = p32_ansi_locale ();
+  return P32WcsToMbs (address, wcs, &locale->Charset);
 }
 
 int p32_ext_mbstowcs_ansi (wchar_t **address, const char *mbs) {
-  UINT codePage = GetACP ();
-  return p32_ext_mbstowcs_cp (address, mbs, codePage);
+  locale_t locale = p32_ansi_locale ();
+  return P32MbsToWcs (address, mbs, &locale->Charset);
 }
 
 int p32_ext_wcstombs_oem (char **address, const wchar_t *wcs) {
-#ifdef LIBPOSIX32_UWP
-  UINT codePage = CP_UTF8;
-#else
-  UINT codePage = GetOEMCP ();
-#endif
-  return p32_ext_wcstombs_cp (address, wcs, codePage);
+  locale_t locale = p32_oem_locale ();
+  return P32WcsToMbs (address, wcs, &locale->Charset);
 }
 
 int p32_ext_mbstowcs_oem (wchar_t **address, const char *mbs) {
-#ifdef LIBPOSIX32_UWP
-  UINT codePage = CP_UTF8;
-#else
-  UINT codePage = GetOEMCP ();
-#endif
-  return p32_ext_mbstowcs_cp (address, mbs, codePage);
+  locale_t locale = p32_oem_locale ();
+  return P32MbsToWcs (address, mbs, &locale->Charset);
 }
 
 int p32_ext_wcstombs_fs (char **address, const wchar_t *wcs) {
-#ifdef LIBPOSIX32_UWP
-  UINT codePage = GetACP ();
-#else
-  UINT codePage = (AreFileApisANSI () ? GetACP () : GetOEMCP ());
-#endif
-  return p32_ext_wcstombs_cp (address, wcs, codePage);
+  locale_t locale = p32_fileapi_locale ();
+  return P32WcsToMbs (address, wcs, &locale->Charset);
 }
 
 int p32_ext_mbstowcs_fs (wchar_t **address, const char *mbs) {
-#ifdef LIBPOSIX32_UWP
-  UINT codePage = GetACP ();
-#else
-  UINT codePage = (AreFileApisANSI () ? GetACP () : GetOEMCP ());
-#endif
-  return p32_ext_mbstowcs_cp (address, mbs, codePage);
+  locale_t locale = p32_fileapi_locale ();
+  return P32MbsToWcs (address, mbs, &locale->Charset);
 }
 
 /**
