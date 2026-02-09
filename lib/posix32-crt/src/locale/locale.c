@@ -234,11 +234,11 @@ static bool P32RestoreThreadLocaleState (ThreadLocaleState *threadLocaleState) {
  * The library manages several internal `locale_t` objects. These `locale_t`
  * objects are created as needed at runtime and can be accessed at any time.
  *
- * 1. Default Locale
+ * 1. "POSIX" Locale
  *
  * This is `locale_t` object for "C" ("POSIX") locale.
  *
- * This `locale_t` object is returned by `p32_default_locale`.
+ * This `locale_t` object is returned by `p32_posix_locale`.
  *
  * 2. Global Locale
  *
@@ -255,7 +255,7 @@ static bool P32RestoreThreadLocaleState (ThreadLocaleState *threadLocaleState) {
  */
 typedef struct GlobalLocaleState {
   pthread_once_t StateInit;
-  pthread_once_t DefaultInit;
+  pthread_once_t PosixInit;
   pthread_once_t GlobalInit;
   /**
    * Synchronization for access to Global Locale:
@@ -269,9 +269,9 @@ typedef struct GlobalLocaleState {
    */
   uintptr_t Heap;
   /**
-   * `locale_t` object representing Default Locale
+   * `locale_t` object representing "POSIX" Locale
    */
-  locale_t DefaultLocale;
+  locale_t PosixLocale;
   /**
    * `locale_t` object representing Global Locale
    */
@@ -282,13 +282,13 @@ typedef struct GlobalLocaleState {
  * Global Locale State.
  */
 static GlobalLocaleState P32GlobalLocale = {
-  .StateInit     = PTHREAD_ONCE_INIT,
-  .DefaultInit   = PTHREAD_ONCE_INIT,
-  .GlobalInit    = PTHREAD_ONCE_INIT,
-  .GlobalLock    = PTHREAD_RWLOCK_INITIALIZER,
-  .Heap          = 0,
-  .DefaultLocale = NULL,
-  .GlobalLocale  = NULL
+  .StateInit    = PTHREAD_ONCE_INIT,
+  .PosixInit    = PTHREAD_ONCE_INIT,
+  .GlobalInit   = PTHREAD_ONCE_INIT,
+  .GlobalLock   = PTHREAD_RWLOCK_INITIALIZER,
+  .Heap         = 0,
+  .PosixLocale  = NULL,
+  .GlobalLocale = NULL
 };
 
 /**
@@ -342,38 +342,38 @@ static void P32InitGlobalLocaleState (void) {
 }
 
 /**
- * Initialize Default Locale.
+ * Initialize "POSIX" Locale.
  */
-static void P32InitDefaultLocale (void) {
+static void P32InitPosixLocale (void) {
   pthread_once (&P32GlobalLocale.StateInit, P32InitGlobalLocaleState);
 
-  P32GlobalLocale.DefaultLocale = P32NewLocale (LC_ALL_MASK, L"C", NULL, P32GlobalLocale.Heap, 0);
+  P32GlobalLocale.PosixLocale = P32NewLocale (LC_ALL_MASK, L"C", NULL, P32GlobalLocale.Heap, 0);
 
-  if (P32GlobalLocale.DefaultLocale == NULL) {
-    p32_terminate (L"Global locale: initialization has failed.");
+  if (P32GlobalLocale.PosixLocale == NULL) {
+    p32_terminate (L"POSIX Locale: initialization has failed.");
   }
 }
 
 /**
- * Destroy Default Locale.
+ * Destroy "POSIX" Locale.
  */
-static void P32DestroyDefaultLocale (void) {
-  if (P32GlobalLocale.DefaultLocale != NULL) {
-    P32FreeLocale (P32GlobalLocale.DefaultLocale, P32GlobalLocale.Heap);
-    P32GlobalLocale.DefaultLocale = NULL;
+static void P32DestroyPosixLocale (void) {
+  if (P32GlobalLocale.PosixLocale != NULL) {
+    P32FreeLocale (P32GlobalLocale.PosixLocale, P32GlobalLocale.Heap);
+    P32GlobalLocale.PosixLocale = NULL;
   }
 }
 
-locale_t p32_default_locale (void) {
-  pthread_once (&P32GlobalLocale.DefaultInit, P32InitDefaultLocale);
-  return P32GlobalLocale.DefaultLocale;
+locale_t p32_posix_locale (void) {
+  pthread_once (&P32GlobalLocale.PosixInit, P32InitPosixLocale);
+  return P32GlobalLocale.PosixLocale;
 }
 
 /**
  * Initialize Global Locale.
  */
 static void P32InitGlobalLocale (void) {
-  pthread_once (&P32GlobalLocale.DefaultInit, P32InitDefaultLocale);
+  pthread_once (&P32GlobalLocale.PosixInit, P32InitPosixLocale);
 
   assert (P32GlobalLocale.Heap != 0);
   HANDLE heapHandle = (HANDLE) P32GlobalLocale.Heap;
@@ -461,7 +461,7 @@ static void P32InitGlobalLocale (void) {
   }
 
   P32GlobalLocale.GlobalLocale = P32NewLocale (
-    mask, globalLocale, P32GlobalLocale.DefaultLocale, P32GlobalLocale.Heap, NEWLOCALE_GLOBAL | NEWLOCALE_INIT
+    mask, globalLocale, P32GlobalLocale.PosixLocale, P32GlobalLocale.Heap, NEWLOCALE_GLOBAL | NEWLOCALE_INIT
   );
 
   if (P32GlobalLocale.GlobalLocale == NULL) {
@@ -511,7 +511,7 @@ static int P32DestroyGlobalLocaleState (void) {
     HANDLE    heapHandle = (HANDLE) heap;
 
     P32DestroyGlobalLocale ();
-    P32DestroyDefaultLocale ();
+    P32DestroyPosixLocale ();
 
     P32GlobalLocale.Heap = 0;
 
@@ -603,7 +603,7 @@ static bool P32InitThreadLocale (ThreadStorage *tls) {
  * Initialize Thread Locale from CRT's thread locale.
  */
 static P32_NOINLINE void P32InitThreadLocaleUnsafe (ThreadStorage *tls) {
-  pthread_once (&P32GlobalLocale.DefaultInit, P32InitDefaultLocale);
+  pthread_once (&P32GlobalLocale.PosixInit, P32InitPosixLocale);
 
   HANDLE heapHandle = (HANDLE) tls->Heap;
 
@@ -636,7 +636,7 @@ static P32_NOINLINE void P32InitThreadLocaleUnsafe (ThreadStorage *tls) {
     mask &= ~LC_MESSAGES_MASK;
   }
 
-  threadLocale->Locale = P32NewLocale (mask, localeString, P32GlobalLocale.DefaultLocale, tls->Heap, NEWLOCALE_INIT);
+  threadLocale->Locale = P32NewLocale (mask, localeString, P32GlobalLocale.PosixLocale, tls->Heap, NEWLOCALE_INIT);
 
   if (threadLocale->Locale == NULL) {
     p32_terminate (L"Thread Locale: initialization has failed.");
@@ -1617,13 +1617,13 @@ static locale_t P32UseGlobalLocale (ThreadStorage *tls, ThreadLocaleState *threa
    * `_DISABLE_PER_THREAD_LOCALE`.
    */
   if (threadLocaleState->CurrentState == _ENABLE_PER_THREAD_LOCALE) {
-    assert (P32GlobalLocale.DefaultLocale != NULL);
+    assert (P32GlobalLocale.PosixLocale != NULL);
 
     /**
      * TODO: this is redundant and introduces an unrecoverable error.
      * Set thread locale to "C" locale before switching to Global Locale.
      */
-    if (!P32SetLocale (P32GlobalLocale.DefaultLocale)) {
+    if (!P32SetLocale (P32GlobalLocale.PosixLocale)) {
       goto fail;
     }
 
@@ -1823,8 +1823,8 @@ static locale_t P32NewLocale (int mask, const wchar_t *localeString, locale_t ba
    * If `baseLocale` is NULL, use default "C" locale.
    */
   if (baseLocale == NULL && mask != LC_ALL_MASK) {
-    assert (P32GlobalLocale.DefaultLocale != NULL);
-    baseLocale = P32GlobalLocale.DefaultLocale;
+    assert (P32GlobalLocale.PosixLocale != NULL);
+    baseLocale = P32GlobalLocale.PosixLocale;
   }
 
   /**
@@ -2238,9 +2238,9 @@ locale_t p32_newlocale (int mask, const char *localeString, locale_t base) {
   }
 
   /**
-   * Make sure Default Locale is initialized.
+   * Make sure "POSIX" Locale is initialized.
    */
-  pthread_once (&P32GlobalLocale.DefaultInit, P32InitDefaultLocale);
+  pthread_once (&P32GlobalLocale.PosixInit, P32InitPosixLocale);
 
   HANDLE    heapHandle = GetProcessHeap ();
   uintptr_t heap       = (uintptr_t) heapHandle;

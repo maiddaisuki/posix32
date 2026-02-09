@@ -57,7 +57,7 @@ char *p32_strncat (char *dest, const char *src, size_t count) {
 
 #ifdef LIBPOSIX32_TEST
   if (activeLocale == NULL) {
-    activeLocale = p32_default_locale ();
+    activeLocale = p32_posix_locale ();
   }
 #endif
 

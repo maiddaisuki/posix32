@@ -89,7 +89,7 @@ char *p32_strchr (const char *str, int c) {
 
 #ifdef LIBPOSIX32_TEST
   if (activeLocale == NULL) {
-    activeLocale = p32_default_locale ();
+    activeLocale = p32_posix_locale ();
   }
 #endif
 

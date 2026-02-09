@@ -49,7 +49,7 @@ size_t p32_mbrtoc16 (char16_t *u16char, const char *u8str, size_t count, mbstate
 
 #ifdef LIBPOSIX32_TEST
   if (activeLocale == NULL) {
-    activeLocale = p32_default_locale ();
+    activeLocale = p32_posix_locale ();
   }
 #endif
 

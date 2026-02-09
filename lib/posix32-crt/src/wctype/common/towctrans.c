@@ -119,7 +119,7 @@ wint_t p32_towctrans (wint_t wc, wctrans_t trans) {
 
 #ifdef LIBPOSIX32_TEST
   if (activeLocale == NULL) {
-    activeLocale = p32_default_locale ();
+    activeLocale = p32_posix_locale ();
   }
 #endif
 

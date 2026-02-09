@@ -49,7 +49,7 @@ size_t p32_c32rtomb (char *u8str, char32_t u32char, mbstate_t *state) {
 
 #ifdef LIBPOSIX32_TEST
   if (activeLocale == NULL) {
-    activeLocale = p32_default_locale ();
+    activeLocale = p32_posix_locale ();
   }
 #endif
 

@@ -97,9 +97,9 @@
 #include "locale_types/locale_lookup.h"
 
 /**
- * Returns `locale_t` object representing default "POSIX" locale.
+ * Returns `locale_t` object representing "POSIX" locale.
  */
-locale_t p32_default_locale (void);
+locale_t p32_posix_locale (void);
 
 /**
  * Returns `locale_t` object representing active global locale.

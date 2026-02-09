@@ -181,7 +181,7 @@ size_t p32_mbsrtowcs (wchar_t *wcs, const char **mbs, size_t count, mbstate_t *s
 
 #ifdef LIBPOSIX32_TEST
   if (locale == NULL) {
-    locale = p32_default_locale ();
+    locale = p32_posix_locale ();
   }
 #endif
 

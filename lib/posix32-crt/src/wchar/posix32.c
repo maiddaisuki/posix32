@@ -234,7 +234,7 @@ int p32_ext_mbstowcs (wchar_t **address, const char *mbs) {
 
 #ifdef LIBPOSIX32_TEST
   if (activeLocale == NULL) {
-    activeLocale = p32_default_locale ();
+    activeLocale = p32_posix_locale ();
   }
 #endif
 
@@ -246,7 +246,7 @@ int p32_ext_wcstombs (char **address, const wchar_t *wcs) {
 
 #ifdef LIBPOSIX32_TEST
   if (activeLocale == NULL) {
-    activeLocale = p32_default_locale ();
+    activeLocale = p32_posix_locale ();
   }
 #endif
 

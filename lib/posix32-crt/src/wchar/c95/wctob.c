@@ -66,7 +66,7 @@ int p32_wctob (wint_t wc) {
 #if P32_CRT >= P32_MSVCR80
     return wctob (wc);
 #else
-    activeLocale = p32_default_locale ();
+    activeLocale = p32_posix_locale ();
 #endif
   }
 #endif

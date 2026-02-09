@@ -174,7 +174,7 @@ char *p32_strtok_r (char *str, const char *delim, char **context) {
 
 #if defined(LIBPOSIX32_TEST)
   if (activeLocale == NULL) {
-    activeLocale = p32_default_locale ();
+    activeLocale = p32_posix_locale ();
   }
 #endif
 

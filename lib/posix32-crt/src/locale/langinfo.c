@@ -300,7 +300,7 @@ char *p32_nl_langinfo_l (nl_item item, locale_t locale) {
   char *ret = P32LangInfo (item, &locale->LocaleInfo);
 
   if (ret == NULL && (locale->Charset.Flags & P32_CHARSET_EBCDIC) == 0) {
-    locale = p32_default_locale ();
+    locale = p32_posix_locale ();
     ret    = P32LangInfo (item, &locale->LocaleInfo);
   }
 
@@ -312,7 +312,7 @@ char *p32_nl_langinfo (nl_item item) {
 
 #ifdef LIBPOSIX32_TEST
   if (activeLocale == NULL) {
-    activeLocale = p32_default_locale ();
+    activeLocale = p32_posix_locale ();
   }
 #endif
 

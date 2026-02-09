@@ -88,7 +88,7 @@ wint_t p32_btowc (int c) {
 #if P32_CRT >= P32_MSVCR80
     return btowc (c);
 #else
-    activeLocale = p32_default_locale ();
+    activeLocale = p32_posix_locale ();
 #endif
   }
 #endif
