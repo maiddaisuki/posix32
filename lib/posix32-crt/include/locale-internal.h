@@ -102,6 +102,11 @@
 locale_t p32_posix_locale (void);
 
 /**
+ * Returns `locale_t` object representing Unicode locale.
+ */
+locale_t p32_unicode_locale (void);
+
+/**
  * Returns `locale_t` object representing active global locale.
  */
 locale_t p32_global_locale (void);

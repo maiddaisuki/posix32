@@ -240,7 +240,14 @@ static bool P32RestoreThreadLocaleState (ThreadLocaleState *threadLocaleState) {
  *
  * This `locale_t` object is returned by `p32_posix_locale`.
  *
- * 2. Global Locale
+ * 2. Unicode Locale
+ *
+ * This is `locale_t` object for an UTF-8 locale.
+ * Actual locale used for this `locale_t` object is unspecified.
+ *
+ * This `locale_t` object is returned by `p32_unicode_locale`.
+ *
+ * 3. Global Locale
  *
  * This is `locale_t` object for Global Locale set by `setlocale`.
  *
@@ -256,6 +263,7 @@ static bool P32RestoreThreadLocaleState (ThreadLocaleState *threadLocaleState) {
 typedef struct GlobalLocaleState {
   pthread_once_t StateInit;
   pthread_once_t PosixInit;
+  pthread_once_t UnicodeInit;
   pthread_once_t GlobalInit;
   /**
    * Synchronization for access to Global Locale:
@@ -281,6 +289,10 @@ typedef struct GlobalLocaleState {
    */
   locale_t PosixLocale;
   /**
+   * `locale_t` object representing Unicode Locale
+   */
+  locale_t UnicodeLocale;
+  /**
    * `locale_t` object representing Global Locale
    */
   locale_t GlobalLocale;
@@ -290,15 +302,17 @@ typedef struct GlobalLocaleState {
  * Global Locale State.
  */
 static GlobalLocaleState P32GlobalLocale = {
-  .StateInit    = PTHREAD_ONCE_INIT,
-  .PosixInit    = PTHREAD_ONCE_INIT,
-  .GlobalInit   = PTHREAD_ONCE_INIT,
-  .GlobalLock   = PTHREAD_RWLOCK_INITIALIZER,
-  .Heap         = 0,
-  .AnsiCodePage = P32_CODEPAGE_ACP,
-  .OemCodePage  = P32_CODEPAGE_OCP,
-  .PosixLocale  = NULL,
-  .GlobalLocale = NULL
+  .StateInit     = PTHREAD_ONCE_INIT,
+  .PosixInit     = PTHREAD_ONCE_INIT,
+  .UnicodeInit   = PTHREAD_ONCE_INIT,
+  .GlobalInit    = PTHREAD_ONCE_INIT,
+  .GlobalLock    = PTHREAD_RWLOCK_INITIALIZER,
+  .Heap          = 0,
+  .AnsiCodePage  = P32_CODEPAGE_ACP,
+  .OemCodePage   = P32_CODEPAGE_OCP,
+  .PosixLocale   = NULL,
+  .UnicodeLocale = NULL,
+  .GlobalLocale  = NULL
 };
 
 /**
@@ -411,6 +425,75 @@ static void P32DestroyPosixLocale (void) {
 locale_t p32_posix_locale (void) {
   pthread_once (&P32GlobalLocale.PosixInit, P32InitPosixLocale);
   return P32GlobalLocale.PosixLocale;
+}
+
+/**
+ * Initialize Unicode Locale.
+ */
+static void P32InitUnicodeLocale (void) {
+  pthread_once (&P32GlobalLocale.StateInit, P32InitGlobalLocaleState);
+
+  HANDLE heapHandle = (HANDLE) P32GlobalLocale.Heap;
+
+  Locale   locale       = {0};
+  wchar_t *localeString = NULL;
+
+  /**
+   * Try User Default Locale.
+   */
+  if (p32_winlocale_user_default (&locale, P32GlobalLocale.Heap)) {
+    if (p32_private_aswprintf (&localeString, P32GlobalLocale.Heap, L"%s.65001", locale.LocaleName) == -1) {
+      p32_terminate (L"Unicode Locale: initialization has failed.");
+    }
+
+    p32_winlocale_destroy (&locale, P32GlobalLocale.Heap);
+
+    P32GlobalLocale.UnicodeLocale = P32NewLocale (LC_ALL_MASK, localeString, NULL, P32GlobalLocale.Heap, 0);
+
+    HeapFree (heapHandle, 0, localeString);
+
+    if (P32GlobalLocale.UnicodeLocale != NULL) {
+      return;
+    }
+  }
+
+  /**
+   * Try to fallback to System Default Locale if something went wrong.
+   */
+  if (p32_winlocale_system_default (&locale, P32GlobalLocale.Heap)) {
+    if (p32_private_aswprintf (&localeString, P32GlobalLocale.Heap, L"%s.65001", locale.LocaleName) == -1) {
+      p32_terminate (L"Unicode Locale: initialization has failed.");
+    }
+
+    p32_winlocale_destroy (&locale, P32GlobalLocale.Heap);
+
+    P32GlobalLocale.UnicodeLocale = P32NewLocale (LC_ALL_MASK, localeString, NULL, P32GlobalLocale.Heap, 0);
+
+    HeapFree (heapHandle, 0, localeString);
+
+    if (P32GlobalLocale.UnicodeLocale != NULL) {
+      return;
+    }
+  }
+
+  if (P32GlobalLocale.UnicodeLocale == NULL) {
+    p32_terminate (L"Unicode Locale: initialization has failed.");
+  }
+}
+
+/**
+ * Destroy Unicode Locale.
+ */
+static void P32DestroyUnicodeLocale (void) {
+  if (P32GlobalLocale.UnicodeLocale != NULL) {
+    P32FreeLocale (P32GlobalLocale.UnicodeLocale, P32GlobalLocale.Heap);
+    P32GlobalLocale.UnicodeLocale = NULL;
+  }
+}
+
+locale_t p32_unicode_locale (void) {
+  pthread_once (&P32GlobalLocale.UnicodeInit, P32InitUnicodeLocale);
+  return P32GlobalLocale.UnicodeLocale;
 }
 
 /**
@@ -555,6 +638,7 @@ static int P32DestroyGlobalLocaleState (void) {
     HANDLE    heapHandle = (HANDLE) heap;
 
     P32DestroyGlobalLocale ();
+    P32DestroyUnicodeLocale ();
     P32DestroyPosixLocale ();
 
     P32GlobalLocale.Heap = 0;
