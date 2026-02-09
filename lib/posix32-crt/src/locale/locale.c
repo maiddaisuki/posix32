@@ -257,7 +257,20 @@ static bool P32RestoreThreadLocaleState (ThreadLocaleState *threadLocaleState) {
  *
  * This `locale_t` object is returned by `p32_ansi_locale`.
  *
- * 4. Global Locale
+ * 4. OEM Locale
+ *
+ * This is `locale_t` object using active OEM code page.
+ * Actual locale used for this `locale_t` object is unspecified.
+ *
+ * If active OEM code page is 65001 (UTF-8), then `locale_t` object for
+ * Unicode Locale is used instead.
+ *
+ * If active OEM code page is the same as active ANSI code page,
+ * then `locale_t` ibject for ANSI Locale is used instead.
+ *
+ * This `locale_t` object is returned by `p32_oem_locale`.
+ *
+ * 5. Global Locale
  *
  * This is `locale_t` object for Global Locale set by `setlocale`.
  *
@@ -275,6 +288,7 @@ typedef struct GlobalLocaleState {
   pthread_once_t PosixInit;
   pthread_once_t UnicodeInit;
   pthread_once_t AnsiInit;
+  pthread_once_t OemInit;
   pthread_once_t GlobalInit;
   /**
    * Synchronization for access to Global Locale:
@@ -308,6 +322,10 @@ typedef struct GlobalLocaleState {
    */
   locale_t AnsiLocale;
   /**
+   * `locale_t` object representing OEM Locale
+   */
+  locale_t OemLocale;
+  /**
    * `locale_t` object representing Global Locale
    */
   locale_t GlobalLocale;
@@ -321,6 +339,7 @@ static GlobalLocaleState P32GlobalLocale = {
   .PosixInit     = PTHREAD_ONCE_INIT,
   .UnicodeInit   = PTHREAD_ONCE_INIT,
   .AnsiInit      = PTHREAD_ONCE_INIT,
+  .OemInit       = PTHREAD_ONCE_INIT,
   .GlobalInit    = PTHREAD_ONCE_INIT,
   .GlobalLock    = PTHREAD_RWLOCK_INITIALIZER,
   .Heap          = 0,
@@ -329,6 +348,7 @@ static GlobalLocaleState P32GlobalLocale = {
   .PosixLocale   = NULL,
   .UnicodeLocale = NULL,
   .AnsiLocale    = NULL,
+  .OemLocale     = NULL,
   .GlobalLocale  = NULL
 };
 
@@ -612,6 +632,112 @@ locale_t p32_ansi_locale (void) {
 }
 
 /**
+ * Initialize OEM Locale.
+ */
+static void P32InitOemLocale (void) {
+  pthread_once (&P32GlobalLocale.StateInit, P32InitGlobalLocaleState);
+
+  /**
+   * Active OEM code page.
+   */
+  uint32_t codePage = P32GlobalLocale.OemCodePage;
+
+  if (codePage == CP_UTF8) {
+    pthread_once (&P32GlobalLocale.UnicodeInit, P32InitUnicodeLocale);
+    P32GlobalLocale.OemLocale = P32GlobalLocale.UnicodeLocale;
+    return;
+  }
+
+  if (codePage == P32GlobalLocale.AnsiCodePage) {
+    pthread_once (&P32GlobalLocale.AnsiInit, P32InitAnsiLocale);
+    P32GlobalLocale.OemLocale = P32GlobalLocale.AnsiLocale;
+    return;
+  }
+
+  HANDLE heapHandle = (HANDLE) P32GlobalLocale.Heap;
+
+  Locale   locale       = {0};
+  wchar_t *localeString = NULL;
+
+  /**
+   * Try User Default Locale.
+   */
+  if (p32_winlocale_user_default (&locale, P32GlobalLocale.Heap)) {
+    if (p32_private_aswprintf (&localeString, P32GlobalLocale.Heap, L"%s.%u", locale.LocaleName, codePage) == -1) {
+      p32_terminate (L"OEM Locale: initialization has failed.");
+    }
+
+    p32_winlocale_destroy (&locale, P32GlobalLocale.Heap);
+
+    P32GlobalLocale.OemLocale = P32NewLocale (LC_ALL_MASK, localeString, NULL, P32GlobalLocale.Heap, 0);
+
+    HeapFree (heapHandle, 0, localeString);
+
+    if (P32GlobalLocale.OemLocale != NULL) {
+      return;
+    }
+  }
+
+  /**
+   * Try to fallback to System Default Locale.
+   */
+  if (p32_winlocale_system_default (&locale, P32GlobalLocale.Heap)) {
+    if (p32_private_aswprintf (&localeString, P32GlobalLocale.Heap, L"%s.%u", locale.LocaleName, codePage) == -1) {
+      p32_terminate (L"OEM Locale: initialization has failed.");
+    }
+
+    p32_winlocale_destroy (&locale, P32GlobalLocale.Heap);
+
+    P32GlobalLocale.OemLocale = P32NewLocale (LC_ALL_MASK, localeString, NULL, P32GlobalLocale.Heap, 0);
+
+    HeapFree (heapHandle, 0, localeString);
+
+    if (P32GlobalLocale.OemLocale != NULL) {
+      return;
+    }
+  }
+
+  /**
+   * Use "en-US" as the last resort.
+   */
+  if (p32_private_aswprintf (&localeString, P32GlobalLocale.Heap, L"en-US.%u", codePage) == -1) {
+    p32_terminate (L"OEM Locale: initialization has failed.");
+  }
+
+  p32_winlocale_destroy (&locale, P32GlobalLocale.Heap);
+
+  P32GlobalLocale.OemLocale = P32NewLocale (LC_ALL_MASK, localeString, NULL, P32GlobalLocale.Heap, 0);
+
+  HeapFree (heapHandle, 0, localeString);
+
+  if (P32GlobalLocale.OemLocale == NULL) {
+    p32_terminate (L"OEM Locale: initialization has failed.");
+  }
+}
+
+/**
+ * Destroy OEM Locale.
+ */
+static void P32DestroyOemLocale (void) {
+  if (P32GlobalLocale.OemLocale == NULL) {
+    return;
+  }
+
+  if (P32GlobalLocale.OemLocale != P32GlobalLocale.UnicodeLocale) {
+    if (P32GlobalLocale.OemLocale != P32GlobalLocale.AnsiLocale) {
+      P32FreeLocale (P32GlobalLocale.OemLocale, P32GlobalLocale.Heap);
+    }
+  }
+
+  P32GlobalLocale.OemLocale = NULL;
+}
+
+locale_t p32_oem_locale (void) {
+  pthread_once (&P32GlobalLocale.OemInit, P32InitOemLocale);
+  return P32GlobalLocale.OemLocale;
+}
+
+/**
  * Initialize Global Locale.
  */
 static void P32InitGlobalLocale (void) {
@@ -753,6 +879,7 @@ static int P32DestroyGlobalLocaleState (void) {
     HANDLE    heapHandle = (HANDLE) heap;
 
     P32DestroyGlobalLocale ();
+    P32DestroyOemLocale ();
     P32DestroyAnsiLocale ();
     P32DestroyUnicodeLocale ();
     P32DestroyPosixLocale ();
