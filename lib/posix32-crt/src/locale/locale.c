@@ -269,6 +269,14 @@ typedef struct GlobalLocaleState {
    */
   uintptr_t Heap;
   /**
+   * Active ANSI code page.
+   */
+  uint32_t AnsiCodePage;
+  /**
+   * Active OEM code page.
+   */
+  uint32_t OemCodePage;
+  /**
    * `locale_t` object representing "POSIX" Locale
    */
   locale_t PosixLocale;
@@ -287,6 +295,8 @@ static GlobalLocaleState P32GlobalLocale = {
   .GlobalInit   = PTHREAD_ONCE_INIT,
   .GlobalLock   = PTHREAD_RWLOCK_INITIALIZER,
   .Heap         = 0,
+  .AnsiCodePage = P32_CODEPAGE_ACP,
+  .OemCodePage  = P32_CODEPAGE_OCP,
   .PosixLocale  = NULL,
   .GlobalLocale = NULL
 };
@@ -322,6 +332,40 @@ static void P32InitGlobalLocaleState (void) {
   HeapSetInformation (heapHandle, HeapEnableTerminationOnCorruption, NULL, 0);
 
   P32GlobalLocale.Heap = (uintptr_t) heapHandle;
+
+  /**
+   * Cache active ANSI and OEM code pages.
+   */
+  P32GlobalLocale.AnsiCodePage = GetACP ();
+
+  /**
+   * `GetOEMCP` is not available to UWP applications.
+   */
+#ifdef LIBPOSIX32_UWP
+  /**
+   * If active ANSI code page is 65001 (UTF-8), then active OEM code page
+   * is also 65001.
+   */
+  if (P32GlobalLocale.AnsiCodePage == CP_UTF8) {
+    P32GlobalLocale.OemCodePage = CP_UTF8;
+  } else {
+    /**
+     * Obtain System Default Locale's OEM code page.
+     */
+    Locale locale = {0};
+
+    if (!p32_winlocale_system_default (&locale, P32GlobalLocale.Heap)) {
+      p32_terminate (L"Global Locale State: initialization has failed.");
+    }
+
+    assert (locale.CodePage.Oem != CP_OEMCP);
+    P32GlobalLocale.OemCodePage = locale.CodePage.Oem;
+
+    p32_winlocale_destroy (&locale, P32GlobalLocale.Heap);
+  }
+#else
+  P32GlobalLocale.OemCodePage = GetOEMCP ();
+#endif
 
 #ifndef LIBPOSIX32_DLL
   /**
@@ -427,7 +471,7 @@ static void P32InitGlobalLocale (void) {
     p32_terminate (L"Out of memory.");
   }
 #else
-  uint32_t codePage = GetACP ();
+  uint32_t codePage = P32GlobalLocale.AnsiCodePage;
 
   /**
    * crtdll.dll and msvcrt10.dll do not have `_wsetlocale` function.
@@ -1064,7 +1108,7 @@ static bool P32LocaleCharset (locale_t locale, int flags) {
   /**
    * Active ANSI code page.
    */
-  uint32_t activeCodePage = GetACP ();
+  uint32_t activeCodePage = P32GlobalLocale.AnsiCodePage;
 
   /**
    * Code page to use.
@@ -1250,7 +1294,7 @@ static bool P32LocaleStrings (locale_t locale, uintptr_t heap) {
      */
     locale->CrtLocaleStrings.A.CodePage = CP_UTF8;
 #else
-    locale->CrtLocaleStrings.A.CodePage = GetACP ();
+    locale->CrtLocaleStrings.A.CodePage = P32GlobalLocale.AnsiCodePage;
 #endif
   }
 
@@ -2096,7 +2140,7 @@ char *p32_setlocale (int category, const char *localeString) {
     /**
      * We expect `localeString` to use active ANSI code page.
      */
-    uint32_t codePage = GetACP ();
+    uint32_t codePage = P32GlobalLocale.AnsiCodePage;
 
     /**
      * Converted `localeString`.
@@ -2248,7 +2292,7 @@ locale_t p32_newlocale (int mask, const char *localeString, locale_t base) {
   /**
    * We expect `localeString` to use active ANSI code page.
    */
-  uint32_t codePage = GetACP ();
+  uint32_t codePage = P32GlobalLocale.AnsiCodePage;
 
   /**
    * Converted `localeString`.
