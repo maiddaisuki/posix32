@@ -52,11 +52,11 @@ ThreadStorage *p32_tls (bool allowNullTls);
 void p32_destroy_thread_locale (ThreadStorage *tls);
 
 /**
- * Destroy Global Locale and free related resources.
+ * Destroy Global Locale State.
  *
  * This function is called from `DllMain` when DLL is unloaded.
  */
-void p32_destroy_global_locale (void);
+void p32_destroy_global_locale_state (void);
 #else
 /**
  * Check if current thread's TLS structure contains any allocted data.

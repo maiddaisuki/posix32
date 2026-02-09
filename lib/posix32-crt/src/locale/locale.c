@@ -229,24 +229,32 @@ static bool P32RestoreThreadLocaleState (ThreadLocaleState *threadLocaleState) {
 #endif
 
 /*******************************************************************************
- * Default and Global Locale
+ * Global Locale State
  *
- * Default Locale is "C" ("POSIX") locale.
+ * The library manages several internal `locale_t` objects. These `locale_t`
+ * objects are created as needed at runtime and can be accessed at any time.
  *
- * Global Locale is one set by `setlocale`. This is the active locale for
- * threads which did not call `uselocale` or set thread locale to global locale
- * by calling `uselocale (LC_GLOBAL_LOCALE)`.
+ * 1. Default Locale
+ *
+ * This is `locale_t` object for "C" ("POSIX") locale.
+ *
+ * This `locale_t` object is returned by `p32_default_locale`.
+ *
+ * 2. Global Locale
+ *
+ * This is `locale_t` object for Global Locale set by `setlocale`.
+ *
+ * This `locale_t` object is returned by `p32_global_locale`.
+ *
+ * This `locale_t` object is returned by `p32_active_locale` for threads which
+ * did not call `uselocale` or called `uselocale (LC_GLOBAL_LOCALE)`.
  */
 
 /**
- * Destroy Global Locale.
+ * Structure for Global Locale State.
  */
-static int __cdecl P32DestroyGlobalLocale (void);
-
-/**
- * Structure to store Default and Global Locale.
- */
-typedef struct {
+typedef struct GlobalLocaleState {
+  pthread_once_t StateInit;
   pthread_once_t DefaultInit;
   pthread_once_t GlobalInit;
   /**
@@ -268,12 +276,13 @@ typedef struct {
    * `locale_t` object representing Global Locale
    */
   locale_t GlobalLocale;
-} GlobalLocale;
+} GlobalLocaleState;
 
 /**
- * Default and Global locale.
+ * Global Locale State.
  */
-static GlobalLocale P32GlobalLocale = {
+static GlobalLocaleState P32GlobalLocale = {
+  .StateInit     = PTHREAD_ONCE_INIT,
   .DefaultInit   = PTHREAD_ONCE_INIT,
   .GlobalInit    = PTHREAD_ONCE_INIT,
   .GlobalLock    = PTHREAD_RWLOCK_INITIALIZER,
@@ -283,16 +292,21 @@ static GlobalLocale P32GlobalLocale = {
 };
 
 /**
- * Initialize Default Locale.
+ * Destroy Global Locale State.
  */
-static void P32InitDefaultLocale (void) {
+static int __cdecl P32DestroyGlobalLocaleState (void);
+
+/**
+ * Initialize Global Locale State.
+ */
+static void P32InitGlobalLocaleState (void) {
   /**
-   * Create private heap used by Default and Global Locale.
+   * Create private heap used by Global Locale State.
    */
   HANDLE heapHandle = HeapCreate (HEAP_GENERATE_EXCEPTIONS, 4096, 0);
 
   if (heapHandle == NULL) {
-    p32_terminate (L"Global locale: failed to create private heap.");
+    p32_terminate (L"Global Locale State: failed to create private heap.");
   }
 
   /**
@@ -307,49 +321,46 @@ static void P32InitDefaultLocale (void) {
    */
   HeapSetInformation (heapHandle, HeapEnableTerminationOnCorruption, NULL, 0);
 
-  P32GlobalLocale.Heap          = (uintptr_t) heapHandle;
+  P32GlobalLocale.Heap = (uintptr_t) heapHandle;
+
+#ifndef LIBPOSIX32_DLL
+  /**
+   * When the library is linked statically, we cannot use `DllMain`
+   * to release resources used by the library.
+   *
+   * This makes little difference for executables; it makes difference in
+   * case if the library is linked statically into a DLL - when such DLL is
+   * unloaded, the library's resources will remain allocated.
+   *
+   * When `_onexit` is called from within a DLL, the registered callback
+   * is called when the DLL is unloading.
+   */
+  if (_onexit (P32DestroyGlobalLocaleState) == NULL) {
+    p32_terminate (L"Global Locale State: failed to register cleanup function.");
+  }
+#endif
+}
+
+/**
+ * Initialize Default Locale.
+ */
+static void P32InitDefaultLocale (void) {
+  pthread_once (&P32GlobalLocale.StateInit, P32InitGlobalLocaleState);
+
   P32GlobalLocale.DefaultLocale = P32NewLocale (LC_ALL_MASK, L"C", NULL, P32GlobalLocale.Heap, 0);
 
   if (P32GlobalLocale.DefaultLocale == NULL) {
     p32_terminate (L"Global locale: initialization has failed.");
   }
-
-#ifndef LIBPOSIX32_DLL
-  _onexit (P32DestroyGlobalLocale);
-#endif
 }
 
 /**
  * Destroy Default Locale.
  */
 static void P32DestroyDefaultLocale (void) {
-  if (P32GlobalLocale.Heap != 0) {
-    uintptr_t heap       = P32GlobalLocale.Heap;
-    HANDLE    heapHandle = (HANDLE) heap;
-
-    P32GlobalLocale.Heap = 0;
-
-    if (P32GlobalLocale.DefaultLocale != NULL) {
-      P32FreeLocale (P32GlobalLocale.DefaultLocale, heap);
-      P32GlobalLocale.DefaultLocale = NULL;
-    }
-
-#if defined(LIBPOSIX32_TEST) && defined(_DEBUG)
-    HEAP_SUMMARY heapSummary = {0};
-    heapSummary.cb           = sizeof (heapSummary);
-
-    if (HeapSummary (heapHandle, 0, &heapSummary)) {
-      _RPTW1 (_CRT_WARN, L"Global locale: heap <%p> is about to be destroyed.\n", heapHandle);
-      _RPTW1 (_CRT_WARN, L"  cbAllocated=%zu\n", heapSummary.cbAllocated);
-      _RPTW1 (_CRT_WARN, L"  cbCommitted=%zu\n", heapSummary.cbCommitted);
-      _RPTW1 (_CRT_WARN, L"  cbMaxReserve=%zu\n", heapSummary.cbMaxReserve);
-      _RPTW1 (_CRT_WARN, L"  cbReserved=%zu\n", heapSummary.cbReserved);
-    }
-#endif
-
-    if (!HeapDestroy (heapHandle)) {
-      p32_terminate (L"Global locale: failed destroy private heap.");
-    }
+  if (P32GlobalLocale.DefaultLocale != NULL) {
+    P32FreeLocale (P32GlobalLocale.DefaultLocale, P32GlobalLocale.Heap);
+    P32GlobalLocale.DefaultLocale = NULL;
   }
 }
 
@@ -368,7 +379,7 @@ static void P32InitGlobalLocale (void) {
   HANDLE heapHandle = (HANDLE) P32GlobalLocale.Heap;
 
   if (pthread_rwlock_init (&P32GlobalLocale.GlobalLock, NULL) != 0) {
-    p32_terminate (L"Global locale: failed to initialize pthread_rwlock_t object.");
+    p32_terminate (L"Global Locale: failed to initialize pthread_rwlock_t object.");
   }
 
 #if P32_CRT >= P32_MSVCR80
@@ -385,7 +396,7 @@ static void P32InitGlobalLocale (void) {
   P32GetThreadLocaleState (&state);
 
   /**
-   * We're initialzing Global Locale from a thread which uses thread locale.
+   * We are initializing Global Locale from a thread which uses thread locale.
    *
    * We need to change thread locale state to `_DISABLE_PER_THREAD_LOCALE`,
    * and then restore both thread locale state and CRT's thread locale.
@@ -480,24 +491,54 @@ static void P32InitGlobalLocale (void) {
 #endif
 }
 
-static int P32DestroyGlobalLocale (void) {
+/**
+ * Destroy Global Locale.
+ */
+static void P32DestroyGlobalLocale (void) {
   if (P32GlobalLocale.GlobalLocale != NULL) {
     P32FreeLocale (P32GlobalLocale.GlobalLocale, P32GlobalLocale.Heap);
     P32GlobalLocale.GlobalLocale = NULL;
   }
 
   if (pthread_rwlock_destroy (&P32GlobalLocale.GlobalLock) != 0) {
-    p32_terminate (L"Global locale: failed to destroy pthread_rwlock_t object.");
+    p32_terminate (L"Global Locale: failed to destroy pthread_rwlock_t object.");
   }
+}
 
-  P32DestroyDefaultLocale ();
+static int P32DestroyGlobalLocaleState (void) {
+  if (P32GlobalLocale.Heap != 0) {
+    uintptr_t heap       = P32GlobalLocale.Heap;
+    HANDLE    heapHandle = (HANDLE) heap;
+
+    P32DestroyGlobalLocale ();
+    P32DestroyDefaultLocale ();
+
+    P32GlobalLocale.Heap = 0;
+
+#if defined(LIBPOSIX32_TEST) && defined(_DEBUG)
+    HEAP_SUMMARY heapSummary = {0};
+    heapSummary.cb           = sizeof (heapSummary);
+
+    if (HeapSummary (heapHandle, 0, &heapSummary)) {
+      _RPTW1 (_CRT_WARN, L"Global Locale State: heap <%p> is about to be destroyed.\n", heapHandle);
+      _RPTW1 (_CRT_WARN, L"  cbAllocated=%zu\n", heapSummary.cbAllocated);
+      _RPTW1 (_CRT_WARN, L"  cbCommitted=%zu\n", heapSummary.cbCommitted);
+      _RPTW1 (_CRT_WARN, L"  cbMaxReserve=%zu\n", heapSummary.cbMaxReserve);
+      _RPTW1 (_CRT_WARN, L"  cbReserved=%zu\n", heapSummary.cbReserved);
+    }
+#endif
+
+    if (!HeapDestroy (heapHandle)) {
+      p32_terminate (L"Global Locale State: failed destroy private heap.");
+    }
+  }
 
   return 0;
 }
 
 #ifdef LIBPOSIX32_DLL
-void p32_destroy_global_locale (void) {
-  P32DestroyGlobalLocale ();
+void p32_destroy_global_locale_state (void) {
+  P32DestroyGlobalLocaleState ();
 }
 #endif
 

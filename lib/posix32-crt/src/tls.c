@@ -234,7 +234,7 @@ BOOL APIENTRY DllMain (HANDLE Module, DWORD Reason, LPVOID Reserved) {
 
       P32Tls = TLS_OUT_OF_INDEXES;
 
-      p32_destroy_global_locale ();
+      p32_destroy_global_locale_state ();
       break;
     }
   }
