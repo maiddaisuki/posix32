@@ -117,6 +117,15 @@ locale_t p32_ansi_locale (void);
 locale_t p32_oem_locale (void);
 
 /**
+ * Returns `locale_t` object for ANSI or OEM Locale depending on the state
+ * of `AreFileApisANSI` function.
+ *
+ * This `locale_t` object is supposed to be used with File APIs which
+ * accept or return filenames.
+ */
+locale_t p32_fileapi_locale (void);
+
+/**
  * Returns `locale_t` object representing active global locale.
  */
 locale_t p32_global_locale (void);
