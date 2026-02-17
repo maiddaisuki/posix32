@@ -464,22 +464,3 @@ static bool P32FillLocaleInfo (Locale *locale, uintptr_t heap) {
 fail:
   return false;
 }
-
-bool p32_winlocale_getinfo (wchar_t **address, uintptr_t heap, Locale *locale, uint32_t info) {
-  LocaleInfoRequest infoRequest = {0};
-
-  infoRequest.Info    = info;
-  infoRequest.OutputW = address;
-
-  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
-}
-
-bool p32_winlocale_getinfo_number (uint32_t *address, Locale *locale, uint32_t info) {
-  LocaleInfoRequest infoRequest = {0};
-
-  infoRequest.Info   = info;
-  infoRequest.Flags  = P32_LOCALE_INFO_REQUEST_NUMERIC;
-  infoRequest.Output = address;
-
-  return p32_winlocale_get_locale_info (&infoRequest, 0, locale);
-}

@@ -375,27 +375,4 @@ P32_TEST_DECL bool p32_winlocale_get_mac_code_page (uint32_t *codePage, uintptr_
 P32_TEST_DECL bool p32_winlocale_get_ebcdic_code_page (uint32_t *codePage, uintptr_t heap, Locale *locale);
 #endif
 
-/**
- * Wrapper around `GetLocaleInfo[Ex]` which uses `Locale` object instead of
- * `LCID` or `Locale Name`.
- *
- * Buffer to store retrieved information is allocated from `heap`.
- *
- * Returns `true` on success, and `false` otherwise.
- */
-P32_TEST_DECL bool p32_winlocale_getinfo (wchar_t **address, uintptr_t heap, Locale *locale, uint32_t info);
-
-/**
- * Wrapper around `GetLocaleInfo[Ex]` which used `Locale` object instead of
- * LCID object or locale name.
- *
- * This is a convenience function to obtain locale information with LOCALE_I*
- * constants which return information as an integer value.
- *
- * Retrieved value is stored in `*address`.
- *
- * Returns `true` on success, and `false` otherwise.
- */
-P32_TEST_DECL bool p32_winlocale_getinfo_number (uint32_t *address, Locale *locale, uint32_t info);
-
 #endif /* LIBPOSIX32_WINDOWS_LOCALE_H_INCLUDED */
