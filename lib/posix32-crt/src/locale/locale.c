@@ -68,7 +68,7 @@
 #define NEWLOCALE_INIT (1 << 1)
 
 /**
- * Use User Default Locale instead of quering LC_* and LANG environment
+ * Use User Default Locale instead of querying `LC_*` and `LANG` environment
  * variables.
  */
 #define NEWLOCALE_USER_DEFAULT (1 << 2)
@@ -94,12 +94,12 @@ static void P32FreeLocale (locale_t locale, uintptr_t heap);
 
 /**
  * This value is stored in `locale_t` object to verify that it is a valid
- * locale object which was created by `newlocale`,
+ * locale object which was created by `newlocale`.
  */
 #define P32_LOCALE_MAGIC 0x010CA1EF
 
 /**
- * Verify that `locale` is a valid `locale_t` object .
+ * Verify that `locale` is a valid `locale_t` object.
  *
  * Returns `true` on success, and `false` otherwise.
  */
@@ -266,7 +266,7 @@ static bool P32RestoreThreadLocaleState (ThreadLocaleState *threadLocaleState) {
  * Unicode Locale is used instead.
  *
  * If active OEM code page is the same as active ANSI code page,
- * then `locale_t` ibject for ANSI Locale is used instead.
+ * then `locale_t` object for ANSI Locale is used instead.
  *
  * This `locale_t` object is returned by `p32_oem_locale`.
  *
@@ -1133,7 +1133,10 @@ static locale_t P32GetThreadLocale (bool useThreadLocaleState) {
  * If `useThreadLocaleState` is `true`, take CRT's thread locale state into
  * account.
  *
- * This function may return `NULL` if neither Global nor Thread Locale was set.
+ * This functions does not return `NULL`.
+ *
+ * NOTE: this function may return `NULL` with *test* version of the library
+ *   if neither Global nor Thread Locale was set.
  */
 static locale_t P32GetActiveLocale (bool useThreadLocaleState) {
   locale_t activeLocale = P32GetThreadLocale (useThreadLocaleState);
@@ -1475,7 +1478,7 @@ static bool P32LocaleCharset (locale_t locale, int flags) {
    * If caller requested locale's default ANSI or OEM code page, we need to
    * choose actual code page to use.
    *
-   * If locale does not require unicode, we use locale's default ANSI or OEM
+   * If locale does not require unicode, use locale's default ANSI or OEM
    * code page as returned by `GetLocaleInfo[Ex]`.
    *
    * If locale requires unicode, use code page 65001 (CP_UTF8) only if active
@@ -2207,7 +2210,7 @@ static locale_t P32NewLocale (int mask, const wchar_t *localeString, locale_t ba
   int baseMask = 0;
 
   /**
-   * If `baseLocale` is NULL, use default "C" locale.
+   * If `baseLocale` is NULL, then use "POSIX" locale.
    */
   if (baseLocale == NULL && mask != LC_ALL_MASK) {
     assert (P32GlobalLocale.PosixLocale != NULL);
@@ -2229,8 +2232,8 @@ static locale_t P32NewLocale (int mask, const wchar_t *localeString, locale_t ba
       }
 
       /**
-       * Obtain locale from environment variables with fallback to user's
-       * default locale.
+       * Obtain locale from environment variables with fallback to
+       * User Default Locale.
        */
     } else {
       if (!p32_localestr_from_env (&localeStrings, heap, mask)) {
