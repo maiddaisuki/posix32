@@ -188,6 +188,88 @@ P32_TEST_DECL void p32_winlocale_destroy (Locale *locale, uintptr_t heap);
 P32_TEST_DECL bool p32_winlocale_equal (Locale *l1, Locale *l2);
 
 /**
+ * Retrieve locale information as an `uint32_t` value instead of a string.
+ *
+ * This flag can be set only when retrieving locale information using
+ * `LOCALE_I*` constants.
+ */
+#define P32_LOCALE_INFO_REQUEST_NUMERIC          (1)
+/**
+ * Convert locale information.
+ */
+#define P32_LOCALE_INFO_REQUEST_CONVERT          (1 << 8)
+/**
+ * Allow best fit conversion of locale infromation.
+ *
+ * TODO: this flag should be removed once `p32_private_wcstombs` is refactored
+ *   to have interface similar to `p32_winlocale_get_locale_info`.
+ */
+#define P32_LOCALE_INFO_REQUEST_CONVERT_BEST_FIT (1 << 9)
+/**
+ * If locale information cannot be converted, fallback to some default value.
+ *
+ * TODO: we should fallback to locale information used for "POSIX" locale;
+ *   currently, we simply store an empty string.
+ */
+#define P32_LOCALE_INFO_REQUEST_CONVERT_FALLBACK (1 << 10)
+/**
+ * Do not fail if locale information cannot be converted.
+ */
+#define P32_LOCALE_INFO_REQUEST_CONVERT_NO_ERROR (1 << 11)
+
+/**
+ * Structure used with `p32_winlocale_get_locale_info` function.
+ */
+typedef struct LocaleInfoRequest {
+  /**
+   * Locale information to retrieve.
+   * This must be one of `LOCALE_*` constants.
+   */
+  uint32_t Info;
+  /**
+   * Any combination of `P32_LOCALE_INFO_REQUEST_*` flags defined above.
+   */
+  uint32_t Flags;
+  /**
+   * Code page to use when converting retrieved locale information.
+   *
+   * When `P32_LOCALE_INFO_REQUEST_CONVERT` flag is set, this field must be set
+   * to a valid code page. Otherwise, this field is ignored.
+   */
+  uint32_t CodePage;
+  /**
+   * The output field when `P32_LOCALE_INFO_REQUEST_NUMERIC` flag is set.
+   */
+  uint32_t *Output;
+  /**
+   * The output field when `P32_LOCALE_INFO_REQUEST_CONVERT` flag is set.
+   *
+   * `*OutputA` will recieve address of the buffer allocated to hold
+   * retrieved locale information.
+   */
+  char **OutputA;
+  /**
+   * The output field unless `P32_LOCALE_INFO_REQUEST_NUMERIC` flag is set.
+   *
+   * `*OutputW` will recieve address of the buffer allocated to hold
+   * retrieved locale information.
+   */
+  wchar_t **OutputW;
+} LocaleInfoRequest;
+
+/**
+ * Retrieve locale information for `locale`.
+ *
+ * The `request` argument must point to a properly initialized
+ * `LocaleInfoRequest` structure.
+ *
+ * Buffers to store retrieved locale information are allocated from `heap`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+P32_TEST_DECL bool p32_winlocale_get_locale_info (LocaleInfoRequest *request, uintptr_t heap, Locale *locale);
+
+/**
  * Wrapper around `GetLocaleInfo[Ex]` which uses `Locale` object instead of
  * `LCID` or `Locale Name`.
  *

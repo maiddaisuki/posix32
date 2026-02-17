@@ -99,12 +99,20 @@ static int P32IsValidLocaleName (LPWSTR localeName, uintptr_t heap) {
   LPWSTR language = NULL;
   LPWSTR country  = NULL;
 
-  if (!p32_winlocale_getinfo (&language, heap, &locale, LOCALE_SENGLISHLANGUAGENAME)) {
+  LocaleInfoRequest infoRequest = {0};
+
+  infoRequest.Info    = LOCALE_SENGLISHLANGUAGENAME;
+  infoRequest.OutputW = &language;
+
+  if (!p32_winlocale_get_locale_info (&infoRequest, heap, &locale)) {
     success = -1;
     goto fail;
   }
 
-  if (!p32_winlocale_getinfo (&country, heap, &locale, LOCALE_SENGLISHCOUNTRYNAME)) {
+  infoRequest.Info    = LOCALE_SENGLISHCOUNTRYNAME;
+  infoRequest.OutputW = &country;
+
+  if (!p32_winlocale_get_locale_info (&infoRequest, heap, &locale)) {
     success = -1;
     goto fail;
   }
@@ -151,7 +159,12 @@ static CountryIndex P32GetCountryIndex (LPCWSTR localeName, uintptr_t heap) {
    */
   LPWSTR countryCode = NULL;
 
-  if (!p32_winlocale_getinfo (&countryCode, heap, &locale, LOCALE_SISO3166CTRYNAME)) {
+  LocaleInfoRequest infoRequest = {0};
+
+  infoRequest.Info    = LOCALE_SISO3166CTRYNAME;
+  infoRequest.OutputW = &countryCode;
+
+  if (!p32_winlocale_get_locale_info (&infoRequest, heap, &locale)) {
     return CountryIndex_invalid;
   }
 

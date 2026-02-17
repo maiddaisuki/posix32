@@ -197,7 +197,12 @@ static bool P32FromLCID (ResolvedLocaleMap *map, uintptr_t heap, Locale *locale)
    */
   LPWSTR ll = NULL;
 
-  if (!p32_winlocale_getinfo (&ll, heap, locale, LOCALE_SISO639LANGNAME)) {
+  LocaleInfoRequest infoRequest = {0};
+
+  infoRequest.Info    = LOCALE_SISO639LANGNAME;
+  infoRequest.OutputW = &ll;
+
+  if (!p32_winlocale_get_locale_info (&infoRequest, heap, locale)) {
     return false;
   }
 
