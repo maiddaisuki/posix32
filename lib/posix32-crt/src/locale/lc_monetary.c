@@ -40,8 +40,28 @@
 /**
  * Get locale information dependant on `LC_MONETARY` locale category.
  */
-static bool P32LcMonetaryInfo (LcMonetaryInfo *info, uintptr_t heap, Locale *locale) {
-  if (!p32_winlocale_getinfo (&info->CurrencyString.W, heap, locale, LOCALE_SCURRENCY)) {
+static bool P32LcMonetaryInfo (LcMonetaryInfo *info, uintptr_t heap, Locale *lcMonetaryInfo, locale_t locale) {
+  LocaleInfoRequest infoRequest      = {0};
+  uint32_t          infoRequestFlags = P32_LOCALE_INFO_REQUEST_CONVERT;
+
+  infoRequest.CodePage = locale->Charset.CodePage;
+
+  if (infoRequest.CodePage != P32_CODEPAGE_ASCII) {
+    infoRequestFlags |= (P32_LOCALE_INFO_REQUEST_CONVERT_BEST_FIT);
+  }
+
+  /**
+   * Locale's currency symbol.
+   *
+   * Situation when currency symbol cannot be converted to ANSI/OEM code pages
+   * is very common; we handle this situation gracefully.
+   */
+  infoRequest.Info    = LOCALE_SCURRENCY;
+  infoRequest.Flags   = (infoRequestFlags | P32_LOCALE_INFO_REQUEST_CONVERT_FALLBACK);
+  infoRequest.OutputA = &info->CurrencyString.A;
+  infoRequest.OutputW = &info->CurrencyString.W;
+
+  if (!p32_winlocale_get_locale_info (&infoRequest, heap, lcMonetaryInfo)) {
     goto fail;
   }
 
@@ -78,53 +98,6 @@ static void P32FreeLcMonetaryInfoW (LcMonetaryInfo *info, uintptr_t heap) {
 }
 
 /**
- * Convert locale information in `info` to `codePage`.
- */
-static bool P32ConvertLcMonetaryInfo (LcMonetaryInfo *info, uintptr_t heap, locale_t locale) {
-  /**
-   * Code page to use during conversion.
-   */
-  uint32_t codePage = locale->Charset.CodePage;
-
-  /**
-   * Do not allow best-fit conversion for ASCII.
-   */
-  bool bestFit = codePage != P32_CODEPAGE_ASCII;
-
-  /**
-   * FIXME: some locales cannot represent currency symbol with their default
-   * code page, but otherwise completely usable.
-   */
-  if (p32_private_wcstombs (&info->CurrencyString.A, info->CurrencyString.W, heap, codePage, bestFit) == -1) {
-    /**
-     * ASCII locales should be able to represent their currency symbols.
-     */
-    if (codePage == P32_CODEPAGE_ASCII) {
-      goto fail;
-    }
-
-#ifdef LIBPOSIX32_TEST
-    _RPTW2 (
-      _CRT_WARN, L"%s(LC_NUMERIC): cannot convert currency symbol '%s'\n", locale->WindowsLocaleStrings.W.LcMonetary,
-      info->CurrencyString.W
-    );
-#endif
-
-    /**
-     * Use empty string if currency symbol cannot be converted.
-     */
-    if (p32_private_strdup (&info->CurrencyString.A, "", heap) == -1) {
-      goto fail;
-    }
-  }
-
-  return true;
-
-fail:
-  return false;
-}
-
-/**
  * Copy locale information from `src` to `dest`.
  */
 static bool P32CopyLcMonetaryInfoA (LcMonetaryInfo *dest, uintptr_t heap, LcMonetaryInfo *src) {
@@ -150,15 +123,11 @@ static void P32FreeLcMonetaryInfoA (LcMonetaryInfo *info, uintptr_t heap) {
   }
 }
 
-/**
- * External Functions
- */
-
 bool p32_localeinfo_monetary (locale_t locale, uintptr_t heap) {
   Locale         *lcMonetary     = &locale->WinLocale.LcMonetary;
   LcMonetaryInfo *lcMonetaryInfo = &locale->LocaleInfo.LcMonetary;
 
-  if (!P32LcMonetaryInfo (lcMonetaryInfo, heap, lcMonetary)) {
+  if (!P32LcMonetaryInfo (lcMonetaryInfo, heap, lcMonetary, locale)) {
 #ifdef LIBPOSIX32_TEST
     _RPTW1 (
       _CRT_ERROR, L"%s(LC_MONETARY): failed to obtain locale information\n", locale->WindowsLocaleStrings.W.LcMonetary
@@ -172,27 +141,11 @@ bool p32_localeinfo_monetary (locale_t locale, uintptr_t heap) {
     goto fail;
   }
 
-  if (!P32ConvertLcMonetaryInfo (lcMonetaryInfo, heap, locale)) {
-#ifdef LIBPOSIX32_TEST
-    _RPTW1 (
-      _CRT_ERROR, L"%s(LC_MONETARY): failed to convert locale information\n", locale->WindowsLocaleStrings.W.LcMonetary
-    );
-
-    if (IsDebuggerPresent ()) {
-      DebugBreak ();
-    }
-#endif
-
-    goto fail_convert;
-  }
-
   return true;
 
-fail_convert:
-  P32FreeLcMonetaryInfoA (lcMonetaryInfo, heap);
 fail:
+  P32FreeLcMonetaryInfoA (lcMonetaryInfo, heap);
   P32FreeLcMonetaryInfoW (lcMonetaryInfo, heap);
-
   return false;
 }
 
