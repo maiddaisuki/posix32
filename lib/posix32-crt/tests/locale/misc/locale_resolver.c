@@ -328,13 +328,24 @@ static bool __cdecl Test (Locale *locale) {
   LPWSTR Ccc = NULL;
 #endif
 
-  assert (p32_winlocale_getinfo (&LanguageName, heap, locale, LOCALE_SENGLANGUAGE));
-  assert (p32_winlocale_getinfo (&CountryName, heap, locale, LOCALE_SENGCOUNTRY));
-  assert (p32_winlocale_getinfo (&Ll, heap, locale, LOCALE_SISO639LANGNAME));
-  assert (p32_winlocale_getinfo (&Cc, heap, locale, LOCALE_SISO3166CTRYNAME));
+  assert (p32_winlocale_get_language_name (&LanguageName, heap, locale));
+  assert (p32_winlocale_get_country_name (&CountryName, heap, locale));
+  assert (p32_winlocale_get_language_code (&Ll, heap, locale));
+  assert (p32_winlocale_get_country_code (&Cc, heap, locale));
 #if _WIN32_WINNT >= _WIN32_WINNT_VISTA
-  assert (p32_winlocale_getinfo (&Lll, heap, locale, LOCALE_SISO639LANGNAME2));
-  assert (p32_winlocale_getinfo (&Ccc, heap, locale, LOCALE_SISO3166CTRYNAME2));
+  do {
+    LocaleInfoRequest infoRequest = {0};
+
+    infoRequest.Info    = LOCALE_SISO639LANGNAME2;
+    infoRequest.OutputW = &Lll;
+
+    assert (p32_winlocale_get_locale_info (&infoRequest, heap, locale));
+
+    infoRequest.Info    = LOCALE_SISO3166CTRYNAME2;
+    infoRequest.OutputW = &Ccc;
+
+    assert (p32_winlocale_get_locale_info (&infoRequest, heap, locale));
+  } while (0);
 #endif
 
   DoTest (locale, LanguageName, CountryName);
