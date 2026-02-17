@@ -41,6 +41,17 @@ static int P32GetLocaleInfo (Locale *locale, uint32_t info, wchar_t *buffer, int
   return GetLocaleInfoW (locale->LocaleId, info, buffer, bufferSize);
 }
 
+static int P32GetCalendarInfo (
+  Locale   *locale,
+  Calendar  calendar,
+  uint32_t  info,
+  wchar_t  *buffer,
+  int       bufferSize,
+  uint32_t *value
+) {
+  return GetCalendarInfoW (locale->LocaleId, calendar, info, buffer, bufferSize, (LPDWORD) value);
+}
+
 /**
  * Attempt to construct `LCID` object from `ll`, `ss` and `cc`.
  *

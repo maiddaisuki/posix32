@@ -66,6 +66,14 @@
 static int P32GetLocaleInfo (Locale *locale, uint32_t info, wchar_t *buffer, int bufferSize);
 
 /**
+ * Wrapper around `GetCalendarInfo[Ex]` which uses `Locale` object instead of
+ * LCID object or locale name.
+ *
+ * Return value is the same as for `GetLocaleInfo[Ex]`.
+ */
+static int P32GetCalendarInfo (Locale *, Calendar, uint32_t, wchar_t *, int, uint32_t *);
+
+/**
  * Store geological infromation in `locale`.
  *
  * Returns `true` on success, and `false` otherwise.
@@ -181,6 +189,102 @@ bool p32_winlocale_get_locale_info (LocaleInfoRequest *request, uintptr_t heap, 
   }
 
   return P32GetTextualLocaleInfo (request, heap, locale);
+}
+
+/**
+ * Retrieve calendar information as a string.
+ *
+ * Retrieved string is stored in `*request->OutputW`.
+ *
+ * If `P32_LOCALE_INFO_REQUEST_CONVERT` flag is set in `request->Flags`, then
+ * string converted to `request->CodePage` is stored in `request->OutputA`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+static bool P32GetTextualCalendarInfo (CalendarInfoRequest *request, uintptr_t heap, Locale *locale) {
+  HANDLE heapHandle = (HANDLE) heap;
+
+  Calendar calendar = locale->Calendar;
+
+  if (request->Flags & P32_CALENDAR_INFO_REQUEST_ALTERNATIVE) {
+    assert (locale->AlternativeCalendar != 0);
+    calendar = locale->AlternativeCalendar;
+  }
+
+  LPWSTR buffer     = NULL;
+  INT    bufferSize = 0;
+
+  bufferSize = P32GetCalendarInfo (locale, calendar, request->Info, buffer, bufferSize, NULL);
+
+  if (bufferSize == 0) {
+    goto fail;
+  }
+
+  buffer = HeapAlloc (heapHandle, 0, bufferSize * sizeof (WCHAR));
+
+  if (buffer == NULL) {
+    goto fail;
+  }
+
+  INT written = P32GetCalendarInfo (locale, calendar, request->Info, buffer, bufferSize, NULL);
+
+  if (written != bufferSize) {
+    goto fail_free;
+  }
+
+  if (request->Flags & P32_LOCALE_INFO_REQUEST_CONVERT) {
+    bool bestFit = !!(request->Flags & P32_LOCALE_INFO_REQUEST_CONVERT_BEST_FIT);
+
+    if (p32_private_wcstombs (request->OutputA, buffer, heap, request->CodePage, bestFit) == -1) {
+      /**
+       * TODO: we should fallback to locale information used for "POSIX" locale.
+       */
+      if (request->Flags & (P32_LOCALE_INFO_REQUEST_CONVERT_FALLBACK)) {
+        if (p32_private_strdup (request->OutputA, "", heap) == -1) {
+          goto fail_free;
+        }
+      } else if ((request->Flags & (P32_LOCALE_INFO_REQUEST_CONVERT_NO_ERROR)) == 0) {
+        goto fail_free;
+      }
+    }
+  }
+
+  *request->OutputW = buffer;
+
+  return true;
+
+fail_free:
+  HeapFree (heapHandle, 0, buffer);
+
+fail:
+  return false;
+}
+
+/**
+ * Retrieve calendar information as an integer value.
+ *
+ * Retrieved value is stored in `*request->Output`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+static bool P32GetNumericCalendarInfo (CalendarInfoRequest *request, uintptr_t heap, Locale *locale) {
+  Calendar calendar = locale->Calendar;
+
+  if (request->Flags & P32_CALENDAR_INFO_REQUEST_ALTERNATIVE) {
+    assert (locale->AlternativeCalendar != 0);
+    calendar = locale->AlternativeCalendar;
+  }
+
+  return P32GetCalendarInfo (locale, calendar, CAL_RETURN_NUMBER | request->Info, NULL, 0, request->Output) == 2;
+  UNREFERENCED_PARAMETER (heap);
+}
+
+bool p32_winlocale_get_calendar_info (CalendarInfoRequest *request, uintptr_t heap, Locale *locale) {
+  if (request->Flags & P32_LOCALE_INFO_REQUEST_NUMERIC) {
+    return P32GetNumericCalendarInfo (request, heap, locale);
+  }
+
+  return P32GetTextualCalendarInfo (request, heap, locale);
 }
 
 #if P32_REGION_NAMES

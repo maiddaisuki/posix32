@@ -51,6 +51,17 @@ static int P32GetLocaleInfo (Locale *locale, uint32_t info, wchar_t *buffer, int
   return GetLocaleInfoEx (locale->LocaleName, info, buffer, bufferSize);
 }
 
+static int P32GetCalendarInfo (
+  Locale   *locale,
+  Calendar  calendar,
+  uint32_t  info,
+  wchar_t  *buffer,
+  int       bufferSize,
+  uint32_t *value
+) {
+  return GetCalendarInfoEx (locale->LocaleName, calendar, NULL, info, buffer, bufferSize, (LPDWORD) value);
+}
+
 /**
  * Check whether `localeName` is a valid supported locale.
  *

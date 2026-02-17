@@ -191,7 +191,7 @@ P32_TEST_DECL bool p32_winlocale_equal (Locale *l1, Locale *l2);
  * Retrieve locale information as an `uint32_t` value instead of a string.
  *
  * This flag can be set only when retrieving locale information using
- * `LOCALE_I*` constants.
+ * `LOCALE_I*` and `CAL_I*` constants.
  */
 #define P32_LOCALE_INFO_REQUEST_NUMERIC          (1)
 /**
@@ -268,6 +268,54 @@ typedef struct LocaleInfoRequest {
  * Returns `true` on success, and `false` otherwise.
  */
 P32_TEST_DECL bool p32_winlocale_get_locale_info (LocaleInfoRequest *request, uintptr_t heap, Locale *locale);
+
+/**
+ * Use locale's default calendar (default).
+ */
+#define P32_CALENDAR_INFO_REQUEST_DEFAULT     (1 << 24)
+/**
+ * Use locale's alternative calendar.
+ */
+#define P32_CALENDAR_INFO_REQUEST_ALTERNATIVE (1 << 25)
+
+/**
+ * Structure used with `p32_winlocale_get_calendar_info` function.
+ *
+ * Unless mentioned, this structure is equivalent to `LocaleInfoRequest`.
+ */
+typedef struct CalendarInfoRequest {
+  /**
+   * Calendar information to retrieve.
+   * This must be one of `CAL_*` constants.
+   */
+  uint32_t Info;
+  /**
+   * All `P32_CALENDAR_INFO_REQUEST_*` flags can be used in addition
+   * to all `P32_LOCALE_INFO_REQUEST_*` flags accepted by `LocaleInfoRequest`.
+   */
+  uint32_t  Flags;
+  uint32_t  CodePage;
+  uint32_t *Output;
+  char    **OutputA;
+  wchar_t **OutputW;
+} CalendarInfoRequest;
+
+/**
+ * Retrieve calendar information for `locale`.
+ *
+ * The `request` argument must point to a properly initialized
+ * `CalendarInfoRequest` structure.
+ *
+ * By default, information for `locale->Calendar` is retrieved.
+ *
+ * If `P32_CALENDAR_INFO_REQUEST_ALTERNATIVE` flag is set in `request->Flags`,
+ * then information for `locale->AlternativeCalendar` is retrieved instead.
+ *
+ * Buffers to store retrieved calendar information are allocated from `heap`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+P32_TEST_DECL bool p32_winlocale_get_calendar_info (CalendarInfoRequest *request, uintptr_t heap, Locale *locale);
 
 /**
  * Wrapper around `GetLocaleInfo[Ex]` which uses `Locale` object instead of
