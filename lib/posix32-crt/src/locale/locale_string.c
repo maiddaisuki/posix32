@@ -657,66 +657,6 @@ fail:
 #endif
 
 /**
- * Retieve language name associated with `locale` and store it in `*address`
- */
-static bool P32GetLanguageName (wchar_t **address, uintptr_t heap, Locale *locale) {
-  if (P32_LOCALE_NAMES && locale->Type == LOCALE_TYPE_PSEUDO_LOCALE) {
-    Language language = {0};
-
-    p32_language (locale->Map.Language, &language);
-
-    return p32_private_wcsdup (address, language.Name, heap) != -1;
-  }
-
-  return p32_winlocale_getinfo (address, heap, locale, LOCALE_SENGLANGUAGE);
-}
-
-/**
- * Retieve language code associated with `locale` and store it in `*address`
- */
-static bool P32GetLanguageCode (wchar_t **address, uintptr_t heap, Locale *locale) {
-  if (P32_LOCALE_NAMES && locale->Type == LOCALE_TYPE_PSEUDO_LOCALE) {
-    Language language = {0};
-
-    p32_language (locale->Map.Language, &language);
-
-    return p32_private_wcsdup (address, language.Code, heap) != -1;
-  }
-
-  return p32_winlocale_getinfo (address, heap, locale, LOCALE_SISO639LANGNAME);
-}
-
-/**
- * Retieve country name associated with `locale` and store it in `*address`
- */
-static bool P32GetCountryName (wchar_t **address, uintptr_t heap, Locale *locale) {
-  if (P32_LOCALE_NAMES && locale->Type == LOCALE_TYPE_PSEUDO_LOCALE) {
-    Country country = {0};
-
-    p32_country (locale->Map.Country, &country);
-
-    return p32_private_wcsdup (address, country.Name, heap) != -1;
-  }
-
-  return p32_winlocale_getinfo (address, heap, locale, LOCALE_SENGCOUNTRY);
-}
-
-/**
- * Retieve country code associated with `locale` and store it in `*address`
- */
-static bool P32GetCountryCode (wchar_t **address, uintptr_t heap, Locale *locale) {
-  if (P32_LOCALE_NAMES && locale->Type == LOCALE_TYPE_PSEUDO_LOCALE) {
-    Country country = {0};
-
-    p32_country (locale->Map.Country, &country);
-
-    return p32_private_wcsdup (address, country.Code, heap) != -1;
-  }
-
-  return p32_winlocale_getinfo (address, heap, locale, LOCALE_SISO3166CTRYNAME);
-}
-
-/**
  * Store "C" string in `*address`.
  *
  * This is used for "C" and "POSIX" locales.
@@ -825,11 +765,11 @@ static bool P32FormatCrtLocaleString (wchar_t **address, uintptr_t heap, Locale 
    * character sets).
    */
   if (P32_CRT >= P32_UCRT && codePage == CP_UTF8 && locale->Map.Script == ScriptIndex_invalid) {
-    if (!P32GetLanguageCode (&ll, heap, locale)) {
+    if (!p32_winlocale_get_language_code (&ll, heap, locale)) {
       goto fail;
     }
 
-    if (!P32GetCountryCode (&cc, heap, locale)) {
+    if (!p32_winlocale_get_country_code (&cc, heap, locale)) {
       goto fail;
     }
 
@@ -837,11 +777,11 @@ static bool P32FormatCrtLocaleString (wchar_t **address, uintptr_t heap, Locale 
       goto fail;
     }
   } else {
-    if (!P32GetLanguageName (&ll, heap, locale)) {
+    if (!p32_winlocale_get_language_name (&ll, heap, locale)) {
       goto fail;
     }
 
-    if (!P32GetCountryName (&cc, heap, locale)) {
+    if (!p32_winlocale_get_country_name (&cc, heap, locale)) {
       goto fail;
     }
 
@@ -885,11 +825,11 @@ static bool P32FormatIsoLocaleString (wchar_t **address, uintptr_t heap, Locale 
   LPCWSTR xx          = NULL;
   LPWSTR  charsetName = NULL;
 
-  if (!P32GetLanguageCode (&ll, heap, locale)) {
+  if (!p32_winlocale_get_language_code (&ll, heap, locale)) {
     goto fail;
   }
 
-  if (!P32GetCountryCode (&cc, heap, locale)) {
+  if (!p32_winlocale_get_country_code (&cc, heap, locale)) {
     goto fail;
   }
 

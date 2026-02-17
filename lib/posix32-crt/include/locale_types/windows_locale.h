@@ -318,6 +318,42 @@ typedef struct CalendarInfoRequest {
 P32_TEST_DECL bool p32_winlocale_get_calendar_info (CalendarInfoRequest *request, uintptr_t heap, Locale *locale);
 
 /**
+ * Get language name for `locale`.
+ *
+ * Buffer to store retrieved string is allocated from `heap`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+P32_TEST_DECL bool p32_winlocale_get_language_name (wchar_t **address, uintptr_t heap, Locale *locale);
+
+/**
+ * Get country name for `locale`.
+ *
+ * Buffer to store retrieved string is allocated from `heap`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+P32_TEST_DECL bool p32_winlocale_get_country_name (wchar_t **address, uintptr_t heap, Locale *locale);
+
+/**
+ * Get ISO-639 language code for `locale`.
+ *
+ * Buffer to store retrieved string is allocated from `heap`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+P32_TEST_DECL bool p32_winlocale_get_language_code (wchar_t **address, uintptr_t heap, Locale *locale);
+
+/**
+ * Get ISO-3166 country code for `locale`.
+ *
+ * Buffer to store retrieved string is allocated from `heap`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+P32_TEST_DECL bool p32_winlocale_get_country_code (wchar_t **address, uintptr_t heap, Locale *locale);
+
+/**
  * Wrapper around `GetLocaleInfo[Ex]` which uses `Locale` object instead of
  * `LCID` or `Locale Name`.
  *

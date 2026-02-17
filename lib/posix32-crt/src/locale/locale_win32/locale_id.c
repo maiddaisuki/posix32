@@ -775,3 +775,19 @@ bool p32_winlocale_equal (Locale *l1, Locale *l2) {
 
   return true;
 }
+
+P32_TEST_DECL bool p32_winlocale_get_language_name (wchar_t **address, uintptr_t heap, Locale *locale) {
+  return P32GetLangaugeNameFromLocale (address, heap, locale);
+}
+
+P32_TEST_DECL bool p32_winlocale_get_country_name (wchar_t **address, uintptr_t heap, Locale *locale) {
+  return P32GetCountryNameFromLocale (address, heap, locale);
+}
+
+P32_TEST_DECL bool p32_winlocale_get_language_code (wchar_t **address, uintptr_t heap, Locale *locale) {
+  return P32GetLangaugeCodeFromLocale (address, heap, locale);
+}
+
+P32_TEST_DECL bool p32_winlocale_get_country_code (wchar_t **address, uintptr_t heap, Locale *locale) {
+  return P32GetCountryCodeFromLocale (address, heap, locale);
+}

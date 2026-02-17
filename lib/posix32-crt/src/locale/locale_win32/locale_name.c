@@ -746,3 +746,51 @@ bool p32_winlocale_equal (Locale *l1, Locale *l2) {
 
   return wcscmp (l1->LocaleName, l2->LocaleName) == 0;
 }
+
+P32_TEST_DECL bool p32_winlocale_get_language_name (wchar_t **address, uintptr_t heap, Locale *locale) {
+  if (locale->Type == LOCALE_TYPE_PSEUDO_LOCALE) {
+    Language language = {0};
+
+    p32_language (locale->Map.Language, &language);
+
+    return p32_private_wcsdup (address, language.Name, heap) != -1;
+  }
+
+  return P32GetLangaugeNameFromLocale (address, heap, locale);
+}
+
+P32_TEST_DECL bool p32_winlocale_get_country_name (wchar_t **address, uintptr_t heap, Locale *locale) {
+  if (locale->Type == LOCALE_TYPE_PSEUDO_LOCALE) {
+    Country country = {0};
+
+    p32_country (locale->Map.Country, &country);
+
+    return p32_private_wcsdup (address, country.Name, heap) != -1;
+  }
+
+  return P32GetCountryNameFromLocale (address, heap, locale);
+}
+
+P32_TEST_DECL bool p32_winlocale_get_language_code (wchar_t **address, uintptr_t heap, Locale *locale) {
+  if (locale->Type == LOCALE_TYPE_PSEUDO_LOCALE) {
+    Language language = {0};
+
+    p32_language (locale->Map.Language, &language);
+
+    return p32_private_wcsdup (address, language.Code, heap) != -1;
+  }
+
+  return P32GetLangaugeCodeFromLocale (address, heap, locale);
+}
+
+P32_TEST_DECL bool p32_winlocale_get_country_code (wchar_t **address, uintptr_t heap, Locale *locale) {
+  if (locale->Type == LOCALE_TYPE_PSEUDO_LOCALE) {
+    Country country = {0};
+
+    p32_country (locale->Map.Country, &country);
+
+    return p32_private_wcsdup (address, country.Code, heap) != -1;
+  }
+
+  return P32GetCountryCodeFromLocale (address, heap, locale);
+}

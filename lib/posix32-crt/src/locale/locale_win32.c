@@ -287,6 +287,62 @@ bool p32_winlocale_get_calendar_info (CalendarInfoRequest *request, uintptr_t he
   return P32GetTextualCalendarInfo (request, heap, locale);
 }
 
+/**
+ * Get language name for `locale`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+static bool P32GetLangaugeNameFromLocale (wchar_t **address, uintptr_t heap, Locale *locale) {
+  LocaleInfoRequest infoRequest = {0};
+
+  infoRequest.Info    = LOCALE_SENGLANGUAGE;
+  infoRequest.OutputW = address;
+
+  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
+}
+
+/**
+ * Get country name for `locale`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+static bool P32GetCountryNameFromLocale (wchar_t **address, uintptr_t heap, Locale *locale) {
+  LocaleInfoRequest infoRequest = {0};
+
+  infoRequest.Info    = LOCALE_SENGCOUNTRY;
+  infoRequest.OutputW = address;
+
+  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
+}
+
+/**
+ * Get ISO-639 language code for `locale`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+static bool P32GetLangaugeCodeFromLocale (wchar_t **address, uintptr_t heap, Locale *locale) {
+  LocaleInfoRequest infoRequest = {0};
+
+  infoRequest.Info    = LOCALE_SISO639LANGNAME;
+  infoRequest.OutputW = address;
+
+  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
+}
+
+/**
+ * Get ISO-3166 country code for `locale`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+static bool P32GetCountryCodeFromLocale (wchar_t **address, uintptr_t heap, Locale *locale) {
+  LocaleInfoRequest infoRequest = {0};
+
+  infoRequest.Info    = LOCALE_SISO3166CTRYNAME;
+  infoRequest.OutputW = address;
+
+  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
+}
+
 #if P32_REGION_NAMES
 #include "locale_win32/region_name.c"
 #else
