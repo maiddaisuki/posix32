@@ -46,84 +46,6 @@
  */
 
 /**
- * Wrapper around `GetCalendarInfo[Ex]`.
- *
- * Returns `true` on success, and `false` otherwise.
- */
-static bool P32GetCalendarInfo (wchar_t **address, uintptr_t heap, Locale *locale, Calendar calendar, uint32_t info) {
-  HANDLE heapHandle = (HANDLE) heap;
-
-  LPWSTR buffer     = NULL;
-  INT    bufferSize = 0;
-
-#if P32_LOCALE_NAMES
-  bufferSize = GetCalendarInfoEx (locale->LocaleName, calendar, NULL, info, buffer, bufferSize, NULL);
-#else
-  bufferSize = GetCalendarInfoW (locale->LocaleId, calendar, info, buffer, bufferSize, NULL);
-#endif
-
-  assert (bufferSize != 0);
-
-  if (bufferSize == 0) {
-    goto fail;
-  }
-
-  buffer = (LPWSTR) HeapAlloc (heapHandle, 0, bufferSize * sizeof (WCHAR));
-
-  if (buffer == NULL) {
-    goto fail;
-  }
-
-#if P32_LOCALE_NAMES
-  INT written = GetCalendarInfoEx (locale->LocaleName, calendar, NULL, info, buffer, bufferSize, NULL);
-#else
-  INT written = GetCalendarInfoW (locale->LocaleId, calendar, info, buffer, bufferSize, NULL);
-#endif
-
-  assert (written == bufferSize);
-
-  if (written == 0 || written != bufferSize) {
-    goto fail_free;
-  }
-
-  *address = buffer;
-
-  return true;
-
-fail_free:
-  HeapFree (heapHandle, 0, buffer);
-
-fail:
-  return false;
-}
-
-/**
- * Wrapper around `GetCalendarInfo[Ex]` which is used to obtain
- * calendar information as an integer value.
- *
- * Returns `true` on success, and `false` otherwise.
- */
-static bool P32GetCalendarInfoI (uint32_t *address, Locale *locale, Calendar calendar, uint32_t info) {
-  DWORD value = 0;
-
-#if P32_LOCALE_NAMES
-  int written = GetCalendarInfoEx (locale->LocaleName, calendar, NULL, CAL_RETURN_NUMBER | info, NULL, 0, &value);
-#else
-  int written = GetCalendarInfoW (locale->LocaleId, calendar, CAL_RETURN_NUMBER | info, NULL, 0, &value);
-#endif
-
-  assert (written == 2);
-
-  if (written != 2) {
-    return false;
-  }
-
-  *address = value;
-
-  return true;
-}
-
-/**
  * Format calendar's era description string.
  *
  * Returns `true` on success, and `false` otherwise.
@@ -137,166 +59,201 @@ static bool P32CalendearEraString (Era *era, uintptr_t heap) {
   return ret != -1;
 }
 
-/**
- * Get calendar information for locale-specific calendar `calendar`.
- *
- * Returns `true` on success, and `false` otherwise.
- */
-static bool P32CalendarInfo (CalendarInfo *info, uintptr_t heap, Locale *locale, Calendar calendar) {
+static bool P32LcTimeCalendarInfo (
+  CalendarInfo *calendarInfo,
+  uintptr_t     heap,
+  Locale       *lcTime,
+  locale_t      locale,
+  uint32_t      flags
+) {
+  CalendarInfoRequest infoRequest        = {0};
+  CalendarInfoRequest textualInfoRequest = {0};
+  CalendarInfoRequest numericInfoRequest = {0};
+
+  uint32_t textualInfoRequestFlags = (P32_LOCALE_INFO_REQUEST_CONVERT);
+
+  textualInfoRequest.CodePage = locale->Charset.CodePage;
+
+  if (textualInfoRequest.CodePage != P32_CODEPAGE_ASCII) {
+    textualInfoRequestFlags |= (P32_LOCALE_INFO_REQUEST_CONVERT_BEST_FIT);
+  }
+
+  if (flags & P32_CALENDAR_INFO_REQUEST_ALTERNATIVE) {
+    textualInfoRequestFlags |= (P32_LOCALE_INFO_REQUEST_CONVERT_NO_ERROR);
+  }
+
+  calendarInfo->Flags = (P32_CALENDAR_INFO_SET | P32_CALENDAR_INFO_CP);
+
   /**
    * Date format string as used by `GetDateFormat[Ex]`.
    */
-  if (!P32GetCalendarInfo (&info->DateFormat.Format, heap, locale, calendar, CAL_SLONGDATE)) {
+  infoRequest.Info    = CAL_SLONGDATE;
+  infoRequest.Flags   = (flags);
+  infoRequest.OutputW = &calendarInfo->DateFormat.Format;
+
+  if (!p32_winlocale_get_calendar_info (&infoRequest, heap, lcTime)) {
     goto fail;
   }
 
   /**
-   * Era information.
+   * Name of Era represented in `calendarInfo`.
    */
-  if (!P32GetCalendarInfoI (&info->Era.Offset, locale, calendar, CAL_IYEAROFFSETRANGE)) {
+  textualInfoRequest.Info    = CAL_SERASTRING;
+  textualInfoRequest.Flags   = (flags | textualInfoRequestFlags);
+  textualInfoRequest.OutputA = &calendarInfo->Era.Name.A;
+  textualInfoRequest.OutputW = &calendarInfo->Era.Name.W;
+
+  if (!p32_winlocale_get_calendar_info (&textualInfoRequest, heap, lcTime)) {
+    goto fail;
+  } else if (*textualInfoRequest.OutputA == NULL) {
+    calendarInfo->Flags &= ~(P32_CALENDAR_INFO_CP);
+  }
+
+  /**
+   * Offset of Era represented in `calendarInfo`.
+   */
+  numericInfoRequest.Info   = CAL_IYEAROFFSETRANGE;
+  numericInfoRequest.Flags  = (flags | P32_LOCALE_INFO_REQUEST_NUMERIC);
+  numericInfoRequest.Output = &calendarInfo->Era.Offset;
+
+  if (!p32_winlocale_get_calendar_info (&numericInfoRequest, heap, lcTime)) {
     goto fail;
   }
-  if (!P32GetCalendarInfo (&info->Era.Name.W, heap, locale, calendar, CAL_SERASTRING)) {
-    goto fail;
-  }
-  if (!P32CalendearEraString (&info->Era, heap)) {
+
+  if (!P32CalendearEraString (&calendarInfo->Era, heap)) {
     goto fail;
   }
 
   /**
-   * Full day names.
+   * Full names of week days.
    */
-  if (!P32GetCalendarInfo (&info->DayNames.Full.Day1.W, heap, locale, calendar, CAL_SDAYNAME1)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->DayNames.Full.Day2.W, heap, locale, calendar, CAL_SDAYNAME2)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->DayNames.Full.Day3.W, heap, locale, calendar, CAL_SDAYNAME3)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->DayNames.Full.Day4.W, heap, locale, calendar, CAL_SDAYNAME4)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->DayNames.Full.Day5.W, heap, locale, calendar, CAL_SDAYNAME5)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->DayNames.Full.Day6.W, heap, locale, calendar, CAL_SDAYNAME6)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->DayNames.Full.Day7.W, heap, locale, calendar, CAL_SDAYNAME7)) {
-    goto fail;
+
+  const struct {
+    uint32_t  Info;
+    char    **outputA;
+    wchar_t **outputW;
+  } FullDayNames[] = {
+    {CAL_SDAYNAME1, &calendarInfo->DayNames.Full.Day1.A, &calendarInfo->DayNames.Full.Day1.W},
+    {CAL_SDAYNAME2, &calendarInfo->DayNames.Full.Day2.A, &calendarInfo->DayNames.Full.Day2.W},
+    {CAL_SDAYNAME3, &calendarInfo->DayNames.Full.Day3.A, &calendarInfo->DayNames.Full.Day3.W},
+    {CAL_SDAYNAME4, &calendarInfo->DayNames.Full.Day4.A, &calendarInfo->DayNames.Full.Day4.W},
+    {CAL_SDAYNAME5, &calendarInfo->DayNames.Full.Day5.A, &calendarInfo->DayNames.Full.Day5.W},
+    {CAL_SDAYNAME6, &calendarInfo->DayNames.Full.Day6.A, &calendarInfo->DayNames.Full.Day6.W},
+    {CAL_SDAYNAME7, &calendarInfo->DayNames.Full.Day7.A, &calendarInfo->DayNames.Full.Day7.W},
+  };
+
+  for (size_t i = 0; i < _countof (FullDayNames); ++i) {
+    textualInfoRequest.Info    = FullDayNames[i].Info;
+    textualInfoRequest.OutputA = FullDayNames[i].outputA;
+    textualInfoRequest.OutputW = FullDayNames[i].outputW;
+
+    if (!p32_winlocale_get_calendar_info (&textualInfoRequest, heap, lcTime)) {
+      goto fail;
+    } else if (*textualInfoRequest.OutputA == NULL) {
+      calendarInfo->Flags &= ~(P32_CALENDAR_INFO_CP);
+    }
   }
 
   /**
-   * Abbreviated day names.
+   * Abbreviated names of week days.
    */
-  if (!P32GetCalendarInfo (&info->DayNames.Abbr.Day1.W, heap, locale, calendar, CAL_SABBREVDAYNAME1)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->DayNames.Abbr.Day2.W, heap, locale, calendar, CAL_SABBREVDAYNAME2)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->DayNames.Abbr.Day3.W, heap, locale, calendar, CAL_SABBREVDAYNAME3)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->DayNames.Abbr.Day4.W, heap, locale, calendar, CAL_SABBREVDAYNAME4)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->DayNames.Abbr.Day5.W, heap, locale, calendar, CAL_SABBREVDAYNAME5)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->DayNames.Abbr.Day6.W, heap, locale, calendar, CAL_SABBREVDAYNAME6)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->DayNames.Abbr.Day7.W, heap, locale, calendar, CAL_SABBREVDAYNAME7)) {
-    goto fail;
+
+  const struct {
+    uint32_t  Info;
+    char    **outputA;
+    wchar_t **outputW;
+  } AbbrDayNames[] = {
+    {CAL_SABBREVDAYNAME1, &calendarInfo->DayNames.Abbr.Day1.A, &calendarInfo->DayNames.Abbr.Day1.W},
+    {CAL_SABBREVDAYNAME2, &calendarInfo->DayNames.Abbr.Day2.A, &calendarInfo->DayNames.Abbr.Day2.W},
+    {CAL_SABBREVDAYNAME3, &calendarInfo->DayNames.Abbr.Day3.A, &calendarInfo->DayNames.Abbr.Day3.W},
+    {CAL_SABBREVDAYNAME4, &calendarInfo->DayNames.Abbr.Day4.A, &calendarInfo->DayNames.Abbr.Day4.W},
+    {CAL_SABBREVDAYNAME5, &calendarInfo->DayNames.Abbr.Day5.A, &calendarInfo->DayNames.Abbr.Day5.W},
+    {CAL_SABBREVDAYNAME6, &calendarInfo->DayNames.Abbr.Day6.A, &calendarInfo->DayNames.Abbr.Day6.W},
+    {CAL_SABBREVDAYNAME7, &calendarInfo->DayNames.Abbr.Day7.A, &calendarInfo->DayNames.Abbr.Day7.W},
+  };
+
+  for (size_t i = 0; i < _countof (AbbrDayNames); ++i) {
+    textualInfoRequest.Info    = AbbrDayNames[i].Info;
+    textualInfoRequest.OutputA = AbbrDayNames[i].outputA;
+    textualInfoRequest.OutputW = AbbrDayNames[i].outputW;
+
+    if (!p32_winlocale_get_calendar_info (&textualInfoRequest, heap, lcTime)) {
+      goto fail;
+    } else if (*textualInfoRequest.OutputA == NULL) {
+      calendarInfo->Flags &= ~(P32_CALENDAR_INFO_CP);
+    }
   }
 
   /**
-   * Full month names.
+   * Full names of calendar months.
    */
-  if (!P32GetCalendarInfo (&info->MonthNames.Full.Mon1.W, heap, locale, calendar, CAL_SMONTHNAME1)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Full.Mon2.W, heap, locale, calendar, CAL_SMONTHNAME2)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Full.Mon3.W, heap, locale, calendar, CAL_SMONTHNAME3)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Full.Mon4.W, heap, locale, calendar, CAL_SMONTHNAME4)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Full.Mon5.W, heap, locale, calendar, CAL_SMONTHNAME5)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Full.Mon6.W, heap, locale, calendar, CAL_SMONTHNAME6)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Full.Mon7.W, heap, locale, calendar, CAL_SMONTHNAME7)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Full.Mon8.W, heap, locale, calendar, CAL_SMONTHNAME8)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Full.Mon9.W, heap, locale, calendar, CAL_SMONTHNAME9)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Full.Mon10.W, heap, locale, calendar, CAL_SMONTHNAME10)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Full.Mon11.W, heap, locale, calendar, CAL_SMONTHNAME11)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Full.Mon12.W, heap, locale, calendar, CAL_SMONTHNAME12)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Full.Mon13.W, heap, locale, calendar, CAL_SMONTHNAME13)) {
-    goto fail;
+
+  const struct {
+    uint32_t  Info;
+    char    **outputA;
+    wchar_t **outputW;
+  } FullMonthNames[] = {
+    {CAL_SMONTHNAME1,  &calendarInfo->MonthNames.Full.Mon1.A,  &calendarInfo->MonthNames.Full.Mon1.W },
+    {CAL_SMONTHNAME2,  &calendarInfo->MonthNames.Full.Mon2.A,  &calendarInfo->MonthNames.Full.Mon2.W },
+    {CAL_SMONTHNAME3,  &calendarInfo->MonthNames.Full.Mon3.A,  &calendarInfo->MonthNames.Full.Mon3.W },
+    {CAL_SMONTHNAME4,  &calendarInfo->MonthNames.Full.Mon4.A,  &calendarInfo->MonthNames.Full.Mon4.W },
+    {CAL_SMONTHNAME5,  &calendarInfo->MonthNames.Full.Mon5.A,  &calendarInfo->MonthNames.Full.Mon5.W },
+    {CAL_SMONTHNAME6,  &calendarInfo->MonthNames.Full.Mon6.A,  &calendarInfo->MonthNames.Full.Mon6.W },
+    {CAL_SMONTHNAME7,  &calendarInfo->MonthNames.Full.Mon7.A,  &calendarInfo->MonthNames.Full.Mon7.W },
+    {CAL_SMONTHNAME8,  &calendarInfo->MonthNames.Full.Mon8.A,  &calendarInfo->MonthNames.Full.Mon8.W },
+    {CAL_SMONTHNAME9,  &calendarInfo->MonthNames.Full.Mon9.A,  &calendarInfo->MonthNames.Full.Mon9.W },
+    {CAL_SMONTHNAME10, &calendarInfo->MonthNames.Full.Mon10.A, &calendarInfo->MonthNames.Full.Mon10.W},
+    {CAL_SMONTHNAME11, &calendarInfo->MonthNames.Full.Mon11.A, &calendarInfo->MonthNames.Full.Mon11.W},
+    {CAL_SMONTHNAME12, &calendarInfo->MonthNames.Full.Mon12.A, &calendarInfo->MonthNames.Full.Mon12.W},
+    {CAL_SMONTHNAME13, &calendarInfo->MonthNames.Full.Mon13.A, &calendarInfo->MonthNames.Full.Mon13.W},
+  };
+
+  for (size_t i = 0; i < _countof (FullMonthNames); ++i) {
+    textualInfoRequest.Info    = FullMonthNames[i].Info;
+    textualInfoRequest.OutputA = FullMonthNames[i].outputA;
+    textualInfoRequest.OutputW = FullMonthNames[i].outputW;
+
+    if (!p32_winlocale_get_calendar_info (&textualInfoRequest, heap, lcTime)) {
+      goto fail;
+    } else if (*textualInfoRequest.OutputA == NULL) {
+      calendarInfo->Flags &= ~(P32_CALENDAR_INFO_CP);
+    }
   }
 
   /**
-   * Abbreviated month names.
+   * Abbreviated names of calendar months.
    */
-  if (!P32GetCalendarInfo (&info->MonthNames.Abbr.Mon1.W, heap, locale, calendar, CAL_SABBREVMONTHNAME1)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Abbr.Mon2.W, heap, locale, calendar, CAL_SABBREVMONTHNAME2)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Abbr.Mon3.W, heap, locale, calendar, CAL_SABBREVMONTHNAME3)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Abbr.Mon4.W, heap, locale, calendar, CAL_SABBREVMONTHNAME4)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Abbr.Mon5.W, heap, locale, calendar, CAL_SABBREVMONTHNAME5)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Abbr.Mon6.W, heap, locale, calendar, CAL_SABBREVMONTHNAME6)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Abbr.Mon7.W, heap, locale, calendar, CAL_SABBREVMONTHNAME7)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Abbr.Mon8.W, heap, locale, calendar, CAL_SABBREVMONTHNAME8)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Abbr.Mon9.W, heap, locale, calendar, CAL_SABBREVMONTHNAME9)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Abbr.Mon10.W, heap, locale, calendar, CAL_SABBREVMONTHNAME10)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Abbr.Mon11.W, heap, locale, calendar, CAL_SABBREVMONTHNAME11)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Abbr.Mon12.W, heap, locale, calendar, CAL_SABBREVMONTHNAME12)) {
-    goto fail;
-  }
-  if (!P32GetCalendarInfo (&info->MonthNames.Abbr.Mon13.W, heap, locale, calendar, CAL_SABBREVMONTHNAME13)) {
-    goto fail;
+
+  const struct {
+    uint32_t  Info;
+    char    **outputA;
+    wchar_t **outputW;
+  } AbbrMonthNames[] = {
+    {CAL_SABBREVMONTHNAME1,  &calendarInfo->MonthNames.Abbr.Mon1.A,  &calendarInfo->MonthNames.Abbr.Mon1.W },
+    {CAL_SABBREVMONTHNAME2,  &calendarInfo->MonthNames.Abbr.Mon2.A,  &calendarInfo->MonthNames.Abbr.Mon2.W },
+    {CAL_SABBREVMONTHNAME3,  &calendarInfo->MonthNames.Abbr.Mon3.A,  &calendarInfo->MonthNames.Abbr.Mon3.W },
+    {CAL_SABBREVMONTHNAME4,  &calendarInfo->MonthNames.Abbr.Mon4.A,  &calendarInfo->MonthNames.Abbr.Mon4.W },
+    {CAL_SABBREVMONTHNAME5,  &calendarInfo->MonthNames.Abbr.Mon5.A,  &calendarInfo->MonthNames.Abbr.Mon5.W },
+    {CAL_SABBREVMONTHNAME6,  &calendarInfo->MonthNames.Abbr.Mon6.A,  &calendarInfo->MonthNames.Abbr.Mon6.W },
+    {CAL_SABBREVMONTHNAME7,  &calendarInfo->MonthNames.Abbr.Mon7.A,  &calendarInfo->MonthNames.Abbr.Mon7.W },
+    {CAL_SABBREVMONTHNAME8,  &calendarInfo->MonthNames.Abbr.Mon8.A,  &calendarInfo->MonthNames.Abbr.Mon8.W },
+    {CAL_SABBREVMONTHNAME9,  &calendarInfo->MonthNames.Abbr.Mon9.A,  &calendarInfo->MonthNames.Abbr.Mon9.W },
+    {CAL_SABBREVMONTHNAME10, &calendarInfo->MonthNames.Abbr.Mon10.A, &calendarInfo->MonthNames.Abbr.Mon10.W},
+    {CAL_SABBREVMONTHNAME11, &calendarInfo->MonthNames.Abbr.Mon11.A, &calendarInfo->MonthNames.Abbr.Mon11.W},
+    {CAL_SABBREVMONTHNAME12, &calendarInfo->MonthNames.Abbr.Mon12.A, &calendarInfo->MonthNames.Abbr.Mon12.W},
+    {CAL_SABBREVMONTHNAME13, &calendarInfo->MonthNames.Abbr.Mon13.A, &calendarInfo->MonthNames.Abbr.Mon13.W},
+  };
+
+  for (size_t i = 0; i < _countof (AbbrMonthNames); ++i) {
+    textualInfoRequest.Info    = AbbrMonthNames[i].Info;
+    textualInfoRequest.OutputA = AbbrMonthNames[i].outputA;
+    textualInfoRequest.OutputW = AbbrMonthNames[i].outputW;
+
+    if (!p32_winlocale_get_calendar_info (&textualInfoRequest, heap, lcTime)) {
+      goto fail;
+    } else if (*textualInfoRequest.OutputA == NULL) {
+      calendarInfo->Flags &= ~(P32_CALENDAR_INFO_CP);
+    }
   }
 
   return true;
@@ -654,165 +611,6 @@ static void P32FreeCalendarInfoW (CalendarInfo *info, uintptr_t heap) {
 }
 
 /**
- * Convert calendar information in `info` to `locale->Charset.CodePage`.
- *
- * Returns `true` on success, and `false` otherwise.
- */
-static bool P32ConvertCalendarInfo (CalendarInfo *info, uintptr_t heap, locale_t locale) {
-  /**
-   * Code page to use during conversion.
-   */
-  uint32_t codePage = locale->Charset.CodePage;
-
-  /**
-   * Do not allow best-fit conversion for ASCII.
-   */
-  bool bestFit = codePage != P32_CODEPAGE_ASCII;
-
-  if (p32_private_wcstombs (&info->DateFormat.Crt.A, info->DateFormat.Crt.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->DateTimeFormat.A, info->DateTimeFormat.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-
-  if (p32_private_wcstombs (&info->Era.Name.A, info->Era.Name.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-
-  if (p32_private_wcstombs (&info->DayNames.Full.Day1.A, info->DayNames.Full.Day1.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->DayNames.Full.Day2.A, info->DayNames.Full.Day2.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->DayNames.Full.Day3.A, info->DayNames.Full.Day3.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->DayNames.Full.Day4.A, info->DayNames.Full.Day4.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->DayNames.Full.Day5.A, info->DayNames.Full.Day5.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->DayNames.Full.Day6.A, info->DayNames.Full.Day6.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->DayNames.Full.Day7.A, info->DayNames.Full.Day7.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-
-  if (p32_private_wcstombs (&info->DayNames.Abbr.Day1.A, info->DayNames.Abbr.Day1.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->DayNames.Abbr.Day2.A, info->DayNames.Abbr.Day2.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->DayNames.Abbr.Day3.A, info->DayNames.Abbr.Day3.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->DayNames.Abbr.Day4.A, info->DayNames.Abbr.Day4.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->DayNames.Abbr.Day5.A, info->DayNames.Abbr.Day5.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->DayNames.Abbr.Day6.A, info->DayNames.Abbr.Day6.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->DayNames.Abbr.Day7.A, info->DayNames.Abbr.Day7.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-
-  /* clang-format off */
-  if (p32_private_wcstombs (&info->MonthNames.Full.Mon1.A, info->MonthNames.Full.Mon1.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Full.Mon2.A, info->MonthNames.Full.Mon2.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Full.Mon3.A, info->MonthNames.Full.Mon3.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Full.Mon4.A, info->MonthNames.Full.Mon4.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Full.Mon5.A, info->MonthNames.Full.Mon5.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Full.Mon6.A, info->MonthNames.Full.Mon6.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Full.Mon7.A, info->MonthNames.Full.Mon7.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Full.Mon8.A, info->MonthNames.Full.Mon8.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Full.Mon9.A, info->MonthNames.Full.Mon9.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Full.Mon10.A, info->MonthNames.Full.Mon10.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Full.Mon11.A, info->MonthNames.Full.Mon11.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Full.Mon12.A, info->MonthNames.Full.Mon12.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Full.Mon13.A, info->MonthNames.Full.Mon13.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-
-  if (p32_private_wcstombs (&info->MonthNames.Abbr.Mon1.A, info->MonthNames.Abbr.Mon1.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Abbr.Mon2.A, info->MonthNames.Abbr.Mon2.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Abbr.Mon3.A, info->MonthNames.Abbr.Mon3.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Abbr.Mon4.A, info->MonthNames.Abbr.Mon4.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Abbr.Mon5.A, info->MonthNames.Abbr.Mon5.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Abbr.Mon6.A, info->MonthNames.Abbr.Mon6.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Abbr.Mon7.A, info->MonthNames.Abbr.Mon7.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Abbr.Mon8.A, info->MonthNames.Abbr.Mon8.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Abbr.Mon9.A, info->MonthNames.Abbr.Mon9.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Abbr.Mon10.A, info->MonthNames.Abbr.Mon10.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Abbr.Mon11.A, info->MonthNames.Abbr.Mon11.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Abbr.Mon12.A, info->MonthNames.Abbr.Mon12.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->MonthNames.Abbr.Mon13.A, info->MonthNames.Abbr.Mon13.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  /* clang-format on */
-
-  return true;
-
-fail:
-  return false;
-}
-
-/**
  * Copy calendar information from `src` to `dest`.
  */
 static bool P32CopyCalendarInfoA (CalendarInfo *dest, uintptr_t heap, CalendarInfo *src) {
@@ -823,7 +621,6 @@ static bool P32CopyCalendarInfoA (CalendarInfo *dest, uintptr_t heap, CalendarIn
     goto fail;
   }
 
-  dest->Era.Offset = src->Era.Offset;
   if (p32_private_strdup (&dest->Era.Name.A, src->Era.Name.A, heap) == -1) {
     goto fail;
   }
@@ -1152,32 +949,79 @@ static void P32FreeCalendarInfoA (CalendarInfo *info, uintptr_t heap) {
  *
  * Returns `true` on success, and `false` otherwise.
  */
-static bool P32LcTimeInfo (LcTimeInfo *info, uintptr_t heap, Locale *locale) {
+static bool P32LcTimeLocaleInfo (LcTimeInfo *lcTimeInfo, uintptr_t heap, Locale *lcTime, locale_t locale) {
+  LocaleInfoRequest infoRequest         = {0};
+  LocaleInfoRequest numbericInfoRequest = {0};
+  LocaleInfoRequest textualInfoRequest  = {0};
+
+  uint32_t textualInfoRequestFlags = (P32_LOCALE_INFO_REQUEST_CONVERT);
+
+  textualInfoRequest.CodePage = locale->Charset.CodePage;
+
+  if (textualInfoRequest.CodePage != P32_CODEPAGE_ASCII) {
+    textualInfoRequestFlags |= (P32_LOCALE_INFO_REQUEST_CONVERT_BEST_FIT);
+  }
+
   /**
    * Time format string used by `GetTimeFormat[Ex]`.
    */
-  if (!p32_winlocale_getinfo (&info->TimeFormat.Format, heap, locale, LOCALE_STIMEFORMAT)) {
+  infoRequest.Info    = LOCALE_STIMEFORMAT;
+  infoRequest.OutputW = &lcTimeInfo->TimeFormat.Format;
+
+  if (!p32_winlocale_get_locale_info (&infoRequest, heap, lcTime)) {
     goto fail;
   }
 
   /**
-   * Locale's AM/PM strings and their position in the time string.
+   * Locale's AM strings.
    */
-  if (!p32_winlocale_getinfo_number (&info->AmPm.Value, locale, LOCALE_ITIMEMARKPOSN)) {
+  textualInfoRequest.Info    = LOCALE_S1159;
+  textualInfoRequest.Flags   = textualInfoRequestFlags;
+  textualInfoRequest.OutputA = &lcTimeInfo->AmPm.Am.A;
+  textualInfoRequest.OutputW = &lcTimeInfo->AmPm.Am.W;
+
+  if (!p32_winlocale_get_locale_info (&textualInfoRequest, heap, lcTime)) {
     goto fail;
   }
-  assert (info->AmPm.Position == AM_PM_PREFIX || info->AmPm.Position == AM_PM_SUFFIX);
-  if (!p32_winlocale_getinfo (&info->AmPm.Am.W, heap, locale, LOCALE_S1159)) {
+
+  /**
+   * Locale's PM strings.
+   */
+  textualInfoRequest.Info    = LOCALE_S2359;
+  textualInfoRequest.Flags   = textualInfoRequestFlags;
+  textualInfoRequest.OutputA = &lcTimeInfo->AmPm.Pm.A;
+  textualInfoRequest.OutputW = &lcTimeInfo->AmPm.Pm.W;
+
+  if (!p32_winlocale_get_locale_info (&textualInfoRequest, heap, lcTime)) {
     goto fail;
   }
-  if (!p32_winlocale_getinfo (&info->AmPm.Pm.W, heap, locale, LOCALE_S2359)) {
+
+  /**
+   * Position of AM/PM string.
+   */
+  numbericInfoRequest.Info   = LOCALE_ITIMEMARKPOSN;
+  numbericInfoRequest.Flags  = (P32_LOCALE_INFO_REQUEST_NUMERIC);
+  numbericInfoRequest.Output = &lcTimeInfo->AmPm.Value;
+
+  if (!p32_winlocale_get_locale_info (&numbericInfoRequest, heap, lcTime)) {
     goto fail;
   }
+
+  assert (lcTimeInfo->AmPm.Position == AM_PM_PREFIX || lcTimeInfo->AmPm.Position == AM_PM_SUFFIX);
 
   /**
    * Locale's alternative digits.
    */
-  if (!p32_winlocale_getinfo (&info->AltDigits.W, heap, locale, LOCALE_SNATIVEDIGITS)) {
+  textualInfoRequest.Info    = LOCALE_SNATIVEDIGITS;
+  textualInfoRequest.Flags   = (P32_LOCALE_INFO_REQUEST_CONVERT | P32_LOCALE_INFO_REQUEST_CONVERT_FALLBACK);
+  textualInfoRequest.OutputA = &lcTimeInfo->AltDigits.A;
+  textualInfoRequest.OutputW = &lcTimeInfo->AltDigits.W;
+
+  if (!p32_winlocale_get_locale_info (&textualInfoRequest, heap, lcTime)) {
+    goto fail;
+  }
+
+  if (!p32_alt_digits (&lcTimeInfo->AltDigits, locale)) {
     goto fail;
   }
 
@@ -1188,22 +1032,56 @@ fail:
 }
 
 /**
- * Format era description string and store it in `info->EraString.W`.
+ * Format era description string.
  *
  * Returns `true` on success, and `false` otherwise.
  */
-static bool P32EraString (LcTimeInfo *info, uintptr_t heap) {
+static bool P32EraString (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t locale) {
+  CalendarInfo *defaultCalendar     = &lcTimeInfo->DefaultCalendar;
+  CalendarInfo *alternativeCalendar = &lcTimeInfo->AlternativeCalendar;
+
+  /**
+   * Code page to use during conversion.
+   */
+  uint32_t codePage = locale->Charset.CodePage;
+
+  /**
+   * Do not allow best-fit conversion for ASCII.
+   */
+  bool bestFit = codePage != P32_CODEPAGE_ASCII;
+
   int ret;
 
-  if (info->AlternativeCalendar.Era.String != NULL) {
+  if (alternativeCalendar->Flags & P32_CALENDAR_INFO_SET) {
     ret = p32_private_aswprintf (
-      &info->EraString.W, heap, L"%s;%s", info->DefaultCalendar.Era.String, info->AlternativeCalendar.Era.String
+      &lcTimeInfo->EraString.W, heap, L"%s;%s", defaultCalendar->Era.String, alternativeCalendar->Era.String
     );
   } else {
-    ret = p32_private_wcsdup (&info->EraString.W, info->DefaultCalendar.Era.String, heap);
+    ret = p32_private_wcsdup (&lcTimeInfo->EraString.W, defaultCalendar->Era.String, heap);
   }
 
-  return ret != -1;
+  if (ret == -1) {
+    goto fail;
+  }
+
+  /**
+   * We should convert alternative calendar's era description string only
+   * if succeeded at converting alternative calendar's information.
+   */
+  if (alternativeCalendar->Flags & P32_CALENDAR_INFO_CP) {
+    ret = p32_private_wcstombs (&lcTimeInfo->EraString.A, lcTimeInfo->EraString.W, heap, codePage, bestFit);
+  } else {
+    ret = p32_private_wcstombs (&lcTimeInfo->EraString.A, defaultCalendar->Era.String, heap, codePage, bestFit);
+  }
+
+  if (ret == -1) {
+    goto fail;
+  }
+
+  return true;
+
+fail:
+  return false;
 }
 
 /**
@@ -1318,116 +1196,6 @@ static void P32FreeLcTimeInfoW (LcTimeInfo *lcTimeInfo, uintptr_t heap) {
 }
 
 /**
- * Convert locale information in `info` to `locale->Charset.CodePage`.
- *
- * Returns `true` on success, and `false` otherwise.
- */
-static bool P32ConvertLcTimeInfo (LcTimeInfo *info, uintptr_t heap, locale_t locale) {
-  /**
-   * Code page to use during conversion.
-   */
-  uint32_t codePage = locale->Charset.CodePage;
-
-  /**
-   * Do not allow best-fit conversion for ASCII.
-   */
-  bool bestFit = codePage != P32_CODEPAGE_ASCII;
-
-  /**
-   * Format strings are constructed from Win32 format strings which may
-   * contain characters which cannot be represented by SBCS/DBCS code pages.
-   */
-  if (p32_private_wcstombs (&info->TimeFormat.Crt.A, info->TimeFormat.Crt.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->TimeFormatAmPm.Crt.A, info->TimeFormatAmPm.Crt.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-
-  /**
-   * These should convert losslessly as they contain only ASCII characters.
-   */
-  if (p32_private_wcstombs (&info->TimeFormat24.A, info->TimeFormat24.W, heap, codePage, false) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->TimeFormatT.A, info->TimeFormatT.W, heap, codePage, false) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->DateFormatD.A, info->DateFormatD.W, heap, codePage, false) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->DateFormatF.A, info->DateFormatF.W, heap, codePage, false) == -1) {
-    goto fail;
-  }
-
-  /**
-   * AM/PM strings may contain characters which cannot be represented by
-   * SBCS/DBCS code pages.
-   */
-  if (p32_private_wcstombs (&info->AmPm.Am.A, info->AmPm.Am.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->AmPm.Pm.A, info->AmPm.Pm.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-
-  /**
-   * We allow situation when locale's alternative digits cannot be converted
-   * to `codePage`. However, we do not allow lossy (best-fit) conversion.
-   */
-  if (p32_private_wcstombs (&info->AltDigits.A, info->AltDigits.W, heap, codePage, false) != -1) {
-    /**
-     * If `info->AltDigits.W` has been successfully converted to `codePage`,
-     * transform converted string to a usable form.
-     */
-    if (!p32_alt_digits (&info->AltDigits, locale)) {
-      goto fail;
-    }
-  }
-
-  return true;
-
-fail:
-  return false;
-}
-
-/**
- * Convert era description string to `locale->Charset.CodePage`.
- *
- * Returns `true` on success, and `false` otherwise.
- */
-static bool P32ConvertEraString (LcTimeInfo *info, uintptr_t heap, locale_t locale) {
-  /**
-   * Code page to use during conversion.
-   */
-  uint32_t codePage = locale->Charset.CodePage;
-
-  /**
-   * Do not allow best-fit conversion for ASCII.
-   */
-  bool bestFit = codePage != P32_CODEPAGE_ASCII;
-
-  /**
-   * We should convert alternative calendar's era description string only
-   * if succeeded at converting alternative calendar's information.
-   */
-  if (info->AlternativeCalendar.Era.Name.A == NULL) {
-    if (p32_private_wcstombs (&info->EraString.A, info->DefaultCalendar.Era.String, heap, codePage, bestFit) == -1) {
-      goto fail;
-    }
-  } else {
-    if (p32_private_wcstombs (&info->EraString.A, info->EraString.W, heap, codePage, bestFit) == -1) {
-      goto fail;
-    }
-  }
-
-  return true;
-
-fail:
-  return false;
-}
-
-/**
  * Copy locale information from `src` to `dest`.
  */
 static bool P32CopyLcTimeInfoA (LcTimeInfo *dest, uintptr_t heap, LcTimeInfo *src) {
@@ -1466,12 +1234,12 @@ static bool P32CopyLcTimeInfoA (LcTimeInfo *dest, uintptr_t heap, LcTimeInfo *sr
    * `src->AltDigits.A` may be NULL if locale's alternative digits cannot be
    * converted to SBCS/DBCS code pages.
    */
-  if (src->AltDigits.A != NULL) {
-    if (p32_private_strdup (&dest->AltDigits.A, src->AltDigits.A, heap) == -1) {
-      goto fail;
-    }
-    memcpy (dest->AltDigits.Map, src->AltDigits.Map, sizeof (dest->AltDigits.Map));
+  // if (src->AltDigits.A != NULL) {
+  if (p32_private_strdup (&dest->AltDigits.A, src->AltDigits.A, heap) == -1) {
+    goto fail;
   }
+  memcpy (dest->AltDigits.Map, src->AltDigits.Map, sizeof (dest->AltDigits.Map));
+  //}
 
   return true;
 
@@ -1845,9 +1613,62 @@ static bool P32DateTimeFormat (LcTimeInfo *info, CalendarInfo *calendarInfo, uin
 /**
  * Get locale's date/time format strings.
  */
-static bool P32DateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, bool useAlternativeCalendar) {
-  CalendarInfo *defaultCalendar     = &lcTimeInfo->DefaultCalendar;
-  CalendarInfo *alternativeCalendar = &lcTimeInfo->AlternativeCalendar;
+static bool P32CalendarDateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, CalendarInfo *calendar, locale_t locale) {
+  /**
+   * Code page to use during conversion.
+   */
+  uint32_t codePage = locale->Charset.CodePage;
+
+  /**
+   * Do not allow best-fit conversion for ASCII.
+   */
+  bool bestFit = codePage != P32_CODEPAGE_ASCII;
+
+  /**
+   * Date format string for "%x"/"%Ex" format specifier.
+   */
+  if (!P32MapFormatString (&calendar->DateFormat, heap, DateFormatMap, _countof (DateFormatMap))) {
+    goto fail;
+  }
+
+  if (calendar->Flags & P32_CALENDAR_INFO_CP) {
+    if (p32_private_wcstombs (&calendar->DateFormat.Crt.A, calendar->DateFormat.Crt.W, heap, codePage, bestFit) == -1) {
+      goto fail;
+    }
+  }
+
+  /**
+   * Date-Time format string for "%c"/"%Ec" format specifier.
+   */
+  if (!P32DateTimeFormat (lcTimeInfo, calendar, heap)) {
+    goto fail;
+  }
+
+  if (calendar->Flags & P32_CALENDAR_INFO_CP) {
+    if (p32_private_wcstombs (&calendar->DateTimeFormat.A, calendar->DateTimeFormat.W, heap, codePage, bestFit) == -1) {
+      goto fail;
+    }
+  }
+
+  return true;
+
+fail:
+  return false;
+}
+
+/**
+ * Get locale's date/time format strings.
+ */
+static bool P32DateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t locale) {
+  /**
+   * Code page to use during conversion.
+   */
+  uint32_t codePage = locale->Charset.CodePage;
+
+  /**
+   * Do not allow best-fit conversion for ASCII.
+   */
+  bool bestFit = codePage != P32_CODEPAGE_ASCII;
 
   /**
    * Time format string for "%X" format specifier.
@@ -1856,6 +1677,12 @@ static bool P32DateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, bool useAlterna
     goto fail;
   }
 
+  /* clang-format off */
+  if (p32_private_wcstombs (&lcTimeInfo->TimeFormat.Crt.A, lcTimeInfo->TimeFormat.Crt.W, heap, codePage, bestFit) == -1) {
+    goto fail;
+  }
+  /* clang-format on */
+
   /**
    * Time format string for "%r" format specifier.
    */
@@ -1863,11 +1690,20 @@ static bool P32DateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, bool useAlterna
     goto fail;
   }
 
+  /* clang-format off */
+  if (p32_private_wcstombs (&lcTimeInfo->TimeFormatAmPm.Crt.A, lcTimeInfo->TimeFormatAmPm.Crt.W, heap, codePage, bestFit) == -1) {
+    goto fail;
+  }
+  /* clang-format on */
+
   /**
    * Time format string for "%R" format specifier.
    */
   if (p32_private_wcsdup (&lcTimeInfo->TimeFormat24.W, L"%H:%M", heap) == -1) {
     return false;
+  }
+  if (p32_private_wcstombs (&lcTimeInfo->TimeFormat24.A, lcTimeInfo->TimeFormat24.W, heap, codePage, false) == -1) {
+    goto fail;
   }
 
   /**
@@ -1876,21 +1712,8 @@ static bool P32DateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, bool useAlterna
   if (p32_private_wcsdup (&lcTimeInfo->TimeFormatT.W, L"%H:%M:%S", heap) == -1) {
     return false;
   }
-
-  /**
-   * Date format string for "%x" format specifier.
-   */
-  if (!P32MapFormatString (&defaultCalendar->DateFormat, heap, DateFormatMap, _countof (DateFormatMap))) {
+  if (p32_private_wcstombs (&lcTimeInfo->TimeFormatT.A, lcTimeInfo->TimeFormatT.W, heap, codePage, false) == -1) {
     goto fail;
-  }
-
-  /**
-   * Date format string for "%Ex" format specifier.
-   */
-  if (useAlternativeCalendar) {
-    if (!P32MapFormatString (&alternativeCalendar->DateFormat, heap, DateFormatMap, _countof (DateFormatMap))) {
-      goto fail;
-    }
   }
 
   /**
@@ -1899,6 +1722,9 @@ static bool P32DateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, bool useAlterna
   if (p32_private_wcsdup (&lcTimeInfo->DateFormatD.W, L"%m/%d/%y", heap) == -1) {
     return false;
   }
+  if (p32_private_wcstombs (&lcTimeInfo->DateFormatD.A, lcTimeInfo->DateFormatD.W, heap, codePage, false) == -1) {
+    goto fail;
+  }
 
   /**
    * Date format string for "%F" format specifier.
@@ -1906,21 +1732,8 @@ static bool P32DateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, bool useAlterna
   if (p32_private_wcsdup (&lcTimeInfo->DateFormatF.W, L"%Y-%m-%d", heap) == -1) {
     return false;
   }
-
-  /**
-   * Date-Time format string for "%c" format specifier.
-   */
-  if (!P32DateTimeFormat (lcTimeInfo, &lcTimeInfo->DefaultCalendar, heap)) {
+  if (p32_private_wcstombs (&lcTimeInfo->DateFormatF.A, lcTimeInfo->DateFormatF.W, heap, codePage, false) == -1) {
     goto fail;
-  }
-
-  /**
-   * Date-Time format string for "%Ec" format specifier.
-   */
-  if (useAlternativeCalendar) {
-    if (!P32DateTimeFormat (lcTimeInfo, &lcTimeInfo->AlternativeCalendar, heap)) {
-      goto fail;
-    }
   }
 
   return true;
@@ -1942,7 +1755,7 @@ bool p32_localeinfo_time (locale_t locale, uintptr_t heap) {
    */
   bool useAlternativeCalendar = (lcTime->AlternativeCalendar != 0);
 
-  if (!P32LcTimeInfo (lcTimeInfo, heap, lcTime)) {
+  if (!P32LcTimeLocaleInfo (lcTimeInfo, heap, lcTime, locale)) {
 #ifdef LIBPOSIX32_TEST
     _RPTW1 (_CRT_ERROR, L"LC_TIME(%s): failed to obtain locale information\n", locale->WindowsLocaleStrings.W.LcTime);
 
@@ -1954,7 +1767,11 @@ bool p32_localeinfo_time (locale_t locale, uintptr_t heap) {
     goto fail;
   }
 
-  if (!P32CalendarInfo (&lcTimeInfo->DefaultCalendar, heap, lcTime, lcTime->Calendar)) {
+  if (!P32DateTime (lcTimeInfo, heap, locale)) {
+    goto fail;
+  }
+
+  if (!P32LcTimeCalendarInfo (&lcTimeInfo->DefaultCalendar, heap, lcTime, locale, P32_CALENDAR_INFO_REQUEST_DEFAULT)) {
 #ifdef LIBPOSIX32_TEST
     _RPTW1 (_CRT_ERROR, L"LC_TIME(%s): failed to obtain calendar information\n", locale->WindowsLocaleStrings.W.LcTime);
 
@@ -1963,11 +1780,17 @@ bool p32_localeinfo_time (locale_t locale, uintptr_t heap) {
     }
 #endif
 
-    goto fail_default_calendar;
+    goto fail;
+  }
+
+  if (!P32CalendarDateTime (lcTimeInfo, heap, &lcTimeInfo->DefaultCalendar, locale)) {
+    goto fail;
   }
 
   if (useAlternativeCalendar) {
-    if (!P32CalendarInfo (&lcTimeInfo->AlternativeCalendar, heap, lcTime, lcTime->AlternativeCalendar)) {
+    CalendarInfo *alternativeCalendar = &lcTimeInfo->AlternativeCalendar;
+
+    if (!P32LcTimeCalendarInfo (alternativeCalendar, heap, lcTime, locale, P32_CALENDAR_INFO_REQUEST_ALTERNATIVE)) {
 #ifdef LIBPOSIX32_TEST
       _RPTW1 (
         _CRT_ERROR, L"LC_TIME(%s): failed to obtain alternative calendar information\n",
@@ -1979,83 +1802,27 @@ bool p32_localeinfo_time (locale_t locale, uintptr_t heap) {
       }
 #endif
 
-      goto fail_alternative_calendar;
+      goto fail;
+    }
+
+    if (!P32CalendarDateTime (lcTimeInfo, heap, alternativeCalendar, locale)) {
+      goto fail;
     }
   }
 
-  if (!P32DateTime (lcTimeInfo, heap, useAlternativeCalendar)) {
-    goto fail_alternative_calendar;
-  }
-
-  if (!P32EraString (lcTimeInfo, heap)) {
-    goto fail_alternative_calendar;
-  }
-
-  if (!P32ConvertLcTimeInfo (lcTimeInfo, heap, locale)) {
-#ifdef LIBPOSIX32_TEST
-    _RPTW1 (_CRT_ERROR, L"LC_TIME(%s): failed to convert locale information\n", locale->WindowsLocaleStrings.W.LcTime);
-
-    if (IsDebuggerPresent ()) {
-      DebugBreak ();
-    }
-#endif
-
-    goto fail_convert;
-  }
-
-  if (!P32ConvertCalendarInfo (&lcTimeInfo->DefaultCalendar, heap, locale)) {
-#ifdef LIBPOSIX32_TEST
-    _RPTW1 (
-      _CRT_ERROR, L"LC_TIME(%s): failed to convert calendar information\n", locale->WindowsLocaleStrings.W.LcTime
-    );
-
-    if (IsDebuggerPresent ()) {
-      DebugBreak ();
-    }
-#endif
-
-    goto fail_convert_default_calendar;
-  }
-
-  /**
-   * We allow situation when we cannot convert alternaive calendar info to
-   * `locale->Charset.CodePage`.
-   *
-   * This is a common case for many SBCS/DBCS locales.
-   */
-  if (useAlternativeCalendar) {
-    if (!P32ConvertCalendarInfo (&lcTimeInfo->AlternativeCalendar, heap, locale)) {
-#ifdef LIBPOSIX32_TEST
-      _RPTW1 (
-        _CRT_WARN, L"LC_TIME(%s): failed to convert alternative calendar information\n",
-        locale->WindowsLocaleStrings.W.LcTime
-      );
-#endif
-
-      P32FreeCalendarInfoA (&lcTimeInfo->AlternativeCalendar, heap);
-    }
-  }
-
-  if (!P32ConvertEraString (lcTimeInfo, heap, locale)) {
-    goto fail_convert_default_calendar;
+  if (!P32EraString (lcTimeInfo, heap, locale)) {
+    goto fail;
   }
 
   return true;
 
-fail_convert_default_calendar:
-  P32FreeCalendarInfoA (&lcTimeInfo->DefaultCalendar, heap);
-
-fail_convert:
-  P32FreeLcTimeInfoA (lcTimeInfo, heap);
-
-fail_alternative_calendar:
-  P32FreeCalendarInfoW (&lcTimeInfo->AlternativeCalendar, heap);
-
-fail_default_calendar:
-  P32FreeCalendarInfoW (&lcTimeInfo->DefaultCalendar, heap);
-
 fail:
+  P32FreeLcTimeInfoA (lcTimeInfo, heap);
   P32FreeLcTimeInfoW (lcTimeInfo, heap);
+  P32FreeCalendarInfoA (&lcTimeInfo->DefaultCalendar, heap);
+  P32FreeCalendarInfoW (&lcTimeInfo->DefaultCalendar, heap);
+  P32FreeCalendarInfoA (&lcTimeInfo->AlternativeCalendar, heap);
+  P32FreeCalendarInfoW (&lcTimeInfo->AlternativeCalendar, heap);
 
   return false;
 }
@@ -2077,13 +1844,13 @@ bool p32_localeinfo_time_copy (LcTimeInfo *dest, uintptr_t heap, LcTimeInfo *src
     goto fail_default_calendar_a;
   }
 
-  if (src->AlternativeCalendar.Era.Name.W != NULL) {
+  if (src->AlternativeCalendar.Flags & P32_CALENDAR_INFO_SET) {
     if (!P32CopyCalendarInfoW (&dest->AlternativeCalendar, heap, &src->AlternativeCalendar)) {
       goto fail_alternative_calendar_w;
     }
   }
 
-  if (src->AlternativeCalendar.Era.Name.A != NULL) {
+  if (src->AlternativeCalendar.Flags & P32_CALENDAR_INFO_CP) {
     if (!P32CopyCalendarInfoA (&dest->AlternativeCalendar, heap, &src->AlternativeCalendar)) {
       goto fail_alternative_calendar_a;
     }

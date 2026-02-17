@@ -154,10 +154,29 @@ typedef struct MonthNames {
 } MonthNames;
 
 /**
+ * If this bit is set, then `CalendarInfo` structure contains valid information
+ * for some calendar.
+ *
+ * This means that all `wchar_t *` fields are valid and can be accessed.
+ */
+#define P32_CALENDAR_INFO_SET (1)
+/**
+ * If this bit is set, then `CalendarInfo` structure contains all calendar
+ * information converted to some code page.
+ *
+ * This means that all `char *` fields are valid and can be accessed.
+ */
+#define P32_CALENDAR_INFO_CP  (1 << 1)
+
+/**
  * Calendar information.
  */
 typedef struct CalendarInfo {
-  Era Era;
+  /**
+   * Combination of `P32_CALENDAR_INFO_*` flags.
+   */
+  uint32_t Flags;
+  Era      Era;
   struct {
     DayNames Full;
     DayNames Abbr;
