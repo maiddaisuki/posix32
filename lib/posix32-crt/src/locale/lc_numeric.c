@@ -40,11 +40,37 @@
 /**
  * Get locale information dependant on `LC_NUMERIC` locale category.
  */
-static bool P32LcNumericInfo (LcNumericInfo *info, uintptr_t heap, Locale *locale) {
-  if (!p32_winlocale_getinfo (&info->RadixChar.W, heap, locale, LOCALE_SDECIMAL)) {
+static bool P32LcNumericInfo (LcNumericInfo *info, uintptr_t heap, Locale *lcNumericInfo, locale_t locale) {
+  LocaleInfoRequest infoRequest      = {0};
+  uint32_t          infoRequestFlags = (P32_LOCALE_INFO_REQUEST_CONVERT);
+
+  infoRequest.CodePage = locale->Charset.CodePage;
+
+  if (infoRequest.CodePage != P32_CODEPAGE_ASCII) {
+    infoRequestFlags |= (P32_LOCALE_INFO_REQUEST_CONVERT_BEST_FIT);
+  }
+
+  /**
+   * Locale's decimal point.
+   */
+  infoRequest.Info    = LOCALE_SDECIMAL;
+  infoRequest.Flags   = infoRequestFlags;
+  infoRequest.OutputA = &info->RadixChar.A;
+  infoRequest.OutputW = &info->RadixChar.W;
+
+  if (!p32_winlocale_get_locale_info (&infoRequest, heap, lcNumericInfo)) {
     goto fail;
   }
-  if (!p32_winlocale_getinfo (&info->ThousandsSeparator.W, heap, locale, LOCALE_STHOUSAND)) {
+
+  /**
+   * Locale's thousands separator.
+   */
+  infoRequest.Info    = LOCALE_STHOUSAND;
+  infoRequest.Flags   = infoRequestFlags;
+  infoRequest.OutputA = &info->ThousandsSeparator.A;
+  infoRequest.OutputW = &info->ThousandsSeparator.W;
+
+  if (!p32_winlocale_get_locale_info (&infoRequest, heap, lcNumericInfo)) {
     goto fail;
   }
 
@@ -88,33 +114,6 @@ static void P32FreeLcNumericInfoW (LcNumericInfo *info, uintptr_t heap) {
 }
 
 /**
- * Convert locale information in `info` to `locale->Charset.CodePage`.
- */
-static bool P32ConverLcNumericInfo (LcNumericInfo *info, uintptr_t heap, locale_t locale) {
-  /**
-   * Code page to use during conversion.
-   */
-  uint32_t codePage = locale->Charset.CodePage;
-
-  /**
-   * Do not allow best-fit conversion for ASCII.
-   */
-  bool bestFit = codePage != P32_CODEPAGE_ASCII;
-
-  if (p32_private_wcstombs (&info->RadixChar.A, info->RadixChar.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&info->ThousandsSeparator.A, info->ThousandsSeparator.W, heap, codePage, bestFit) == -1) {
-    goto fail;
-  }
-
-  return true;
-
-fail:
-  return false;
-}
-
-/**
  * Copy locale information from `src` to `dest`.
  */
 static bool P32CopyLcNumericInfoA (LcNumericInfo *dest, uintptr_t heap, LcNumericInfo *src) {
@@ -151,7 +150,7 @@ bool p32_localeinfo_numeric (locale_t locale, uintptr_t heap) {
   Locale        *lcNumeric     = &locale->WinLocale.LcNumeric;
   LcNumericInfo *lcNumericInfo = &locale->LocaleInfo.LcNumeric;
 
-  if (!P32LcNumericInfo (lcNumericInfo, heap, lcNumeric)) {
+  if (!P32LcNumericInfo (lcNumericInfo, heap, lcNumeric, locale)) {
 #ifdef LIBPOSIX32_TEST
     _RPTW1 (_CRT_ERROR, L"%s(LC_NUMERIC): failed to obtain locale information\n", lcNumeric->LocaleName);
 
@@ -163,23 +162,10 @@ bool p32_localeinfo_numeric (locale_t locale, uintptr_t heap) {
     goto fail;
   }
 
-  if (!P32ConverLcNumericInfo (lcNumericInfo, heap, locale)) {
-#ifdef LIBPOSIX32_TEST
-    _RPTW1 (_CRT_ERROR, L"%s(LC_NUMERIC): failed to convert locale information\n", lcNumeric->LocaleName);
-
-    if (IsDebuggerPresent ()) {
-      DebugBreak ();
-    }
-#endif
-
-    goto fail_convert;
-  }
-
   return true;
 
-fail_convert:
-  P32FreeLcNumericInfoA (lcNumericInfo, heap);
 fail:
+  P32FreeLcNumericInfoA (lcNumericInfo, heap);
   P32FreeLcNumericInfoW (lcNumericInfo, heap);
 
   return false;
