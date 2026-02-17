@@ -2469,7 +2469,7 @@ char *p32_setlocale (int category, const char *localeString) {
    * Obtain write lock for Global Locale.
    */
   if (pthread_rwlock_wrlock (&P32GlobalLocale.GlobalLock) != 0) {
-    p32_terminate (L"Global Locale: failed to obtain write lock.\n");
+    p32_terminate (L"Global Locale: failed to obtain write lock.");
   }
 
   uintptr_t heap       = P32GlobalLocale.Heap;
@@ -2620,7 +2620,7 @@ char *p32_setlocale (int category, const char *localeString) {
     assert (activeThreadLocale != LC_GLOBAL_LOCALE);
 
     if (!P32SetLocale (activeThreadLocale)) {
-      p32_terminate (L"Ghread Locale: failed to restore previous locale.");
+      p32_terminate (L"Thread Locale: failed to restore previous locale.");
     }
   }
 #endif
@@ -2703,7 +2703,7 @@ locale_t p32_duplocale (locale_t locale) {
     pthread_once (&P32GlobalLocale.GlobalInit, P32InitGlobalLocale);
 
     if (pthread_rwlock_rdlock (&P32GlobalLocale.GlobalLock) != 0) {
-      p32_terminate (L"Global Locale: failed to obtain read lock.\n");
+      p32_terminate (L"Global Locale: failed to obtain read lock.");
     }
 
     assert (P32GlobalLocale.GlobalLocale != NULL);
