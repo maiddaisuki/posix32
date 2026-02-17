@@ -343,6 +343,48 @@ static bool P32GetCountryCodeFromLocale (wchar_t **address, uintptr_t heap, Loca
   return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
 }
 
+#ifdef LIBPOSIX32_TEST
+bool p32_winlocale_get_ansi_code_page (uint32_t *codePage, uintptr_t heap, Locale *locale) {
+  LocaleInfoRequest infoRequest = {0};
+
+  infoRequest.Info   = LOCALE_IDEFAULTANSICODEPAGE;
+  infoRequest.Flags  = P32_LOCALE_INFO_REQUEST_NUMERIC;
+  infoRequest.Output = codePage;
+
+  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
+}
+
+bool p32_winlocale_get_oem_code_page (uint32_t *codePage, uintptr_t heap, Locale *locale) {
+  LocaleInfoRequest infoRequest = {0};
+
+  infoRequest.Info   = LOCALE_IDEFAULTCODEPAGE;
+  infoRequest.Flags  = P32_LOCALE_INFO_REQUEST_NUMERIC;
+  infoRequest.Output = codePage;
+
+  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
+}
+
+bool p32_winlocale_get_mac_code_page (uint32_t *codePage, uintptr_t heap, Locale *locale) {
+  LocaleInfoRequest infoRequest = {0};
+
+  infoRequest.Info   = LOCALE_IDEFAULTMACCODEPAGE;
+  infoRequest.Flags  = P32_LOCALE_INFO_REQUEST_NUMERIC;
+  infoRequest.Output = codePage;
+
+  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
+}
+
+bool p32_winlocale_get_ebcdic_code_page (uint32_t *codePage, uintptr_t heap, Locale *locale) {
+  LocaleInfoRequest infoRequest = {0};
+
+  infoRequest.Info   = LOCALE_IDEFAULTEBCDICCODEPAGE;
+  infoRequest.Flags  = P32_LOCALE_INFO_REQUEST_NUMERIC;
+  infoRequest.Output = codePage;
+
+  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
+}
+#endif
+
 #if P32_REGION_NAMES
 #include "locale_win32/region_name.c"
 #else

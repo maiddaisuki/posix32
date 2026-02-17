@@ -84,8 +84,8 @@ static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeString) {
   uint32_t ansiCodePage = 0;
   uint32_t oemCodePage  = 0;
 
-  assert (p32_winlocale_getinfo_number (&ansiCodePage, &locale, LOCALE_IDEFAULTANSICODEPAGE));
-  assert (p32_winlocale_getinfo_number (&oemCodePage, &locale, LOCALE_IDEFAULTCODEPAGE));
+  assert (p32_winlocale_get_ansi_code_page (&ansiCodePage, heap, &locale));
+  assert (p32_winlocale_get_oem_code_page (&oemCodePage, heap, &locale));
 
   bool testAnsi = ansiCodePage != CP_ACP && flagTestAcp;
   bool testOem  = oemCodePage != CP_OEMCP && flagTestOcp;

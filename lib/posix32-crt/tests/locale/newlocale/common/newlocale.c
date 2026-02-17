@@ -468,10 +468,10 @@ static bool __cdecl Test (Locale *locale) {
   UINT macCodePage    = 0;
   UINT ebcdicCodePage = 0;
 
-  assert (p32_winlocale_getinfo_number (&ansiCodePage, locale, LOCALE_IDEFAULTANSICODEPAGE));
-  assert (p32_winlocale_getinfo_number (&oemCodePage, locale, LOCALE_IDEFAULTCODEPAGE));
-  assert (p32_winlocale_getinfo_number (&macCodePage, locale, LOCALE_IDEFAULTMACCODEPAGE));
-  assert (p32_winlocale_getinfo_number (&ebcdicCodePage, locale, LOCALE_IDEFAULTEBCDICCODEPAGE));
+  assert (p32_winlocale_get_ansi_code_page (&ansiCodePage, heap, locale));
+  assert (p32_winlocale_get_oem_code_page (&oemCodePage, heap, locale));
+  assert (p32_winlocale_get_mac_code_page (&macCodePage, heap, locale));
+  assert (p32_winlocale_get_ebcdic_code_page (&ebcdicCodePage, heap, locale));
 
   UINT codePage = 0;
 

@@ -353,6 +353,28 @@ P32_TEST_DECL bool p32_winlocale_get_language_code (wchar_t **address, uintptr_t
  */
 P32_TEST_DECL bool p32_winlocale_get_country_code (wchar_t **address, uintptr_t heap, Locale *locale);
 
+#ifdef LIBPOSIX32_TEST
+/**
+ * Get `locale`'s default ANSI code page.
+ */
+P32_TEST_DECL bool p32_winlocale_get_ansi_code_page (uint32_t *codePage, uintptr_t heap, Locale *locale);
+
+/**
+ * Get `locale`'s default OEM code page.
+ */
+P32_TEST_DECL bool p32_winlocale_get_oem_code_page (uint32_t *codePage, uintptr_t heap, Locale *locale);
+
+/**
+ * Get `locale`'s default MAC code page.
+ */
+P32_TEST_DECL bool p32_winlocale_get_mac_code_page (uint32_t *codePage, uintptr_t heap, Locale *locale);
+
+/**
+ * Get `locale`'s default EBCDIC code page.
+ */
+P32_TEST_DECL bool p32_winlocale_get_ebcdic_code_page (uint32_t *codePage, uintptr_t heap, Locale *locale);
+#endif
+
 /**
  * Wrapper around `GetLocaleInfo[Ex]` which uses `Locale` object instead of
  * `LCID` or `Locale Name`.
