@@ -544,6 +544,9 @@ static void P32InitAnsiLocale (void) {
    */
   uint32_t codePage = P32GlobalLocale.AnsiCodePage;
 
+  /**
+   * If active ANSI code page is 65001 (UTF-8), then use Unicode Locale.
+   */
   if (codePage == CP_UTF8) {
     pthread_once (&P32GlobalLocale.UnicodeInit, P32InitUnicodeLocale);
     P32GlobalLocale.AnsiLocale = P32GlobalLocale.UnicodeLocale;
@@ -615,10 +618,16 @@ static void P32InitAnsiLocale (void) {
  * Destroy ANSI Locale.
  */
 static void P32DestroyAnsiLocale (void) {
+  /**
+   * ANSI Locale was not initialized.
+   */
   if (P32GlobalLocale.AnsiLocale == NULL) {
     return;
   }
 
+  /**
+   * Free ANSI Locale if it is not Unicode Locale.
+   */
   if (P32GlobalLocale.AnsiLocale != P32GlobalLocale.UnicodeLocale) {
     P32FreeLocale (P32GlobalLocale.AnsiLocale, P32GlobalLocale.Heap);
   }
@@ -642,12 +651,19 @@ static void P32InitOemLocale (void) {
    */
   uint32_t codePage = P32GlobalLocale.OemCodePage;
 
+  /**
+   * If active OEM code page is 65001 (UTF-8), then use Unicode Locale.
+   */
   if (codePage == CP_UTF8) {
     pthread_once (&P32GlobalLocale.UnicodeInit, P32InitUnicodeLocale);
     P32GlobalLocale.OemLocale = P32GlobalLocale.UnicodeLocale;
     return;
   }
 
+  /**
+   * If active OEM code page is the same as active ANSI code page,
+   * then use ANSI Locale.
+   */
   if (codePage == P32GlobalLocale.AnsiCodePage) {
     pthread_once (&P32GlobalLocale.AnsiInit, P32InitAnsiLocale);
     P32GlobalLocale.OemLocale = P32GlobalLocale.AnsiLocale;
@@ -719,10 +735,16 @@ static void P32InitOemLocale (void) {
  * Destroy OEM Locale.
  */
 static void P32DestroyOemLocale (void) {
+  /**
+   * OEM Locale was not initialized.
+   */
   if (P32GlobalLocale.OemLocale == NULL) {
     return;
   }
 
+  /**
+   * Free OEM Locale if it is not Unicode nor ANSI Locale.
+   */
   if (P32GlobalLocale.OemLocale != P32GlobalLocale.UnicodeLocale) {
     if (P32GlobalLocale.OemLocale != P32GlobalLocale.AnsiLocale) {
       P32FreeLocale (P32GlobalLocale.OemLocale, P32GlobalLocale.Heap);
