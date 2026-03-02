@@ -23,7 +23,7 @@ size_t p32_private_mbrlen_l (
   locale_t                 locale
 ) {
   assert (state != NULL);
-  return p32_private_mbrtowc_l (NULL, mbs, count, state, locale);
+  return locale->Functions.F_mbrtoc32 (NULL, mbs, count, state, &locale->Charset);
 }
 
 static void P32LocaleFunction_mbrlen (LocaleFunctions *functions, Charset *charset) {
