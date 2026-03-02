@@ -20,12 +20,12 @@
  * This file contains generic implementation of `mbrtowc` function.
  */
 
-size_t p32_private_mbrtowc_l (
+size_t mbrtowc (
   wchar_t *P32_RESTRICT    wc,
   const char *P32_RESTRICT mbc,
   size_t                   count,
   mbstate_t *P32_RESTRICT  state,
-  locale_t                 locale
+  Charset *P32_RESTRICT    charset
 ) {
   assert (state != NULL);
 
@@ -42,7 +42,7 @@ size_t p32_private_mbrtowc_l (
    */
   wchar_t u16[2] = {WEOF, WEOF};
 
-  const size_t length = locale->Functions.F_mbrtoc16 (&u16[0], mbc, count, state, &locale->Charset);
+  const size_t length = mbrtoc16 (&u16[0], mbc, count, state, charset);
 
   /**
    * `state` is conversion state from `mbrtoc8`, `mbrtoc16` or `mbrtoc32`.
@@ -86,7 +86,7 @@ size_t p32_private_mbrtowc_l (
    *
    * If `wc` is not null, store U+FFFD.
    */
-  size_t ret = locale->Functions.F_mbrtoc16 (&u16[1], "", 0, state, &locale->Charset);
+  size_t ret = mbrtoc16 (&u16[1], "", 0, state, charset);
 
   assert (ret == (size_t) -3);
   assert (p32_mbsinit (state));

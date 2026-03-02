@@ -17,7 +17,10 @@
 #include "wchar-internal.h"
 
 /**
- * POSIX says that all bytes in range [0,255] are valid.
+ * Internal implementation which operates on ISO-8859-1 (code page 28591).
+ *
+ * This implementation is also used with "POSIX" locale; POSIX requires that
+ * in "POSIX" locale all bytes in range [0,255] are valid characters.
  */
 static wint_t p32_btowc_posix (int c, Charset *charset) {
   assert (charset->CodePage == P32_CODEPAGE_POSIX);
@@ -31,9 +34,8 @@ static wint_t p32_btowc_posix (int c, Charset *charset) {
 }
 
 /**
- * When `MultiByteToWideChar` is used with code page 20127 (ASCII),
- * it handles input bytes in range [128,255] as if it has called `toascii`
- * before performing conversion.
+ * Internal implementation which operates on ASCII (code page 20127) and
+ * UTF-8 (code page 65001).
  */
 static wint_t p32_btowc_ascii (int c, Charset *charset) {
   assert (charset->CodePage == P32_CODEPAGE_ASCII || charset->CodePage == CP_UTF8);
@@ -66,8 +68,8 @@ static wint_t p32_btowc_generic (int c, Charset *charset) {
   return wc;
 }
 
-static void P32LocaleFunction_btowc (LocaleFunctions *functions, Locale *locale, Charset *charset) {
-  if (locale->Type == LOCALE_TYPE_POSIX) {
+static void P32LocaleFunction_btowc (LocaleFunctions *functions, Charset *charset) {
+  if (charset->CodePage == P32_CODEPAGE_POSIX) {
     functions->F_btowc = p32_btowc_posix;
   } else if (charset->CodePage == P32_CODEPAGE_ASCII || charset->CodePage == CP_UTF8) {
     functions->F_btowc = p32_btowc_ascii;

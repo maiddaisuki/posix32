@@ -20,12 +20,12 @@
  * This file contains generic implementation of `mbsrtowcs` function.
  */
 
-size_t p32_private_mbsrtowcs_l (
+size_t mbsrtowcs (
   wchar_t *P32_RESTRICT     wcs,
   const char **P32_RESTRICT mbs,
   size_t                    size,
   mbstate_t *P32_RESTRICT   state,
-  locale_t                  locale
+  Charset *P32_RESTRICT     charset
 ) {
   assert (state != NULL);
 
@@ -60,7 +60,7 @@ size_t p32_private_mbsrtowcs_l (
      */
     mbstate_t newState = conversionState;
 
-    size_t length = locale->Functions.F_mbrtoc16 (&wc[0], mbc, locale->Charset.MaxLength, &newState, &locale->Charset);
+    size_t length = mbrtoc16 (&wc[0], mbc, charset->MaxLength, &newState, charset);
     assert (length != (size_t) -2);
 
     /**
@@ -91,7 +91,7 @@ size_t p32_private_mbsrtowcs_l (
        * UTF-16 High surrogate has been stored in `u16[0]`.
        */
     } else {
-      size_t ret = locale->Functions.F_mbrtoc16 (&wc[1], "", 0, &newState, &locale->Charset);
+      size_t ret = mbrtoc16 (&wc[1], "", 0, &newState, charset);
 
       assert (ret == (size_t) -3);
       assert (p32_mbsinit (&newState));

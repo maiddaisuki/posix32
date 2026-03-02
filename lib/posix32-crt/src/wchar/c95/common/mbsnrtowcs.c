@@ -20,13 +20,13 @@
  * This file contains generic implementation of `mbsnrtowcs` function.
  */
 
-size_t p32_private_mbsnrtowcs_l (
+size_t mbsnrtowcs (
   wchar_t *P32_RESTRICT     wcs,
   const char **P32_RESTRICT mbs,
   size_t                    count,
   size_t                    size,
   mbstate_t *P32_RESTRICT   state,
-  locale_t                  locale
+  Charset *P32_RESTRICT     charset
 ) {
   assert (state != NULL);
 
@@ -71,7 +71,7 @@ size_t p32_private_mbsnrtowcs_l (
      */
     mbstate_t newState = conversionState;
 
-    const size_t length = locale->Functions.F_mbrtoc16 (&wc[0], mbc, count, &newState, &locale->Charset);
+    const size_t length = mbrtoc16 (&wc[0], mbc, count, &newState, charset);
 
     /**
      * `state` contains conversion state from mbrtoc8, mbrtoc16 or mbrtoc32.
@@ -96,7 +96,7 @@ size_t p32_private_mbsnrtowcs_l (
      * multibyte sequence.
      */
     if (length == (size_t) -2) {
-      assert (count < locale->Charset.MaxLength);
+      assert (count < charset->MaxLength);
 
       if (wcs != NULL) {
         *mbs = mbc + count;
@@ -116,7 +116,7 @@ size_t p32_private_mbsnrtowcs_l (
        * UTF-16 High surrogate has been stored in `u16[0]`.
        */
     } else {
-      size_t ret = locale->Functions.F_mbrtoc16 (&wc[1], "", 0, &newState, &locale->Charset);
+      size_t ret = mbrtoc16 (&wc[1], "", 0, &newState, charset);
 
       assert (ret == (size_t) -3);
       assert (p32_mbsinit (&newState));

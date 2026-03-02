@@ -16,14 +16,23 @@
 
 #include "wchar-internal.h"
 
-/**
- * Implementation of `mbrtowc`.
- */
-#include "common/mbrtowc.c"
-
 static void P32LocaleFunction_mbrtowc (LocaleFunctions *functions, Charset *charset) {
-  functions->F_mbrtowc = p32_private_mbrtowc_l;
-  UNREFERENCED_PARAMETER (charset);
+  if (charset->CodePage == P32_CODEPAGE_POSIX) {
+    functions->F_mbrtowc = p32_private_mbrtowc_posix;
+  } else if (charset->CodePage == P32_CODEPAGE_ASCII) {
+    functions->F_mbrtowc = p32_private_mbrtowc_ascii;
+  } else if (charset->MaxLength == 1) {
+    functions->F_mbrtowc = p32_private_mbrtowc_sbcs;
+  } else if (charset->MaxLength == 2) {
+    functions->F_mbrtowc = p32_private_mbrtowc_dbcs;
+  } else if (charset->CodePage == CP_UTF8) {
+    functions->F_mbrtowc = p32_private_mbrtowc_utf8;
+  }
+  assert (functions->F_mbrtowc != NULL);
+}
+
+size_t p32_private_mbrtowc_l (wchar_t *wc, const char *mbc, size_t count, mbstate_t *state, locale_t locale) {
+  return locale->Functions.F_mbrtowc (wc, mbc, count, state, &locale->Charset);
 }
 
 /**
@@ -36,7 +45,7 @@ size_t p32_mbrtowc_l (wchar_t *wc, const char *mbc, size_t count, mbstate_t *sta
     state = &P32ConversionState_mbrtowc;
   }
 
-  return locale->Functions.F_mbrtowc (wc, mbc, count, state, locale);
+  return p32_private_mbrtowc_l (wc, mbc, count, state, locale);
 }
 
 size_t p32_mbrtowc (wchar_t *wc, const char *mbc, size_t count, mbstate_t *state) {

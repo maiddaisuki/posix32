@@ -16,14 +16,23 @@
 
 #include "wchar-internal.h"
 
-/**
- * Implementation of `mbsrtowcs`.
- */
-#include "common/mbsrtowcs.c"
-
 static void P32LocaleFunction_mbsrtowcs (LocaleFunctions *functions, Charset *charset) {
-  functions->F_mbsrtowcs = p32_private_mbsrtowcs_l;
-  UNREFERENCED_PARAMETER (charset);
+  if (charset->CodePage == P32_CODEPAGE_POSIX) {
+    functions->F_mbsrtowcs = p32_private_mbsrtowcs_posix;
+  } else if (charset->CodePage == P32_CODEPAGE_ASCII) {
+    functions->F_mbsrtowcs = p32_private_mbsrtowcs_ascii;
+  } else if (charset->MaxLength == 1) {
+    functions->F_mbsrtowcs = p32_private_mbsrtowcs_sbcs;
+  } else if (charset->MaxLength == 2) {
+    functions->F_mbsrtowcs = p32_private_mbsrtowcs_dbcs;
+  } else if (charset->CodePage == CP_UTF8) {
+    functions->F_mbsrtowcs = p32_private_mbsrtowcs_utf8;
+  }
+  assert (functions->F_mbsrtowcs != NULL);
+}
+
+size_t p32_private_mbsrtowcs_l (wchar_t *wcs, const char **mbs, size_t size, mbstate_t *state, locale_t locale) {
+  return locale->Functions.F_mbsrtowcs (wcs, mbs, size, state, &locale->Charset);
 }
 
 /**
@@ -36,7 +45,7 @@ size_t p32_mbsrtowcs_l (wchar_t *wcs, const char **mbs, size_t count, mbstate_t 
     state = &P32ConversionState_mbsrtowcs;
   }
 
-  return locale->Functions.F_mbsrtowcs (wcs, mbs, count, state, locale);
+  return p32_private_mbsrtowcs_l (wcs, mbs, count, state, locale);
 }
 
 size_t p32_mbsrtowcs (wchar_t *wcs, const char **mbs, size_t count, mbstate_t *state) {

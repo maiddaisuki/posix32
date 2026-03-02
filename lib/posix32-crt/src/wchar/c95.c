@@ -31,7 +31,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "locale-internal.h"
 #include "uchar-internal.h"
 #include "wchar-internal.h"
 
@@ -75,8 +74,8 @@ P32_INLINE_DEFN int __cdecl p32_mbsinit (const mbstate_t *state);
  */
 
 void p32_wchar_c95_functions (locale_t locale) {
-  P32LocaleFunction_btowc (&locale->Functions, &locale->WinLocale.LcCtype, &locale->Charset);
-  P32LocaleFunction_wctob (&locale->Functions, &locale->WinLocale.LcCtype, &locale->Charset);
+  P32LocaleFunction_btowc (&locale->Functions, &locale->Charset);
+  P32LocaleFunction_wctob (&locale->Functions, &locale->Charset);
   P32LocaleFunction_mbrlen (&locale->Functions, &locale->Charset);
   P32LocaleFunction_mbrtowc (&locale->Functions, &locale->Charset);
   P32LocaleFunction_mbsrtowcs (&locale->Functions, &locale->Charset);

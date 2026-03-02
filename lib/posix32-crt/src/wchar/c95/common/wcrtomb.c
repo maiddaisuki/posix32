@@ -20,10 +20,10 @@
  * This file contains generic implementation of `wcrtomb` function.
  */
 
-size_t p32_private_wcrtomb_l (char *P32_RESTRICT mbc, wchar_t wc, mbstate_t *P32_RESTRICT state, locale_t locale) {
+size_t wcrtomb (char *P32_RESTRICT mbc, wchar_t wc, mbstate_t *P32_RESTRICT state, Charset *P32_RESTRICT charset) {
   assert (state != NULL);
 
-  size_t length = locale->Functions.F_c16rtomb (mbc, wc, state, &locale->Charset);
+  size_t length = c16rtomb (mbc, wc, state, charset);
 
   /**
    * `wc` is invalid wide character or `state` describes invalid
@@ -40,7 +40,7 @@ size_t p32_private_wcrtomb_l (char *P32_RESTRICT mbc, wchar_t wc, mbstate_t *P32
    * surrogate pairs. CRT's `wcrtomb` fails in this case.
    *
    * Instead of failing right away, we consume high surrogate and produce
-   * multibyte sequence stored in `locale->Charset.ReplacementChar`.
+   * multibyte sequence stored in `charset->ReplacementChar`.
    *
    * For anything other than UTF-8 this is '?' character.
    * For UTF-8 this is UTF-8 Code Unit Sequence for U+FFFD.
@@ -54,8 +54,8 @@ size_t p32_private_wcrtomb_l (char *P32_RESTRICT mbc, wchar_t wc, mbstate_t *P32
     assert (!p32_mbsinit (state));
     assert (mbc != NULL);
 
-    memcpy (mbc, locale->Charset.ReplacementChar.Char, locale->Charset.ReplacementChar.Length);
-    return locale->Charset.ReplacementChar.Length;
+    memcpy (mbc, charset->ReplacementChar.Char, charset->ReplacementChar.Length);
+    return charset->ReplacementChar.Length;
   }
 
   return length;

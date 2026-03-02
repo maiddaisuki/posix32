@@ -16,14 +16,23 @@
 
 #include "wchar-internal.h"
 
-/**
- * Implementation of `wcsrtombs`.
- */
-#include "common/wcsrtombs.c"
-
 static void P32LocaleFunction_wcsrtombs (LocaleFunctions *functions, Charset *charset) {
-  functions->F_wcsrtombs = p32_private_wcsrtombs_l;
-  UNREFERENCED_PARAMETER (charset);
+  if (charset->CodePage == P32_CODEPAGE_POSIX) {
+    functions->F_wcsrtombs = p32_private_wcsrtombs_posix;
+  } else if (charset->CodePage == P32_CODEPAGE_ASCII) {
+    functions->F_wcsrtombs = p32_private_wcsrtombs_ascii;
+  } else if (charset->MaxLength == 1) {
+    functions->F_wcsrtombs = p32_private_wcsrtombs_sbcs;
+  } else if (charset->MaxLength == 2) {
+    functions->F_wcsrtombs = p32_private_wcsrtombs_dbcs;
+  } else if (charset->CodePage == CP_UTF8) {
+    functions->F_wcsrtombs = p32_private_wcsrtombs_utf8;
+  }
+  assert (functions->F_wcsrtombs != NULL);
+}
+
+size_t p32_private_wcsrtombs_l (char *mbs, const wchar_t **wcs, size_t size, mbstate_t *state, locale_t locale) {
+  return locale->Functions.F_wcsrtombs (mbs, wcs, size, state, &locale->Charset);
 }
 
 /**
@@ -36,7 +45,7 @@ size_t p32_wcsrtombs_l (char *mbs, const wchar_t **wcs, size_t count, mbstate_t 
     state = &P32ConversionState_wcsrtombs;
   }
 
-  return locale->Functions.F_wcsrtombs (mbs, wcs, count, state, locale);
+  return p32_private_wcsrtombs_l (mbs, wcs, count, state, locale);
 }
 
 size_t p32_wcsrtombs (char *mbs, const wchar_t **wcs, size_t count, mbstate_t *state) {

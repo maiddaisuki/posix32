@@ -20,6 +20,8 @@
 #include "p32_stdlib.h"
 #include "p32_wchar.h"
 
+#include "locale-internal.h"
+
 /**
  * Internal versions which use `locale_t` objects.
  *
@@ -32,6 +34,69 @@ size_t p32_private_mbsnrtowcs_l (wchar_t *, const char **, size_t, size_t, mbsta
 size_t p32_private_wcrtomb_l (char *, wchar_t, mbstate_t *, locale_t);
 size_t p32_private_wcsrtombs_l (char *, const wchar_t **, size_t, mbstate_t *, locale_t);
 size_t p32_private_wcsnrtombs_l (char *, const wchar_t **, size_t, size_t, mbstate_t *, locale_t);
+
+/**
+ * The versions below use `Charset` structure instead of `locale_t` objects,
+ * and can be used in context where `locale_t` can not.
+ *
+ * The `Charset` structure passed to these functions must contain information
+ * obtained by calling `p32_charset_info`.
+ */
+
+/**
+ * Internal versions which operate on ISO-8859-1 (code page 28591).
+ */
+size_t p32_private_mbrlen_posix (const char *, size_t, mbstate_t *, Charset *);
+size_t p32_private_mbrtowc_posix (wchar_t *, const char *, size_t, mbstate_t *, Charset *);
+size_t p32_private_mbsrtowcs_posix (wchar_t *, const char **, size_t, mbstate_t *, Charset *);
+size_t p32_private_mbsnrtowcs_posix (wchar_t *, const char **, size_t, size_t, mbstate_t *, Charset *);
+size_t p32_private_wcrtomb_posix (char *, wchar_t, mbstate_t *, Charset *);
+size_t p32_private_wcsrtombs_posix (char *, const wchar_t **, size_t, mbstate_t *, Charset *);
+size_t p32_private_wcsnrtombs_posix (char *, const wchar_t **, size_t, size_t, mbstate_t *, Charset *);
+
+/**
+ * Internal versions which operate on ASCII (code page 20127).
+ */
+size_t p32_private_mbrlen_ascii (const char *, size_t, mbstate_t *, Charset *);
+size_t p32_private_mbrtowc_ascii (wchar_t *, const char *, size_t, mbstate_t *, Charset *);
+size_t p32_private_mbsrtowcs_ascii (wchar_t *, const char **, size_t, mbstate_t *, Charset *);
+size_t p32_private_mbsnrtowcs_ascii (wchar_t *, const char **, size_t, size_t, mbstate_t *, Charset *);
+size_t p32_private_wcrtomb_ascii (char *, wchar_t, mbstate_t *, Charset *);
+size_t p32_private_wcsrtombs_ascii (char *, const wchar_t **, size_t, mbstate_t *, Charset *);
+size_t p32_private_wcsnrtombs_ascii (char *, const wchar_t **, size_t, size_t, mbstate_t *, Charset *);
+
+/**
+ * Internal versions which operate on SBCS code pages.
+ */
+size_t p32_private_mbrlen_sbcs (const char *, size_t, mbstate_t *, Charset *);
+size_t p32_private_mbrtowc_sbcs (wchar_t *, const char *, size_t, mbstate_t *, Charset *);
+size_t p32_private_mbsrtowcs_sbcs (wchar_t *, const char **, size_t, mbstate_t *, Charset *);
+size_t p32_private_mbsnrtowcs_sbcs (wchar_t *, const char **, size_t, size_t, mbstate_t *, Charset *);
+size_t p32_private_wcrtomb_sbcs (char *, wchar_t, mbstate_t *, Charset *);
+size_t p32_private_wcsrtombs_sbcs (char *, const wchar_t **, size_t, mbstate_t *, Charset *);
+size_t p32_private_wcsnrtombs_sbcs (char *, const wchar_t **, size_t, size_t, mbstate_t *, Charset *);
+
+/**
+ * Internal versions which operate on DBCS code pages.
+ */
+size_t p32_private_mbrlen_dbcs (const char *, size_t, mbstate_t *, Charset *);
+size_t p32_private_mbrtowc_dbcs (wchar_t *, const char *, size_t, mbstate_t *, Charset *);
+size_t p32_private_mbsrtowcs_dbcs (wchar_t *, const char **, size_t, mbstate_t *, Charset *);
+size_t p32_private_mbsnrtowcs_dbcs (wchar_t *, const char **, size_t, size_t, mbstate_t *, Charset *);
+size_t p32_private_wcrtomb_dbcs (char *, wchar_t, mbstate_t *, Charset *);
+size_t p32_private_wcsrtombs_dbcs (char *, const wchar_t **, size_t, mbstate_t *, Charset *);
+size_t p32_private_wcsnrtombs_dbcs (char *, const wchar_t **, size_t, size_t, mbstate_t *, Charset *);
+
+/**
+ * Internal versions which operate on UTF-8 (code page 65001).
+ */
+size_t p32_private_mbrlen_utf8 (const char *, size_t, mbstate_t *, Charset *);
+size_t p32_private_mbrtowc_utf8 (wchar_t *, const char *, size_t, mbstate_t *, Charset *);
+size_t p32_private_mbsrtowcs_utf8 (wchar_t *, const char **, size_t, mbstate_t *, Charset *);
+size_t p32_private_mbsnrtowcs_utf8 (wchar_t *, const char **, size_t, size_t, mbstate_t *, Charset *);
+size_t p32_private_wcrtomb_utf8 (char *, wchar_t, mbstate_t *, Charset *);
+size_t p32_private_wcsrtombs_utf8 (char *, const wchar_t **, size_t, mbstate_t *, Charset *);
+size_t p32_private_wcsnrtombs_utf8 (char *, const wchar_t **, size_t, size_t, mbstate_t *, Charset *);
 
 /**
  * Store locale-specific versions of wide character string functions declared

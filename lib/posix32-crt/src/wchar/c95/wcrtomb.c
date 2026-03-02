@@ -16,14 +16,23 @@
 
 #include "wchar-internal.h"
 
-/**
- * Implementation of `wcrtomb`.
- */
-#include "common/wcrtomb.c"
-
 static void P32LocaleFunction_wcrtomb (LocaleFunctions *functions, Charset *charset) {
-  functions->F_wcrtomb = p32_private_wcrtomb_l;
-  UNREFERENCED_PARAMETER (charset);
+  if (charset->CodePage == P32_CODEPAGE_POSIX) {
+    functions->F_wcrtomb = p32_private_wcrtomb_posix;
+  } else if (charset->CodePage == P32_CODEPAGE_ASCII) {
+    functions->F_wcrtomb = p32_private_wcrtomb_ascii;
+  } else if (charset->MaxLength == 1) {
+    functions->F_wcrtomb = p32_private_wcrtomb_sbcs;
+  } else if (charset->MaxLength == 2) {
+    functions->F_wcrtomb = p32_private_wcrtomb_dbcs;
+  } else if (charset->CodePage == CP_UTF8) {
+    functions->F_wcrtomb = p32_private_wcrtomb_utf8;
+  }
+  assert (functions->F_wcrtomb != NULL);
+}
+
+size_t p32_private_wcrtomb_l (char *mbc, wchar_t wc, mbstate_t *state, locale_t locale) {
+  return locale->Functions.F_wcrtomb (mbc, wc, state, &locale->Charset);
 }
 
 /**
@@ -36,7 +45,7 @@ size_t p32_wcrtomb_l (char *mbc, wchar_t wc, mbstate_t *state, locale_t locale) 
     state = &P32ConversionState_wcrtomb;
   }
 
-  return locale->Functions.F_wcrtomb (mbc, wc, state, locale);
+  return p32_private_wcrtomb_l (mbc, wc, state, locale);
 }
 
 size_t p32_wcrtomb (char *mbc, wchar_t wc, mbstate_t *state) {

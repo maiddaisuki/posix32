@@ -67,27 +67,13 @@ typedef struct {
    */
   wint_t (*F_btowc) (int, Charset *);
   int    (*F_wctob) (wint_t, Charset *);
-  size_t (*F_mbrlen) (const char *P32_RESTRICT, size_t, mbstate_t *P32_RESTRICT, locale_t);
-  size_t (*F_mbrtowc) (wchar_t *P32_RESTRICT, const char *P32_RESTRICT, size_t, mbstate_t *P32_RESTRICT, locale_t);
-  size_t (*F_mbsrtowcs) (wchar_t *P32_RESTRICT, const char **P32_RESTRICT, size_t, mbstate_t *P32_RESTRICT, locale_t);
-  size_t (*F_mbsnrtowcs) (
-    wchar_t *P32_RESTRICT,
-    const char **P32_RESTRICT,
-    size_t,
-    size_t,
-    mbstate_t *P32_RESTRICT,
-    locale_t
-  );
-  size_t (*F_wcrtomb) (char *P32_RESTRICT, wchar_t, mbstate_t *P32_RESTRICT, locale_t);
-  size_t (*F_wcsrtombs) (char *P32_RESTRICT, const wchar_t **P32_RESTRICT, size_t, mbstate_t *P32_RESTRICT, locale_t);
-  size_t (*F_wcsnrtombs) (
-    char *P32_RESTRICT,
-    const wchar_t **P32_RESTRICT,
-    size_t,
-    size_t,
-    mbstate_t *P32_RESTRICT,
-    locale_t
-  );
+  size_t (*F_mbrlen) (const char *, size_t, mbstate_t *, Charset *);
+  size_t (*F_mbrtowc) (wchar_t *, const char *, size_t, mbstate_t *, Charset *);
+  size_t (*F_mbsrtowcs) (wchar_t *, const char **, size_t, mbstate_t *, Charset *);
+  size_t (*F_mbsnrtowcs) (wchar_t *, const char **, size_t, size_t, mbstate_t *, Charset *);
+  size_t (*F_wcrtomb) (char *, wchar_t, mbstate_t *, Charset *);
+  size_t (*F_wcsrtombs) (char *, const wchar_t **, size_t, mbstate_t *, Charset *);
+  size_t (*F_wcsnrtombs) (char *, const wchar_t **, size_t, size_t, mbstate_t *, Charset *);
   /**
    * wchar.h: Operations on Wide Character Strings
    */

@@ -14,18 +14,39 @@
  * limitations under the License.
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#else
+#include "config-internal.h"
+#endif
+
+#include <assert.h>
+#include <errno.h>
+#include <limits.h> /* MB_LEN_MAX */
+#include <stdbool.h>
+#include <stdio.h> /* EOF */
+#include <string.h>
+#include <wchar.h>
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
+#include "uchar-internal.h"
+#include "wchar-internal.h"
+
 /**
  * File Summary:
  *
- * This file contains generic implementation of `mbrlen` function.
+ * This file defines UTF-8 versions of conversion functions declared in wchar.h:
+ *
+ *  - mbrlen
+ *  - mbrtowc
+ *  - mbsrtowcs
+ *  - mbsnrtowcs
+ *  - wcrtomb
+ *  - wcsrtombs
+ *  - wcsnrtombs
  */
 
-size_t mbrlen (
-  const char *P32_RESTRICT mbs,
-  size_t                   count,
-  mbstate_t *P32_RESTRICT  state,
-  Charset *P32_RESTRICT    charset
-) {
-  assert (state != NULL);
-  return mbrtoc32 (NULL, mbs, count, state, charset);
-}
+#define P32_WCHAR_IMPL P32_WCHAR_IMPL_UTF8
+#include "c95/wchar-impl.c"

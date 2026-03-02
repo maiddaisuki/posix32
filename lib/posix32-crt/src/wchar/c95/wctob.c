@@ -16,12 +16,22 @@
 
 #include "wchar-internal.h"
 
+/**
+ * Internal implementation which operates on ISO-8859-1 (code page 28591).
+ *
+ * This implementation is also used with "POSIX" locale; POSIX requires that
+ * in "POSIX" locale all bytes in range [0,255] are valid characters.
+ */
 static int p32_wctob_posix (wint_t wc, Charset *charset) {
   assert (charset->CodePage == P32_CODEPAGE_POSIX);
   return wc <= 0xFF ? wc : EOF;
   UNREFERENCED_PARAMETER (charset);
 }
 
+/**
+ * Internal implementation which operates on ASCII (code page 20127) and
+ * UTF-8 (code page 65001).
+ */
 static int p32_wctob_ascii (wint_t wc, Charset *charset) {
   assert (charset->CodePage == P32_CODEPAGE_ASCII || charset->CodePage == CP_UTF8);
   return wc <= 0x7F ? wc : EOF;
@@ -44,8 +54,8 @@ static int p32_wctob_generic (wint_t wc, Charset *charset) {
   return (BYTE) c;
 }
 
-static void P32LocaleFunction_wctob (LocaleFunctions *functions, Locale *locale, Charset *charset) {
-  if (locale->Type == LOCALE_TYPE_POSIX) {
+static void P32LocaleFunction_wctob (LocaleFunctions *functions, Charset *charset) {
+  if (charset->CodePage == P32_CODEPAGE_POSIX) {
     functions->F_wctob = p32_wctob_posix;
   } else if (charset->CodePage == P32_CODEPAGE_ASCII || charset->CodePage == CP_UTF8) {
     functions->F_wctob = p32_wctob_ascii;

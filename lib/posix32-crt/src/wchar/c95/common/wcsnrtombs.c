@@ -20,13 +20,13 @@
  * This file contains generic implementation of `wcsnrtombs` function.
  */
 
-size_t p32_private_wcsnrtombs_l (
+size_t wcsnrtombs (
   char *P32_RESTRICT           mbs,
   const wchar_t **P32_RESTRICT wcs,
   size_t                       count,
   size_t                       size,
   mbstate_t *P32_RESTRICT      state,
-  locale_t                     locale
+  Charset *P32_RESTRICT        charset
 ) {
   assert (state != NULL);
 
@@ -79,7 +79,7 @@ size_t p32_private_wcsnrtombs_l (
     /**
      * `length` may be 0 if `wc[0]` is UTF-16 High Surrogate.
      */
-    const size_t length = locale->Functions.F_c16rtomb (buffer, wc[0], &newState, &locale->Charset);
+    const size_t length = c16rtomb (buffer, wc[0], &newState, charset);
 
     /**
      * `wc` points to invalid wide character or `state` describes invalid

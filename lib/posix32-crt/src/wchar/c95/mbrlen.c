@@ -16,14 +16,23 @@
 
 #include "wchar-internal.h"
 
-/**
- * Implementation of `mbrlen`.
- */
-#include "common/mbrlen.c"
-
 static void P32LocaleFunction_mbrlen (LocaleFunctions *functions, Charset *charset) {
-  functions->F_mbrlen = p32_private_mbrlen_l;
-  UNREFERENCED_PARAMETER (charset);
+  if (charset->CodePage == P32_CODEPAGE_POSIX) {
+    functions->F_mbrlen = p32_private_mbrlen_posix;
+  } else if (charset->CodePage == P32_CODEPAGE_ASCII) {
+    functions->F_mbrlen = p32_private_mbrlen_ascii;
+  } else if (charset->MaxLength == 1) {
+    functions->F_mbrlen = p32_private_mbrlen_sbcs;
+  } else if (charset->MaxLength == 2) {
+    functions->F_mbrlen = p32_private_mbrlen_dbcs;
+  } else if (charset->CodePage == CP_UTF8) {
+    functions->F_mbrlen = p32_private_mbrlen_utf8;
+  }
+  assert (functions->F_mbrlen != NULL);
+}
+
+size_t p32_private_mbrlen_l (const char *mbs, size_t count, mbstate_t *state, locale_t locale) {
+  return locale->Functions.F_mbrlen (mbs, count, state, &locale->Charset);
 }
 
 /**
@@ -36,7 +45,7 @@ size_t p32_mbrlen_l (const char *mbs, size_t count, mbstate_t *state, locale_t l
     state = &P32ConversionState_mbrlen;
   }
 
-  return locale->Functions.F_mbrlen (mbs, count, state, locale);
+  return p32_private_mbrlen_l (mbs, count, state, locale);
 }
 
 size_t p32_mbrlen (const char *mbs, size_t count, mbstate_t *state) {
