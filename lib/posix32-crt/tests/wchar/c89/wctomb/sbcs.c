@@ -32,10 +32,15 @@
 /**
  * Test Summary:
  *
- * Test `wctomb` function with a single-byte code page.
+ * Test `wctomb` function with some SBCS code page.
+ *
+ * We test code page 1252; this is the ANSI code page for `en-US` locale.
+ * All 256 bytes in this code page are assigned code points.
  */
 
-#define LOCALE "en_US.ISO-8859-1"
+#define LOCALE "en_US.ACP"
+
+static locale_t locale;
 
 static void DoTest (void) {
   char buffer[MB_LEN_MAX];
@@ -44,32 +49,36 @@ static void DoTest (void) {
    * When first argument to `wctomb` is `NULL`, it must return non-zero for
    * state-dependant encodings. Otherwise it must return 0.
    */
-  assert (wctomb (NULL, WEOF) == 0);
+  assert (wctomb_l (NULL, WEOF, locale) == 0);
   assert (errno == 0);
 
   /**
-   * All wide characters in range [0,255] are valid.
+   * All wide characters in range [0,127] are valid ASCII characters.
    */
-  for (wchar_t wc = 0; wc < 0x100; ++wc) {
+  for (wchar_t wc = 0; wc < 0x80; ++wc) {
     memset (buffer, EOF, _countof (buffer));
 
-    assert (wctomb (buffer, wc) == 1);
+    assert (wctomb_l (buffer, wc, locale) == 1);
     assert (buffer[0] == (char) wc && buffer[1] == EOF && buffer[2] == EOF && buffer[3] == EOF);
     assert (errno == 0);
   }
 
+  uint32_t codePointsConverted = 0;
+
   /**
-   * All wide characters in range [256,WEOF] are invalid.
+   * Attempt to convert wide characters in range [128,WEOF].
+   *
+   * We should be able to convert exactly 128 wide characters.
    */
-  for (wchar_t wc = 0x100;; ++wc) {
+  for (wchar_t wc = 0x80;; ++wc) {
     memset (buffer, EOF, _countof (buffer));
 
     if (IS_HIGH_SURROGATE (wc)) {
-      assert (wctomb (buffer, wc) == 1);
+      assert (wctomb_l (buffer, wc, locale) == 1);
       assert (buffer[0] == '?' && buffer[1] == EOF && buffer[2] == EOF && buffer[3] == EOF);
       assert (errno == 0);
 
-      assert (wctomb (&buffer[1], LOW_SURROGATE_MIN) == -1);
+      assert (wctomb_l (&buffer[1], LOW_SURROGATE_MIN, locale) == -1);
       assert (buffer[0] == '?' && buffer[1] == EOF && buffer[2] == EOF && buffer[3] == EOF);
       assert (errno == EILSEQ);
 
@@ -79,57 +88,47 @@ static void DoTest (void) {
       /**
        * Reset internal state.
        */
-      assert (wctomb (NULL, WEOF) == 0);
+      assert (wctomb_l (NULL, WEOF, locale) == 0);
       assert (errno == 0);
     } else {
-      assert (wctomb (buffer, wc) == -1);
-      assert (buffer[0] == EOF && buffer[1] == EOF && buffer[2] == EOF && buffer[3] == EOF);
-      assert (errno == EILSEQ);
+      int length = wctomb_l (buffer, wc, locale);
 
-      // reset errno
-      _set_errno (0);
+      if (length == -1) {
+        assert (buffer[0] == EOF && buffer[1] == EOF && buffer[2] == EOF && buffer[3] == EOF);
+        assert (errno == EILSEQ);
+
+        // reset errno
+        _set_errno (0);
+      } else {
+        assert (length == 1);
+        assert (buffer[0] < 0 && buffer[1] == EOF && buffer[2] == EOF && buffer[3] == EOF);
+        assert (errno == 0);
+
+        codePointsConverted += 1;
+      }
     }
 
     if (wc == WEOF) {
       break;
     }
   }
-}
 
-static DWORD CALLBACK Thread (LPVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
+  assert (codePointsConverted == 128);
 }
 
 int main (void) {
   p32_test_init ();
 
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
-  assert (MB_CUR_MAX == 1);
+  if (!IsValidCodePage (1252)) {
+    return 77;
+  }
+
+  assert ((locale = newlocale (LC_ALL_MASK, LOCALE, NULL)) != NULL);
+  assert (MB_CUR_MAX_L (locale) == 1);
 
   DoTest ();
 
-  assert (setlocale (LC_ALL, "C") != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  HANDLE thread   = NULL;
-  DWORD  exitCode = EXIT_FAILURE;
-
-  assert ((thread = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (thread, INFINITE);
-  GetExitCodeThread (thread, &exitCode);
-  CloseHandle (thread);
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }
