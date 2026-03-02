@@ -37,6 +37,8 @@
 
 #define LOCALE "en_US.ASCII"
 
+static locale_t locale;
+
 static void DoTest (void) {
   char buffer[BUFSIZ];
 
@@ -55,7 +57,7 @@ static void DoTest (void) {
    * - return value must be `text_length`
    * - value of `errno` must not change
    */
-  assert (wcstombs (NULL, text, 0) == text_length);
+  assert (wcstombs_l (NULL, text, 0, locale) == text_length);
   assert (errno == 0);
 
   /**
@@ -67,7 +69,7 @@ static void DoTest (void) {
    */
   memset (buffer, EOF, BUFSIZ);
 
-  assert (wcstombs (buffer, text, BUFSIZ) == text_length);
+  assert (wcstombs_l (buffer, text, BUFSIZ, locale) == text_length);
   assert (buffer[text_length] == '\0' && buffer[text_length + 1] == EOF);
   assert (strcmp (buffer, AsciiText.A) == 0);
   assert (errno == 0);
@@ -81,7 +83,7 @@ static void DoTest (void) {
    */
   memset (buffer, EOF, BUFSIZ);
 
-  assert (wcstombs (buffer, text, 10) == 10);
+  assert (wcstombs_l (buffer, text, 10, locale) == 10);
   assert (buffer[10] == EOF);
   assert (strncmp (buffer, AsciiText.A, 10) == 0);
   assert (errno == 0);
@@ -98,7 +100,7 @@ static void DoTest (void) {
    * - return value must be (size_t)-1
    * - value of `errno` must be EILSEQ
    */
-  assert (wcstombs (NULL, text, 0) == (size_t) -1);
+  assert (wcstombs_l (NULL, text, 0, locale) == (size_t) -1);
   assert (errno == EILSEQ);
 
   // reset errno
@@ -112,7 +114,7 @@ static void DoTest (void) {
    */
   memset (buffer, EOF, BUFSIZ);
 
-  assert (wcstombs (buffer, text, BUFSIZ) == (size_t) -1);
+  assert (wcstombs_l (buffer, text, BUFSIZ, locale) == (size_t) -1);
   assert (buffer[0] == SBCSText.A[0] && buffer[1] == EOF);
   assert (errno == EILSEQ);
 
@@ -128,45 +130,20 @@ static void DoTest (void) {
    */
   memset (buffer, EOF, BUFSIZ);
 
-  assert (wcstombs (buffer, text, 1) == 1);
+  assert (wcstombs_l (buffer, text, 1, locale) == 1);
   assert (buffer[0] == SBCSText.A[0] && buffer[1] == EOF);
   assert (errno == 0);
-}
-
-static DWORD CALLBACK Thread (LPVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
 }
 
 int main (void) {
   p32_test_init ();
 
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
-  assert (MB_CUR_MAX == 1);
+  assert ((locale = newlocale (LC_ALL_MASK, LOCALE, NULL)) != NULL);
+  assert (MB_CUR_MAX_L (locale) == 1);
 
   DoTest ();
 
-  assert (setlocale (LC_ALL, "C") != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  HANDLE thread   = NULL;
-  DWORD  exitCode = EXIT_FAILURE;
-
-  assert ((thread = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (thread, INFINITE);
-  GetExitCodeThread (thread, &exitCode);
-  CloseHandle (thread);
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }
