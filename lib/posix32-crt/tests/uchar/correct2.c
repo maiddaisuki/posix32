@@ -167,7 +167,7 @@ int main (void) {
   p32_test_init ();
 
   /**
-   * TODO: is there Windows NT version which does not support UTF-8?
+   * UTF-8 (`CP_UTF8`) is supported since Windows XP.
    */
   if (!IsValidCodePage (CP_UTF8)) {
     return 77;
