@@ -32,16 +32,32 @@
 /**
  * Test Summary:
  *
- * Test `mbrtoc8` function with a double-byte code page.
+ * Test `mbrtoc8` function with some DBCS code page.
+ *
+ * We test code page 932; this is the ANSI/OEM code page for `ja-JP` locale.
  */
 
-#if P32_CRT >= P32_MSVCRT20
-#define LOCALE "ja_JP.ACP"
-#else
-#define LOCALE "ja_JP.OCP"
-#endif
+#undef mbrtoc8
+#undef mbrtoc8_l
 
-static locale_t zh_CN = NULL;
+/**
+ * `Charset` structure with information about code page 932.
+ */
+static Charset cp932;
+
+#undef MB_CUR_MAX
+#define MB_CUR_MAX (cp932.MaxLength)
+
+/**
+ * `Charset` structure with information about DBCS code page other than 932.
+ */
+static Charset dbcs;
+
+/**
+ * Convenience macros to call `p32_private_mbrtoc8_dbcs`.
+ */
+#define mbrtoc8(c8, mb, count, state)            p32_private_mbrtoc8_dbcs (c8, mb, count, state, &cp932)
+#define mbrtoc8_l(c8, mb, count, state, charset) p32_private_mbrtoc8_dbcs (c8, mb, count, state, &charset)
 
 static void DoTest (void) {
   char8_t   u8[4];
@@ -89,7 +105,7 @@ static void DoTest (void) {
   for (uint8_t c = 0;; ++c) {
     memset (u8, EOF, _countof (u8));
 
-    assert (mbrtoc8 (u8, (char *) &c, 1, &state) == !!c);
+    assert (mbrtoc8 (u8, (char *) &c, MB_CUR_MAX, &state) == !!c);
     assert (u8[0] == c && u8[1] == 0xFF && u8[2] == 0xFF && u8[3] == 0xFF);
     assert (mbsinit (&state));
     assert (errno == 0);
@@ -195,7 +211,7 @@ static void DoTest (void) {
   /**
    * Attempt to complete conversion using different code page.
    */
-  assert (mbrtoc8_l (u8, "", 0, &state, zh_CN) == (size_t) -1);
+  assert (mbrtoc8_l (u8, "", 0, &state, dbcs) == (size_t) -1);
   assert (u8[0] == 0xFF && u8[1] == 0xFF && u8[2] == 0xFF && u8[3] == 0xFF);
   assert (!mbsinit (&state));
   assert (errno == EINVAL);
@@ -224,50 +240,32 @@ static void DoTest (void) {
   assert (memcmp (u8, CJK[0].UTF8, 3) == 0);
 }
 
-static DWORD CALLBACK Thread (LPVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-  assert (MB_CUR_MAX == 2);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
-}
-
 int main (void) {
   p32_test_init ();
   srand (0xBADF);
 
-  assert ((zh_CN = newlocale (LC_ALL_MASK, "zh_CN.ACP", NULL)) != NULL);
-  assert (MB_CUR_MAX_L (zh_CN) == 2);
+  if (!IsValidCodePage (932)) {
+    return 77;
+  }
 
-#if P32_CRT == P32_MSVCRT10
-  assert (setlocale (LC_ALL, LOCALE) == NULL);
-#else
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
+  cp932.CodePage = 932;
+  assert (p32_charset_info (&cp932));
   assert (MB_CUR_MAX == 2);
 
+  if (IsValidCodePage (936)) {
+    dbcs.CodePage = 936;
+  } else if (IsValidCodePage (949)) {
+    dbcs.CodePage = 949;
+  } else if (IsValidCodePage (950)) {
+    dbcs.CodePage = 950;
+  } else {
+    return 77;
+  }
+
+  assert (p32_charset_info (&dbcs));
+  assert (dbcs.MaxLength == 2);
+
   DoTest ();
-#endif
-
-  assert (setlocale (LC_ALL, "C") != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  HANDLE thread   = NULL;
-  DWORD  exitCode = EXIT_FAILURE;
-
-  assert ((thread = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (thread, INFINITE);
-  GetExitCodeThread (thread, &exitCode);
-  CloseHandle (thread);
-
-  freelocale (zh_CN);
 
   return EXIT_SUCCESS;
 }

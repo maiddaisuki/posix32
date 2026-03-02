@@ -32,14 +32,25 @@
 /**
  * Test Summary:
  *
- * Test `c8rtomb` function with a double-byte code page.
+ * Test `c8rtomb` function with some DBCS code page.
+ *
+ * We test code page 932; this is the ANSI/OEM code page for `ja-JP` locale.
  */
 
-#if P32_CRT >= P32_MSVCRT20
-#define LOCALE "ja_JP.ACP"
-#else
-#define LOCALE "ja_JP.OCP"
-#endif
+#undef c8rtomb
+
+/**
+ * `Charset` structure with information about code page 932.
+ */
+static Charset cp932;
+
+#undef MB_CUR_MAX
+#define MB_CUR_MAX (cp932.MaxLength)
+
+/**
+ * Convenience macro to call `p32_private_c8rtomb_dbcs`.
+ */
+#define c8rtomb(mb, c8, state) p32_private_c8rtomb_dbcs (mb, c8, state, &cp932)
 
 static void DoTest (void) {
   char      buffer[4];
@@ -162,45 +173,19 @@ static void DoTest (void) {
   assert (errno == 0);
 }
 
-static DWORD CALLBACK Thread (LPVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-  assert (MB_CUR_MAX == 2);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
-}
-
 int main (void) {
   p32_test_init ();
   srand (0xBADF);
 
-#if P32_CRT == P32_MSVCRT10
-  assert (setlocale (LC_ALL, LOCALE) == NULL);
-#else
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
+  if (!IsValidCodePage (932)) {
+    return 77;
+  }
+
+  cp932.CodePage = 932;
+  assert (p32_charset_info (&cp932));
   assert (MB_CUR_MAX == 2);
 
   DoTest ();
-#endif
-
-  assert (setlocale (LC_ALL, "C") != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  HANDLE thread   = NULL;
-  DWORD  exitCode = EXIT_FAILURE;
-
-  assert ((thread = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (thread, INFINITE);
-  GetExitCodeThread (thread, &exitCode);
-  CloseHandle (thread);
 
   return EXIT_SUCCESS;
 }
