@@ -31,29 +31,37 @@
 /**
  * Test Summary:
  *
- * Test `mblen` functions with "POSIX" locale.
+ * Test `mblen` function with ISO-8859-1 (code page 28591).
+ *
+ * This code page is used with "POSIX" locale.
  */
+
+#define LOCALE "POSIX"
+
+static locale_t locale;
 
 static void DoTest (void) {
   /**
    * When first argument to `mblen` is `NULL`, it must return non-zero for
    * state-dependant encodings. Otherwise it must return 0.
    */
-  assert (mblen (NULL, MB_CUR_MAX) == 0);
+  assert (mblen_l (NULL, MB_CUR_MAX_L (locale), locale) == 0);
   assert (errno == 0);
 
   /**
    * When second argument to `mblen` is zero, it must not examine its first
    * argument.
    */
-  assert (mblen ("", 0) == -1);
+  assert (mblen_l ("", 0, locale) == -1);
   assert (errno == 0);
 
   /**
-   * POSIX requires that all bytes are valid characters.
+   * All bytes are valid characters.
+   *
+   * POSIX requires that in "POSIX" locale all bytes are valid characters.
    */
   for (uint8_t c = 0;; ++c) {
-    assert (mblen ((char *) &c, MB_CUR_MAX) == !!c);
+    assert (mblen_l ((char *) &c, MB_CUR_MAX_L (locale), locale) == !!c);
     assert (errno == 0);
 
     if (c == 0xFF) {
@@ -65,10 +73,12 @@ static void DoTest (void) {
 int main (void) {
   p32_test_init ();
 
-  assert (setlocale (LC_ALL, "POSIX") != NULL);
-  assert (MB_CUR_MAX == 1);
+  assert ((locale = newlocale (LC_ALL_MASK, LOCALE, NULL)) != NULL);
+  assert (MB_CUR_MAX_L (locale) == 1);
 
   DoTest ();
+
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }

@@ -31,8 +31,14 @@
 /**
  * Test Summary:
  *
- * Test `mbtowc` functions with "POSIX" locale.
+ * Test `mbtowc` function with ISO-8859-1 (code page 28591).
+ *
+ * This code page is used with "POSIX" locale.
  */
+
+#define LOCALE "POSIX"
+
+static locale_t locale;
 
 static void DoTest (void) {
   wchar_t wc = WEOF;
@@ -41,7 +47,7 @@ static void DoTest (void) {
    * When second argument to `mbtowc` is `NULL`, it must return non-zero for
    * state-dependant encodings. Otherwise it must return 0.
    */
-  assert (mbtowc (&wc, NULL, MB_CUR_MAX) == 0);
+  assert (mbtowc_l (&wc, NULL, MB_CUR_MAX_L (locale), locale) == 0);
   assert (wc == WEOF);
   assert (errno == 0);
 
@@ -49,17 +55,19 @@ static void DoTest (void) {
    * When third argument to `mbtowc` is zero, it must not examine its second
    * argument.
    */
-  assert (mbtowc (&wc, "", 0) == -1);
+  assert (mbtowc_l (&wc, "", 0, locale) == -1);
   assert (wc == WEOF);
   assert (errno == 0);
 
   /**
-   * POSIX requires that all bytes are valid characters.
+   * All bytes are valid characters.
+   *
+   * POSIX requires that in "POSIX" locale all bytes are valid characters.
    */
   for (uint8_t c = 0;; ++c) {
     wc = WEOF;
 
-    assert (mbtowc (&wc, (char *) &c, MB_CUR_MAX) == !!c);
+    assert (mbtowc_l (&wc, (char *) &c, MB_CUR_MAX_L (locale), locale) == !!c);
     assert (wc == c);
     assert (errno == 0);
 
@@ -73,7 +81,7 @@ static void DoTest (void) {
    */
   wc = WEOF;
 
-  assert (mbtowc (&wc, "", 1) == 0);
+  assert (mbtowc_l (&wc, "", 1, locale) == 0);
   assert (wc == '\0');
   assert (errno == 0);
 }
@@ -81,10 +89,12 @@ static void DoTest (void) {
 int main (void) {
   p32_test_init ();
 
-  assert (setlocale (LC_ALL, "POSIX") != NULL);
-  assert (MB_CUR_MAX == 1);
+  assert ((locale = newlocale (LC_ALL_MASK, LOCALE, NULL)) != NULL);
+  assert (MB_CUR_MAX_L (locale) == 1);
 
   DoTest ();
+
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }

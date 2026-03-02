@@ -32,8 +32,14 @@
 /**
  * Test Summary:
  *
- * Test `wctomb` function with "POSIX" locale.
+ * Test `wctomb` function with ISO-8859-1 (code page 28591).
+ *
+ * This code page is used with "POSIX" locale.
  */
+
+#define LOCALE "POSIX"
+
+static locale_t locale;
 
 static void DoTest (void) {
   char buffer[MB_LEN_MAX];
@@ -42,11 +48,11 @@ static void DoTest (void) {
    * When first argument to `wctomb` is `NULL`, it must return non-zero for
    * state-dependant encodings. Otherwise it must return 0.
    */
-  assert (wctomb (NULL, WEOF) == 0);
+  assert (wctomb_l (NULL, WEOF, locale) == 0);
   assert (errno == 0);
 
   /**
-   * POSIX requires that all bytes are valid characters.
+   * POSIX requires that in "POSIX" locale all bytes are valid characters.
    *
    * POSIX does not mention whether `wctomb` must support reverse conversion
    * for bytes converted by `mbtowc` which are outside of ASCII range.
@@ -54,23 +60,23 @@ static void DoTest (void) {
   for (wchar_t wc = 0; wc < 0x100; ++wc) {
     memset (buffer, EOF, _countof (buffer));
 
-    assert (wctomb (buffer, wc) == 1);
+    assert (wctomb_l (buffer, wc, locale) == 1);
     assert (buffer[0] == (char) wc && buffer[1] == EOF && buffer[2] == EOF && buffer[3] == EOF);
     assert (errno == 0);
   }
 
   /**
-   * All wide characters in range [255,WEOF] are invalid.
+   * All wide characters in range [256,WEOF] are invalid.
    */
   for (wchar_t wc = 0x100;; ++wc) {
     memset (buffer, EOF, _countof (buffer));
 
     if (IS_HIGH_SURROGATE (wc)) {
-      assert (wctomb (buffer, wc) == 1);
+      assert (wctomb_l (buffer, wc, locale) == 1);
       assert (buffer[0] == '?' && buffer[1] == EOF && buffer[2] == EOF && buffer[3] == EOF);
       assert (errno == 0);
 
-      assert (wctomb (&buffer[1], LOW_SURROGATE_MIN) == -1);
+      assert (wctomb_l (&buffer[1], LOW_SURROGATE_MIN, locale) == -1);
       assert (buffer[0] == '?' && buffer[1] == EOF && buffer[2] == EOF && buffer[3] == EOF);
       assert (errno == EILSEQ);
 
@@ -80,10 +86,10 @@ static void DoTest (void) {
       /**
        * Reset internal state.
        */
-      assert (wctomb (NULL, WEOF) == 0);
+      assert (wctomb_l (NULL, WEOF, locale) == 0);
       assert (errno == 0);
     } else {
-      assert (wctomb (buffer, wc) == -1);
+      assert (wctomb_l (buffer, wc, locale) == -1);
       assert (buffer[0] == EOF && buffer[1] == EOF && buffer[2] == EOF && buffer[3] == EOF);
       assert (errno == EILSEQ);
 
@@ -100,10 +106,12 @@ static void DoTest (void) {
 int main (void) {
   p32_test_init ();
 
-  assert (setlocale (LC_ALL, "POSIX") != NULL);
-  assert (MB_CUR_MAX == 1);
+  assert ((locale = newlocale (LC_ALL_MASK, LOCALE, NULL)) != NULL);
+  assert (MB_CUR_MAX_L (locale) == 1);
 
   DoTest ();
+
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }

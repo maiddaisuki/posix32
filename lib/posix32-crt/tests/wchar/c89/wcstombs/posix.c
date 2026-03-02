@@ -32,8 +32,14 @@
 /**
  * Test Summary:
  *
- * Test `wcsrtombs` function with "POSIX" locale.
+ * Test `wcstombs` function with ISO-8859-1 (code page 28591).
+ *
+ * This code page is used with "POSIX" locale.
  */
+
+#define LOCALE "POSIX"
+
+static locale_t locale;
 
 static void DoTest (void) {
   char buffer[BUFSIZ];
@@ -54,7 +60,7 @@ static void DoTest (void) {
    * - value of `errno` must not change
    */
 
-  assert (wcstombs (NULL, text, 0) == text_length);
+  assert (wcstombs_l (NULL, text, 0, locale) == text_length);
   assert (errno == 0);
 
   /**
@@ -66,7 +72,7 @@ static void DoTest (void) {
    */
   memset (buffer, EOF, BUFSIZ);
 
-  assert (wcstombs (buffer, text, BUFSIZ) == text_length);
+  assert (wcstombs_l (buffer, text, BUFSIZ, locale) == text_length);
   assert (buffer[text_length] == '\0' && buffer[text_length + 1] == EOF);
   assert (strcmp (buffer, SBCSText.A) == 0);
   assert (errno == 0);
@@ -80,7 +86,7 @@ static void DoTest (void) {
    */
   memset (buffer, EOF, BUFSIZ);
 
-  assert (wcstombs (buffer, text, 5) == 5);
+  assert (wcstombs_l (buffer, text, 5, locale) == 5);
   assert (buffer[5] == EOF);
   assert (strncmp (buffer, SBCSText.A, 5) == 0);
   assert (errno == 0);
@@ -89,10 +95,12 @@ static void DoTest (void) {
 int main (void) {
   p32_test_init ();
 
-  assert (setlocale (LC_ALL, "POSIX") != NULL);
-  assert (MB_CUR_MAX == 1);
+  assert ((locale = newlocale (LC_ALL_MASK, LOCALE, NULL)) != NULL);
+  assert (MB_CUR_MAX_L (locale) == 1);
 
   DoTest ();
+
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }
