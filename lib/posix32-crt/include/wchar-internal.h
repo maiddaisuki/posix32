@@ -46,13 +46,13 @@ size_t p32_private_wcsnrtombs_l (char *, const wchar_t **, size_t, size_t, mbsta
 /**
  * Internal versions which operate on ISO-8859-1 (code page 28591).
  */
-size_t p32_private_mbrlen_posix (const char *, size_t, mbstate_t *, Charset *);
-size_t p32_private_mbrtowc_posix (wchar_t *, const char *, size_t, mbstate_t *, Charset *);
-size_t p32_private_mbsrtowcs_posix (wchar_t *, const char **, size_t, mbstate_t *, Charset *);
-size_t p32_private_mbsnrtowcs_posix (wchar_t *, const char **, size_t, size_t, mbstate_t *, Charset *);
-size_t p32_private_wcrtomb_posix (char *, wchar_t, mbstate_t *, Charset *);
-size_t p32_private_wcsrtombs_posix (char *, const wchar_t **, size_t, mbstate_t *, Charset *);
-size_t p32_private_wcsnrtombs_posix (char *, const wchar_t **, size_t, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_mbrlen_posix (const char *, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_mbrtowc_posix (wchar_t *, const char *, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_mbsrtowcs_posix (wchar_t *, const char **, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_mbsnrtowcs_posix (wchar_t *, const char **, size_t, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_wcrtomb_posix (char *, wchar_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_wcsrtombs_posix (char *, const wchar_t **, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_wcsnrtombs_posix (char *, const wchar_t **, size_t, size_t, mbstate_t *, Charset *);
 
 /**
  * Internal versions which operate on ASCII (code page 20127).

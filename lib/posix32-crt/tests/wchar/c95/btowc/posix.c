@@ -32,21 +32,29 @@
 /**
  * Test Summary:
  *
- * Test `btowc` function with "POSIX" locale.
+ * Test `btowc` function with ISO-8859-1 (code page 28591).
+ *
+ * This code page is used with "POSIX" locale.
  */
+
+#define LOCALE "en_US.ISO-8859-1"
+
+static locale_t locale;
 
 static void DoTest (void) {
   /**
    * `EOF` must convert to `WEOF`.
    */
-  assert (btowc (EOF) == WEOF);
+  assert (btowc_l (EOF, locale) == WEOF);
   assert (errno == 0);
 
   /**
-   * POSIX requires that all bytes are valid characters.
+   * All bytes are valid characters.
+   *
+   * POSIX requires that in "POSIX" locale all bytes are valid characters.
    */
   for (int c = 0; c <= 0xFF; ++c) {
-    assert (btowc (c) == c);
+    assert (btowc_l (c, locale) == c);
     assert (errno == 0);
   }
 }
@@ -54,10 +62,12 @@ static void DoTest (void) {
 int main (void) {
   p32_test_init ();
 
-  assert (setlocale (LC_ALL, "POSIX") != NULL);
-  assert (MB_CUR_MAX == 1);
+  assert ((locale = newlocale (LC_ALL_MASK, LOCALE, NULL)) != NULL);
+  assert (MB_CUR_MAX_L (locale) == 1);
 
   DoTest ();
+
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }

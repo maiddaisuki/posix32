@@ -32,26 +32,32 @@
 /**
  * Test Summary:
  *
- * Test `wctob` function with "POSIX" locale.
+ * Test `wctob` function with ISO-8859-1 (code page 28591).
+ *
+ * This code page is used with "POSIX" locale.
  */
+
+#define LOCALE "en_US.ISO-8859-1"
+
+static locale_t locale;
 
 static void DoTest (void) {
   /**
-   * POSIX requires that all bytes are valid characters.
+   * POSIX requires that in "POSIX" locale all bytes are valid characters.
    *
    * POSIX does not mention whether `wctob` must support reverse conversion
    * for bytes converted by `btowc` which are outside of ASCII range.
    */
   for (wchar_t wc = 0; wc < 0x100; ++wc) {
-    assert (wctob (wc) == wc);
+    assert (wctob_l (wc, locale) == wc);
     assert (errno == 0);
   }
 
   /**
-   * All wide characters in range [255,WEOF] are invalid.
+   * All wide characters in range [256,WEOF] are invalid.
    */
   for (wchar_t wc = 0x100;; ++wc) {
-    assert (wctob (wc) == EOF);
+    assert (wctob_l (wc, locale) == EOF);
     assert (errno == 0);
 
     if (wc == WEOF) {
@@ -63,10 +69,12 @@ static void DoTest (void) {
 int main (void) {
   p32_test_init ();
 
-  assert (setlocale (LC_ALL, "POSIX") != NULL);
-  assert (MB_CUR_MAX == 1);
+  assert ((locale = newlocale (LC_ALL_MASK, LOCALE, NULL)) != NULL);
+  assert (MB_CUR_MAX_L (locale) == 1);
 
   DoTest ();
+
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }

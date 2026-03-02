@@ -32,8 +32,25 @@
 /**
  * Test Summary:
  *
- * Test `wcrtomb` function with "POSIX" locale.
+ * Test `wcrtomb` function with ISO-8859-1 (code page 28591).
+ *
+ * This code page is used with "POSIX" locale.
  */
+
+#undef wcrtomb
+
+/**
+ * `Charset` structure with information about code page 28591 (ISO-8859-1).
+ */
+static Charset iso_8859_1;
+
+#undef MB_CUR_MAX
+#define MB_CUR_MAX (iso_8859_1.MaxLength)
+
+/**
+ * Convenience macro to call `p32_private_wcrtomb_posix`.
+ */
+#define wcrtomb(mb, wc, state) p32_private_wcrtomb_posix (mb, wc, state, &iso_8859_1)
 
 static void DoTest (void) {
   mbstate_t state = {0};
@@ -61,7 +78,7 @@ static void DoTest (void) {
   assert (errno == 0);
 
   /**
-   * POSIX requires that all bytes are valid characters.
+   * POSIX requires that in "POSIX" locale all bytes are valid characters.
    *
    * POSIX does not mention whether `wcrtomb` must support reverse conversion
    * for bytes converted by `mbrtowc` which are outside of ASCII range.
@@ -76,7 +93,7 @@ static void DoTest (void) {
   }
 
   /**
-   * All wide characters in range [255,WEOF] are invalid.
+   * All wide characters in range [256,WEOF] are invalid.
    */
   for (wchar_t wc = 0x100;; ++wc) {
     memset (buffer, EOF, _countof (buffer));
@@ -126,7 +143,8 @@ int main (void) {
   p32_test_init ();
   srand (0xBADF);
 
-  assert (setlocale (LC_ALL, "POSIX") != NULL);
+  iso_8859_1.CodePage = P32_CODEPAGE_POSIX;
+  assert (p32_charset_info (&iso_8859_1));
   assert (MB_CUR_MAX == 1);
 
   DoTest ();
