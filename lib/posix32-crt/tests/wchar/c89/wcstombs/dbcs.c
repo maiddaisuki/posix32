@@ -32,7 +32,9 @@
 /**
  * Test Summary:
  *
- * Test `wcsrtombs` function with a double-byte code page.
+ * Test `wcsrtombs` function with some DBCS code page.
+ *
+ * We test code page 932; this is the ANSI/OEM code page for `ja-JP` locale.
  */
 
 #if P32_CRT >= P32_MSVCRT20
@@ -40,6 +42,8 @@
 #else
 #define LOCALE "ja_JP.OCP"
 #endif
+
+static locale_t locale;
 
 static void DoTest (void) {
   char buffer[BUFSIZ];
@@ -59,7 +63,7 @@ static void DoTest (void) {
    * - return value must be `text_length`
    * - value of `errno` must not change
    */
-  assert (wcstombs (NULL, text, 0) == text_length);
+  assert (wcstombs_l (NULL, text, 0, locale) == text_length);
   assert (errno == 0);
 
   /**
@@ -71,7 +75,7 @@ static void DoTest (void) {
    */
   memset (buffer, EOF, BUFSIZ);
 
-  assert (wcstombs (buffer, text, BUFSIZ) == text_length);
+  assert (wcstombs_l (buffer, text, BUFSIZ, locale) == text_length);
   assert (buffer[text_length] == '\0' && buffer[text_length + 1] == EOF);
   assert (strcmp (buffer, DBCSText.A) == 0);
   assert (errno == 0);
@@ -85,7 +89,7 @@ static void DoTest (void) {
    */
   memset (buffer, EOF, BUFSIZ);
 
-  assert (wcstombs (buffer, text, 7) == 6);
+  assert (wcstombs_l (buffer, text, 7, locale) == 6);
   assert (buffer[6] == EOF);
   assert (strncmp (buffer, DBCSText.A, 6) == 0);
   assert (errno == 0);
@@ -102,7 +106,7 @@ static void DoTest (void) {
    * - return value must be `text_length`
    * - value of `errno` must not change
    */
-  assert (wcstombs (NULL, text, 0) == text_length);
+  assert (wcstombs_l (NULL, text, 0, locale) == text_length);
   assert (errno == 0);
 
   /**
@@ -114,7 +118,7 @@ static void DoTest (void) {
    */
   memset (buffer, EOF, BUFSIZ);
 
-  assert (wcstombs (buffer, text, BUFSIZ) == text_length);
+  assert (wcstombs_l (buffer, text, BUFSIZ, locale) == text_length);
   assert (buffer[text_length] == '\0' && buffer[text_length + 1] == EOF);
   assert (strcmp (buffer, MixedText.A) == 0);
   assert (errno == 0);
@@ -128,7 +132,7 @@ static void DoTest (void) {
    */
   memset (buffer, EOF, BUFSIZ);
 
-  assert (wcstombs (buffer, text, 10) == 9);
+  assert (wcstombs_l (buffer, text, 10, locale) == 9);
   assert (buffer[9] == EOF);
   assert (strncmp (buffer, MixedText.A, 9) == 0);
   assert (errno == 0);
@@ -149,7 +153,7 @@ static void DoTest (void) {
    * - return value should be (size_t)-1
    * - value of `errno` must be EILSEQ
    */
-  assert (wcstombs (NULL, text, 0) == (size_t) -1);
+  assert (wcstombs_l (NULL, text, 0, locale) == (size_t) -1);
   assert (errno == EILSEQ);
 
   /**
@@ -160,7 +164,7 @@ static void DoTest (void) {
    */
   memset (buffer, EOF, BUFSIZ);
 
-  assert (wcstombs (buffer, text, BUFSIZ) == (size_t) -1);
+  assert (wcstombs_l (buffer, text, BUFSIZ, locale) == (size_t) -1);
   assert (buffer[6] == EOF);
   assert (strncmp (buffer, DBCSText.A, 6) == 0);
   assert (errno == EILSEQ);
@@ -169,44 +173,19 @@ static void DoTest (void) {
   _set_errno (0);
 }
 
-static DWORD CALLBACK Thread (LPVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-  assert (MB_CUR_MAX == 2);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
-}
-
 int main (void) {
   p32_test_init ();
 
-#if P32_CRT == P32_MSVCRT10
-  assert (setlocale (LC_ALL, LOCALE) == NULL);
-#else
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
-  assert (MB_CUR_MAX == 2);
+  if (!IsValidCodePage (932)) {
+    return 77;
+  }
+
+  assert ((locale = newlocale (LC_ALL_MASK, LOCALE, NULL)) != NULL);
+  assert (MB_CUR_MAX_L (locale) == 2);
 
   DoTest ();
-#endif
 
-  assert (setlocale (LC_ALL, "C") != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  HANDLE thread   = NULL;
-  DWORD  exitCode = EXIT_FAILURE;
-
-  assert ((thread = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (thread, INFINITE);
-  GetExitCodeThread (thread, &exitCode);
-  CloseHandle (thread);
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }

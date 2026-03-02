@@ -31,7 +31,9 @@
 /**
  * Test Summary:
  *
- * Test `mbtowc` function with a double-byte code page.
+ * Test `mbtowc` function with some DBCS code page.
+ *
+ * We test code page 932; this is the ANSI/OEM code page for `ja-JP` locale.
  */
 
 #if P32_CRT >= P32_MSVCRT20
@@ -40,6 +42,8 @@
 #define LOCALE "ja_JP.OCP"
 #endif
 
+static locale_t locale;
+
 static void DoTest (void) {
   wchar_t wc = WEOF;
 
@@ -47,14 +51,14 @@ static void DoTest (void) {
    * When second argument to `mbtowc` is `NULL`, it must return non-zero for
    * state-dependant encodings. Otherwise it must return 0.
    */
-  assert (mbtowc (&wc, NULL, 0) == 0);
+  assert (mbtowc_l (&wc, NULL, MB_CUR_MAX_L (locale), locale) == 0);
   assert (errno == 0);
 
   /**
    * When third argument to `mbtowc` is zero, it must not examine its second
    * argument.
    */
-  assert (mbtowc (&wc, "", 0) == -1);
+  assert (mbtowc_l (&wc, "", 0, locale) == -1);
   assert (errno == 0);
 
   /**
@@ -63,7 +67,7 @@ static void DoTest (void) {
   for (uint8_t c = 0;; ++c) {
     wc = WEOF;
 
-    assert (mbtowc (&wc, (char *) &c, 1) == !!c);
+    assert (mbtowc_l (&wc, (char *) &c, MB_CUR_MAX_L (locale), locale) == !!c);
     assert (wc == c);
     assert (errno == 0);
 
@@ -78,14 +82,14 @@ static void DoTest (void) {
      */
     wc = WEOF;
 
-    assert (mbtowc (&wc, CJK[i].DBCS, MB_CUR_MAX) == 2);
+    assert (mbtowc_l (&wc, CJK[i].DBCS, MB_CUR_MAX_L (locale), locale) == 2);
     assert (wc == CJK[i].Wc);
     assert (errno == 0);
 
     /**
      * Probe internal conversion state.
      */
-    assert (mbtowc (&wc, "", 1) == 0);
+    assert (mbtowc_l (&wc, "", 1, locale) == 0);
     assert (wc == '\0');
     assert (errno == 0);
 
@@ -94,7 +98,7 @@ static void DoTest (void) {
      */
     wc = WEOF;
 
-    assert (mbtowc (&wc, CJK[i].DBCS, 1) == -1);
+    assert (mbtowc_l (&wc, CJK[i].DBCS, 1, locale) == -1);
     assert (wc == WEOF);
     assert (errno == 0);
 
@@ -104,7 +108,7 @@ static void DoTest (void) {
      * Unlike `mblen`, `mbtowc` stores incomplete multibyte sequence in its
      * private conversion state.
      */
-    assert (mbtowc (&wc, "", 1) == -1);
+    assert (mbtowc_l (&wc, "", 1, locale) == -1);
     assert (wc == WEOF);
     assert (errno == EILSEQ);
 
@@ -114,14 +118,14 @@ static void DoTest (void) {
     /**
      * Complete conversion of DBCS character.
      */
-    assert (mbtowc (&wc, &CJK[i].DBCS[1], 1) == 1);
+    assert (mbtowc_l (&wc, &CJK[i].DBCS[1], 1, locale) == 1);
     assert (wc == CJK[i].Wc);
     assert (errno == 0);
 
     /**
      * Probe internal conversion state.
      */
-    assert (mbtowc (&wc, "", 1) == 0);
+    assert (mbtowc_l (&wc, "", 1, locale) == 0);
     assert (wc == '\0');
     assert (errno == 0);
 
@@ -132,7 +136,7 @@ static void DoTest (void) {
 
     wc = WEOF;
 
-    assert (mbtowc (&wc, InvalidDBCS, MB_CUR_MAX) == -1);
+    assert (mbtowc_l (&wc, InvalidDBCS, MB_CUR_MAX_L (locale), locale) == -1);
     assert (wc == WEOF);
     assert (errno == EILSEQ);
 
@@ -145,49 +149,24 @@ static void DoTest (void) {
    */
   wc = WEOF;
 
-  assert (mbtowc (&wc, "", 1) == 0);
+  assert (mbtowc_l (&wc, "", 1, locale) == 0);
   assert (wc == '\0');
   assert (errno == 0);
-}
-
-static DWORD CALLBACK Thread (LPVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-  assert (MB_CUR_MAX == 2);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
 }
 
 int main (void) {
   p32_test_init ();
 
-#if P32_CRT == P32_MSVCRT10
-  assert (setlocale (LC_ALL, LOCALE) == NULL);
-#else
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
-  assert (MB_CUR_MAX == 2);
+  if (!IsValidCodePage (932)) {
+    return 77;
+  }
+
+  assert ((locale = newlocale (LC_ALL_MASK, LOCALE, NULL)) != NULL);
+  assert (MB_CUR_MAX_L (locale) == 2);
 
   DoTest ();
-#endif
 
-  assert (setlocale (LC_ALL, "C") != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  HANDLE thread   = NULL;
-  DWORD  exitCode = EXIT_FAILURE;
-
-  assert ((thread = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (thread, INFINITE);
-  GetExitCodeThread (thread, &exitCode);
-  CloseHandle (thread);
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }

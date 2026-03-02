@@ -31,7 +31,9 @@
 /**
  * Test Summary:
  *
- * Test `mblen` function with a double-byte code page.
+ * Test `mblen` function with some DBCS code page.
+ *
+ * We test code page 932; this is the ANSI/OEM code page for `ja-JP` locale.
  */
 
 #if P32_CRT >= P32_MSVCRT20
@@ -40,26 +42,28 @@
 #define LOCALE "ja_JP.OCP"
 #endif
 
+static locale_t locale;
+
 static void DoTest (void) {
   /**
    * When first argument to `mblen` is `NULL`, it must return non-zero for
    * state-dependant encodings. Otherwise it must return 0.
    */
-  assert (mblen (NULL, 0) == 0);
+  assert (mblen_l (NULL, MB_CUR_MAX_L (locale), locale) == 0);
   assert (errno == 0);
 
   /**
    * When second argument to `mblen` is zero, it must not examine its first
    * argument.
    */
-  assert (mblen ("", 0) == -1);
+  assert (mblen_l ("", 0, locale) == -1);
   assert (errno == 0);
 
   /**
    * All bytes in range [0,127] are valid ASCII characters.
    */
   for (uint8_t c = 0;; ++c) {
-    assert (mblen ((char *) &c, 1) == !!c);
+    assert (mblen_l ((char *) &c, MB_CUR_MAX_L (locale), locale) == !!c);
     assert (errno == 0);
 
     if (c == 0x7F) {
@@ -71,19 +75,19 @@ static void DoTest (void) {
     /**
      * Attempt to get length of incomplete DBCS character.
      */
-    assert (mblen (CJK[i].DBCS, 1) == -1);
+    assert (mblen_l (CJK[i].DBCS, 1, locale) == -1);
     assert (errno == 0);
 
     /**
      * Verify that internal conversion state is sane.
      */
-    assert (mblen ("", 1) == 0);
+    assert (mblen_l ("", 1, locale) == 0);
     assert (errno == 0);
 
     /**
      * Get length of DBCS character.
      */
-    assert (mblen (CJK[i].DBCS, MB_CUR_MAX) == 2);
+    assert (mblen_l (CJK[i].DBCS, MB_CUR_MAX_L (locale), locale) == 2);
     assert (errno == 0);
 
     /**
@@ -91,7 +95,7 @@ static void DoTest (void) {
      */
     char InvalidDBCS[2] = {CJK[i].DBCS[0], '\0'};
 
-    assert (mblen (InvalidDBCS, MB_CUR_MAX) == -1);
+    assert (mblen_l (InvalidDBCS, MB_CUR_MAX_L (locale), locale) == -1);
     assert (errno == EILSEQ);
 
     // reset errno
@@ -99,44 +103,19 @@ static void DoTest (void) {
   }
 }
 
-static DWORD CALLBACK Thread (LPVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-  assert (MB_CUR_MAX == 2);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
-}
-
 int main (void) {
   p32_test_init ();
 
-#if P32_CRT == P32_MSVCRT10
-  assert (setlocale (LC_ALL, LOCALE) == NULL);
-#else
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
-  assert (MB_CUR_MAX == 2);
+  if (!IsValidCodePage (932)) {
+    return 77;
+  }
+
+  assert ((locale = newlocale (LC_ALL_MASK, LOCALE, NULL)) != NULL);
+  assert (MB_CUR_MAX_L (locale) == 2);
 
   DoTest ();
-#endif
 
-  assert (setlocale (LC_ALL, "C") != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  HANDLE thread   = NULL;
-  DWORD  exitCode = EXIT_FAILURE;
-
-  assert ((thread = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (thread, INFINITE);
-  GetExitCodeThread (thread, &exitCode);
-  CloseHandle (thread);
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }

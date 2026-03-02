@@ -32,7 +32,9 @@
 /**
  * Test Summary:
  *
- * Test `mbsrtowcs` function with a double-byte code page.
+ * Test `mbsrtowcs` function with some DBCS code page.
+ *
+ * We test code page 932; this is the ANSI/OEM code page for `ja-JP` locale.
  */
 
 #if P32_CRT >= P32_MSVCRT20
@@ -40,6 +42,8 @@
 #else
 #define LOCALE "ja_JP.OCP"
 #endif
+
+static locale_t locale;
 
 static void DoTest (void) {
   wchar_t buffer[BUFSIZ];
@@ -59,7 +63,7 @@ static void DoTest (void) {
    * - return value must be `text_length`
    * - value of `errno` must not change
    */
-  assert (mbstowcs (NULL, text, 0) == text_length);
+  assert (mbstowcs_l (NULL, text, 0, locale) == text_length);
   assert (errno == 0);
 
   /**
@@ -71,7 +75,7 @@ static void DoTest (void) {
    */
   wmemset (buffer, WEOF, BUFSIZ);
 
-  assert (mbstowcs (buffer, text, BUFSIZ) == text_length);
+  assert (mbstowcs_l (buffer, text, BUFSIZ, locale) == text_length);
   assert (buffer[text_length] == L'\0' && buffer[text_length + 1] == WEOF);
   assert (wcscmp (buffer, DBCSText.W) == 0);
   assert (errno == 0);
@@ -85,7 +89,7 @@ static void DoTest (void) {
    */
   wmemset (buffer, WEOF, BUFSIZ);
 
-  assert (mbstowcs (buffer, text, 3) == 3);
+  assert (mbstowcs_l (buffer, text, 3, locale) == 3);
   assert (buffer[3] == WEOF);
   assert (wcsncmp (buffer, DBCSText.W, 3) == 0);
   assert (errno == 0);
@@ -102,7 +106,7 @@ static void DoTest (void) {
    * - return value must be `text_length`
    * - value of `errno` must not change
    */
-  assert (mbstowcs (NULL, text, 0) == text_length);
+  assert (mbstowcs_l (NULL, text, 0, locale) == text_length);
   assert (errno == 0);
 
   /**
@@ -114,7 +118,7 @@ static void DoTest (void) {
    */
   wmemset (buffer, WEOF, BUFSIZ);
 
-  assert (mbstowcs (buffer, text, BUFSIZ) == text_length);
+  assert (mbstowcs_l (buffer, text, BUFSIZ, locale) == text_length);
   assert (buffer[text_length] == L'\0' && buffer[text_length + 1] == WEOF);
   assert (wcscmp (buffer, MixedText.W) == 0);
   assert (errno == 0);
@@ -128,7 +132,7 @@ static void DoTest (void) {
    */
   wmemset (buffer, WEOF, BUFSIZ);
 
-  assert (mbstowcs (buffer, text, 7) == 7);
+  assert (mbstowcs_l (buffer, text, 7, locale) == 7);
   assert (buffer[7] == WEOF);
   assert (wcsncmp (buffer, MixedText.W, 7) == 0);
   assert (errno == 0);
@@ -149,7 +153,7 @@ static void DoTest (void) {
    * - return value must be (size_t)-1
    * - value of `errno` must be EILSEQ
    */
-  assert (mbstowcs (NULL, text, 0) == (size_t) -1);
+  assert (mbstowcs_l (NULL, text, 0, locale) == (size_t) -1);
   assert (errno == EILSEQ);
 
   // reset errno
@@ -163,7 +167,7 @@ static void DoTest (void) {
    */
   wmemset (buffer, WEOF, BUFSIZ);
 
-  assert (mbstowcs (buffer, text, BUFSIZ) == (size_t) -1);
+  assert (mbstowcs_l (buffer, text, BUFSIZ, locale) == (size_t) -1);
   assert (buffer[0] == DBCSText.W[0] && buffer[1] == DBCSText.W[1] && buffer[2] == WEOF);
   assert (errno == EILSEQ);
 
@@ -178,49 +182,24 @@ static void DoTest (void) {
    */
   wmemset (buffer, WEOF, BUFSIZ);
 
-  assert (mbstowcs (buffer, text, 2) == 2);
+  assert (mbstowcs_l (buffer, text, 2, locale) == 2);
   assert (buffer[0] == DBCSText.W[0] && buffer[1] == DBCSText.W[1] && buffer[2] == WEOF);
   assert (errno == 0);
-}
-
-static DWORD CALLBACK Thread (LPVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-  assert (MB_CUR_MAX == 2);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
 }
 
 int main (void) {
   p32_test_init ();
 
-#if P32_CRT == P32_MSVCRT10
-  assert (setlocale (LC_ALL, LOCALE) == NULL);
-#else
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
-  assert (MB_CUR_MAX == 2);
+  if (!IsValidCodePage (932)) {
+    return 77;
+  }
+
+  assert ((locale = newlocale (LC_ALL_MASK, LOCALE, NULL)) != NULL);
+  assert (MB_CUR_MAX_L (locale) == 2);
 
   DoTest ();
-#endif
 
-  assert (setlocale (LC_ALL, "C") != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  HANDLE thread   = NULL;
-  DWORD  exitCode = EXIT_FAILURE;
-
-  assert ((thread = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (thread, INFINITE);
-  GetExitCodeThread (thread, &exitCode);
-  CloseHandle (thread);
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }

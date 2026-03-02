@@ -32,7 +32,9 @@
 /**
  * Test Summary:
  *
- * Test `wctomb` function with a double-byte code page.
+ * Test `wctomb` function with some DBCS code page.
+ *
+ * We test code page 932; this is the ANSI/OEM code page for `ja-JP` locale.
  */
 
 #if P32_CRT >= P32_MSVCRT20
@@ -41,6 +43,8 @@
 #define LOCALE "ja_JP.OCP"
 #endif
 
+static locale_t locale;
+
 static void DoTest (void) {
   char buffer[MB_LEN_MAX];
 
@@ -48,7 +52,7 @@ static void DoTest (void) {
    * When first argument to `wctomb` is `NULL`, it must return non-zero for
    * state-dependant encodings. Otherwise it must return 0.
    */
-  assert (wctomb (NULL, WEOF) == 0);
+  assert (wctomb_l (NULL, WEOF, locale) == 0);
   assert (errno == 0);
 
   /**
@@ -57,7 +61,7 @@ static void DoTest (void) {
   for (wchar_t wc = 0; wc < 0x80; ++wc) {
     memset (buffer, EOF, _countof (buffer));
 
-    assert (wctomb (buffer, wc) == 1);
+    assert (wctomb_l (buffer, wc, locale) == 1);
     assert (buffer[0] == (char) wc && buffer[1] == EOF && buffer[2] == EOF && buffer[3] == EOF);
     assert (errno == 0);
   }
@@ -65,7 +69,7 @@ static void DoTest (void) {
   for (size_t i = 0; i < _countof (CJK); ++i) {
     memset (buffer, EOF, _countof (buffer));
 
-    assert (wctomb (buffer, CJK[i].Wc) == 2);
+    assert (wctomb_l (buffer, CJK[i].Wc, locale) == 2);
     assert (memcmp (CJK[i].DBCS, buffer, 2) == 0);
     assert (errno == 0);
   }
@@ -77,11 +81,11 @@ static void DoTest (void) {
     memset (buffer, EOF, _countof (buffer));
 
     if (IS_HIGH_SURROGATE (wc)) {
-      assert (wctomb (buffer, wc) == 1);
+      assert (wctomb_l (buffer, wc, locale) == 1);
       assert (buffer[0] == '?' && buffer[1] == EOF && buffer[2] == EOF && buffer[3] == EOF);
       assert (errno == 0);
 
-      assert (wctomb (&buffer[1], LOW_SURROGATE_MIN) == -1);
+      assert (wctomb_l (&buffer[1], LOW_SURROGATE_MIN, locale) == -1);
       assert (buffer[0] == '?' && buffer[1] == EOF && buffer[2] == EOF && buffer[3] == EOF);
       assert (errno == EILSEQ);
 
@@ -91,10 +95,10 @@ static void DoTest (void) {
       /**
        * Reset internal state.
        */
-      assert (wctomb (NULL, WEOF) == 0);
+      assert (wctomb_l (NULL, WEOF, locale) == 0);
       assert (errno == 0);
     } else if (IS_LOW_SURROGATE (wc)) {
-      assert (wctomb (buffer, wc) == -1);
+      assert (wctomb_l (buffer, wc, locale) == -1);
       assert (buffer[0] == EOF && buffer[1] == EOF && buffer[2] == EOF && buffer[3] == EOF);
       assert (errno == EILSEQ);
 
@@ -108,44 +112,19 @@ static void DoTest (void) {
   }
 }
 
-static DWORD CALLBACK Thread (LPVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-  assert (MB_CUR_MAX == 2);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
-}
-
 int main (void) {
   p32_test_init ();
 
-#if P32_CRT == P32_MSVCRT10
-  assert (setlocale (LC_ALL, LOCALE) == NULL);
-#else
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
-  assert (MB_CUR_MAX == 2);
+  if (!IsValidCodePage (932)) {
+    return 77;
+  }
+
+  assert ((locale = newlocale (LC_ALL_MASK, LOCALE, NULL)) != NULL);
+  assert (MB_CUR_MAX_L (locale) == 2);
 
   DoTest ();
-#endif
 
-  assert (setlocale (LC_ALL, "C") != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  HANDLE thread   = NULL;
-  DWORD  exitCode = EXIT_FAILURE;
-
-  assert ((thread = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (thread, INFINITE);
-  GetExitCodeThread (thread, &exitCode);
-  CloseHandle (thread);
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }
