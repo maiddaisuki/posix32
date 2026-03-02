@@ -37,18 +37,20 @@
 
 #define LOCALE "en_US.UTF-8"
 
+static locale_t locale;
+
 static void DoTest (void) {
   /**
    * `EOF` must convert to `WEOF`.
    */
-  assert (btowc (EOF) == WEOF);
+  assert (btowc_l (EOF, locale) == WEOF);
   assert (errno == 0);
 
   /**
    * All bytes in range [0,127] are valid ASCII characters.
    */
   for (int c = 0; c <= 127; ++c) {
-    assert (btowc (c) == c);
+    assert (btowc_l (c, locale) == c);
     assert (errno == 0);
   }
 
@@ -56,45 +58,20 @@ static void DoTest (void) {
    * All bytes in range [128,255] are invalid.
    */
   for (int c = 128; c <= 255; ++c) {
-    assert (btowc (c) == WEOF);
+    assert (btowc_l (c, locale) == WEOF);
     assert (errno == 0);
   }
-}
-
-static DWORD CALLBACK Thread (LPVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-  assert (MB_CUR_MAX == 4);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
 }
 
 int main (void) {
   p32_test_init ();
 
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
-  assert (MB_CUR_MAX == 4);
+  assert ((locale = newlocale (LC_ALL_MASK, LOCALE, NULL)) != NULL);
+  assert (MB_CUR_MAX_L (locale) == 4);
 
   DoTest ();
 
-  assert (setlocale (LC_ALL, "C") != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  HANDLE thread   = NULL;
-  DWORD  exitCode = EXIT_FAILURE;
-
-  assert ((thread = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (thread, INFINITE);
-  GetExitCodeThread (thread, &exitCode);
-  CloseHandle (thread);
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }

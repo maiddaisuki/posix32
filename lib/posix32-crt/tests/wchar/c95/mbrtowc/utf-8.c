@@ -34,7 +34,20 @@
  * Test `mbrtowc` function with UTF-8 (code page 65001).
  */
 
-#define LOCALE "en_US.UTF-8"
+#undef mbrtowc
+
+/**
+ * `Charset` structure with information about code page 65001 (UTF-8).
+ */
+static Charset utf8;
+
+#undef MB_CUR_MAX
+#define MB_CUR_MAX (utf8.MaxLength)
+
+/**
+ * Convenience macro to call `p32_private_mbrtowc_utf8`.
+ */
+#define mbrtowc(wc, mb, count, state) p32_private_mbrtowc_utf8 (wc, mb, count, state, &utf8)
 
 static void DoTest (void) {
   mbstate_t state = {0};
@@ -78,7 +91,7 @@ static void DoTest (void) {
    * All bytes in range [0,127] are valid ASCII characters.
    */
   for (uint8_t c = 0;; ++c) {
-    assert (mbrtowc (&wc, (char *) &c, 1, &state) == !!c);
+    assert (mbrtowc (&wc, (char *) &c, MB_CUR_MAX, &state) == !!c);
     assert (wc == c);
     assert (mbsinit (&state));
     assert (errno == 0);
@@ -94,7 +107,7 @@ static void DoTest (void) {
      */
     wc = WEOF;
 
-    assert (mbrtowc (&wc, CJK[i].UTF8, MB_LEN_MAX, &state) == 3);
+    assert (mbrtowc (&wc, CJK[i].UTF8, MB_CUR_MAX, &state) == 3);
     assert (wc == CJK[i].UTF16);
     assert (mbsinit (&state));
     assert (errno == 0);
@@ -215,41 +228,15 @@ static void DoTest (void) {
   assert (errno == 0);
 }
 
-static DWORD CALLBACK Thread (LPVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-  assert (MB_CUR_MAX == 4);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
-}
-
 int main (void) {
   p32_test_init ();
   srand (0xBADF);
 
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
+  utf8.CodePage = CP_UTF8;
+  assert (p32_charset_info (&utf8));
   assert (MB_CUR_MAX == 4);
 
   DoTest ();
-
-  assert (setlocale (LC_ALL, "C") != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  HANDLE thread   = NULL;
-  DWORD  exitCode = EXIT_FAILURE;
-
-  assert ((thread = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (thread, INFINITE);
-  GetExitCodeThread (thread, &exitCode);
-  CloseHandle (thread);
 
   return EXIT_SUCCESS;
 }
