@@ -33,18 +33,18 @@
  *  - P32_UCHAR_IMPL_ASCII
  *  - P32_UCHAR_IMPL_SBCS
  *  - P32_UCHAR_IMPL_DBCS
- *  - P32_UCHAR_IMPL_UNICODE
+ *  - P32_UCHAR_IMPL_UTF8
  */
 
 #ifndef P32_UCHAR_IMPL
 #error P32_UCHAR_IMPL must be defined before including uchar.c
 #endif
 
-#define P32_UCHAR_IMPL_POSIX   0
-#define P32_UCHAR_IMPL_ASCII   1
-#define P32_UCHAR_IMPL_SBCS    2
-#define P32_UCHAR_IMPL_DBCS    3
-#define P32_UCHAR_IMPL_UNICODE 4
+#define P32_UCHAR_IMPL_POSIX 0
+#define P32_UCHAR_IMPL_ASCII 1
+#define P32_UCHAR_IMPL_SBCS  2
+#define P32_UCHAR_IMPL_DBCS  3
+#define P32_UCHAR_IMPL_UTF8  4
 
 #if P32_UCHAR_IMPL == P32_UCHAR_IMPL_POSIX
 #define P32_UCHAR_SBCS
@@ -78,7 +78,7 @@
 #define c16rtomb p32_private_c16rtomb_dbcs
 #define mbrtoc32 p32_private_mbrtoc32_dbcs
 #define c32rtomb p32_private_c32rtomb_dbcs
-#elif P32_UCHAR_IMPL == P32_UCHAR_IMPL_UNICODE
+#elif P32_UCHAR_IMPL == P32_UCHAR_IMPL_UTF8
 #define P32_UCHAR_UTF8
 #define mbrtoc8  p32_private_mbrtoc8_utf8
 #define c8rtomb  p32_private_c8rtomb_utf8

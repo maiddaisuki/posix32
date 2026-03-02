@@ -46,5 +46,5 @@
  *  - c32rtomb
  */
 
-#define P32_UCHAR_IMPL P32_UCHAR_IMPL_UNICODE
+#define P32_UCHAR_IMPL P32_UCHAR_IMPL_UTF8
 #include "common/uchar.c"
