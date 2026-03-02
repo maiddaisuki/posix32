@@ -32,10 +32,26 @@
 /**
  * Test Summary:
  *
- * Test `mbrtoc8` function with single-byte character set.
+ * Test `mbrtoc8` function with some SBCS code page.
+ *
+ * We test code page 1252; this is the ANSI code page for `en-US` locale.
+ * All 256 bytes in this code page are assigned code points.
  */
 
-#define LOCALE "en_US.ISO-8859-1"
+#undef mbrtoc8
+
+/**
+ * `Charset` structure with information about code page 1252.
+ */
+static Charset cp1252;
+
+#undef MB_CUR_MAX
+#define MB_CUR_MAX (cp1252.MaxLength)
+
+/**
+ * Convenience macro to call `p32_private_mbrtoc8_sbcs`.
+ */
+#define mbrtoc8(c8, mb, count, state) p32_private_mbrtoc8_sbcs (c8, mb, count, state, &cp1252)
 
 static void DoTest (void) {
   char8_t   u8[MB_LEN_MAX];
@@ -83,7 +99,7 @@ static void DoTest (void) {
   for (uint8_t c = 0;; ++c) {
     memset (u8, EOF, _countof (u8));
 
-    assert (mbrtoc8 (u8, (char *) &c, 1, &state) == !!c);
+    assert (mbrtoc8 (u8, (char *) &c, MB_CUR_MAX, &state) == !!c);
     assert (u8[0] == c && u8[1] == 0xFF && u8[2] == 0xFF && u8[3] == 0xFF);
     assert (mbsinit (&state));
     assert (errno == 0);
@@ -95,19 +111,27 @@ static void DoTest (void) {
 
   /**
    * All bytes in range [128,255] are valid characters.
+   *
+   * They must produce UTF-8 Code Unit Sequence of length 2 or 3.
    */
   for (uint8_t c = 0x80;; ++c) {
     memset (u8, EOF, _countof (u8));
 
-    assert (mbrtoc8 (&u8[0], (char *) &c, 1, &state) == 1);
+    assert (mbrtoc8 (&u8[0], (char *) &c, MB_CUR_MAX, &state) == 1);
     assert (u8[0] != 0xFF && u8[1] == 0xFF && u8[2] == 0xFF && u8[3] == 0xFF);
     assert (!mbsinit (&state));
     assert (errno == 0);
 
     assert (mbrtoc8 (&u8[1], "", 0, &state) == (size_t) -3);
     assert (u8[0] != 0xFF && u8[1] != 0xFF && u8[2] == 0xFF && u8[3] == 0xFF);
-    assert (mbsinit (&state));
     assert (errno == 0);
+
+    if (!mbsinit (&state)) {
+      assert (mbrtoc8 (&u8[2], "", 0, &state) == (size_t) -3);
+      assert (u8[0] != 0xFF && u8[1] != 0xFF && u8[2] != 0xFF && u8[3] == 0xFF);
+      assert (mbsinit (&state));
+      assert (errno == 0);
+    }
 
     if (c == 0xFF) {
       break;
@@ -115,41 +139,19 @@ static void DoTest (void) {
   }
 }
 
-static DWORD CALLBACK Thread (LPVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
-}
-
 int main (void) {
   p32_test_init ();
   srand (0xBADF);
 
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
+  if (!IsValidCodePage (1252)) {
+    return 77;
+  }
+
+  cp1252.CodePage = 1252;
+  assert (p32_charset_info (&cp1252));
   assert (MB_CUR_MAX == 1);
 
   DoTest ();
-
-  assert (setlocale (LC_ALL, "C") != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  HANDLE thread   = NULL;
-  DWORD  exitCode = EXIT_FAILURE;
-
-  assert ((thread = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (thread, INFINITE);
-  GetExitCodeThread (thread, &exitCode);
-  CloseHandle (thread);
 
   return EXIT_SUCCESS;
 }

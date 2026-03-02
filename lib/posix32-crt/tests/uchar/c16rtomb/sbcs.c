@@ -32,10 +32,26 @@
 /**
  * Test Summary:
  *
- * Test `c16rtomb` function with a single-byte code page.
+ * Test `c16rtomb` function with some SBCS code page.
+ *
+ * We test code page 1252; this is the ANSI code page for `en-US` locale.
+ * All 256 bytes in this code page are assigned code points.
  */
 
-#define LOCALE "en_US.ISO-8859-1"
+#undef c16rtomb
+
+/**
+ * `Charset` structure with information about code page 1252.
+ */
+static Charset cp1252;
+
+#undef MB_CUR_MAX
+#define MB_CUR_MAX (cp1252.MaxLength)
+
+/**
+ * Convenience macro to call `p32_private_c16rtomb_sbcs`.
+ */
+#define c16rtomb(mb, c16, state) p32_private_c16rtomb_sbcs (mb, c16, state, &cp1252)
 
 static void DoTest (void) {
   char      buffer[MB_LEN_MAX];
@@ -63,9 +79,9 @@ static void DoTest (void) {
   assert (errno == 0);
 
   /**
-   * All Code Points in range [0,255] are valid.
+   * All Code Points in range [0,127] are valid ASCII characters.
    */
-  for (char16_t c16 = 0; c16 < 0x100; ++c16) {
+  for (char16_t c16 = 0; c16 < 0x80; ++c16) {
     memset (buffer, EOF, _countof (buffer));
 
     assert (c16rtomb (buffer, c16, &state) == 1);
@@ -74,10 +90,14 @@ static void DoTest (void) {
     assert (errno == 0);
   }
 
+  uint32_t codePointsConverted = 0;
+
   /**
-   * All Code Point outside of range [0,255] are invalid.
+   * Attempt to convert Code Point outside of range [0,127].
+   *
+   * We should be able to convert exactly 128 code ponts.
    */
-  for (char16_t c16 = 0x100;; ++c16) {
+  for (char16_t c16 = 0x80;; ++c16) {
     memset (buffer, EOF, _countof (buffer));
 
     if (IS_HIGH_SURROGATE (c16)) {
@@ -107,56 +127,46 @@ static void DoTest (void) {
       assert (mbsinit (&state));
       assert (errno == 0);
     } else {
-      assert (c16rtomb (buffer, c16, &state) == (size_t) -1);
-      assert (buffer[0] == EOF && buffer[1] == EOF && buffer[2] == EOF && buffer[3] == EOF);
-      assert (mbsinit (&state));
-      assert (errno == EILSEQ);
+      size_t length = c16rtomb (buffer, c16, &state);
 
-      // reset errno
-      _set_errno (0);
+      if (length == (size_t) -1) {
+        assert (buffer[0] == EOF && buffer[1] == EOF && buffer[2] == EOF && buffer[3] == EOF);
+        assert (mbsinit (&state));
+        assert (errno == EILSEQ);
+
+        // reset errno
+        _set_errno (0);
+      } else {
+        assert (length == 1);
+        assert (buffer[0] < 0 && buffer[1] == EOF && buffer[2] == EOF && buffer[3] == EOF);
+        assert (mbsinit (&state));
+        assert (errno == 0);
+
+        codePointsConverted += 1;
+      }
     }
 
     if (c16 == 0xFFFF) {
       break;
     }
   }
-}
 
-static DWORD CALLBACK Thread (LPVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
+  assert (codePointsConverted == 128);
 }
 
 int main (void) {
   p32_test_init ();
   srand (0xBADF);
 
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
+  if (!IsValidCodePage (1252)) {
+    return 77;
+  }
+
+  cp1252.CodePage = 1252;
+  assert (p32_charset_info (&cp1252));
   assert (MB_CUR_MAX == 1);
 
   DoTest ();
-
-  assert (setlocale (LC_ALL, "C") != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  HANDLE thread   = NULL;
-  DWORD  exitCode = EXIT_FAILURE;
-
-  assert ((thread = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (thread, INFINITE);
-  GetExitCodeThread (thread, &exitCode);
-  CloseHandle (thread);
 
   return EXIT_SUCCESS;
 }

@@ -42,12 +42,15 @@ P32_TEST_DECL size_t p32_private_c16rtomb_ascii (char *, char16_t, mbstate_t *, 
 P32_TEST_DECL size_t p32_private_mbrtoc32_ascii (char32_t *, const char *, size_t, mbstate_t *, Charset *);
 P32_TEST_DECL size_t p32_private_c32rtomb_ascii (char *, char32_t, mbstate_t *, Charset *);
 
-size_t p32_private_mbrtoc8_sbcs (char8_t *, const char *, size_t, mbstate_t *, Charset *);
-size_t p32_private_c8rtomb_sbcs (char *, char8_t, mbstate_t *, Charset *);
-size_t p32_private_mbrtoc16_sbcs (char16_t *, const char *, size_t, mbstate_t *, Charset *);
-size_t p32_private_c16rtomb_sbcs (char *, char16_t, mbstate_t *, Charset *);
-size_t p32_private_mbrtoc32_sbcs (char32_t *, const char *, size_t, mbstate_t *, Charset *);
-size_t p32_private_c32rtomb_sbcs (char *, char32_t, mbstate_t *, Charset *);
+/**
+ * Internal versions which operate on SBCS code pages.
+ */
+P32_TEST_DECL size_t p32_private_mbrtoc8_sbcs (char8_t *, const char *, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_c8rtomb_sbcs (char *, char8_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_mbrtoc16_sbcs (char16_t *, const char *, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_c16rtomb_sbcs (char *, char16_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_mbrtoc32_sbcs (char32_t *, const char *, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_c32rtomb_sbcs (char *, char32_t, mbstate_t *, Charset *);
 
 size_t p32_private_mbrtoc8_dbcs (char8_t *, const char *, size_t, mbstate_t *, Charset *);
 size_t p32_private_c8rtomb_dbcs (char *, char8_t, mbstate_t *, Charset *);

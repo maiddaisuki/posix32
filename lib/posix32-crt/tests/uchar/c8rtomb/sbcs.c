@@ -32,10 +32,26 @@
 /**
  * Test Summary:
  *
- * Test `c8rtomb` function with a single-byte code page.
+ * Test `c8rtomb` function with some SBCS code page.
+ *
+ * We test code page 1252; this is the ANSI code page for `en-US` locale.
+ * All 256 bytes in this code page are assigned code points.
  */
 
-#define LOCALE "en_US.ISO-8859-1"
+#undef c8rtomb
+
+/**
+ * `Charset` structure with information about code page 1252.
+ */
+static Charset cp1252;
+
+#undef MB_CUR_MAX
+#define MB_CUR_MAX (cp1252.MaxLength)
+
+/**
+ * Convenience macro to call `p32_private_c8rtomb_sbcs`.
+ */
+#define c8rtomb(mb, c8, state) p32_private_c8rtomb_sbcs (mb, c8, state, &cp1252)
 
 static void DoTest (void) {
   char      buffer[4];
@@ -82,7 +98,7 @@ static void DoTest (void) {
   /**
    * Convert UTF-8 Character with length 2.
    *
-   * "¥" is 0xA5 in ISO-8859-1.
+   * "¥" is 0xA5 in code page 1252.
    */
   memset (buffer, EOF, _countof (buffer));
 
@@ -158,41 +174,19 @@ static void DoTest (void) {
   assert (errno == 0);
 }
 
-static DWORD CALLBACK Thread (LPVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
-}
-
 int main (void) {
   p32_test_init ();
   srand (0xBADF);
 
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
+  if (!IsValidCodePage (1252)) {
+    return 77;
+  }
+
+  cp1252.CodePage = 1252;
+  assert (p32_charset_info (&cp1252));
   assert (MB_CUR_MAX == 1);
 
   DoTest ();
-
-  assert (setlocale (LC_ALL, "C") != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  HANDLE thread   = NULL;
-  DWORD  exitCode = EXIT_FAILURE;
-
-  assert ((thread = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (thread, INFINITE);
-  GetExitCodeThread (thread, &exitCode);
-  CloseHandle (thread);
 
   return EXIT_SUCCESS;
 }
