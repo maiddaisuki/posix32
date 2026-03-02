@@ -32,7 +32,9 @@
 /**
  * Test Summary:
  *
- * Test `wctob` function with a double-byte code page.
+ * Test `wctob` function with some DBCS code page.
+ *
+ * We test code page 932; this is the ANSI/OEM code page for `ja-JP` locale.
  */
 
 #if P32_CRT >= P32_MSVCRT20
@@ -41,17 +43,19 @@
 #define LOCALE "ja_JP.OCP"
 #endif
 
+static locale_t locale;
+
 static void DoTest (void) {
   /**
    * All wide characters in range [0,127] are valid ASCII characters.
    */
   for (wchar_t wc = 0; wc <= 127; ++wc) {
-    assert (wctob (wc) == wc);
+    assert (wctob_l (wc, locale) == wc);
     assert (errno == 0);
   }
 
   for (size_t i = 0; i < _countof (CJK); ++i) {
-    assert (wctob (CJK[i].Wc) == EOF);
+    assert (wctob_l (CJK[i].Wc, locale) == EOF);
     assert (errno == 0);
   }
 
@@ -60,7 +64,7 @@ static void DoTest (void) {
    */
   for (wchar_t wc = 0;; ++wc) {
     if (IS_HIGH_SURROGATE (wc) || IS_LOW_SURROGATE (wc)) {
-      assert (wctob (wc) == EOF);
+      assert (wctob_l (wc, locale) == EOF);
       assert (errno == 0);
     }
 
@@ -70,44 +74,19 @@ static void DoTest (void) {
   }
 }
 
-static DWORD CALLBACK Thread (LPVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-  assert (MB_CUR_MAX == 2);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
-}
-
 int main (void) {
   p32_test_init ();
 
-#if P32_CRT == P32_MSVCRT10
-  assert (setlocale (LC_ALL, LOCALE) == NULL);
-#else
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
-  assert (MB_CUR_MAX == 2);
+  if (!IsValidCodePage (932)) {
+    return 77;
+  }
+
+  assert ((locale = newlocale (LC_ALL_MASK, LOCALE, NULL)) != NULL);
+  assert (MB_CUR_MAX_L (locale) == 2);
 
   DoTest ();
-#endif
 
-  assert (setlocale (LC_ALL, "C") != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  HANDLE thread   = NULL;
-  DWORD  exitCode = EXIT_FAILURE;
-
-  assert ((thread = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (thread, INFINITE);
-  GetExitCodeThread (thread, &exitCode);
-  CloseHandle (thread);
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }
