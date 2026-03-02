@@ -62,12 +62,15 @@ P32_TEST_DECL size_t p32_private_c16rtomb_dbcs (char *, char16_t, mbstate_t *, C
 P32_TEST_DECL size_t p32_private_mbrtoc32_dbcs (char32_t *, const char *, size_t, mbstate_t *, Charset *);
 P32_TEST_DECL size_t p32_private_c32rtomb_dbcs (char *, char32_t, mbstate_t *, Charset *);
 
-size_t p32_private_mbrtoc8_utf8 (char8_t *, const char *, size_t, mbstate_t *, Charset *);
-size_t p32_private_c8rtomb_utf8 (char *, char8_t, mbstate_t *, Charset *);
-size_t p32_private_mbrtoc16_utf8 (char16_t *, const char *, size_t, mbstate_t *, Charset *);
-size_t p32_private_c16rtomb_utf8 (char *, char16_t, mbstate_t *, Charset *);
-size_t p32_private_mbrtoc32_utf8 (char32_t *, const char *, size_t, mbstate_t *, Charset *);
-size_t p32_private_c32rtomb_utf8 (char *, char32_t, mbstate_t *, Charset *);
+/**
+ * Internal versions which operate on UTF-8 (code page 65001).
+ */
+P32_TEST_DECL size_t p32_private_mbrtoc8_utf8 (char8_t *, const char *, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_c8rtomb_utf8 (char *, char8_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_mbrtoc16_utf8 (char16_t *, const char *, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_c16rtomb_utf8 (char *, char16_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_mbrtoc32_utf8 (char32_t *, const char *, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_c32rtomb_utf8 (char *, char32_t, mbstate_t *, Charset *);
 
 /**
  * Store locale-specific versions of uchar.h functions in `locale->Functions`.
