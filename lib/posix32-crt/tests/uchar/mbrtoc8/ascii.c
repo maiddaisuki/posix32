@@ -35,7 +35,20 @@
  * Test `mbrtoc8` function with ASCII (code page 20127).
  */
 
-#define LOCALE "en_US.ASCII"
+#undef mbrtoc8
+
+/**
+ * `Charset` structure with information about code page 20127 (ASCII).
+ */
+static Charset ascii;
+
+#undef MB_CUR_MAX
+#define MB_CUR_MAX (ascii.MaxLength)
+
+/**
+ * Convenience macro to call `p32_private_mbrtoc8_ascii`.
+ */
+#define mbrtoc8(c8, mb, count, state) p32_private_mbrtoc8_ascii (c8, mb, count, state, &ascii)
 
 static void DoTest (void) {
   char8_t   u8[MB_LEN_MAX];
@@ -83,7 +96,7 @@ static void DoTest (void) {
   for (uint8_t c = 0;; ++c) {
     memset (u8, EOF, _countof (u8));
 
-    assert (mbrtoc8 (u8, (char *) &c, 1, &state) == !!c);
+    assert (mbrtoc8 (u8, (char *) &c, MB_CUR_MAX, &state) == !!c);
     assert (u8[0] == c && u8[1] == 0xFF && u8[2] == 0xFF && u8[3] == 0xFF);
     assert (mbsinit (&state));
     assert (errno == 0);
@@ -99,7 +112,7 @@ static void DoTest (void) {
   for (uint8_t c = 0x80;; ++c) {
     memset (u8, EOF, _countof (u8));
 
-    assert (mbrtoc8 (u8, (char *) &c, 1, &state) == (size_t) -1);
+    assert (mbrtoc8 (u8, (char *) &c, MB_CUR_MAX, &state) == (size_t) -1);
     assert (u8[0] == 0xFF && u8[1] == 0xFF && u8[2] == 0xFF && u8[3] == 0xFF);
     assert (mbsinit (&state));
     assert (errno == EILSEQ);
@@ -113,41 +126,15 @@ static void DoTest (void) {
   }
 }
 
-static DWORD CALLBACK Thread (LPVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
-}
-
 int main (void) {
   p32_test_init ();
   srand (0xBADF);
 
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
+  ascii.CodePage = P32_CODEPAGE_ASCII;
+  assert (p32_charset_info (&ascii));
   assert (MB_CUR_MAX == 1);
 
   DoTest ();
-
-  assert (setlocale (LC_ALL, "C") != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  HANDLE thread   = NULL;
-  DWORD  exitCode = EXIT_FAILURE;
-
-  assert ((thread = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (thread, INFINITE);
-  GetExitCodeThread (thread, &exitCode);
-  CloseHandle (thread);
 
   return EXIT_SUCCESS;
 }
