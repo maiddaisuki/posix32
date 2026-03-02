@@ -37,7 +37,7 @@
  */
 
 #ifndef P32_UCHAR_IMPL
-#error P32_UCHAR_IMPL must be defined before including uchar.c
+#error P32_UCHAR_IMPL must be defined before including uchar-impl.c
 #endif
 
 #define P32_UCHAR_IMPL_POSIX 0

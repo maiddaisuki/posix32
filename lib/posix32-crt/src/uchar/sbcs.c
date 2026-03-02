@@ -47,4 +47,4 @@
  */
 
 #define P32_UCHAR_IMPL P32_UCHAR_IMPL_SBCS
-#include "common/uchar.c"
+#include "common/uchar-impl.c"
