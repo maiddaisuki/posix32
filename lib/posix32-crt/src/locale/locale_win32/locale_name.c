@@ -101,7 +101,7 @@ static int P32IsValidLocaleName (LPWSTR localeName, uintptr_t heap) {
   int success = 1;
 
   /**
-   * Partial `Locale` object for use with `p32_winlocale_getinfo`.
+   * Partial `Locale` object for use with `p32_winlocale_get_locale_info`.
    */
   Locale locale = {0};
 
@@ -159,7 +159,7 @@ static CountryIndex P32GetCountryIndex (LPCWSTR localeName, uintptr_t heap) {
   HANDLE heapHandle = (HANDLE) heap;
 
   /**
-   * Partial `Locale` object for use with `p32_winlocale_getinfo`.
+   * Partial `Locale` object for use with `p32_winlocale_get_locale_info`.
    */
   Locale locale = {0};
 
@@ -646,7 +646,7 @@ bool p32_winlocale_resolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap
   }
 
   /**
-   * This makes `locale` usable with `p32_winlocale_getinfo`.
+   * This makes `locale` usable with `p32_winlocale_get_locale_info`.
    */
   locale->LocaleName    = resolvedLocale.Locale;
   resolvedLocale.Locale = NULL;

@@ -677,7 +677,7 @@ bool p32_winlocale_resolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap
   }
 
   /**
-   * This makes `locale` usable with `p32_winlocale_getinfo`.
+   * This makes `locale` usable with `p32_winlocale_get_locale_info`.
    */
   locale->LocaleId = resolvedLocale.Locale;
 
