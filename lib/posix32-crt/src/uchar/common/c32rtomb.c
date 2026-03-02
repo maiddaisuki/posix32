@@ -16,8 +16,8 @@
 
 #include "uchar-internal.h"
 
-static void P32LocaleFunction_c32rtomb (LocaleFunctions *functions, Charset *charset, Locale *locale) {
-  if (locale->Type == LOCALE_TYPE_POSIX) {
+static void P32LocaleFunction_c32rtomb (LocaleFunctions *functions, Charset *charset) {
+  if (charset->CodePage == P32_CODEPAGE_POSIX) {
     functions->F_c32rtomb = p32_private_c32rtomb_posix;
   } else if (charset->CodePage == P32_CODEPAGE_ASCII) {
     functions->F_c32rtomb = p32_private_c32rtomb_ascii;
@@ -25,10 +25,10 @@ static void P32LocaleFunction_c32rtomb (LocaleFunctions *functions, Charset *cha
     functions->F_c32rtomb = p32_private_c32rtomb_sbcs;
   } else if (charset->MaxLength == 2) {
     functions->F_c32rtomb = p32_private_c32rtomb_dbcs;
-  } else {
-    assert (charset->CodePage == CP_UTF8);
+  } else if (charset->CodePage == CP_UTF8) {
     functions->F_c32rtomb = p32_private_c32rtomb_utf8;
   }
+  assert (functions->F_c32rtomb != NULL);
 }
 
 /**

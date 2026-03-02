@@ -48,10 +48,10 @@
 #include "common/mbrtoc8.c"
 
 void p32_uchar_functions (locale_t locale) {
-  P32LocaleFunction_c8rtomb (&locale->Functions, &locale->Charset, &locale->WinLocale.LcCtype);
-  P32LocaleFunction_mbrtoc8 (&locale->Functions, &locale->Charset, &locale->WinLocale.LcCtype);
-  P32LocaleFunction_c16rtomb (&locale->Functions, &locale->Charset, &locale->WinLocale.LcCtype);
-  P32LocaleFunction_mbrtoc16 (&locale->Functions, &locale->Charset, &locale->WinLocale.LcCtype);
-  P32LocaleFunction_c32rtomb (&locale->Functions, &locale->Charset, &locale->WinLocale.LcCtype);
-  P32LocaleFunction_mbrtoc32 (&locale->Functions, &locale->Charset, &locale->WinLocale.LcCtype);
+  P32LocaleFunction_c8rtomb (&locale->Functions, &locale->Charset);
+  P32LocaleFunction_mbrtoc8 (&locale->Functions, &locale->Charset);
+  P32LocaleFunction_c16rtomb (&locale->Functions, &locale->Charset);
+  P32LocaleFunction_mbrtoc16 (&locale->Functions, &locale->Charset);
+  P32LocaleFunction_c32rtomb (&locale->Functions, &locale->Charset);
+  P32LocaleFunction_mbrtoc32 (&locale->Functions, &locale->Charset);
 }
