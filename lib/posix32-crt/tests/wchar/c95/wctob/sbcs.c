@@ -32,67 +32,60 @@
 /**
  * Test Summary:
  *
- * Test `wctob` function with a single-byte code page.
+ * Test `wctob` function with some SBCS code page.
+ *
+ * We test code page 1252; this is the ANSI code page for `en-US` locale.
+ * All 256 bytes in this code page are assigned code points.
  */
 
-#define LOCALE "en_US.ISO-8859-1"
+#define LOCALE "en_US.ACP"
+
+static locale_t locale;
 
 static void DoTest (void) {
   /**
-   * All wide characters in range [0,255] are valid.
+   * All wide characters in range [0,127] are valid ASCII characters.
    */
-  for (wchar_t wc = 0; wc <= 0xFF; ++wc) {
-    assert (wctob (wc) == wc);
+  for (wchar_t wc = 0; wc <= 0x7F; ++wc) {
+    assert (wctob_l (wc, locale) == wc);
     assert (errno == 0);
   }
 
+  uint32_t codePointsConverted = 0;
+
   /**
-   * All wide characters in range [256,WEOF] are invalid.
+   * Attempt to convert wide characters in range [128,WEOF].
+   *
+   * We should be able to convert exactly 128 wide characters.
    */
-  for (wchar_t wc = 0x100;; ++wc) {
-    assert (wctob (wc) == EOF);
+  for (wchar_t wc = 0x80;; ++wc) {
+    if (wctob_l (wc, locale) != EOF) {
+      codePointsConverted += 1;
+    }
+
     assert (errno == 0);
 
     if (wc == WEOF) {
       break;
     }
   }
-}
 
-static DWORD CALLBACK Thread (LPVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
+  assert (codePointsConverted == 128);
 }
 
 int main (void) {
   p32_test_init ();
 
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
-  assert (MB_CUR_MAX == 1);
+  if (!IsValidCodePage (1252)) {
+    return 77;
+  }
+
+  assert ((locale = newlocale (LC_ALL_MASK, LOCALE, NULL)) != NULL);
+  assert (MB_CUR_MAX_L (locale) == 1);
 
   DoTest ();
 
-  assert (setlocale (LC_ALL, "C") != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  HANDLE thread   = NULL;
-  DWORD  exitCode = EXIT_FAILURE;
-
-  assert ((thread = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (thread, INFINITE);
-  GetExitCodeThread (thread, &exitCode);
-  CloseHandle (thread);
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }
