@@ -20,45 +20,18 @@
 #include "p32_stdlib.h"
 #include "p32_wchar.h"
 
-size_t p32_private_mbrlen_l (const char *P32_RESTRICT, size_t, mbstate_t *P32_RESTRICT, locale_t);
-size_t p32_private_mbrtowc_l (
-  wchar_t *P32_RESTRICT,
-  const char *P32_RESTRICT,
-  size_t,
-  mbstate_t *P32_RESTRICT,
-  locale_t
-);
-size_t p32_private_mbsrtowcs_l (
-  wchar_t *P32_RESTRICT,
-  const char **P32_RESTRICT,
-  size_t,
-  mbstate_t *P32_RESTRICT,
-  locale_t
-);
-size_t p32_private_mbsnrtowcs_l (
-  wchar_t *P32_RESTRICT,
-  const char **P32_RESTRICT,
-  size_t,
-  size_t,
-  mbstate_t *P32_RESTRICT,
-  locale_t
-);
-size_t p32_private_wcrtomb_l (char *P32_RESTRICT, wchar_t, mbstate_t *P32_RESTRICT, locale_t);
-size_t p32_private_wcsrtombs_l (
-  char *P32_RESTRICT,
-  const wchar_t **P32_RESTRICT,
-  size_t,
-  mbstate_t *P32_RESTRICT,
-  locale_t
-);
-size_t p32_private_wcsnrtombs_l (
-  char *P32_RESTRICT,
-  const wchar_t **P32_RESTRICT,
-  size_t,
-  size_t,
-  mbstate_t *P32_RESTRICT,
-  locale_t
-);
+/**
+ * Internal versions which use `locale_t` objects.
+ *
+ * Code inside the library should use these versions instead of public ones.
+ */
+size_t p32_private_mbrlen_l (const char *, size_t, mbstate_t *, locale_t);
+size_t p32_private_mbrtowc_l (wchar_t *, const char *, size_t, mbstate_t *, locale_t);
+size_t p32_private_mbsrtowcs_l (wchar_t *, const char **, size_t, mbstate_t *, locale_t);
+size_t p32_private_mbsnrtowcs_l (wchar_t *, const char **, size_t, size_t, mbstate_t *, locale_t);
+size_t p32_private_wcrtomb_l (char *, wchar_t, mbstate_t *, locale_t);
+size_t p32_private_wcsrtombs_l (char *, const wchar_t **, size_t, mbstate_t *, locale_t);
+size_t p32_private_wcsnrtombs_l (char *, const wchar_t **, size_t, size_t, mbstate_t *, locale_t);
 
 /**
  * Store locale-specific versions of wide character string functions declared

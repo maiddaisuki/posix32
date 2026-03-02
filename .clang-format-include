@@ -17,6 +17,7 @@ lib/posix32-crt/src/string/*.c
 lib/posix32-crt/src/uchar/common/*.c
 lib/posix32-crt/src/uchar/*.c
 lib/posix32-crt/src/wchar/c89/*.c
+lib/posix32-crt/src/wchar/c95/common/*.c
 lib/posix32-crt/src/wchar/c95/*.c
 lib/posix32-crt/src/wchar/*.c
 lib/posix32-crt/src/wctype/common/*.c

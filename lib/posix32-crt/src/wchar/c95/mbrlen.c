@@ -16,15 +16,10 @@
 
 #include "wchar-internal.h"
 
-size_t p32_private_mbrlen_l (
-  const char *P32_RESTRICT mbs,
-  size_t                   count,
-  mbstate_t *P32_RESTRICT  state,
-  locale_t                 locale
-) {
-  assert (state != NULL);
-  return locale->Functions.F_mbrtoc32 (NULL, mbs, count, state, &locale->Charset);
-}
+/**
+ * Implementation of `mbrlen`.
+ */
+#include "common/mbrlen.c"
 
 static void P32LocaleFunction_mbrlen (LocaleFunctions *functions, Charset *charset) {
   functions->F_mbrlen = p32_private_mbrlen_l;
