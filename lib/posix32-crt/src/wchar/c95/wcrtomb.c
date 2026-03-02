@@ -17,6 +17,8 @@
 #include "wchar-internal.h"
 
 size_t p32_private_wcrtomb_l (char *P32_RESTRICT mbc, wchar_t wc, mbstate_t *P32_RESTRICT state, locale_t locale) {
+  assert (state != NULL);
+
   size_t length = locale->Functions.F_c16rtomb (mbc, wc, state, &locale->Charset);
 
   /**

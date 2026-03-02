@@ -23,6 +23,8 @@ size_t p32_private_wcsrtombs_l (
   mbstate_t *P32_RESTRICT      state,
   locale_t                     locale
 ) {
+  assert (state != NULL);
+
   /**
    * Internal conversion state.
    */
