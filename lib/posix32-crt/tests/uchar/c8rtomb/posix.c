@@ -32,8 +32,25 @@
 /**
  * Test Summary:
  *
- * Test `c8rtomb` function with "POSIX" locale.
+ * Test `c8rtomb` function with ISO-8859-1 (code page 28591).
+ *
+ * This code page is used with "POSIX" locale.
  */
+
+#undef c8rtomb
+
+/**
+ * `Charset` structure with information about code page 28591 (ISO-8859-1).
+ */
+static Charset iso_8859_1;
+
+#undef MB_CUR_MAX
+#define MB_CUR_MAX (iso_8859_1.MaxLength)
+
+/**
+ * Convenience macro to call `p32_private_c8rtomb_posix`.
+ */
+#define c8rtomb(mb, c8, state) p32_private_c8rtomb_posix (mb, c8, state, &iso_8859_1)
 
 static void DoTest (void) {
   char      buffer[4];
@@ -160,7 +177,8 @@ int main (void) {
   p32_test_init ();
   srand (0xBADF);
 
-  assert (setlocale (LC_ALL, "POSIX") != NULL);
+  iso_8859_1.CodePage = P32_CODEPAGE_POSIX;
+  assert (p32_charset_info (&iso_8859_1));
   assert (MB_CUR_MAX == 1);
 
   DoTest ();

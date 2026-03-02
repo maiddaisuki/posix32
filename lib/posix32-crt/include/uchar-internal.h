@@ -22,12 +22,15 @@
 
 #include "locale-internal.h"
 
-size_t p32_private_mbrtoc8_posix (char8_t *, const char *, size_t, mbstate_t *, Charset *);
-size_t p32_private_c8rtomb_posix (char *, char8_t, mbstate_t *, Charset *);
-size_t p32_private_mbrtoc16_posix (char16_t *, const char *, size_t, mbstate_t *, Charset *);
-size_t p32_private_c16rtomb_posix (char *, char16_t, mbstate_t *, Charset *);
-size_t p32_private_mbrtoc32_posix (char32_t *, const char *, size_t, mbstate_t *, Charset *);
-size_t p32_private_c32rtomb_posix (char *, char32_t, mbstate_t *, Charset *);
+/**
+ * Internal versions which operate on ISO-8859-1 (code page 28591).
+ */
+P32_TEST_DECL size_t p32_private_mbrtoc8_posix (char8_t *, const char *, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_c8rtomb_posix (char *, char8_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_mbrtoc16_posix (char16_t *, const char *, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_c16rtomb_posix (char *, char16_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_mbrtoc32_posix (char32_t *, const char *, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_c32rtomb_posix (char *, char32_t, mbstate_t *, Charset *);
 
 size_t p32_private_mbrtoc8_ascii (char8_t *, const char *, size_t, mbstate_t *, Charset *);
 size_t p32_private_c8rtomb_ascii (char *, char8_t, mbstate_t *, Charset *);

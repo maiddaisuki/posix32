@@ -31,8 +31,25 @@
 /**
  * Test Summary:
  *
- * Test `mbrtoc16` function with "POSIX" locale.
+ * Test `mbrtoc16` function with ISO-8859-1 (code page 28591).
+ *
+ * This code page is used with "POSIX" locale.
  */
+
+#undef mbrtoc16
+
+/**
+ * `Charset` structure with information about code page 28591 (ISO-8859-1).
+ */
+static Charset iso_8859_1;
+
+#undef MB_CUR_MAX
+#define MB_CUR_MAX (iso_8859_1.MaxLength)
+
+/**
+ * Convenience macro to call `p32_private_mbrtoc16_posix`.
+ */
+#define mbrtoc16(c16, mb, count, state) p32_private_mbrtoc16_posix (c16, mb, count, state, &iso_8859_1)
 
 static void DoTest (void) {
   char16_t  u16   = 0xFFFF;
@@ -73,12 +90,14 @@ static void DoTest (void) {
   ResetConversionState (&state);
 
   /**
-   * POSIX requires that all bytes are valid characters.
+   * All bytes are valid characters.
+   *
+   * POSIX requires that in "POSIX" locale all bytes are valid characters.
    */
   for (uint8_t c = 0;; ++c) {
     u16 = 0xFFFF;
 
-    assert (mbrtoc16 (&u16, (char *) &c, 1, &state) == !!c);
+    assert (mbrtoc16 (&u16, (char *) &c, MB_CUR_MAX, &state) == !!c);
     assert (u16 == c);
     assert (mbsinit (&state));
     assert (errno == 0);
@@ -93,7 +112,8 @@ int main (void) {
   p32_test_init ();
   srand (0xBADF);
 
-  assert (setlocale (LC_ALL, "POSIX") != NULL);
+  iso_8859_1.CodePage = P32_CODEPAGE_POSIX;
+  assert (p32_charset_info (&iso_8859_1));
   assert (MB_CUR_MAX == 1);
 
   DoTest ();
