@@ -35,7 +35,20 @@
  * Test `wcsnrtombs` function with ASCII (code page 20127).
  */
 
-#define LOCALE "en_US.ASCII"
+#undef wcsnrtombs
+
+/**
+ * `Charset` structure with information about code page 20127 (ASCII).
+ */
+static Charset ascii;
+
+#undef MB_CUR_MAX
+#define MB_CUR_MAX (ascii.MaxLength)
+
+/**
+ * Convenience macro to call `p32_private_wcsnrtombs_ascii`.
+ */
+#define wcsnrtombs(mbs, wcs, count, size, state) p32_private_wcsnrtombs_ascii (mbs, wcs, count, size, state, &ascii)
 
 static void DoTest (void) {
   mbstate_t state = {0};
@@ -172,41 +185,15 @@ static void DoTest (void) {
   _set_errno (0);
 }
 
-static DWORD CALLBACK Thread (LPVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
-}
-
 int main (void) {
   p32_test_init ();
   srand (0xBADF);
 
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
+  ascii.CodePage = P32_CODEPAGE_ASCII;
+  assert (p32_charset_info (&ascii));
   assert (MB_CUR_MAX == 1);
 
   DoTest ();
-
-  assert (setlocale (LC_ALL, "C") != NULL);
-  assert (MB_CUR_MAX == 1);
-
-  HANDLE thread   = NULL;
-  DWORD  exitCode = EXIT_FAILURE;
-
-  assert ((thread = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (thread, INFINITE);
-  GetExitCodeThread (thread, &exitCode);
-  CloseHandle (thread);
 
   return EXIT_SUCCESS;
 }
