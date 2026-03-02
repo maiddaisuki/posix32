@@ -39,9 +39,9 @@ size_t p32_private_wcrtomb_l (char *P32_RESTRICT mbc, wchar_t wc, mbstate_t *P32
    * For anything other than UTF-8 this is '?' character.
    * For UTF-8 this is UTF-8 Code Unit Sequence for U+FFFD.
    *
-   * For anything than UTF-8, the following call that consumes low surrogate
-   * will fail, since there is no SBCS/DBCS code page which is able to
-   * represent characters encoded with UTF-16 Surrogate Pairs.
+   * For anything other than UTF-8, the following call that consumes
+   * low surrogate will fail, since there is no SBCS/DBCS code page which is
+   * able to represent characters encoded with UTF-16 Surrogate Pairs.
    * For UTF-8, this call will produce valid UTF-8 Code Unit Sequence.
    */
   if (length == 0) {
