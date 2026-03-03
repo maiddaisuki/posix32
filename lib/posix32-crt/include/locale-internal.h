@@ -162,46 +162,6 @@ P32_TEST_DECL int p32_private_asprintf (char **address, uintptr_t heap, const wc
 P32_TEST_DECL int p32_private_aswprintf (wchar_t **address, uintptr_t heap, const wchar_t *format, ...);
 
 /**
- * Convert Wide Character String to Multibyte Character String using
- * specified `codePage`.
- *
- * Buffer to store converted string is allocated from `heap`.
- *
- * Pointer to converted string is stored in `*address`.
- * If `address` is `NULL`, no actual conversion performed.
- *
- * If `bestFit` is `true`, allow best fit conversion.
- *
- * On success, returns number of wide character (excluding terminating L'\0')
- * in the string which was stored in `*address`.
- *
- * On failure, returns `-1`;
- */
-P32_TEST_DECL int p32_private_wcstombs (
-  char         **address,
-  const wchar_t *string,
-  uintptr_t      heap,
-  uint32_t       codePage,
-  bool           bestFit
-);
-
-/**
- * Convert Multibyte Character String to Wide Character String using
- * specified `codePage`.
- *
- * Buffer to store converted string is allocated from `heap`.
- *
- * Pointer to converted string is stored in `*address`.
- * If `address` is `NULL`, no actual conversion performed.
- *
- * On success, returns number of wide character (excluding terminating L'\0')
- * in the string which was stored in `*address`.
- *
- * On failure, returns `-1`;
- */
-P32_TEST_DECL int p32_private_mbstowcs (wchar_t **address, const char *string, uintptr_t heap, uint32_t codePage);
-
-/**
  * Internal version of strdup which allocates memory using `HeapAlloc`
  * instead of `malloc`.
  */
