@@ -99,22 +99,22 @@
 /**
  * Returns `locale_t` object representing "POSIX" locale.
  */
-locale_t p32_posix_locale (void);
+P32_TEST_DECL locale_t p32_posix_locale (void);
 
 /**
  * Returns `locale_t` object representing Unicode locale.
  */
-locale_t p32_unicode_locale (void);
+P32_TEST_DECL locale_t p32_unicode_locale (void);
 
 /**
  * Returns `locale_t` object representing ANSI locale.
  */
-locale_t p32_ansi_locale (void);
+P32_TEST_DECL locale_t p32_ansi_locale (void);
 
 /**
  * Returns `locale_t` object representing OEM locale.
  */
-locale_t p32_oem_locale (void);
+P32_TEST_DECL locale_t p32_oem_locale (void);
 
 /**
  * Returns `locale_t` object for ANSI or OEM Locale depending on the state
@@ -123,7 +123,7 @@ locale_t p32_oem_locale (void);
  * This `locale_t` object is supposed to be used with File APIs which
  * accept or return filenames.
  */
-locale_t p32_fileapi_locale (void);
+P32_TEST_DECL locale_t p32_fileapi_locale (void);
 
 /**
  * Returns `locale_t` object representing active global locale.
