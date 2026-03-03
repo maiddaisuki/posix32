@@ -48,9 +48,9 @@ static Charset iso_8859_1;
 #define MB_CUR_MAX (iso_8859_1.MaxLength)
 
 /**
- * Convenience macro to call `p32_private_mbrtoc8_posix`.
+ * Convenience macro to call `p32_private_mbrtoc8_cp28591`.
  */
-#define mbrtoc8(c8, mb, count, state) p32_private_mbrtoc8_posix (c8, mb, count, state, &iso_8859_1)
+#define mbrtoc8(c8, mb, count, state) p32_private_mbrtoc8_cp28591 (c8, mb, count, state, &iso_8859_1)
 
 static void DoTest (void) {
   char8_t   u8[4];

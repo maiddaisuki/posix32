@@ -35,12 +35,12 @@ P32_TEST_DECL size_t p32_private_c32rtomb_cp20127 (char *, char32_t, mbstate_t *
 /**
  * Internal versions which operate on ISO-8859-1 (code page 28591).
  */
-P32_TEST_DECL size_t p32_private_mbrtoc8_posix (char8_t *, const char *, size_t, mbstate_t *, Charset *);
-P32_TEST_DECL size_t p32_private_c8rtomb_posix (char *, char8_t, mbstate_t *, Charset *);
-P32_TEST_DECL size_t p32_private_mbrtoc16_posix (char16_t *, const char *, size_t, mbstate_t *, Charset *);
-P32_TEST_DECL size_t p32_private_c16rtomb_posix (char *, char16_t, mbstate_t *, Charset *);
-P32_TEST_DECL size_t p32_private_mbrtoc32_posix (char32_t *, const char *, size_t, mbstate_t *, Charset *);
-P32_TEST_DECL size_t p32_private_c32rtomb_posix (char *, char32_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_mbrtoc8_cp28591 (char8_t *, const char *, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_c8rtomb_cp28591 (char *, char8_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_mbrtoc16_cp28591 (char16_t *, const char *, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_c16rtomb_cp28591 (char *, char16_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_mbrtoc32_cp28591 (char32_t *, const char *, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_c32rtomb_cp28591 (char *, char32_t, mbstate_t *, Charset *);
 
 /**
  * Internal versions which operate on SBCS code pages.

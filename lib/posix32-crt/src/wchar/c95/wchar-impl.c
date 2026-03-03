@@ -49,10 +49,10 @@
 #define P32_WCHAR_IMPL_UTF8       4
 
 #if P32_WCHAR_IMPL == P32_WCHAR_IMPL_ISO_8859_1
-#define mbrtoc16   p32_private_mbrtoc16_posix
-#define c16rtomb   p32_private_c16rtomb_posix
-#define mbrtoc32   p32_private_mbrtoc32_posix
-#define c32rtomb   p32_private_c32rtomb_posix
+#define mbrtoc16   p32_private_mbrtoc16_cp28591
+#define c16rtomb   p32_private_c16rtomb_cp28591
+#define mbrtoc32   p32_private_mbrtoc32_cp28591
+#define c32rtomb   p32_private_c32rtomb_cp28591
 #define mbrlen     p32_private_mbrlen_posix
 #define mbrtowc    p32_private_mbrtowc_posix
 #define mbsrtowcs  p32_private_mbsrtowcs_posix

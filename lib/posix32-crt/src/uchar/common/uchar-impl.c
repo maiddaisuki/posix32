@@ -48,12 +48,12 @@
 
 #if P32_UCHAR_IMPL == P32_UCHAR_IMPL_ISO_8859_1
 #define P32_UCHAR_SBCS
-#define mbrtoc8  p32_private_mbrtoc8_posix
-#define c8rtomb  p32_private_c8rtomb_posix
-#define mbrtoc16 p32_private_mbrtoc16_posix
-#define c16rtomb p32_private_c16rtomb_posix
-#define mbrtoc32 p32_private_mbrtoc32_posix
-#define c32rtomb p32_private_c32rtomb_posix
+#define mbrtoc8  p32_private_mbrtoc8_cp28591
+#define c8rtomb  p32_private_c8rtomb_cp28591
+#define mbrtoc16 p32_private_mbrtoc16_cp28591
+#define c16rtomb p32_private_c16rtomb_cp28591
+#define mbrtoc32 p32_private_mbrtoc32_cp28591
+#define c32rtomb p32_private_c32rtomb_cp28591
 #elif P32_UCHAR_IMPL == P32_UCHAR_IMPL_ASCII
 #define P32_UCHAR_SBCS
 #define mbrtoc8  p32_private_mbrtoc8_cp20127

@@ -48,9 +48,9 @@ static Charset iso_8859_1;
 #define MB_CUR_MAX (iso_8859_1.MaxLength)
 
 /**
- * Convenience macro to call `p32_private_c32rtomb_posix`.
+ * Convenience macro to call `p32_private_c32rtomb_cp28591`.
  */
-#define c32rtomb(mb, c32, state) p32_private_c32rtomb_posix (mb, c32, state, &iso_8859_1)
+#define c32rtomb(mb, c32, state) p32_private_c32rtomb_cp28591 (mb, c32, state, &iso_8859_1)
 
 static void DoTest (void) {
   char      buffer[MB_LEN_MAX];

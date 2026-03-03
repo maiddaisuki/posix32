@@ -47,9 +47,9 @@ static Charset iso_8859_1;
 #define MB_CUR_MAX (iso_8859_1.MaxLength)
 
 /**
- * Convenience macro to call `p32_private_mbrtoc16_posix`.
+ * Convenience macro to call `p32_private_mbrtoc16_cp28591`.
  */
-#define mbrtoc16(c16, mb, count, state) p32_private_mbrtoc16_posix (c16, mb, count, state, &iso_8859_1)
+#define mbrtoc16(c16, mb, count, state) p32_private_mbrtoc16_cp28591 (c16, mb, count, state, &iso_8859_1)
 
 static void DoTest (void) {
   char16_t  u16   = 0xFFFF;
