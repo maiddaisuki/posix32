@@ -136,7 +136,19 @@ int p32_private_asprintf (char **address, uintptr_t heap, const wchar_t *format,
     goto fail;
   }
 
-  strLength = p32_private_wcstombs (&str, wcs, heap, 20127, false);
+  /**
+   * Convert `wcs` to ASCII.
+   */
+  CharsetConversionRequest conversionRequest = {0};
+
+  conversionRequest.Flags    |= (P32_CHARSET_CONVERSION_CP);
+  conversionRequest.Flags    |= (P32_CHARSET_CONVERSION_WC_TO_MB);
+  conversionRequest.Flags    |= (P32_CHARSET_CONVERSION_NO_BEST_FIT);
+  conversionRequest.CodePage  = P32_CODEPAGE_ASCII;
+  conversionRequest.Input.W   = wcs;
+  conversionRequest.Output.A  = &str;
+
+  strLength = p32_charset_convert (&conversionRequest, heap);
 
   if (strLength == -1) {
     goto fail_free;

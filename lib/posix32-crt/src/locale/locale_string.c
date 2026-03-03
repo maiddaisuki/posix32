@@ -937,9 +937,19 @@ static bool P32FormatLcAllLocaleString (LocaleStringsW *localeStrings, uintptr_t
  */
 static bool P32ConverLocaleStrings (LocaleStrings *localeStrings, uintptr_t heap) {
   /**
-   * Code page to use during conversion.
+   * Cache information about `localeStrings->A.CodePage`.
    */
-  uint32_t codePage = localeStrings->A.CodePage;
+  Charset charset  = {0};
+  charset.CodePage = localeStrings->A.CodePage;
+
+  if (!p32_charset_info (&charset)) {
+    goto fail;
+  }
+
+  CharsetConversionRequest conversionRequest = {0};
+
+  conversionRequest.Flags   = (P32_CHARSET_CONVERSION_WC_TO_MB);
+  conversionRequest.Charset = &charset;
 
   /**
    * When formattig locale string in CRT format, we want to allow best-fit
@@ -948,27 +958,56 @@ static bool P32ConverLocaleStrings (LocaleStrings *localeStrings, uintptr_t heap
    * Locale strings in Windows and ISO formats must contain only ASCII
    * characters, and as such, best-fit conversion is not allowed.
    */
-  bool bestFit = (localeStrings->Format == LOCALE_STRING_FORMAT_CRT);
+  if (localeStrings->Format != LOCALE_STRING_FORMAT_CRT) {
+    conversionRequest.Flags |= (P32_CHARSET_CONVERSION_NO_BEST_FIT);
+  }
 
-  if (p32_private_wcstombs (&localeStrings->A.LcAll, localeStrings->W.LcAll, heap, codePage, bestFit) == -1) {
+  conversionRequest.Input.W  = localeStrings->W.LcAll;
+  conversionRequest.Output.A = &localeStrings->A.LcAll;
+
+  if (p32_charset_convert (&conversionRequest, heap) == -1) {
     goto fail;
   }
-  if (p32_private_wcstombs (&localeStrings->A.LcCollate, localeStrings->W.LcCollate, heap, codePage, bestFit) == -1) {
+
+  conversionRequest.Input.W  = localeStrings->W.LcCollate;
+  conversionRequest.Output.A = &localeStrings->A.LcCollate;
+
+  if (p32_charset_convert (&conversionRequest, heap) == -1) {
     goto fail;
   }
-  if (p32_private_wcstombs (&localeStrings->A.LcCtype, localeStrings->W.LcCtype, heap, codePage, bestFit) == -1) {
+
+  conversionRequest.Input.W  = localeStrings->W.LcCtype;
+  conversionRequest.Output.A = &localeStrings->A.LcCtype;
+
+  if (p32_charset_convert (&conversionRequest, heap) == -1) {
     goto fail;
   }
-  if (p32_private_wcstombs (&localeStrings->A.LcMessages, localeStrings->W.LcMessages, heap, codePage, bestFit) == -1) {
+
+  conversionRequest.Input.W  = localeStrings->W.LcMessages;
+  conversionRequest.Output.A = &localeStrings->A.LcMessages;
+
+  if (p32_charset_convert (&conversionRequest, heap) == -1) {
     goto fail;
   }
-  if (p32_private_wcstombs (&localeStrings->A.LcMonetary, localeStrings->W.LcMonetary, heap, codePage, bestFit) == -1) {
+
+  conversionRequest.Input.W  = localeStrings->W.LcMonetary;
+  conversionRequest.Output.A = &localeStrings->A.LcMonetary;
+
+  if (p32_charset_convert (&conversionRequest, heap) == -1) {
     goto fail;
   }
-  if (p32_private_wcstombs (&localeStrings->A.LcNumeric, localeStrings->W.LcNumeric, heap, codePage, bestFit) == -1) {
+
+  conversionRequest.Input.W  = localeStrings->W.LcNumeric;
+  conversionRequest.Output.A = &localeStrings->A.LcNumeric;
+
+  if (p32_charset_convert (&conversionRequest, heap) == -1) {
     goto fail;
   }
-  if (p32_private_wcstombs (&localeStrings->A.LcTime, localeStrings->W.LcTime, heap, codePage, bestFit) == -1) {
+
+  conversionRequest.Input.W  = localeStrings->W.LcTime;
+  conversionRequest.Output.A = &localeStrings->A.LcTime;
+
+  if (p32_charset_convert (&conversionRequest, heap) == -1) {
     goto fail;
   }
 

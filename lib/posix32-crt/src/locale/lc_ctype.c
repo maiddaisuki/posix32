@@ -128,17 +128,23 @@ static void P32FreeLcCtypeInfoW (LcCtypeInfo *lcCtypeInfo, uintptr_t heap) {
  * Convert locale information in `lcCtypeInfo` to `codePage`.
  */
 static bool P32ConvertLcCtypeInfo (LcCtypeInfo *lcCtypeInfo, uintptr_t heap, Charset *charset) {
-  /**
-   * TODO: should we use `codePage` or ASCII?
-   */
-  uint32_t codePage = charset->CodePage;
+  CharsetConversionRequest conversionRequset = {0};
 
-  if (p32_private_wcstombs (&lcCtypeInfo->CharsetName.A, lcCtypeInfo->CharsetName.W, heap, codePage, false) == -1) {
+  conversionRequset.Flags   = (P32_CHARSET_CONVERSION_WC_TO_MB | P32_CHARSET_CONVERSION_NO_BEST_FIT);
+  conversionRequset.Charset = charset;
+
+  conversionRequset.Input.W  = lcCtypeInfo->CharsetName.W;
+  conversionRequset.Output.A = &lcCtypeInfo->CharsetName.A;
+
+  if (p32_charset_convert (&conversionRequset, heap) == -1) {
     goto fail;
   }
 
   for (size_t i = 0; i < _countof (CharTypes); ++i) {
-    if (p32_private_wcstombs (&lcCtypeInfo->CharTypes[i].Name, CharTypes[i].Name, heap, codePage, false) == -1) {
+    conversionRequset.Input.W  = CharTypes[i].Name;
+    conversionRequset.Output.A = &lcCtypeInfo->CharTypes[i].Name;
+
+    if (p32_charset_convert (&conversionRequset, heap) == -1) {
       goto fail;
     }
 
@@ -146,7 +152,10 @@ static bool P32ConvertLcCtypeInfo (LcCtypeInfo *lcCtypeInfo, uintptr_t heap, Cha
   }
 
   for (size_t i = 0; i < _countof (CharMappings); ++i) {
-    if (p32_private_wcstombs (&lcCtypeInfo->CharMappings[i].Name, CharMappings[i].Name, heap, codePage, false) == -1) {
+    conversionRequset.Input.W  = CharMappings[i].Name;
+    conversionRequset.Output.A = &lcCtypeInfo->CharMappings[i].Name;
+
+    if (p32_charset_convert (&conversionRequset, heap) == -1) {
       goto fail;
     }
 

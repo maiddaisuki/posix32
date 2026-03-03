@@ -1032,11 +1032,6 @@ static bool P32EraString (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t local
   CalendarInfo *defaultCalendar     = &lcTimeInfo->DefaultCalendar;
   CalendarInfo *alternativeCalendar = &lcTimeInfo->AlternativeCalendar;
 
-  /**
-   * Code page to use during conversion.
-   */
-  uint32_t codePage = locale->Charset.CodePage;
-
   int ret;
 
   if (alternativeCalendar->Flags & P32_CALENDAR_INFO_SET) {
@@ -1051,17 +1046,24 @@ static bool P32EraString (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t local
     goto fail;
   }
 
+  CharsetConversionRequest conversionRequest = {0};
+
+  conversionRequest.Flags   = (P32_CHARSET_CONVERSION_WC_TO_MB);
+  conversionRequest.Charset = &locale->Charset;
+
   /**
    * We should convert alternative calendar's era description string only
    * if succeeded at converting alternative calendar's information.
    */
   if (alternativeCalendar->Flags & P32_CALENDAR_INFO_CP) {
-    ret = p32_private_wcstombs (&lcTimeInfo->EraString.A, lcTimeInfo->EraString.W, heap, codePage, true);
+    conversionRequest.Input.W = lcTimeInfo->EraString.W;
   } else {
-    ret = p32_private_wcstombs (&lcTimeInfo->EraString.A, defaultCalendar->Era.String, heap, codePage, true);
+    conversionRequest.Input.W = defaultCalendar->Era.String;
   }
 
-  if (ret == -1) {
+  conversionRequest.Output.A = &lcTimeInfo->EraString.A;
+
+  if (p32_charset_convert (&conversionRequest, heap) == -1) {
     goto fail;
   }
 
@@ -1601,10 +1603,10 @@ static bool P32DateTimeFormat (LcTimeInfo *info, CalendarInfo *calendarInfo, uin
  * Get locale's date/time format strings.
  */
 static bool P32CalendarDateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, CalendarInfo *calendar, locale_t locale) {
-  /**
-   * Code page to use during conversion.
-   */
-  uint32_t codePage = locale->Charset.CodePage;
+  CharsetConversionRequest conversionRequest = {0};
+
+  conversionRequest.Flags   = (P32_CHARSET_CONVERSION_WC_TO_MB);
+  conversionRequest.Charset = &locale->Charset;
 
   /**
    * Date format string for "%x"/"%Ex" format specifier.
@@ -1614,7 +1616,10 @@ static bool P32CalendarDateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, Calenda
   }
 
   if (calendar->Flags & P32_CALENDAR_INFO_CP) {
-    if (p32_private_wcstombs (&calendar->DateFormat.Crt.A, calendar->DateFormat.Crt.W, heap, codePage, true) == -1) {
+    conversionRequest.Input.W  = calendar->DateFormat.Crt.W;
+    conversionRequest.Output.A = &calendar->DateFormat.Crt.A;
+
+    if (p32_charset_convert (&conversionRequest, heap) == -1) {
       goto fail;
     }
   }
@@ -1627,7 +1632,10 @@ static bool P32CalendarDateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, Calenda
   }
 
   if (calendar->Flags & P32_CALENDAR_INFO_CP) {
-    if (p32_private_wcstombs (&calendar->DateTimeFormat.A, calendar->DateTimeFormat.W, heap, codePage, true) == -1) {
+    conversionRequest.Input.W  = calendar->DateTimeFormat.W;
+    conversionRequest.Output.A = &calendar->DateTimeFormat.A;
+
+    if (p32_charset_convert (&conversionRequest, heap) == -1) {
       goto fail;
     }
   }
@@ -1642,10 +1650,10 @@ fail:
  * Get locale's date/time format strings.
  */
 static bool P32DateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t locale) {
-  /**
-   * Code page to use during conversion.
-   */
-  uint32_t codePage = locale->Charset.CodePage;
+  CharsetConversionRequest conversionRequest = {0};
+
+  conversionRequest.Flags   = (P32_CHARSET_CONVERSION_WC_TO_MB);
+  conversionRequest.Charset = &locale->Charset;
 
   /**
    * Time format string for "%X" format specifier.
@@ -1654,11 +1662,12 @@ static bool P32DateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t locale
     goto fail;
   }
 
-  /* clang-format off */
-  if (p32_private_wcstombs (&lcTimeInfo->TimeFormat.Crt.A, lcTimeInfo->TimeFormat.Crt.W, heap, codePage, true) == -1) {
+  conversionRequest.Input.W  = lcTimeInfo->TimeFormat.Crt.W;
+  conversionRequest.Output.A = &lcTimeInfo->TimeFormat.Crt.A;
+
+  if (p32_charset_convert (&conversionRequest, heap) == -1) {
     goto fail;
   }
-  /* clang-format on */
 
   /**
    * Time format string for "%r" format specifier.
@@ -1667,11 +1676,17 @@ static bool P32DateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t locale
     goto fail;
   }
 
-  /* clang-format off */
-  if (p32_private_wcstombs (&lcTimeInfo->TimeFormatAmPm.Crt.A, lcTimeInfo->TimeFormatAmPm.Crt.W, heap, codePage, true) == -1) {
+  conversionRequest.Input.W  = lcTimeInfo->TimeFormatAmPm.Crt.W;
+  conversionRequest.Output.A = &lcTimeInfo->TimeFormatAmPm.Crt.A;
+
+  if (p32_charset_convert (&conversionRequest, heap) == -1) {
     goto fail;
   }
-  /* clang-format on */
+
+  /**
+   * Disallow best-fit conversion for the rest.
+   */
+  conversionRequest.Flags |= (P32_CHARSET_CONVERSION_NO_BEST_FIT);
 
   /**
    * Time format string for "%R" format specifier.
@@ -1679,7 +1694,11 @@ static bool P32DateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t locale
   if (p32_private_wcsdup (&lcTimeInfo->TimeFormat24.W, L"%H:%M", heap) == -1) {
     return false;
   }
-  if (p32_private_wcstombs (&lcTimeInfo->TimeFormat24.A, lcTimeInfo->TimeFormat24.W, heap, codePage, false) == -1) {
+
+  conversionRequest.Input.W  = lcTimeInfo->TimeFormat24.W;
+  conversionRequest.Output.A = &lcTimeInfo->TimeFormat24.A;
+
+  if (p32_charset_convert (&conversionRequest, heap) == -1) {
     goto fail;
   }
 
@@ -1689,7 +1708,11 @@ static bool P32DateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t locale
   if (p32_private_wcsdup (&lcTimeInfo->TimeFormatT.W, L"%H:%M:%S", heap) == -1) {
     return false;
   }
-  if (p32_private_wcstombs (&lcTimeInfo->TimeFormatT.A, lcTimeInfo->TimeFormatT.W, heap, codePage, false) == -1) {
+
+  conversionRequest.Input.W  = lcTimeInfo->TimeFormatT.W;
+  conversionRequest.Output.A = &lcTimeInfo->TimeFormatT.A;
+
+  if (p32_charset_convert (&conversionRequest, heap) == -1) {
     goto fail;
   }
 
@@ -1699,7 +1722,11 @@ static bool P32DateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t locale
   if (p32_private_wcsdup (&lcTimeInfo->DateFormatD.W, L"%m/%d/%y", heap) == -1) {
     return false;
   }
-  if (p32_private_wcstombs (&lcTimeInfo->DateFormatD.A, lcTimeInfo->DateFormatD.W, heap, codePage, false) == -1) {
+
+  conversionRequest.Input.W  = lcTimeInfo->DateFormatD.W;
+  conversionRequest.Output.A = &lcTimeInfo->DateFormatD.A;
+
+  if (p32_charset_convert (&conversionRequest, heap) == -1) {
     goto fail;
   }
 
@@ -1709,7 +1736,11 @@ static bool P32DateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t locale
   if (p32_private_wcsdup (&lcTimeInfo->DateFormatF.W, L"%Y-%m-%d", heap) == -1) {
     return false;
   }
-  if (p32_private_wcstombs (&lcTimeInfo->DateFormatF.A, lcTimeInfo->DateFormatF.W, heap, codePage, false) == -1) {
+
+  conversionRequest.Input.W  = lcTimeInfo->DateFormatF.W;
+  conversionRequest.Output.A = &lcTimeInfo->DateFormatF.A;
+
+  if (p32_charset_convert (&conversionRequest, heap) == -1) {
     goto fail;
   }
 

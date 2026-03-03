@@ -144,9 +144,27 @@ static bool P32GetTextualLocaleInfo (LocaleInfoRequest *request, uintptr_t heap,
   }
 
   if (request->Flags & P32_LOCALE_INFO_REQUEST_CONVERT) {
-    bool bestFit = !!(request->Flags & P32_LOCALE_INFO_REQUEST_CONVERT_BEST_FIT);
+    CharsetConversionRequest conversionRequest = {0};
 
-    if (p32_private_wcstombs (request->OutputA, buffer, heap, request->CodePage, bestFit) == -1) {
+    conversionRequest.Flags    |= (P32_CHARSET_CONVERSION_CP);
+    conversionRequest.Flags    |= (P32_CHARSET_CONVERSION_WC_TO_MB);
+    conversionRequest.CodePage  = request->CodePage;
+    conversionRequest.Input.W   = buffer;
+    conversionRequest.Output.A  = request->OutputA;
+
+    if ((request->Flags & P32_LOCALE_INFO_REQUEST_CONVERT_BEST_FIT) == 0) {
+      conversionRequest.Flags |= P32_CHARSET_CONVERSION_NO_BEST_FIT;
+    }
+
+    if (p32_charset_convert (&conversionRequest, heap) == -1) {
+      /**
+       * We may be allowed to return success if `p32_charset_convert` failed
+       * because it is unable to convert retrieved locale information.
+       */
+      if (conversionRequest.Status != CharsetConversionRequestNoConversion) {
+        goto fail_free;
+      }
+
       /**
        * TODO: we should fallback to locale information used for "POSIX" locale.
        */
@@ -233,9 +251,27 @@ static bool P32GetTextualCalendarInfo (CalendarInfoRequest *request, uintptr_t h
   }
 
   if (request->Flags & P32_LOCALE_INFO_REQUEST_CONVERT) {
-    bool bestFit = !!(request->Flags & P32_LOCALE_INFO_REQUEST_CONVERT_BEST_FIT);
+    CharsetConversionRequest conversionRequest = {0};
 
-    if (p32_private_wcstombs (request->OutputA, buffer, heap, request->CodePage, bestFit) == -1) {
+    conversionRequest.Flags    |= (P32_CHARSET_CONVERSION_CP);
+    conversionRequest.Flags    |= (P32_CHARSET_CONVERSION_WC_TO_MB);
+    conversionRequest.CodePage  = request->CodePage;
+    conversionRequest.Input.W   = buffer;
+    conversionRequest.Output.A  = request->OutputA;
+
+    if ((request->Flags & P32_LOCALE_INFO_REQUEST_CONVERT_BEST_FIT) == 0) {
+      conversionRequest.Flags |= P32_CHARSET_CONVERSION_NO_BEST_FIT;
+    }
+
+    if (p32_charset_convert (&conversionRequest, heap) == -1) {
+      /**
+       * We may be allowed to return success if `p32_charset_convert` failed
+       * because it is unable to convert retrieved locale information.
+       */
+      if (conversionRequest.Status != CharsetConversionRequestNoConversion) {
+        goto fail_free;
+      }
+
       /**
        * TODO: we should fallback to locale information used for "POSIX" locale.
        */

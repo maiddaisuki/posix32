@@ -112,22 +112,36 @@ static void P32FreeLcMessagesInfoW (LcMessagesInfo *lcMessagesInfo, uintptr_t he
  * Convert locale information in `lcMessagesInfo` to `locale->Charset.CodePage`.
  */
 static bool P32ConvertLcMessagesInfo (LcMessagesInfo *lcMessagesInfo, uintptr_t heap, locale_t locale) {
-  /**
-   * Code page to use during conversion.
-   */
-  uint32_t codePage = locale->Charset.CodePage;
+  CharsetConversionRequest conversionRequset = {0};
 
-  if (p32_private_wcstombs (&lcMessagesInfo->NoStr.A, lcMessagesInfo->NoStr.W, heap, codePage, true) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcstombs (&lcMessagesInfo->YesStr.A, lcMessagesInfo->YesStr.W, heap, codePage, true) == -1) {
+  conversionRequset.Flags   = (P32_CHARSET_CONVERSION_WC_TO_MB | P32_CHARSET_CONVERSION_NO_BEST_FIT);
+  conversionRequset.Charset = &locale->Charset;
+
+  conversionRequset.Input.W  = lcMessagesInfo->NoStr.W;
+  conversionRequset.Output.A = &lcMessagesInfo->NoStr.A;
+
+  if (p32_charset_convert (&conversionRequset, heap) == -1) {
     goto fail;
   }
 
-  if (p32_private_wcstombs (&lcMessagesInfo->NoExpr.A, lcMessagesInfo->NoExpr.W, heap, codePage, true) == -1) {
+  conversionRequset.Input.W  = lcMessagesInfo->YesStr.W;
+  conversionRequset.Output.A = &lcMessagesInfo->YesStr.A;
+
+  if (p32_charset_convert (&conversionRequset, heap) == -1) {
     goto fail;
   }
-  if (p32_private_wcstombs (&lcMessagesInfo->YesExpr.A, lcMessagesInfo->YesExpr.W, heap, codePage, true) == -1) {
+
+  conversionRequset.Input.W  = lcMessagesInfo->NoExpr.W;
+  conversionRequset.Output.A = &lcMessagesInfo->NoExpr.A;
+
+  if (p32_charset_convert (&conversionRequset, heap) == -1) {
+    goto fail;
+  }
+
+  conversionRequset.Input.W  = lcMessagesInfo->YesExpr.W;
+  conversionRequset.Output.A = &lcMessagesInfo->YesExpr.A;
+
+  if (p32_charset_convert (&conversionRequset, heap) == -1) {
     goto fail;
   }
 
