@@ -21,12 +21,12 @@ static void P32LocaleFunction_wcsnrtombs (LocaleFunctions *functions, Charset *c
     functions->F_wcsnrtombs = p32_private_wcsnrtombs_cp20127;
   } else if (charset->CodePage == P32_CODEPAGE_POSIX) {
     functions->F_wcsnrtombs = p32_private_wcsnrtombs_cp28591;
+  } else if (charset->CodePage == CP_UTF8) {
+    functions->F_wcsnrtombs = p32_private_wcsnrtombs_cp65001;
   } else if (charset->MaxLength == 1) {
     functions->F_wcsnrtombs = p32_private_wcsnrtombs_sbcs;
   } else if (charset->MaxLength == 2) {
     functions->F_wcsnrtombs = p32_private_wcsnrtombs_dbcs;
-  } else if (charset->CodePage == CP_UTF8) {
-    functions->F_wcsnrtombs = p32_private_wcsnrtombs_utf8;
   }
   assert (functions->F_wcsnrtombs != NULL);
 }

@@ -21,12 +21,12 @@ static void P32LocaleFunction_mbrtowc (LocaleFunctions *functions, Charset *char
     functions->F_mbrtowc = p32_private_mbrtowc_cp20127;
   } else if (charset->CodePage == P32_CODEPAGE_POSIX) {
     functions->F_mbrtowc = p32_private_mbrtowc_cp28591;
+  } else if (charset->CodePage == CP_UTF8) {
+    functions->F_mbrtowc = p32_private_mbrtowc_cp65001;
   } else if (charset->MaxLength == 1) {
     functions->F_mbrtowc = p32_private_mbrtowc_sbcs;
   } else if (charset->MaxLength == 2) {
     functions->F_mbrtowc = p32_private_mbrtowc_dbcs;
-  } else if (charset->CodePage == CP_UTF8) {
-    functions->F_mbrtowc = p32_private_mbrtowc_utf8;
   }
   assert (functions->F_mbrtowc != NULL);
 }

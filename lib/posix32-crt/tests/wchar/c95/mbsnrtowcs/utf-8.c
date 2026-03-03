@@ -46,9 +46,9 @@ static Charset utf8;
 #define MB_CUR_MAX (utf8.MaxLength)
 
 /**
- * Convenience macro to call `p32_private_mbsnrtowcs_utf8`.
+ * Convenience macro to call `p32_private_mbsnrtowcs_cp65001`.
  */
-#define mbsnrtowcs(wcs, mbs, count, size, state) p32_private_mbsnrtowcs_utf8 (wcs, mbs, count, size, state, &utf8)
+#define mbsnrtowcs(wcs, mbs, count, size, state) p32_private_mbsnrtowcs_cp65001 (wcs, mbs, count, size, state, &utf8)
 
 static void DoTest (void) {
   mbstate_t state     = {0};

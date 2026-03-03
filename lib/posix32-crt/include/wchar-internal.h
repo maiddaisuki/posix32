@@ -66,6 +66,17 @@ P32_TEST_DECL size_t p32_private_wcsrtombs_cp28591 (char *, const wchar_t **, si
 P32_TEST_DECL size_t p32_private_wcsnrtombs_cp28591 (char *, const wchar_t **, size_t, size_t, mbstate_t *, Charset *);
 
 /**
+ * Internal versions which operate on UTF-8 (code page 65001).
+ */
+P32_TEST_DECL size_t p32_private_mbrlen_cp65001 (const char *, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_mbrtowc_cp65001 (wchar_t *, const char *, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_mbsrtowcs_cp65001 (wchar_t *, const char **, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_mbsnrtowcs_cp65001 (wchar_t *, const char **, size_t, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_wcrtomb_cp65001 (char *, wchar_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_wcsrtombs_cp65001 (char *, const wchar_t **, size_t, mbstate_t *, Charset *);
+P32_TEST_DECL size_t p32_private_wcsnrtombs_cp65001 (char *, const wchar_t **, size_t, size_t, mbstate_t *, Charset *);
+
+/**
  * Internal versions which operate on SBCS code pages.
  */
 P32_TEST_DECL size_t p32_private_mbrlen_sbcs (const char *, size_t, mbstate_t *, Charset *);
@@ -86,17 +97,6 @@ P32_TEST_DECL size_t p32_private_mbsnrtowcs_dbcs (wchar_t *, const char **, size
 P32_TEST_DECL size_t p32_private_wcrtomb_dbcs (char *, wchar_t, mbstate_t *, Charset *);
 P32_TEST_DECL size_t p32_private_wcsrtombs_dbcs (char *, const wchar_t **, size_t, mbstate_t *, Charset *);
 P32_TEST_DECL size_t p32_private_wcsnrtombs_dbcs (char *, const wchar_t **, size_t, size_t, mbstate_t *, Charset *);
-
-/**
- * Internal versions which operate on UTF-8 (code page 65001).
- */
-P32_TEST_DECL size_t p32_private_mbrlen_utf8 (const char *, size_t, mbstate_t *, Charset *);
-P32_TEST_DECL size_t p32_private_mbrtowc_utf8 (wchar_t *, const char *, size_t, mbstate_t *, Charset *);
-P32_TEST_DECL size_t p32_private_mbsrtowcs_utf8 (wchar_t *, const char **, size_t, mbstate_t *, Charset *);
-P32_TEST_DECL size_t p32_private_mbsnrtowcs_utf8 (wchar_t *, const char **, size_t, size_t, mbstate_t *, Charset *);
-P32_TEST_DECL size_t p32_private_wcrtomb_utf8 (char *, wchar_t, mbstate_t *, Charset *);
-P32_TEST_DECL size_t p32_private_wcsrtombs_utf8 (char *, const wchar_t **, size_t, mbstate_t *, Charset *);
-P32_TEST_DECL size_t p32_private_wcsnrtombs_utf8 (char *, const wchar_t **, size_t, size_t, mbstate_t *, Charset *);
 
 /**
  * Store locale-specific versions of wide character string functions declared

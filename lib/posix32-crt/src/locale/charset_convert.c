@@ -229,12 +229,12 @@ static int P32MbsToWcsMain (CharsetConversionRequest *request, uintptr_t heap, C
     func = p32_private_mbsrtowcs_cp20127;
   } else if (charset->CodePage == P32_CODEPAGE_POSIX) {
     func = p32_private_mbsrtowcs_cp28591;
+  } else if (charset->CodePage == CP_UTF8) {
+    func = p32_private_mbsrtowcs_cp65001;
   } else if (charset->MaxLength == 1) {
     func = p32_private_mbsrtowcs_sbcs;
   } else if (charset->MaxLength == 2) {
     func = p32_private_mbsrtowcs_dbcs;
-  } else if (charset->CodePage == CP_UTF8) {
-    func = p32_private_mbsrtowcs_utf8;
   }
 
   wchar_t *buffer = NULL;
@@ -492,12 +492,12 @@ static int P32WcsToMbsMain (CharsetConversionRequest *request, uintptr_t heap, C
     func = p32_private_wcsrtombs_cp20127;
   } else if (charset->CodePage == P32_CODEPAGE_POSIX) {
     func = p32_private_wcsrtombs_cp28591;
+  } else if (charset->CodePage == CP_UTF8) {
+    func = p32_private_wcsrtombs_cp65001;
   } else if (charset->MaxLength == 1) {
     func = p32_private_wcsrtombs_sbcs;
   } else if (charset->MaxLength == 2) {
     func = p32_private_wcsrtombs_dbcs;
-  } else if (charset->CodePage == CP_UTF8) {
-    func = p32_private_wcsrtombs_utf8;
   }
 
   char *buffer = NULL;
