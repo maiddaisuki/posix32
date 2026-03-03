@@ -20,7 +20,7 @@ static void P32LocaleFunction_mbsrtowcs (LocaleFunctions *functions, Charset *ch
   if (charset->CodePage == P32_CODEPAGE_ASCII) {
     functions->F_mbsrtowcs = p32_private_mbsrtowcs_cp20127;
   } else if (charset->CodePage == P32_CODEPAGE_POSIX) {
-    functions->F_mbsrtowcs = p32_private_mbsrtowcs_posix;
+    functions->F_mbsrtowcs = p32_private_mbsrtowcs_cp28591;
   } else if (charset->MaxLength == 1) {
     functions->F_mbsrtowcs = p32_private_mbsrtowcs_sbcs;
   } else if (charset->MaxLength == 2) {

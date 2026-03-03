@@ -48,9 +48,9 @@ static Charset iso_8859_1;
 #define MB_CUR_MAX (iso_8859_1.MaxLength)
 
 /**
- * Convenience macro to call `p32_private_wcrtomb_posix`.
+ * Convenience macro to call `p32_private_wcrtomb_cp28591`.
  */
-#define wcrtomb(mb, wc, state) p32_private_wcrtomb_posix (mb, wc, state, &iso_8859_1)
+#define wcrtomb(mb, wc, state) p32_private_wcrtomb_cp28591 (mb, wc, state, &iso_8859_1)
 
 static void DoTest (void) {
   mbstate_t state = {0};

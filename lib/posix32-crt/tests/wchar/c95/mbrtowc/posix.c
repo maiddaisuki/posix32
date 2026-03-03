@@ -47,9 +47,9 @@ static Charset iso_8859_1;
 #define MB_CUR_MAX (iso_8859_1.MaxLength)
 
 /**
- * Convenience macro to call `p32_private_mbrtowc_posix`.
+ * Convenience macro to call `p32_private_mbrtowc_cp28591`.
  */
-#define mbrtowc(wc, mb, count, state) p32_private_mbrtowc_posix (wc, mb, count, state, &iso_8859_1)
+#define mbrtowc(wc, mb, count, state) p32_private_mbrtowc_cp28591 (wc, mb, count, state, &iso_8859_1)
 
 static void DoTest (void) {
   wchar_t   wc    = WEOF;

@@ -53,13 +53,13 @@
 #define c16rtomb   p32_private_c16rtomb_cp28591
 #define mbrtoc32   p32_private_mbrtoc32_cp28591
 #define c32rtomb   p32_private_c32rtomb_cp28591
-#define mbrlen     p32_private_mbrlen_posix
-#define mbrtowc    p32_private_mbrtowc_posix
-#define mbsrtowcs  p32_private_mbsrtowcs_posix
-#define mbsnrtowcs p32_private_mbsnrtowcs_posix
-#define wcrtomb    p32_private_wcrtomb_posix
-#define wcsrtombs  p32_private_wcsrtombs_posix
-#define wcsnrtombs p32_private_wcsnrtombs_posix
+#define mbrlen     p32_private_mbrlen_cp28591
+#define mbrtowc    p32_private_mbrtowc_cp28591
+#define mbsrtowcs  p32_private_mbsrtowcs_cp28591
+#define mbsnrtowcs p32_private_mbsnrtowcs_cp28591
+#define wcrtomb    p32_private_wcrtomb_cp28591
+#define wcsrtombs  p32_private_wcsrtombs_cp28591
+#define wcsnrtombs p32_private_wcsnrtombs_cp28591
 #elif P32_WCHAR_IMPL == P32_WCHAR_IMPL_ASCII
 #define mbrtoc16   p32_private_mbrtoc16_cp20127
 #define c16rtomb   p32_private_c16rtomb_cp20127

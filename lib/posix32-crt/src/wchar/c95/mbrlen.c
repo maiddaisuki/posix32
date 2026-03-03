@@ -20,7 +20,7 @@ static void P32LocaleFunction_mbrlen (LocaleFunctions *functions, Charset *chars
   if (charset->CodePage == P32_CODEPAGE_ASCII) {
     functions->F_mbrlen = p32_private_mbrlen_cp20127;
   } else if (charset->CodePage == P32_CODEPAGE_POSIX) {
-    functions->F_mbrlen = p32_private_mbrlen_posix;
+    functions->F_mbrlen = p32_private_mbrlen_cp28591;
   } else if (charset->MaxLength == 1) {
     functions->F_mbrlen = p32_private_mbrlen_sbcs;
   } else if (charset->MaxLength == 2) {

@@ -48,9 +48,9 @@ static Charset iso_8859_1;
 #define MB_CUR_MAX (iso_8859_1.MaxLength)
 
 /**
- * Convenience macro to call `p32_private_mbsrtowcs_posix`.
+ * Convenience macro to call `p32_private_mbsrtowcs_cp28591`.
  */
-#define mbsrtowcs(wcs, mbs, size, state) p32_private_mbsrtowcs_posix (wcs, mbs, size, state, &iso_8859_1)
+#define mbsrtowcs(wcs, mbs, size, state) p32_private_mbsrtowcs_cp28591 (wcs, mbs, size, state, &iso_8859_1)
 
 static void DoTest (void) {
   mbstate_t state = {0};
