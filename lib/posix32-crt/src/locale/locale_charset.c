@@ -757,35 +757,6 @@ void p32_charset_conversion_flags (Charset *charset, bool bestFit) {
     toMb |= WC_NO_BEST_FIT_CHARS;
   }
 
-  /**
-   * The following SBCS code pages use nonspacing characters.
-   *
-   * We avoid using `WC_COMPOSITECHECK` with these code pages as it may lead
-   * to unexpected results.
-   */
-  switch (charset->CodePage) {
-    case 1258:
-    case 20269:
-      charset->ToMultiByte = toMb;
-      charset->ToWideChar  = toWc;
-      goto done;
-  }
-
-  const CodePageInfo *info = NULL;
-
-  for (size_t i = 0; i < _countof (Charsets); ++i) {
-    if (Charsets[i].CodePage == charset->CodePage) {
-      info = &Charsets[i];
-      break;
-    }
-  }
-
-  assert (info != NULL);
-
-  if (info != NULL && (info->Flags & (P32_CHARSET_SBCS | P32_CHARSET_DBCS))) {
-    toMb |= (WC_COMPOSITECHECK | WC_SEPCHARS);
-  }
-
 done:
   charset->ToMultiByte = toMb;
   charset->ToWideChar  = toWc;
