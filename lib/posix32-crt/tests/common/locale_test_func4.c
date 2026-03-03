@@ -48,11 +48,24 @@ static BOOL CALLBACK P32CallbackWrapper4 (wchar_t *codePageString) {
   }
 #endif
 
+  locale_t ansiLocale = p32_ansi_locale ();
+
   char    *localeStringA = NULL;
   wchar_t *localeStringW = NULL;
 
   assert (p32_private_aswprintf (&localeStringW, heap, L"en-US.%u", codePage) != -1);
-  assert (p32_private_wcstombs (&localeStringA, localeStringW, heap, P32_CODEPAGE_ASCII, false) != -1);
+
+  /**
+   * Convert `localeStringW` to active ANSI code page.
+   */
+  CharsetConversionRequest conversionRequest = {0};
+
+  conversionRequest.Flags    = (P32_CHARSET_CONVERSION_WC_TO_MB | P32_CHARSET_CONVERSION_NO_BEST_FIT);
+  conversionRequest.Charset  = &ansiLocale->Charset;
+  conversionRequest.Input.W  = localeStringW;
+  conversionRequest.Output.A = &localeStringA;
+
+  assert (p32_charset_convert (&conversionRequest, heap) != -1);
 
   bool     keep_going = true;
   locale_t locale     = p32_newlocale (LC_ALL_MASK, localeStringA, NULL);

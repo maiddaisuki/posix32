@@ -45,6 +45,8 @@ static bool __cdecl Test (uint32_t codePage) {
     return true;
   }
 
+  locale_t ansiLocale = p32_ansi_locale ();
+
   char    *localeStringA = NULL;
   wchar_t *localeStringW = NULL;
 
@@ -237,7 +239,17 @@ static bool __cdecl Test (uint32_t codePage) {
       break;
   }
 
-  assert (p32_private_wcstombs (&localeStringA, localeStringW, heap, P32_CODEPAGE_ASCII, false) != -1);
+  /**
+   * Convert `localeStringW` to active ANSI code page.
+   */
+  CharsetConversionRequest conversionRequest = {0};
+
+  conversionRequest.Flags    = (P32_CHARSET_CONVERSION_WC_TO_MB | P32_CHARSET_CONVERSION_NO_BEST_FIT);
+  conversionRequest.Charset  = &ansiLocale->Charset;
+  conversionRequest.Input.W  = localeStringW;
+  conversionRequest.Output.A = &localeStringA;
+
+  assert (p32_charset_convert (&conversionRequest, heap) != -1);
 
   locale_t locale = newlocale (LC_ALL_MASK, localeStringA, NULL);
 
