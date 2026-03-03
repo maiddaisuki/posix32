@@ -58,8 +58,8 @@
  * msvcrt10.dll does not have multibyte support.
  * Attempt to set such code pages with `setlocale` will result in crash.
  *
- * We emulate thread locales for this CRT, which means DBCS code pages
- * can be used with thread locales.
+ * A `locale_t` object can always be created with some DBCS code page,
+ * as long as that code page is supported by the operating system.
  */
 #define CHARSET_DBCS (P32_CHARSET_DBCS | P32_CHARSET_REJECT_CRT)
 #else
@@ -181,7 +181,8 @@ static const CodePageInfo Charsets[] = {
    */
   {875,   CHARSET_EBCDIC_FULL,                           L"IBM-875"         },
   /**
-   * SHIFT_JIS.
+   * Charset:  JIS X 0208
+   * Encoding: Shift JIS with extensions
    */
   {932,   CHARSET_DBCS,                                  L"CP932"           },
   /**
@@ -189,11 +190,12 @@ static const CodePageInfo Charsets[] = {
    */
   {936,   CHARSET_DBCS,                                  L"CP936"           },
   /**
-   * Unified Hangul Code (extended Wansung, KS X 1001).
+   * Charset:  KS X 1001 (former KS C 5601)
+   * Encoding: Unified Hangul Code (extended Wansung)
    */
   {949,   CHARSET_DBCS,                                  L"CP949"           },
   /**
-   * BIG5.
+   * BIG5 with extensions.
    */
   {950,   CHARSET_DBCS,                                  L"CP950"           },
   /**
@@ -252,14 +254,41 @@ static const CodePageInfo Charsets[] = {
    * UTF-16BE.
    */
   {1201,  P32_CHARSET_REJECT_MANAGED,                    L"UTF-16BE"        },
+  /**
+   * ANSI Central European.
+   */
   {1250,  CHARSET_SBCS_FULL,                             L"CP1250"          },
+  /**
+   * ANSI Cyrillic.
+   */
   {1251,  CHARSET_SBCS_FULL,                             L"CP1251"          },
+  /**
+   * ANSI Western European.
+   */
   {1252,  CHARSET_SBCS_FULL,                             L"CP1252"          },
+  /**
+   * ANSI Greek.
+   */
   {1253,  P32_CHARSET_SBCS,                              L"CP1253"          },
+  /**
+   * ANSI Turkish.
+   */
   {1254,  CHARSET_SBCS_FULL,                             L"CP1254"          },
+  /**
+   * ANSI Hebrew.
+   */
   {1255,  P32_CHARSET_SBCS,                              L"CP1255"          },
+  /**
+   * ANSI Arabic.
+   */
   {1256,  CHARSET_SBCS_FULL,                             L"CP1256"          },
+  /**
+   * ANSI Baltic.
+   */
   {1257,  P32_CHARSET_SBCS,                              L"CP1257"          },
+  /**
+   * Vietnamese.
+   */
   {1258,  CHARSET_SBCS_FULL,                             L"CP1258"          },
   /**
    * Charset:  KS X 1001 (former KS C 5601)
@@ -276,7 +305,7 @@ static const CodePageInfo Charsets[] = {
    */
   {10001, CHARSET_DBCS | P32_CHARSET_REJECT_CRT,         L"SHIFT_JIS"       },
   /**
-   * Charset: BIG5 with extensions
+   * BIG5 with extensions.
    */
   {10002, CHARSET_DBCS,                                  L"BIG5"            },
   /**
@@ -454,7 +483,7 @@ static const CodePageInfo Charsets[] = {
   {20924, CHARSET_EBCDIC_FULL,                           L"IBM-924"         },
   /**
    * Charset:  JIS X 0208
-   * Encoding: EUC-JP.
+   * Encoding: EUC-JP
    */
   {20932, CHARSET_DBCS,                                  L"EUC-JP"          },
   /**
@@ -583,7 +612,8 @@ static const CodePageInfo Charsets[] = {
    */
   {51936, P32_CHARSET_REJECT_UNSUPPORTED,                L"EUC-CN"          },
   /**
-   * Wansung, EUC-KR (KS X 1001).
+   * Charset:  KS X 1001 (former KS C 5601)
+   * Encoding: EUC-KR (Wansung)
    */
   {51949, CHARSET_DBCS,                                  L"EUC-KR"          },
   /**
