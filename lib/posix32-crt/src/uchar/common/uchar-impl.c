@@ -29,7 +29,7 @@
  * Macro `P32_UCHAR_IMPL` must be defined to one of the following values
  * before including this source file to choose particular implemetation:
  *
- *  - P32_UCHAR_IMPL_POSIX
+ *  - P32_UCHAR_IMPL_ISO_8859_1
  *  - P32_UCHAR_IMPL_ASCII
  *  - P32_UCHAR_IMPL_SBCS
  *  - P32_UCHAR_IMPL_DBCS
@@ -40,13 +40,13 @@
 #error P32_UCHAR_IMPL must be defined before including uchar-impl.c
 #endif
 
-#define P32_UCHAR_IMPL_POSIX 0
-#define P32_UCHAR_IMPL_ASCII 1
-#define P32_UCHAR_IMPL_SBCS  2
-#define P32_UCHAR_IMPL_DBCS  3
-#define P32_UCHAR_IMPL_UTF8  4
+#define P32_UCHAR_IMPL_ISO_8859_1 0
+#define P32_UCHAR_IMPL_ASCII      1
+#define P32_UCHAR_IMPL_SBCS       2
+#define P32_UCHAR_IMPL_DBCS       3
+#define P32_UCHAR_IMPL_UTF8       4
 
-#if P32_UCHAR_IMPL == P32_UCHAR_IMPL_POSIX
+#if P32_UCHAR_IMPL == P32_UCHAR_IMPL_ISO_8859_1
 #define P32_UCHAR_SBCS
 #define mbrtoc8  p32_private_mbrtoc8_posix
 #define c8rtomb  p32_private_c8rtomb_posix

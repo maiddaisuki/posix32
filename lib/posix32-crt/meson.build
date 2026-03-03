@@ -46,7 +46,7 @@ posix32_crt_sources = files (
   'src/string/string.c',
   'src/uchar/ascii.c',
   'src/uchar/dbcs.c',
-  'src/uchar/posix.c',
+  'src/uchar/iso-8859-1.c',
   'src/uchar/sbcs.c',
   'src/uchar/uchar.c',
   'src/uchar/utf8.c',

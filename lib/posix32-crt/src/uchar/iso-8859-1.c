@@ -36,7 +36,7 @@
 /**
  * File Summary:
  *
- * This file defines POSIX versions of functions declared in uchar.h:
+ * This file defines ISO-8859-1 versions of functions declared in uchar.h:
  *
  *  - mbrtoc8
  *  - c8rtomb
@@ -46,5 +46,5 @@
  *  - c32rtomb
  */
 
-#define P32_UCHAR_IMPL P32_UCHAR_IMPL_POSIX
+#define P32_UCHAR_IMPL P32_UCHAR_IMPL_ISO_8859_1
 #include "common/uchar-impl.c"
