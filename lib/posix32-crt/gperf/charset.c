@@ -1473,10 +1473,20 @@ bool p32_lookup_charset (CharsetInfo *info) {
     return false;
   }
 
-  if (charset->CodePage != P32_CODEPAGE_ACP && charset->CodePage != P32_CODEPAGE_OCP) {
-    if (!IsValidCodePage (charset->CodePage)) {
-      return false;
-    }
+  /**
+   * ASCII, ISO-8859-1 and UTF-8 are always supported.
+   */
+  switch (charset->CodePage) {
+    case P32_CODEPAGE_ACP:
+    case P32_CODEPAGE_OCP:
+    case P32_CODEPAGE_ASCII:
+    case P32_CODEPAGE_ISO_8859_1:
+    case CP_UTF8:
+      break;
+    default:
+      if (!IsValidCodePage (charset->CodePage)) {
+        return false;
+      }
   }
 
   info->CodePage = charset->CodePage;

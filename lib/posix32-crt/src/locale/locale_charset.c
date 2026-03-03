@@ -765,16 +765,69 @@ bool p32_charset_usable (uint32_t codePage, int rejectMask, int allowMask) {
 
 bool p32_charset_info (Charset *charset) {
   /**
-   * Obtain information about `charset->CodePage`.
+   * We always support ASCII (code page 20127), ISO-8859-1 (code page 28591)
+   * and UTF-8 (code page 65001).
+   *
+   * For ASCII and UTF-8 we always set `P32_CHARSET_CONV_NO_BEST_FIT` flag;
+   * this has effect that `p32_charset_convert` will never try to use
+   * `WideCharToMultiByte` to perform conversion.
+   *
+   * With `CP_UTF8`, pre-Vista `WideChatToMultiByte` allows lone surrogates
+   * and mismatching surrogate pairs.
+   *
+   * For ISO-8859-1 we may set `P32_CHARSET_CONV_NO_BEST_FIT` flag if
+   * code page 28591 is not supported by the operating system.
    */
-  CPINFO cpInfo = {0};
+  if (charset->CodePage == CP_UTF8) {
+    charset->Flags |= P32_CHARSET_CONV_NO_BEST_FIT;
 
-  if (!GetCPInfo (charset->CodePage, &cpInfo)) {
-    return false;
+    charset->MaxLength = 4;
+    memset (charset->Map, 0, MAX_LEADBYTES);
+
+    charset->ReplacementChar.Length  = 3;
+    charset->ReplacementChar.Char[0] = (char) (unsigned) 0xEF;
+    charset->ReplacementChar.Char[1] = (char) (unsigned) 0xBF;
+    charset->ReplacementChar.Char[2] = (char) (unsigned) 0xBD;
+  } else if (charset->CodePage == P32_CODEPAGE_ISO_8859_1) {
+    /**
+     * Check if code page 28591 is supported by the operating system.
+     *
+     * TODO: is there any Windows NT or Windows 9x version which does not
+     *   support code page 28591?
+     */
+    if (!IsValidCodePage (P32_CODEPAGE_ISO_8859_1)) {
+      charset->Flags |= P32_CHARSET_CONV_NO_BEST_FIT;
+    }
+
+    charset->MaxLength = 1;
+    memset (charset->Map, 0, MAX_LEADBYTES);
+
+    charset->ReplacementChar.Length  = 1;
+    charset->ReplacementChar.Char[0] = 0x3F;
+  } else if (charset->CodePage == P32_CODEPAGE_ASCII) {
+    charset->Flags |= P32_CHARSET_CONV_NO_BEST_FIT;
+
+    charset->MaxLength = 1;
+    memset (charset->Map, 0, MAX_LEADBYTES);
+
+    charset->ReplacementChar.Length  = 1;
+    charset->ReplacementChar.Char[0] = 0x3F;
+  } else {
+    /**
+     * Obtain information about `charset->CodePage`.
+     */
+    CPINFO cpInfo = {0};
+
+    if (!GetCPInfo (charset->CodePage, &cpInfo)) {
+      return false;
+    }
+
+    charset->MaxLength = cpInfo.MaxCharSize;
+    memcpy (charset->Map, cpInfo.LeadByte, MAX_LEADBYTES);
+
+    charset->ReplacementChar.Length  = 1;
+    charset->ReplacementChar.Char[0] = (char) cpInfo.DefaultChar[0];
   }
-
-  charset->MaxLength = cpInfo.MaxCharSize;
-  memcpy (charset->Map, cpInfo.LeadByte, MAX_LEADBYTES);
 
   /**
    * Lookup `CodePageInfo` entry for `charset->CodePage`.
@@ -800,23 +853,6 @@ bool p32_charset_info (Charset *charset) {
   charset->Flags |= codePageInfo->Flags;
 
   P32CharsetConversionFlags (charset);
-
-  /**
-   * Do not allow best-fit conversion with ASCII.
-   */
-  if (charset->CodePage == P32_CODEPAGE_ASCII) {
-    charset->Flags |= P32_CHARSET_CONV_NO_BEST_FIT;
-  }
-
-  if (charset->CodePage == CP_UTF8) {
-    charset->ReplacementChar.Length  = 3;
-    charset->ReplacementChar.Char[0] = (char) (unsigned) 0xEF;
-    charset->ReplacementChar.Char[1] = (char) (unsigned) 0xBF;
-    charset->ReplacementChar.Char[2] = (char) (unsigned) 0xBD;
-  } else {
-    charset->ReplacementChar.Length  = 1;
-    charset->ReplacementChar.Char[0] = (char) cpInfo.DefaultChar[0];
-  }
 
   return true;
 }
