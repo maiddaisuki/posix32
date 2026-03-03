@@ -231,12 +231,13 @@ typedef struct LocaleInfoRequest {
    */
   uint32_t Flags;
   /**
-   * Code page to use when converting retrieved locale information.
+   * When `P32_LOCALE_INFO_REQUEST_CONVERT` flag is set, this field must point
+   * to a valid `Charset` structure which contains information filled in by
+   * `p32_charset_info` function.
    *
-   * When `P32_LOCALE_INFO_REQUEST_CONVERT` flag is set, this field must be set
-   * to a valid code page. Otherwise, this field is ignored.
+   * This information is used when converting retrieved locale information.
    */
-  uint32_t CodePage;
+  Charset *charset;
   /**
    * The output field when `P32_LOCALE_INFO_REQUEST_NUMERIC` flag is set.
    */
@@ -294,7 +295,7 @@ typedef struct CalendarInfoRequest {
    * to all `P32_LOCALE_INFO_REQUEST_*` flags accepted by `LocaleInfoRequest`.
    */
   uint32_t  Flags;
-  uint32_t  CodePage;
+  Charset  *charset;
   uint32_t *Output;
   char    **OutputA;
   wchar_t **OutputW;

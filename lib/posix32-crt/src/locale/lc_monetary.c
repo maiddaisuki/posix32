@@ -44,7 +44,7 @@ static bool P32LcMonetaryInfo (LcMonetaryInfo *info, uintptr_t heap, Locale *lcM
   LocaleInfoRequest infoRequest      = {0};
   uint32_t          infoRequestFlags = (P32_LOCALE_INFO_REQUEST_CONVERT);
 
-  infoRequest.CodePage = locale->Charset.CodePage;
+  infoRequest.charset = &locale->Charset;
 
   /**
    * Locale's currency symbol.

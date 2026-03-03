@@ -45,6 +45,11 @@
 #endif
 
 /**
+ * Forward declaration.
+ */
+typedef struct Charset Charset;
+
+/**
  * `Locale`.
  */
 #include "locale_types/windows_locale.h"

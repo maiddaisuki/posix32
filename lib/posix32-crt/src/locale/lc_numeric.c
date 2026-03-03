@@ -44,7 +44,7 @@ static bool P32LcNumericInfo (LcNumericInfo *info, uintptr_t heap, Locale *lcNum
   LocaleInfoRequest infoRequest      = {0};
   uint32_t          infoRequestFlags = (P32_LOCALE_INFO_REQUEST_CONVERT);
 
-  infoRequest.CodePage = locale->Charset.CodePage;
+  infoRequest.charset = &locale->Charset;
 
   /**
    * Locale's decimal point.

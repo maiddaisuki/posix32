@@ -72,7 +72,7 @@ static bool P32LcTimeCalendarInfo (
 
   uint32_t textualInfoRequestFlags = (P32_LOCALE_INFO_REQUEST_CONVERT);
 
-  textualInfoRequest.CodePage = locale->Charset.CodePage;
+  textualInfoRequest.charset = &locale->Charset;
 
   if (flags & P32_CALENDAR_INFO_REQUEST_ALTERNATIVE) {
     textualInfoRequestFlags |= (P32_LOCALE_INFO_REQUEST_CONVERT_NO_ERROR);
@@ -952,7 +952,7 @@ static bool P32LcTimeLocaleInfo (LcTimeInfo *lcTimeInfo, uintptr_t heap, Locale 
 
   uint32_t textualInfoRequestFlags = (P32_LOCALE_INFO_REQUEST_CONVERT);
 
-  textualInfoRequest.CodePage = locale->Charset.CodePage;
+  textualInfoRequest.charset = &locale->Charset;
 
   /**
    * Time format string used by `GetTimeFormat[Ex]`.
