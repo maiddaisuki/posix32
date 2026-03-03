@@ -27,6 +27,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "posix32-ext/p32_wchar-ext.h"
+
 #include "tests-internal.h"
 
 /**
@@ -58,11 +60,11 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
       wchar_t *wcs = NULL;
 
       assert (p32_private_aswprintf (&wcs, heap, format, localeName, wc, wc, crt, crt, p32, p32) != -1);
-      assert (p32_private_wcstombs (&mbs, wcs, heap, CP_UTF8, false) != -1);
+      assert (p32_ext_wcstombs_cp (&mbs, wcs, CP_UTF8) != -1);
 
       fprintf (stderr, "%s\n", mbs);
 
-      assert (HeapFree (heapHandle, 0, mbs));
+      free (mbs);
       assert (HeapFree (heapHandle, 0, wcs));
 #endif
     }

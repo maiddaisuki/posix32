@@ -27,6 +27,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "posix32-ext/p32_wchar-ext.h"
+
 #include "tests-internal.h"
 
 /**
@@ -79,12 +81,12 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
       wchar_t *wStr  = NULL;
 
       assert (p32_private_aswprintf (&wStr, heap, formatString, localeName, wc, wcToPrint, p32) != -1);
-      assert (p32_private_wcstombs (&u8Str, wStr, heap, CP_UTF8, false) != -1);
+      assert (p32_ext_wcstombs_cp (&u8Str, wStr, CP_UTF8) != -1);
 
       fprintf (stderr, "%s\n", u8Str);
 
       assert (HeapFree (heapHandle, 0, wStr));
-      assert (HeapFree (heapHandle, 0, u8Str));
+      free (u8Str);
 #endif
 
       /**
@@ -115,12 +117,12 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
       wchar_t *wStr  = NULL;
 
       assert (p32_private_aswprintf (&wStr, heap, formatString, localeName, wc, wcToPrint, crt, crtAsWc) != -1);
-      assert (p32_private_wcstombs (&u8Str, wStr, heap, CP_UTF8, false) != -1);
+      assert (p32_ext_wcstombs_cp (&u8Str, wStr, CP_UTF8) != -1);
 
       fprintf (stderr, "%s\n", u8Str);
 
       assert (HeapFree (heapHandle, 0, wStr));
-      assert (HeapFree (heapHandle, 0, u8Str));
+      free (u8Str);
 #endif
 
       /**
