@@ -761,6 +761,9 @@ done:
 }
 
 bool p32_charset_info (Charset *charset) {
+  /**
+   * Obtain information about `charset->CodePage`.
+   */
   CPINFO cpInfo = {0};
 
   if (!GetCPInfo (charset->CodePage, &cpInfo)) {
@@ -769,6 +772,29 @@ bool p32_charset_info (Charset *charset) {
 
   charset->MaxLength = cpInfo.MaxCharSize;
   memcpy (charset->Map, cpInfo.LeadByte, MAX_LEADBYTES);
+
+  /**
+   * Lookup `CodePageInfo` entry for `charset->CodePage`.
+   */
+  const CodePageInfo *codePageInfo = NULL;
+
+  for (size_t i = 0; i < _countof (Charsets); ++i) {
+    if (Charsets[i].CodePage == charset->CodePage) {
+      codePageInfo = &Charsets[i];
+      break;
+    }
+  }
+
+  assert (codePageInfo != NULL);
+
+  if (codePageInfo == NULL) {
+    return false;
+  }
+
+  assert ((charset->MaxLength == 1) == ((codePageInfo->Flags & P32_CHARSET_SBCS) == P32_CHARSET_SBCS));
+  assert ((charset->MaxLength == 2) == ((codePageInfo->Flags & P32_CHARSET_DBCS) == P32_CHARSET_DBCS));
+
+  charset->Flags |= codePageInfo->Flags;
 
   p32_charset_conversion_flags (charset);
 
