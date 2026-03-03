@@ -46,9 +46,9 @@ static Charset ascii;
 #define MB_CUR_MAX (ascii.MaxLength)
 
 /**
- * Convenience macro to call `p32_private_wcrtomb_ascii`.
+ * Convenience macro to call `p32_private_wcrtomb_cp20127`.
  */
-#define wcrtomb(mb, wc, state) p32_private_wcrtomb_ascii (mb, wc, state, &ascii)
+#define wcrtomb(mb, wc, state) p32_private_wcrtomb_cp20127 (mb, wc, state, &ascii)
 
 static void DoTest (void) {
   mbstate_t state = {0};

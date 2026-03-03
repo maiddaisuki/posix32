@@ -17,10 +17,10 @@
 #include "wchar-internal.h"
 
 static void P32LocaleFunction_mbrtowc (LocaleFunctions *functions, Charset *charset) {
-  if (charset->CodePage == P32_CODEPAGE_POSIX) {
+  if (charset->CodePage == P32_CODEPAGE_ASCII) {
+    functions->F_mbrtowc = p32_private_mbrtowc_cp20127;
+  } else if (charset->CodePage == P32_CODEPAGE_POSIX) {
     functions->F_mbrtowc = p32_private_mbrtowc_posix;
-  } else if (charset->CodePage == P32_CODEPAGE_ASCII) {
-    functions->F_mbrtowc = p32_private_mbrtowc_ascii;
   } else if (charset->MaxLength == 1) {
     functions->F_mbrtowc = p32_private_mbrtowc_sbcs;
   } else if (charset->MaxLength == 2) {
