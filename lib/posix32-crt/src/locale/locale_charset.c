@@ -798,6 +798,13 @@ bool p32_charset_info (Charset *charset) {
 
   p32_charset_conversion_flags (charset);
 
+  /**
+   * Do not allow best-fit conversion with ASCII.
+   */
+  if (charset->CodePage == P32_CODEPAGE_ASCII) {
+    charset->Flags |= P32_CHARSET_CONV_NO_BEST_FIT;
+  }
+
   if (charset->CodePage == CP_UTF8) {
     charset->ReplacementChar.Length  = 3;
     charset->ReplacementChar.Char[0] = (char) (unsigned) 0xEF;

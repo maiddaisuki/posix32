@@ -117,22 +117,17 @@ static bool P32ConvertLcMessagesInfo (LcMessagesInfo *lcMessagesInfo, uintptr_t 
    */
   uint32_t codePage = locale->Charset.CodePage;
 
-  /**
-   * Do not allow best-fit conversion for ASCII.
-   */
-  bool bestFit = codePage != P32_CODEPAGE_ASCII;
-
-  if (p32_private_wcstombs (&lcMessagesInfo->NoStr.A, lcMessagesInfo->NoStr.W, heap, codePage, bestFit) == -1) {
+  if (p32_private_wcstombs (&lcMessagesInfo->NoStr.A, lcMessagesInfo->NoStr.W, heap, codePage, true) == -1) {
     goto fail;
   }
-  if (p32_private_wcstombs (&lcMessagesInfo->YesStr.A, lcMessagesInfo->YesStr.W, heap, codePage, bestFit) == -1) {
+  if (p32_private_wcstombs (&lcMessagesInfo->YesStr.A, lcMessagesInfo->YesStr.W, heap, codePage, true) == -1) {
     goto fail;
   }
 
-  if (p32_private_wcstombs (&lcMessagesInfo->NoExpr.A, lcMessagesInfo->NoExpr.W, heap, codePage, bestFit) == -1) {
+  if (p32_private_wcstombs (&lcMessagesInfo->NoExpr.A, lcMessagesInfo->NoExpr.W, heap, codePage, true) == -1) {
     goto fail;
   }
-  if (p32_private_wcstombs (&lcMessagesInfo->YesExpr.A, lcMessagesInfo->YesExpr.W, heap, codePage, bestFit) == -1) {
+  if (p32_private_wcstombs (&lcMessagesInfo->YesExpr.A, lcMessagesInfo->YesExpr.W, heap, codePage, true) == -1) {
     goto fail;
   }
 

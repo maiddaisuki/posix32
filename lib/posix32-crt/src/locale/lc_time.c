@@ -70,13 +70,9 @@ static bool P32LcTimeCalendarInfo (
   CalendarInfoRequest textualInfoRequest = {0};
   CalendarInfoRequest numericInfoRequest = {0};
 
-  uint32_t textualInfoRequestFlags = (P32_LOCALE_INFO_REQUEST_CONVERT);
+  uint32_t textualInfoRequestFlags = (P32_LOCALE_INFO_REQUEST_CONVERT | P32_LOCALE_INFO_REQUEST_CONVERT_BEST_FIT);
 
   textualInfoRequest.CodePage = locale->Charset.CodePage;
-
-  if (textualInfoRequest.CodePage != P32_CODEPAGE_ASCII) {
-    textualInfoRequestFlags |= (P32_LOCALE_INFO_REQUEST_CONVERT_BEST_FIT);
-  }
 
   if (flags & P32_CALENDAR_INFO_REQUEST_ALTERNATIVE) {
     textualInfoRequestFlags |= (P32_LOCALE_INFO_REQUEST_CONVERT_NO_ERROR);
@@ -954,13 +950,9 @@ static bool P32LcTimeLocaleInfo (LcTimeInfo *lcTimeInfo, uintptr_t heap, Locale 
   LocaleInfoRequest numbericInfoRequest = {0};
   LocaleInfoRequest textualInfoRequest  = {0};
 
-  uint32_t textualInfoRequestFlags = (P32_LOCALE_INFO_REQUEST_CONVERT);
+  uint32_t textualInfoRequestFlags = (P32_LOCALE_INFO_REQUEST_CONVERT | P32_LOCALE_INFO_REQUEST_CONVERT_BEST_FIT);
 
   textualInfoRequest.CodePage = locale->Charset.CodePage;
-
-  if (textualInfoRequest.CodePage != P32_CODEPAGE_ASCII) {
-    textualInfoRequestFlags |= (P32_LOCALE_INFO_REQUEST_CONVERT_BEST_FIT);
-  }
 
   /**
    * Time format string used by `GetTimeFormat[Ex]`.
@@ -1045,11 +1037,6 @@ static bool P32EraString (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t local
    */
   uint32_t codePage = locale->Charset.CodePage;
 
-  /**
-   * Do not allow best-fit conversion for ASCII.
-   */
-  bool bestFit = codePage != P32_CODEPAGE_ASCII;
-
   int ret;
 
   if (alternativeCalendar->Flags & P32_CALENDAR_INFO_SET) {
@@ -1069,9 +1056,9 @@ static bool P32EraString (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t local
    * if succeeded at converting alternative calendar's information.
    */
   if (alternativeCalendar->Flags & P32_CALENDAR_INFO_CP) {
-    ret = p32_private_wcstombs (&lcTimeInfo->EraString.A, lcTimeInfo->EraString.W, heap, codePage, bestFit);
+    ret = p32_private_wcstombs (&lcTimeInfo->EraString.A, lcTimeInfo->EraString.W, heap, codePage, true);
   } else {
-    ret = p32_private_wcstombs (&lcTimeInfo->EraString.A, defaultCalendar->Era.String, heap, codePage, bestFit);
+    ret = p32_private_wcstombs (&lcTimeInfo->EraString.A, defaultCalendar->Era.String, heap, codePage, true);
   }
 
   if (ret == -1) {
@@ -1620,11 +1607,6 @@ static bool P32CalendarDateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, Calenda
   uint32_t codePage = locale->Charset.CodePage;
 
   /**
-   * Do not allow best-fit conversion for ASCII.
-   */
-  bool bestFit = codePage != P32_CODEPAGE_ASCII;
-
-  /**
    * Date format string for "%x"/"%Ex" format specifier.
    */
   if (!P32MapFormatString (&calendar->DateFormat, heap, DateFormatMap, _countof (DateFormatMap))) {
@@ -1632,7 +1614,7 @@ static bool P32CalendarDateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, Calenda
   }
 
   if (calendar->Flags & P32_CALENDAR_INFO_CP) {
-    if (p32_private_wcstombs (&calendar->DateFormat.Crt.A, calendar->DateFormat.Crt.W, heap, codePage, bestFit) == -1) {
+    if (p32_private_wcstombs (&calendar->DateFormat.Crt.A, calendar->DateFormat.Crt.W, heap, codePage, true) == -1) {
       goto fail;
     }
   }
@@ -1645,7 +1627,7 @@ static bool P32CalendarDateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, Calenda
   }
 
   if (calendar->Flags & P32_CALENDAR_INFO_CP) {
-    if (p32_private_wcstombs (&calendar->DateTimeFormat.A, calendar->DateTimeFormat.W, heap, codePage, bestFit) == -1) {
+    if (p32_private_wcstombs (&calendar->DateTimeFormat.A, calendar->DateTimeFormat.W, heap, codePage, true) == -1) {
       goto fail;
     }
   }
@@ -1666,11 +1648,6 @@ static bool P32DateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t locale
   uint32_t codePage = locale->Charset.CodePage;
 
   /**
-   * Do not allow best-fit conversion for ASCII.
-   */
-  bool bestFit = codePage != P32_CODEPAGE_ASCII;
-
-  /**
    * Time format string for "%X" format specifier.
    */
   if (!P32MapFormatString (&lcTimeInfo->TimeFormat, heap, TimeFormatMap, _countof (TimeFormatMap))) {
@@ -1678,7 +1655,7 @@ static bool P32DateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t locale
   }
 
   /* clang-format off */
-  if (p32_private_wcstombs (&lcTimeInfo->TimeFormat.Crt.A, lcTimeInfo->TimeFormat.Crt.W, heap, codePage, bestFit) == -1) {
+  if (p32_private_wcstombs (&lcTimeInfo->TimeFormat.Crt.A, lcTimeInfo->TimeFormat.Crt.W, heap, codePage, true) == -1) {
     goto fail;
   }
   /* clang-format on */
@@ -1691,7 +1668,7 @@ static bool P32DateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t locale
   }
 
   /* clang-format off */
-  if (p32_private_wcstombs (&lcTimeInfo->TimeFormatAmPm.Crt.A, lcTimeInfo->TimeFormatAmPm.Crt.W, heap, codePage, bestFit) == -1) {
+  if (p32_private_wcstombs (&lcTimeInfo->TimeFormatAmPm.Crt.A, lcTimeInfo->TimeFormatAmPm.Crt.W, heap, codePage, true) == -1) {
     goto fail;
   }
   /* clang-format on */

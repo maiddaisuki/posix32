@@ -42,6 +42,11 @@
 #define P32_CHARSET_FULL (1 << 4)
 
 /**
+ * Do not allow best-fit conversion.
+ */
+#define P32_CHARSET_CONV_NO_BEST_FIT (1 << 8)
+
+/**
  * Code page cannot represent all ASCII characters.
  */
 #define P32_CHARSET_REJECT_ASCII (1 << 16)

@@ -330,7 +330,7 @@ int p32_private_wcstombs (char **address, const wchar_t *wcs, uintptr_t heap, ui
 
   p32_charset_conversion_flags (&charset);
 
-  if (bestFit) {
+  if (bestFit && (charset.Flags & P32_CHARSET_CONV_NO_BEST_FIT) == 0) {
     charset.ToMultiByte &= ~(WC_NO_BEST_FIT_CHARS);
   }
 
