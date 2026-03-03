@@ -19,7 +19,7 @@
 static void P32LocaleFunction_mbsrtowcs (LocaleFunctions *functions, Charset *charset) {
   if (charset->CodePage == P32_CODEPAGE_ASCII) {
     functions->F_mbsrtowcs = p32_private_mbsrtowcs_cp20127;
-  } else if (charset->CodePage == P32_CODEPAGE_POSIX) {
+  } else if (charset->CodePage == P32_CODEPAGE_ISO_8859_1) {
     functions->F_mbsrtowcs = p32_private_mbsrtowcs_cp28591;
   } else if (charset->CodePage == CP_UTF8) {
     functions->F_mbsrtowcs = p32_private_mbsrtowcs_cp65001;

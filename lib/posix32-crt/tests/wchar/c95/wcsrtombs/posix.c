@@ -144,7 +144,7 @@ static void DoTest (void) {
 int main (void) {
   p32_test_init ();
 
-  iso_8859_1.CodePage = P32_CODEPAGE_POSIX;
+  iso_8859_1.CodePage = P32_CODEPAGE_ISO_8859_1;
   assert (p32_charset_info (&iso_8859_1));
   assert (MB_CUR_MAX == 1);
 

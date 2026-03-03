@@ -23,7 +23,7 @@
  * in "POSIX" locale all bytes in range [0,255] are valid characters.
  */
 static wint_t p32_btowc_posix (int c, Charset *charset) {
-  assert (charset->CodePage == P32_CODEPAGE_POSIX);
+  assert (charset->CodePage == P32_CODEPAGE_ISO_8859_1);
 
   if (c == EOF) {
     return WEOF;
@@ -69,7 +69,7 @@ static wint_t p32_btowc_generic (int c, Charset *charset) {
 }
 
 static void P32LocaleFunction_btowc (LocaleFunctions *functions, Charset *charset) {
-  if (charset->CodePage == P32_CODEPAGE_POSIX) {
+  if (charset->CodePage == P32_CODEPAGE_ISO_8859_1) {
     functions->F_btowc = p32_btowc_posix;
   } else if (charset->CodePage == P32_CODEPAGE_ASCII || charset->CodePage == CP_UTF8) {
     functions->F_btowc = p32_btowc_ascii;

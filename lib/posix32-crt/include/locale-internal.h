@@ -57,19 +57,23 @@ typedef struct Charset Charset;
 /**
  * Request to use locale's default ANSI code page.
  */
-#define P32_CODEPAGE_ACP   ((uint16_t) -1)
+#define P32_CODEPAGE_ACP        ((uint16_t) -1)
 /**
  * Request to use locale's default OEM code page.
  */
-#define P32_CODEPAGE_OCP   ((uint16_t) -2)
+#define P32_CODEPAGE_OCP        ((uint16_t) -2)
 /**
  * Code page for ASCII.
  */
-#define P32_CODEPAGE_ASCII (20127)
+#define P32_CODEPAGE_ASCII      (20127)
+/**
+ * Code page for ISO-8859-1.
+ */
+#define P32_CODEPAGE_ISO_8859_1 (28591)
 /**
  * Code page used with "POSIX" locale.
  */
-#define P32_CODEPAGE_POSIX (28591)
+#define P32_CODEPAGE_POSIX      P32_CODEPAGE_ISO_8859_1
 
 /**
  * `Charset`.

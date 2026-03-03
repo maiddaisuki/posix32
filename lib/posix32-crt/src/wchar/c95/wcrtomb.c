@@ -19,7 +19,7 @@
 static void P32LocaleFunction_wcrtomb (LocaleFunctions *functions, Charset *charset) {
   if (charset->CodePage == P32_CODEPAGE_ASCII) {
     functions->F_wcrtomb = p32_private_wcrtomb_cp20127;
-  } else if (charset->CodePage == P32_CODEPAGE_POSIX) {
+  } else if (charset->CodePage == P32_CODEPAGE_ISO_8859_1) {
     functions->F_wcrtomb = p32_private_wcrtomb_cp28591;
   } else if (charset->CodePage == CP_UTF8) {
     functions->F_wcrtomb = p32_private_wcrtomb_cp65001;
