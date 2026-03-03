@@ -34,12 +34,12 @@
 /**
  * An EBCDIC code page.
  */
-#define P32_CHARSET_EBCDIC (1 << 8)
+#define P32_CHARSET_EBCDIC (1 << 2)
 
 /**
  * A SBCS code page where all 256 bytes are valid characters.
  */
-#define P32_CHARSET_FULL (1 << 9)
+#define P32_CHARSET_FULL (1 << 4)
 
 /**
  * Code page cannot represent all ASCII characters.
