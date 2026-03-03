@@ -152,7 +152,7 @@ static bool P32GetTextualLocaleInfo (LocaleInfoRequest *request, uintptr_t heap,
     conversionRequest.Input.W   = buffer;
     conversionRequest.Output.A  = request->OutputA;
 
-    if ((request->Flags & P32_LOCALE_INFO_REQUEST_CONVERT_BEST_FIT) == 0) {
+    if (request->Flags & P32_LOCALE_INFO_REQUEST_CONVERT_NO_BEST_FIT) {
       conversionRequest.Flags |= P32_CHARSET_CONVERSION_NO_BEST_FIT;
     }
 
@@ -259,7 +259,7 @@ static bool P32GetTextualCalendarInfo (CalendarInfoRequest *request, uintptr_t h
     conversionRequest.Input.W   = buffer;
     conversionRequest.Output.A  = request->OutputA;
 
-    if ((request->Flags & P32_LOCALE_INFO_REQUEST_CONVERT_BEST_FIT) == 0) {
+    if (request->Flags & P32_LOCALE_INFO_REQUEST_CONVERT_NO_BEST_FIT) {
       conversionRequest.Flags |= P32_CHARSET_CONVERSION_NO_BEST_FIT;
     }
 

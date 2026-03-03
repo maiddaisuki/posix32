@@ -42,7 +42,7 @@
  */
 static bool P32LcMonetaryInfo (LcMonetaryInfo *info, uintptr_t heap, Locale *lcMonetaryInfo, locale_t locale) {
   LocaleInfoRequest infoRequest      = {0};
-  uint32_t          infoRequestFlags = (P32_LOCALE_INFO_REQUEST_CONVERT | P32_LOCALE_INFO_REQUEST_CONVERT_BEST_FIT);
+  uint32_t          infoRequestFlags = (P32_LOCALE_INFO_REQUEST_CONVERT);
 
   infoRequest.CodePage = locale->Charset.CodePage;
 

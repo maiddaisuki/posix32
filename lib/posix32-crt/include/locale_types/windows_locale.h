@@ -193,29 +193,29 @@ P32_TEST_DECL bool p32_winlocale_equal (Locale *l1, Locale *l2);
  * This flag can be set only when retrieving locale information using
  * `LOCALE_I*` and `CAL_I*` constants.
  */
-#define P32_LOCALE_INFO_REQUEST_NUMERIC          (1)
+#define P32_LOCALE_INFO_REQUEST_NUMERIC             (1)
 /**
  * Convert locale information.
  */
-#define P32_LOCALE_INFO_REQUEST_CONVERT          (1 << 8)
+#define P32_LOCALE_INFO_REQUEST_CONVERT             (1 << 8)
 /**
- * Allow best fit conversion of locale infromation.
+ * Do not allow best-fit conversion of locale infromation.
  *
- * TODO: this flag should be removed once `p32_private_wcstombs` is refactored
- *   to have interface similar to `p32_winlocale_get_locale_info`.
+ * This flag results in using `P32_CHARSET_CONVERSION_NO_BEST_FIT` flag with
+ * `p32_charset_convert` when converting retrieved locale information.
  */
-#define P32_LOCALE_INFO_REQUEST_CONVERT_BEST_FIT (1 << 9)
+#define P32_LOCALE_INFO_REQUEST_CONVERT_NO_BEST_FIT (1 << 9)
 /**
  * If locale information cannot be converted, fallback to some default value.
  *
  * TODO: we should fallback to locale information used for "POSIX" locale;
  *   currently, we simply store an empty string.
  */
-#define P32_LOCALE_INFO_REQUEST_CONVERT_FALLBACK (1 << 10)
+#define P32_LOCALE_INFO_REQUEST_CONVERT_FALLBACK    (1 << 10)
 /**
  * Do not fail if locale information cannot be converted.
  */
-#define P32_LOCALE_INFO_REQUEST_CONVERT_NO_ERROR (1 << 11)
+#define P32_LOCALE_INFO_REQUEST_CONVERT_NO_ERROR    (1 << 11)
 
 /**
  * Structure used with `p32_winlocale_get_locale_info` function.

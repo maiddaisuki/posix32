@@ -70,7 +70,7 @@ static bool P32LcTimeCalendarInfo (
   CalendarInfoRequest textualInfoRequest = {0};
   CalendarInfoRequest numericInfoRequest = {0};
 
-  uint32_t textualInfoRequestFlags = (P32_LOCALE_INFO_REQUEST_CONVERT | P32_LOCALE_INFO_REQUEST_CONVERT_BEST_FIT);
+  uint32_t textualInfoRequestFlags = (P32_LOCALE_INFO_REQUEST_CONVERT);
 
   textualInfoRequest.CodePage = locale->Charset.CodePage;
 
@@ -950,7 +950,7 @@ static bool P32LcTimeLocaleInfo (LcTimeInfo *lcTimeInfo, uintptr_t heap, Locale 
   LocaleInfoRequest numbericInfoRequest = {0};
   LocaleInfoRequest textualInfoRequest  = {0};
 
-  uint32_t textualInfoRequestFlags = (P32_LOCALE_INFO_REQUEST_CONVERT | P32_LOCALE_INFO_REQUEST_CONVERT_BEST_FIT);
+  uint32_t textualInfoRequestFlags = (P32_LOCALE_INFO_REQUEST_CONVERT);
 
   textualInfoRequest.CodePage = locale->Charset.CodePage;
 
@@ -1003,11 +1003,16 @@ static bool P32LcTimeLocaleInfo (LcTimeInfo *lcTimeInfo, uintptr_t heap, Locale 
 
   /**
    * Locale's alternative digits.
+   *
+   * Many SBCS/DBCS code pages are unable to represent alternative digits;
+   * handle this situation gracefully, but do not allow best-fit conversion.
    */
-  textualInfoRequest.Info    = LOCALE_SNATIVEDIGITS;
-  textualInfoRequest.Flags   = (P32_LOCALE_INFO_REQUEST_CONVERT | P32_LOCALE_INFO_REQUEST_CONVERT_FALLBACK);
-  textualInfoRequest.OutputA = &lcTimeInfo->AltDigits.A;
-  textualInfoRequest.OutputW = &lcTimeInfo->AltDigits.W;
+  textualInfoRequest.Info     = LOCALE_SNATIVEDIGITS;
+  textualInfoRequest.Flags    = (textualInfoRequestFlags);
+  textualInfoRequest.Flags   |= P32_LOCALE_INFO_REQUEST_CONVERT_NO_BEST_FIT;
+  textualInfoRequest.Flags   |= P32_LOCALE_INFO_REQUEST_CONVERT_FALLBACK;
+  textualInfoRequest.OutputA  = &lcTimeInfo->AltDigits.A;
+  textualInfoRequest.OutputW  = &lcTimeInfo->AltDigits.W;
 
   if (!p32_winlocale_get_locale_info (&textualInfoRequest, heap, lcTime)) {
     goto fail;
