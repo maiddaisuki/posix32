@@ -144,11 +144,6 @@ typedef struct Charset {
 P32_TEST_DECL bool p32_charset_usable (uint32_t codePage, int rejectMask, int allowMask);
 
 /**
- * Get conversion flags to use with `charset->CodePage`.
- */
-P32_TEST_DECL void p32_charset_conversion_flags (Charset *charset);
-
-/**
  * Fill in `charset` with information about `charset->CodePage`.
  *
  * Returns `true` on success, and `false` otherwise.

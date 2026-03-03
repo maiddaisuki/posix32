@@ -687,30 +687,10 @@ static const CodePageInfo Charsets[] = {
   {65001, 0,                                             L"UTF-8"           },
 };
 
-bool p32_charset_usable (uint32_t codePage, int rejectMask, int allowMask) {
-  const int defaultRejectMask =
-    (P32_CHARSET_REJECT_ASCII | P32_CHARSET_REJECT_BROKEN | P32_CHARSET_REJECT_LEGACY | P32_CHARSET_REJECT_MANAGED
-     | P32_CHARSET_REJECT_UNDOCUMENTED | P32_CHARSET_REJECT_UNSUPPORTED);
-
-  const CodePageInfo *info = NULL;
-
-  for (size_t i = 0; i < _countof (Charsets); ++i) {
-    if (Charsets[i].CodePage == codePage) {
-      info = &Charsets[i];
-      break;
-    }
-  }
-
-  assert (info != NULL);
-
-  if (info == NULL || (info->Flags & ((defaultRejectMask & ~allowMask) | rejectMask))) {
-    return false;
-  }
-
-  return true;
-}
-
-void p32_charset_conversion_flags (Charset *charset) {
+/**
+ * Get conversion flags to use with `charset->CodePage`.
+ */
+static void P32CharsetConversionFlags (Charset *charset) {
   uint32_t toMb = 0;
   uint32_t toWc = 0;
 
@@ -760,6 +740,29 @@ done:
   charset->ToWideChar  = toWc;
 }
 
+bool p32_charset_usable (uint32_t codePage, int rejectMask, int allowMask) {
+  const int defaultRejectMask =
+    (P32_CHARSET_REJECT_ASCII | P32_CHARSET_REJECT_BROKEN | P32_CHARSET_REJECT_LEGACY | P32_CHARSET_REJECT_MANAGED
+     | P32_CHARSET_REJECT_UNDOCUMENTED | P32_CHARSET_REJECT_UNSUPPORTED);
+
+  const CodePageInfo *info = NULL;
+
+  for (size_t i = 0; i < _countof (Charsets); ++i) {
+    if (Charsets[i].CodePage == codePage) {
+      info = &Charsets[i];
+      break;
+    }
+  }
+
+  assert (info != NULL);
+
+  if (info == NULL || (info->Flags & ((defaultRejectMask & ~allowMask) | rejectMask))) {
+    return false;
+  }
+
+  return true;
+}
+
 bool p32_charset_info (Charset *charset) {
   /**
    * Obtain information about `charset->CodePage`.
@@ -796,7 +799,7 @@ bool p32_charset_info (Charset *charset) {
 
   charset->Flags |= codePageInfo->Flags;
 
-  p32_charset_conversion_flags (charset);
+  P32CharsetConversionFlags (charset);
 
   /**
    * Do not allow best-fit conversion with ASCII.
