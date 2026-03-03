@@ -31,7 +31,7 @@
  * Macro `P32_WCHAR_IMPL` must be defined to one of the following values
  * before including this source file to choose particular implemetation:
  *
- *  - P32_WCHAR_IMPL_POSIX
+ *  - P32_WCHAR_IMPL_ISO_8859_1
  *  - P32_WCHAR_IMPL_ASCII
  *  - P32_WCHAR_IMPL_SBCS
  *  - P32_WCHAR_IMPL_DBCS
@@ -42,13 +42,13 @@
 #error P32_WCHAR_IMPL must be defined before including wchar-impl.c
 #endif
 
-#define P32_WCHAR_IMPL_POSIX 0
-#define P32_WCHAR_IMPL_ASCII 1
-#define P32_WCHAR_IMPL_SBCS  2
-#define P32_WCHAR_IMPL_DBCS  3
-#define P32_WCHAR_IMPL_UTF8  4
+#define P32_WCHAR_IMPL_ISO_8859_1 0
+#define P32_WCHAR_IMPL_ASCII      1
+#define P32_WCHAR_IMPL_SBCS       2
+#define P32_WCHAR_IMPL_DBCS       3
+#define P32_WCHAR_IMPL_UTF8       4
 
-#if P32_WCHAR_IMPL == P32_WCHAR_IMPL_POSIX
+#if P32_WCHAR_IMPL == P32_WCHAR_IMPL_ISO_8859_1
 #define mbrtoc16   p32_private_mbrtoc16_posix
 #define c16rtomb   p32_private_c16rtomb_posix
 #define mbrtoc32   p32_private_mbrtoc32_posix

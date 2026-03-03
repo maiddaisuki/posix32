@@ -37,7 +37,8 @@
 /**
  * File Summary:
  *
- * This file defines POSIX versions of conversion functions declared in wchar.h:
+ * This file defines ISO-8859-1 versions of conversion functions declared
+ * in wchar.h:
  *
  *  - mbrlen
  *  - mbrtowc
@@ -48,5 +49,5 @@
  *  - wcsnrtombs
  */
 
-#define P32_WCHAR_IMPL P32_WCHAR_IMPL_POSIX
+#define P32_WCHAR_IMPL P32_WCHAR_IMPL_ISO_8859_1
 #include "c95/wchar-impl.c"

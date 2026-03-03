@@ -54,7 +54,7 @@ posix32_crt_sources = files (
   'src/wchar/c95.c',
   'src/wchar/c95-ascii.c',
   'src/wchar/c95-dbcs.c',
-  'src/wchar/c95-posix.c',
+  'src/wchar/c95-iso-8859-1.c',
   'src/wchar/c95-sbcs.c',
   'src/wchar/c95-utf-8.c',
   'src/wchar/posix32.c',
