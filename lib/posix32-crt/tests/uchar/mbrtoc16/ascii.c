@@ -45,9 +45,9 @@ static Charset ascii;
 #define MB_CUR_MAX (ascii.MaxLength)
 
 /**
- * Convenience macro to call `p32_private_mbrtoc16_ascii`.
+ * Convenience macro to call `p32_private_mbrtoc16_cp20127`.
  */
-#define mbrtoc16(c16, mb, count, state) p32_private_mbrtoc16_ascii (c16, mb, count, state, &ascii)
+#define mbrtoc16(c16, mb, count, state) p32_private_mbrtoc16_cp20127 (c16, mb, count, state, &ascii)
 
 static void DoTest (void) {
   char16_t  u16   = 0xFFFF;

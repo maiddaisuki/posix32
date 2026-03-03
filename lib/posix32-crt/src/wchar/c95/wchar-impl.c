@@ -61,10 +61,10 @@
 #define wcsrtombs  p32_private_wcsrtombs_posix
 #define wcsnrtombs p32_private_wcsnrtombs_posix
 #elif P32_WCHAR_IMPL == P32_WCHAR_IMPL_ASCII
-#define mbrtoc16   p32_private_mbrtoc16_ascii
-#define c16rtomb   p32_private_c16rtomb_ascii
-#define mbrtoc32   p32_private_mbrtoc32_ascii
-#define c32rtomb   p32_private_c32rtomb_ascii
+#define mbrtoc16   p32_private_mbrtoc16_cp20127
+#define c16rtomb   p32_private_c16rtomb_cp20127
+#define mbrtoc32   p32_private_mbrtoc32_cp20127
+#define c32rtomb   p32_private_c32rtomb_cp20127
 #define mbrlen     p32_private_mbrlen_ascii
 #define mbrtowc    p32_private_mbrtowc_ascii
 #define mbsrtowcs  p32_private_mbsrtowcs_ascii

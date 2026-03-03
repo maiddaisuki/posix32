@@ -17,10 +17,10 @@
 #include "uchar-internal.h"
 
 static void P32LocaleFunction_mbrtoc16 (LocaleFunctions *functions, Charset *charset) {
-  if (charset->CodePage == P32_CODEPAGE_POSIX) {
+  if (charset->CodePage == P32_CODEPAGE_ASCII) {
+    functions->F_mbrtoc16 = p32_private_mbrtoc16_cp20127;
+  } else if (charset->CodePage == P32_CODEPAGE_POSIX) {
     functions->F_mbrtoc16 = p32_private_mbrtoc16_posix;
-  } else if (charset->CodePage == P32_CODEPAGE_ASCII) {
-    functions->F_mbrtoc16 = p32_private_mbrtoc16_ascii;
   } else if (charset->MaxLength == 1) {
     functions->F_mbrtoc16 = p32_private_mbrtoc16_sbcs;
   } else if (charset->MaxLength == 2) {

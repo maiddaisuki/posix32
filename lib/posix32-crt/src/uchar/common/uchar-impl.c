@@ -56,12 +56,12 @@
 #define c32rtomb p32_private_c32rtomb_posix
 #elif P32_UCHAR_IMPL == P32_UCHAR_IMPL_ASCII
 #define P32_UCHAR_SBCS
-#define mbrtoc8  p32_private_mbrtoc8_ascii
-#define c8rtomb  p32_private_c8rtomb_ascii
-#define mbrtoc16 p32_private_mbrtoc16_ascii
-#define c16rtomb p32_private_c16rtomb_ascii
-#define mbrtoc32 p32_private_mbrtoc32_ascii
-#define c32rtomb p32_private_c32rtomb_ascii
+#define mbrtoc8  p32_private_mbrtoc8_cp20127
+#define c8rtomb  p32_private_c8rtomb_cp20127
+#define mbrtoc16 p32_private_mbrtoc16_cp20127
+#define c16rtomb p32_private_c16rtomb_cp20127
+#define mbrtoc32 p32_private_mbrtoc32_cp20127
+#define c32rtomb p32_private_c32rtomb_cp20127
 #elif P32_UCHAR_IMPL == P32_UCHAR_IMPL_SBCS
 #define P32_UCHAR_SBCS
 #define mbrtoc8  p32_private_mbrtoc8_sbcs

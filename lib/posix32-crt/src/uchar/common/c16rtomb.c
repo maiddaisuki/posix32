@@ -17,10 +17,10 @@
 #include "uchar-internal.h"
 
 static void P32LocaleFunction_c16rtomb (LocaleFunctions *functions, Charset *charset) {
-  if (charset->CodePage == P32_CODEPAGE_POSIX) {
+  if (charset->CodePage == P32_CODEPAGE_ASCII) {
+    functions->F_c16rtomb = p32_private_c16rtomb_cp20127;
+  } else if (charset->CodePage == P32_CODEPAGE_POSIX) {
     functions->F_c16rtomb = p32_private_c16rtomb_posix;
-  } else if (charset->CodePage == P32_CODEPAGE_ASCII) {
-    functions->F_c16rtomb = p32_private_c16rtomb_ascii;
   } else if (charset->MaxLength == 1) {
     functions->F_c16rtomb = p32_private_c16rtomb_sbcs;
   } else if (charset->MaxLength == 2) {

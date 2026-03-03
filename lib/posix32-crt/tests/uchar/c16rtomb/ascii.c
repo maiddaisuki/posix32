@@ -46,9 +46,9 @@ static Charset ascii;
 #define MB_CUR_MAX (ascii.MaxLength)
 
 /**
- * Convenience macro to call `p32_private_c16rtomb_ascii`.
+ * Convenience macro to call `p32_private_c16rtomb_cp20127`.
  */
-#define c16rtomb(mb, c16, state) p32_private_c16rtomb_ascii (mb, c16, state, &ascii)
+#define c16rtomb(mb, c16, state) p32_private_c16rtomb_cp20127 (mb, c16, state, &ascii)
 
 static void DoTest (void) {
   char      buffer[MB_LEN_MAX];
