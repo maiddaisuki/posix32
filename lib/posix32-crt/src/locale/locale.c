@@ -833,7 +833,7 @@ static void P32InitGlobalLocale (void) {
     p32_terminate (L"Out of memory.");
   }
 #else
-  uint32_t codePage = P32GlobalLocale.AnsiCodePage;
+  locale_t ansiLocale = p32_ansi_locale ();
 
   /**
    * crtdll.dll and msvcrt10.dll do not have `_wsetlocale` function.
@@ -841,9 +841,14 @@ static void P32InitGlobalLocale (void) {
    * This means that we have to convert string returned by `setlocale` to
    * wide character string. This may fail horribly...
    */
-  const char *crtGlobalLocale = setlocale (LC_ALL, NULL);
+  CharsetConversionRequest conversionRequest = {0};
 
-  if (p32_private_mbstowcs (&globalLocale, crtGlobalLocale, P32GlobalLocale.Heap, codePage) == -1) {
+  conversionRequest.Flags    = (P32_CHARSET_CONVERSION_MB_TO_WC);
+  conversionRequest.Charset  = &ansiLocale->Charset;
+  conversionRequest.Input.A  = setlocale (LC_ALL, NULL);
+  conversionRequest.Output.W = &globalLocale;
+
+  if (p32_charset_convert (&conversionRequest, P32GlobalLocale.Heap) == -1) {
     p32_terminate (L"Global Locale: initialization has failed.");
   }
 #endif
@@ -2508,14 +2513,21 @@ char *p32_setlocale (int category, const char *localeString) {
     /**
      * We expect `localeString` to use active ANSI code page.
      */
-    uint32_t codePage = P32GlobalLocale.AnsiCodePage;
+    locale_t ansiLocale = p32_ansi_locale ();
 
     /**
      * Converted `localeString`.
      */
     wchar_t *localeStringW = NULL;
 
-    if (p32_private_mbstowcs (&localeStringW, localeString, heap, codePage) == -1) {
+    CharsetConversionRequest conversionRequest = {0};
+
+    conversionRequest.Flags    = (P32_CHARSET_CONVERSION_MB_TO_WC);
+    conversionRequest.Charset  = &ansiLocale->Charset;
+    conversionRequest.Input.A  = localeString;
+    conversionRequest.Output.W = &localeStringW;
+
+    if (p32_charset_convert (&conversionRequest, heap) == -1) {
       goto unlock;
     }
 
@@ -2660,14 +2672,21 @@ locale_t p32_newlocale (int mask, const char *localeString, locale_t base) {
   /**
    * We expect `localeString` to use active ANSI code page.
    */
-  uint32_t codePage = P32GlobalLocale.AnsiCodePage;
+  locale_t ansiLocale = p32_ansi_locale ();
 
   /**
    * Converted `localeString`.
    */
   wchar_t *localeStringW = NULL;
 
-  if (p32_private_mbstowcs (&localeStringW, localeString, heap, codePage) == -1) {
+  CharsetConversionRequest conversionRequest = {0};
+
+  conversionRequest.Flags    = (P32_CHARSET_CONVERSION_MB_TO_WC);
+  conversionRequest.Charset  = &ansiLocale->Charset;
+  conversionRequest.Input.A  = localeString;
+  conversionRequest.Output.W = &localeStringW;
+
+  if (p32_charset_convert (&conversionRequest, heap) == -1) {
     return NULL;
   }
 
