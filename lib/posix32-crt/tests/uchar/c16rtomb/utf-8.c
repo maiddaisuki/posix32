@@ -46,9 +46,9 @@ static Charset utf8;
 #define MB_CUR_MAX (utf8.MaxLength)
 
 /**
- * Convenience macro to call `p32_private_c16rtomb_utf8`.
+ * Convenience macro to call `p32_private_c16rtomb_cp65001`.
  */
-#define c16rtomb(mb, c16, state) p32_private_c16rtomb_utf8 (mb, c16, state, &utf8)
+#define c16rtomb(mb, c16, state) p32_private_c16rtomb_cp65001 (mb, c16, state, &utf8)
 
 static void DoTest (void) {
   char      buffer[MB_LEN_MAX];

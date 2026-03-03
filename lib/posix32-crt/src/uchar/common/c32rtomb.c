@@ -21,12 +21,12 @@ static void P32LocaleFunction_c32rtomb (LocaleFunctions *functions, Charset *cha
     functions->F_c32rtomb = p32_private_c32rtomb_cp20127;
   } else if (charset->CodePage == P32_CODEPAGE_POSIX) {
     functions->F_c32rtomb = p32_private_c32rtomb_cp28591;
+  } else if (charset->CodePage == CP_UTF8) {
+    functions->F_c32rtomb = p32_private_c32rtomb_cp65001;
   } else if (charset->MaxLength == 1) {
     functions->F_c32rtomb = p32_private_c32rtomb_sbcs;
   } else if (charset->MaxLength == 2) {
     functions->F_c32rtomb = p32_private_c32rtomb_dbcs;
-  } else if (charset->CodePage == CP_UTF8) {
-    functions->F_c32rtomb = p32_private_c32rtomb_utf8;
   }
   assert (functions->F_c32rtomb != NULL);
 }

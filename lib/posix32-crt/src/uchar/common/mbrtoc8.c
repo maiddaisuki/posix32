@@ -21,12 +21,12 @@ static void P32LocaleFunction_mbrtoc8 (LocaleFunctions *functions, Charset *char
     functions->F_mbrtoc8 = p32_private_mbrtoc8_cp20127;
   } else if (charset->CodePage == P32_CODEPAGE_POSIX) {
     functions->F_mbrtoc8 = p32_private_mbrtoc8_cp28591;
+  } else if (charset->CodePage == CP_UTF8) {
+    functions->F_mbrtoc8 = p32_private_mbrtoc8_cp65001;
   } else if (charset->MaxLength == 1) {
     functions->F_mbrtoc8 = p32_private_mbrtoc8_sbcs;
   } else if (charset->MaxLength == 2) {
     functions->F_mbrtoc8 = p32_private_mbrtoc8_dbcs;
-  } else if (charset->CodePage == CP_UTF8) {
-    functions->F_mbrtoc8 = p32_private_mbrtoc8_utf8;
   }
   assert (functions->F_mbrtoc8 != NULL);
 }

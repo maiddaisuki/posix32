@@ -97,10 +97,10 @@
 #define wcsrtombs  p32_private_wcsrtombs_dbcs
 #define wcsnrtombs p32_private_wcsnrtombs_dbcs
 #elif P32_WCHAR_IMPL == P32_WCHAR_IMPL_UTF8
-#define mbrtoc16   p32_private_mbrtoc16_utf8
-#define c16rtomb   p32_private_c16rtomb_utf8
-#define mbrtoc32   p32_private_mbrtoc32_utf8
-#define c32rtomb   p32_private_c32rtomb_utf8
+#define mbrtoc16   p32_private_mbrtoc16_cp65001
+#define c16rtomb   p32_private_c16rtomb_cp65001
+#define mbrtoc32   p32_private_mbrtoc32_cp65001
+#define c32rtomb   p32_private_c32rtomb_cp65001
 #define mbrlen     p32_private_mbrlen_utf8
 #define mbrtowc    p32_private_mbrtowc_utf8
 #define mbsrtowcs  p32_private_mbsrtowcs_utf8

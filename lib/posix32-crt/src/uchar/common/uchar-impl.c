@@ -80,12 +80,12 @@
 #define c32rtomb p32_private_c32rtomb_dbcs
 #elif P32_UCHAR_IMPL == P32_UCHAR_IMPL_UTF8
 #define P32_UCHAR_UTF8
-#define mbrtoc8  p32_private_mbrtoc8_utf8
-#define c8rtomb  p32_private_c8rtomb_utf8
-#define mbrtoc16 p32_private_mbrtoc16_utf8
-#define c16rtomb p32_private_c16rtomb_utf8
-#define mbrtoc32 p32_private_mbrtoc32_utf8
-#define c32rtomb p32_private_c32rtomb_utf8
+#define mbrtoc8  p32_private_mbrtoc8_cp65001
+#define c8rtomb  p32_private_c8rtomb_cp65001
+#define mbrtoc16 p32_private_mbrtoc16_cp65001
+#define c16rtomb p32_private_c16rtomb_cp65001
+#define mbrtoc32 p32_private_mbrtoc32_cp65001
+#define c32rtomb p32_private_c32rtomb_cp65001
 #else
 #error P32_UCHAR_IMPL is set to invalid value
 #endif
