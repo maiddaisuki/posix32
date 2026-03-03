@@ -257,7 +257,7 @@ int p32_ext_mbstowcs_cp (wchar_t **address, const char *mbs, unsigned codePage) 
   Charset charset  = {0};
   charset.CodePage = codePage;
 
-  p32_charset_conversion_flags (&charset, false);
+  p32_charset_conversion_flags (&charset);
 
   return P32MbsToWcs (address, mbs, &charset);
 }
@@ -266,7 +266,7 @@ int p32_ext_wcstombs_cp (char **address, const wchar_t *wcs, unsigned codePage) 
   Charset charset  = {0};
   charset.CodePage = codePage;
 
-  p32_charset_conversion_flags (&charset, false);
+  p32_charset_conversion_flags (&charset);
 
   return P32WcsToMbs (address, wcs, &charset);
 }
@@ -328,7 +328,11 @@ int p32_private_wcstombs (char **address, const wchar_t *wcs, uintptr_t heap, ui
   Charset charset  = {0};
   charset.CodePage = codePage;
 
-  p32_charset_conversion_flags (&charset, bestFit);
+  p32_charset_conversion_flags (&charset);
+
+  if (bestFit) {
+    charset.ToMultiByte &= ~(WC_NO_BEST_FIT_CHARS);
+  }
 
   char *buffer     = NULL;
   int   bufferSize = 0;
@@ -372,7 +376,7 @@ int p32_private_mbstowcs (wchar_t **address, const char *mbs, uintptr_t heap, ui
   Charset charset  = {0};
   charset.CodePage = codePage;
 
-  p32_charset_conversion_flags (&charset, false);
+  p32_charset_conversion_flags (&charset);
 
   wchar_t *buffer     = NULL;
   int      bufferSize = 0;

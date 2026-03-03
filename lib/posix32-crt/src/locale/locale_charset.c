@@ -710,7 +710,7 @@ bool p32_charset_usable (uint32_t codePage, int rejectMask, int allowMask) {
   return true;
 }
 
-void p32_charset_conversion_flags (Charset *charset, bool bestFit) {
+void p32_charset_conversion_flags (Charset *charset) {
   uint32_t toMb = 0;
   uint32_t toWc = 0;
 
@@ -753,9 +753,7 @@ void p32_charset_conversion_flags (Charset *charset, bool bestFit) {
       goto done;
   }
 
-  if (!bestFit) {
-    toMb |= WC_NO_BEST_FIT_CHARS;
-  }
+  toMb |= WC_NO_BEST_FIT_CHARS;
 
 done:
   charset->ToMultiByte = toMb;
@@ -772,7 +770,7 @@ bool p32_charset_info (Charset *charset) {
   charset->MaxLength = cpInfo.MaxCharSize;
   memcpy (charset->Map, cpInfo.LeadByte, MAX_LEADBYTES);
 
-  p32_charset_conversion_flags (charset, false);
+  p32_charset_conversion_flags (charset);
 
   if (charset->CodePage == CP_UTF8) {
     charset->ReplacementChar.Length  = 3;
