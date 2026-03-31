@@ -23,7 +23,7 @@
  *  - msvcrt10.dll
  *  - msvcrt20.dll
  *  - msvcrt40.dll
- *  - msvcrt.dll, when targeting Windows NT 4.0 or older
+ *  - msvcrt.dll, when P32_WINNT <= Windows NT 4.0
  *
  * These CRTs provide very limited support for locale strings using
  * `Language_Country.CodePage` format.
@@ -42,11 +42,11 @@
  * which may or may not work with specific CRT.
  */
 
-typedef struct CrtLocaleString {
+typedef struct LanguageString {
   LanguageIndex  Language;
   CountryIndex   Country;
   const wchar_t *LocaleString;
-} CrtLocaleString;
+} LanguageString;
 
 /**
  * NOTE: This data was obtained by testsing. Running code on old versions of
@@ -75,7 +75,7 @@ typedef struct CrtLocaleString {
  * by any of CRTs listed above. We still provide "language string" for them,
  * as using them has the highest chance of success.
  */
-static const CrtLocaleString CrtLocaleStrings[] = {
+static const LanguageString LanguageStrings[] = {
   /**
    * msvcrt10.dll only | ll_CC: no
    */

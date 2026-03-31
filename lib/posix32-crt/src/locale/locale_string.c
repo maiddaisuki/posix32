@@ -36,10 +36,6 @@
  * This file defines functions to manipulate `LocaleStrings` structure.
  */
 
-#if P32_CRT <= P32_MSVCRT41 || (P32_MSVCRT && P32_WINNT <= P32_WINNT_NT_4)
-#define P32_USE_LEGACY_LOCALE_STRINGS
-#endif
-
 /**
  * Copy locale string from `src` to `dest`.
  */
@@ -652,8 +648,12 @@ fail:
  * Formatting Locale Strings
  */
 
-#ifdef P32_USE_LEGACY_LOCALE_STRINGS
-#include "locale_string/legacy.c"
+#if P32_CRT <= P32_MSVCRT41 || (P32_MSVCRT && P32_WINNT <= P32_WINNT_NT_4)
+#define P32_USE_LANGUAGE_STRINGS
+#endif
+
+#ifdef P32_USE_LANGUAGE_STRINGS
+#include "locale_string/language_strings.c"
 #endif
 
 /**
@@ -755,23 +755,26 @@ static bool P32FormatCrtLocaleString (wchar_t **address, uintptr_t heap, Locale 
     return p32_private_wcsdup (address, locale->LocaleName, heap) != -1;
   }
 #endif
-#ifdef P32_USE_LEGACY_LOCALE_STRINGS
-  const CrtLocaleString *entry = NULL;
+#ifdef P32_USE_LANGUAGE_STRINGS
+  /**
+   * Attempt to look up `LanguageString` entry for `locale`.
+   */
+  const LanguageString *languageString = NULL;
 
   if (codePage == P32_LOCALE_CODEPAGE (*locale)) {
-    for (size_t i = 0; i < _countof (CrtLocaleStrings); ++i) {
-      if (CrtLocaleStrings[i].Language == locale->Map.Language && CrtLocaleStrings[i].Country == locale->Map.Country) {
-        entry = &CrtLocaleStrings[i];
+    for (size_t i = 0; i < _countof (LanguageStrings); ++i) {
+      if (LanguageStrings[i].Language == locale->Map.Language && LanguageStrings[i].Country == locale->Map.Country) {
+        languageString = &LanguageStrings[i];
         break;
       }
     }
 
-    if (entry != NULL) {
-      assert (entry->LocaleString != NULL);
-      return p32_private_wcsdup (address, entry->LocaleString, heap) != -1;
+    if (languageString != NULL) {
+      assert (languageString->LocaleString != NULL);
+      return p32_private_wcsdup (address, languageString->LocaleString, heap) != -1;
     }
   }
-#endif
+#endif /* Language strings */
 
   bool success = false;
 
