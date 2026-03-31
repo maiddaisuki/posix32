@@ -29,9 +29,9 @@
 #include "locale-internal.h"
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
-#define LANGUAGE_DECL(name, ll, id) {TEXT (name), TEXT (ll), (uint16_t) id}
+#define LANGUAGE_DECL(name, ll, id) {TEXT (ll), (uint16_t) id}
 #else
-#define LANGUAGE_DECL(name, ll, id) {TEXT (name), TEXT (ll)}
+#define LANGUAGE_DECL(name, ll, id) {TEXT (ll)}
 #endif
 
 static const Language Languages[] = {

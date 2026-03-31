@@ -138,10 +138,12 @@ void p32_base_language (BaseLanguageIndex index, BaseLanguage *baseLanguage);
  * Information about language.
  */
 typedef struct Language {
+#if 0 /* no longer needed; values are preserved in `locale_map/language.c` */
   /**
    * Language name in English (e.g. "English").
    */
   const wchar_t *Name;
+#endif
   /**
    * ISO 3166 language code (e.g. "en").
    */
