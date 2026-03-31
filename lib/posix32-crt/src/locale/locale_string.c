@@ -686,11 +686,11 @@ static bool P32FormatPseudoLocaleString (wchar_t **address, uintptr_t heap, Loca
  * Returns `true` on success, and `false` otherwise.
  */
 static bool P32FormatWindowsLocaleString (wchar_t **address, uintptr_t heap, Locale *locale, uint32_t codePage) {
-  if (locale->Type == LOCALE_TYPE_POSIX) {
+  if (locale->Type == LocaleType_POSIX) {
     return P32FormatCLocaleString (address, heap);
   }
 
-  if (locale->Type == LOCALE_TYPE_PSEUDO_LOCALE) {
+  if (locale->Type == LocaleType_PseudoLocale) {
     return P32FormatPseudoLocaleString (address, heap, locale);
   }
 
@@ -707,7 +707,7 @@ static bool P32FormatWindowsLocaleString (wchar_t **address, uintptr_t heap, Loc
 static bool P32FormatCrtLocaleString (wchar_t **address, uintptr_t heap, Locale *locale, uint32_t codePage) {
   HANDLE heapHandle = (HANDLE) heap;
 
-  if (locale->Type == LOCALE_TYPE_POSIX) {
+  if (locale->Type == LocaleType_POSIX) {
     return P32FormatCLocaleString (address, heap);
   }
 
@@ -814,7 +814,7 @@ fail:
 static bool P32FormatIsoLocaleString (wchar_t **address, uintptr_t heap, Locale *locale, uint32_t codePage) {
   HANDLE heapHandle = (HANDLE) heap;
 
-  if (locale->Type == LOCALE_TYPE_POSIX) {
+  if (locale->Type == LocaleType_POSIX) {
     return P32FormatCLocaleString (address, heap);
   }
 

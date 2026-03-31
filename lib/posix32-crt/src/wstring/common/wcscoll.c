@@ -37,7 +37,7 @@ static int p32_wcscoll_generic (const wchar_t *wcs1, const wchar_t *wcs2, locale
 }
 
 static void P32LocaleFunction_wcscoll (LocaleFunctions *functions, Locale *locale) {
-  if (locale->Type == LOCALE_TYPE_POSIX) {
+  if (locale->Type == LocaleType_POSIX) {
     functions->F_wcscoll = p32_wcscoll_posix;
   } else {
     functions->F_wcscoll = p32_wcscoll_generic;

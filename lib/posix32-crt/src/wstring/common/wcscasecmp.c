@@ -47,7 +47,7 @@ static int p32_wcscasecmp_generic (const wchar_t *wcs1, const wchar_t *wcs2, loc
 }
 
 static void P32LocaleFunction_wcscasecmp (LocaleFunctions *functions, Locale *locale) {
-  if (locale->Type == LOCALE_TYPE_POSIX) {
+  if (locale->Type == LocaleType_POSIX) {
     functions->F_wcscasecmp = p32_wcscasecmp_posix;
   } else {
     functions->F_wcscasecmp = p32_wcscasecmp_generic;

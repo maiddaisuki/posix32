@@ -65,11 +65,11 @@
  */
 static const LocaleMap LocaleNames[] = {
   /* clang-format off */
-  LOCALE_MAP (L"C",         LOCALE_TYPE_POSIX,             en, -1, US, P32_CODEPAGE_POSIX),
-  LOCALE_MAP (L"POSIX",     LOCALE_TYPE_POSIX,             en, -1, US, P32_CODEPAGE_POSIX),
-  LOCALE_MAP (L"qps-ploc",  LOCALE_TYPE_PSEUDO_LOCALE, en, -1, US, PSEUDO_LOCALE_CODEPAGE (1250)),
-  LOCALE_MAP (L"qps-ploca", LOCALE_TYPE_PSEUDO_LOCALE, ja, -1, JP, PSEUDO_LOCALE_CODEPAGE (932)),
-  LOCALE_MAP (L"qps-plocm", LOCALE_TYPE_PSEUDO_LOCALE, ar, -1, SA, PSEUDO_LOCALE_CODEPAGE (1256)),
+  LOCALE_MAP (L"C",         LocaleType_POSIX,        en, -1, US, P32_CODEPAGE_POSIX),
+  LOCALE_MAP (L"POSIX",     LocaleType_POSIX,        en, -1, US, P32_CODEPAGE_POSIX),
+  LOCALE_MAP (L"qps-ploc",  LocaleType_PseudoLocale, en, -1, US, PSEUDO_LOCALE_CODEPAGE (1250)),
+  LOCALE_MAP (L"qps-ploca", LocaleType_PseudoLocale, ja, -1, JP, PSEUDO_LOCALE_CODEPAGE (932)),
+  LOCALE_MAP (L"qps-plocm", LocaleType_PseudoLocale, ar, -1, SA, PSEUDO_LOCALE_CODEPAGE (1256)),
   /* clang-format on */
 };
 
@@ -617,7 +617,7 @@ static bool P32LocaleMap (LocaleMap *localeMap, LocaleStringMap *stringMap, bool
       break;
   }
 
-  localeMap->KnownLocale.Type = LOCALE_TYPE_EXPLICIT;
+  localeMap->KnownLocale.Type = LocaleType_WindowsLocale;
 
   return true;
 }

@@ -551,7 +551,7 @@ bool p32_winlocale_resolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap
   /**
    * We do not need to resolve Windows pseudo locales.
    */
-  if (localeMap->KnownLocale.Type == LOCALE_TYPE_PSEUDO_LOCALE) {
+  if (localeMap->KnownLocale.Type == LocaleType_PseudoLocale) {
     if (P32IsValidLocaleName (localeMap->KnownLocale.LocaleName, heap) != 0) {
       return false;
     }
@@ -572,7 +572,7 @@ bool p32_winlocale_resolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap
     locale->Map.Country  = localeMap->Language.Country;
     locale->Map.Modifier = localeMap->Modifier;
 
-    locale->Type = LOCALE_TYPE_PSEUDO_LOCALE;
+    locale->Type = LocaleType_PseudoLocale;
 
     return true;
   }
@@ -709,7 +709,7 @@ fail:
 void p32_winlocale_destroy (Locale *locale, uintptr_t heap) {
   P32GeoDestroy (locale, heap);
 
-  locale->Type                = LOCALE_TYPE_INVALID;
+  locale->Type                = LocaleType_Invalid;
   locale->Calendar            = 0;
   locale->AlternativeCalendar = 0;
   locale->CodePage.Ansi       = P32_CODEPAGE_ACP;
@@ -730,7 +730,7 @@ bool p32_winlocale_equal (Locale *l1, Locale *l2) {
     return false;
   }
 
-  if (l1->Type == LOCALE_TYPE_POSIX) {
+  if (l1->Type == LocaleType_POSIX) {
     assert (wcscmp (l1->LocaleName, L"en-US") == 0);
     assert (wcscmp (l2->LocaleName, L"en-US") == 0);
   }
@@ -751,7 +751,7 @@ bool p32_winlocale_equal (Locale *l1, Locale *l2) {
 }
 
 P32_TEST_DECL bool p32_winlocale_get_language_name (wchar_t **address, uintptr_t heap, Locale *locale) {
-  if (locale->Type == LOCALE_TYPE_PSEUDO_LOCALE) {
+  if (locale->Type == LocaleType_PseudoLocale) {
     Language language = {0};
 
     p32_language (locale->Map.Language, &language);
@@ -763,7 +763,7 @@ P32_TEST_DECL bool p32_winlocale_get_language_name (wchar_t **address, uintptr_t
 }
 
 P32_TEST_DECL bool p32_winlocale_get_country_name (wchar_t **address, uintptr_t heap, Locale *locale) {
-  if (locale->Type == LOCALE_TYPE_PSEUDO_LOCALE) {
+  if (locale->Type == LocaleType_PseudoLocale) {
     Country country = {0};
 
     p32_country (locale->Map.Country, &country);
@@ -775,7 +775,7 @@ P32_TEST_DECL bool p32_winlocale_get_country_name (wchar_t **address, uintptr_t 
 }
 
 P32_TEST_DECL bool p32_winlocale_get_language_code (wchar_t **address, uintptr_t heap, Locale *locale) {
-  if (locale->Type == LOCALE_TYPE_PSEUDO_LOCALE) {
+  if (locale->Type == LocaleType_PseudoLocale) {
     Language language = {0};
 
     p32_language (locale->Map.Language, &language);
@@ -787,7 +787,7 @@ P32_TEST_DECL bool p32_winlocale_get_language_code (wchar_t **address, uintptr_t
 }
 
 P32_TEST_DECL bool p32_winlocale_get_country_code (wchar_t **address, uintptr_t heap, Locale *locale) {
-  if (locale->Type == LOCALE_TYPE_PSEUDO_LOCALE) {
+  if (locale->Type == LocaleType_PseudoLocale) {
     Country country = {0};
 
     p32_country (locale->Map.Country, &country);

@@ -51,7 +51,7 @@ typedef struct Locale {
   /**
    * Locale type.
    *
-   * For some valid `Locale` object, it is never set to `LOCALE_TYPE_INVALID`.
+   * For some valid `Locale` object, it is never set to `LocaleType_Invalid`.
    */
   LocaleType Type;
   /**

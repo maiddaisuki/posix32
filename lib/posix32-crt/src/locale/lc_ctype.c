@@ -336,7 +336,7 @@ bool p32_localeinfo_ctype (locale_t locale, uintptr_t heap) {
   /**
    * Use filesystem casing rules with "POSIX" ("C") locale.
    */
-  if (lcCtype->Type == LOCALE_TYPE_POSIX) {
+  if (lcCtype->Type == LocaleType_POSIX) {
     lcCtypeInfo->WcTransFlags = 0;
     lcCtypeInfo->CaseCmpFlags = 0;
   } else {

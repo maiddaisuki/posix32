@@ -71,7 +71,7 @@ einval:
 }
 
 static void P32LocaleFunction_wcsxfrm (LocaleFunctions *functions, Locale *locale) {
-  if (locale->Type == LOCALE_TYPE_POSIX) {
+  if (locale->Type == LocaleType_POSIX) {
     functions->F_wcsxfrm = p32_wcsxfrm_posix;
   } else {
     functions->F_wcsxfrm = p32_wcsxfrm_generic;

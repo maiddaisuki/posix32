@@ -71,7 +71,7 @@ static int p32_wcsncasecmp_generic (const wchar_t *wcs1, const wchar_t *wcs2, si
 }
 
 static void P32LocaleFunction_wcsncasecmp (LocaleFunctions *functions, Locale *locale) {
-  if (locale->Type == LOCALE_TYPE_POSIX) {
+  if (locale->Type == LocaleType_POSIX) {
     functions->F_wcsncasecmp = p32_wcsncasecmp_posix;
   } else {
     functions->F_wcsncasecmp = p32_wcsncasecmp_generic;

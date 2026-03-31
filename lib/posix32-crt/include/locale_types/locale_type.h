@@ -24,19 +24,19 @@ typedef enum LocaleType {
   /**
    * An invalid `LocaleType` value.
    */
-  LOCALE_TYPE_INVALID = 0,
+  LocaleType_Invalid = 0,
   /**
    * "POSIX" ("C") locale.
    */
-  LOCALE_TYPE_POSIX,
+  LocaleType_POSIX,
+  /**
+   * Normal Windows locale.
+   */
+  LocaleType_WindowsLocale,
   /**
    * Windows pseudo locale.
    */
-  LOCALE_TYPE_PSEUDO_LOCALE,
-  /**
-   * An explicit locale.
-   */
-  LOCALE_TYPE_EXPLICIT,
+  LocaleType_PseudoLocale,
 } LocaleType;
 
 #endif /* LIBPOSIX32_LOCALE_TYPE_H_INCLUDED */

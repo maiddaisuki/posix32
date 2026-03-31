@@ -498,7 +498,7 @@ static bool P32LocaleName (Locale *locale, uintptr_t heap, ResolvedLocaleMap *re
    *
    * Simply copy locale name from `localeMap`.
    */
-  if (localeMap != NULL && localeMap->KnownLocale.Type == LOCALE_TYPE_PSEUDO_LOCALE) {
+  if (localeMap != NULL && localeMap->KnownLocale.Type == LocaleType_PseudoLocale) {
     assert (localeMap->KnownLocale.LocaleName != NULL);
     return p32_private_wcsdup (&locale->LocaleName, localeMap->KnownLocale.LocaleName, heap) != -1;
   }
@@ -744,7 +744,7 @@ void p32_winlocale_destroy (Locale *locale, uintptr_t heap) {
 
   P32GeoDestroy (locale, heap);
 
-  locale->Type                = LOCALE_TYPE_INVALID;
+  locale->Type                = LocaleType_Invalid;
   locale->LocaleId            = 0;
   locale->Calendar            = 0;
   locale->AlternativeCalendar = 0;
@@ -766,7 +766,7 @@ bool p32_winlocale_equal (Locale *l1, Locale *l2) {
     return false;
   }
 
-  if (l1->Type == LOCALE_TYPE_POSIX) {
+  if (l1->Type == LocaleType_POSIX) {
     assert (l1->LocaleId == l2->LocaleId);
     assert (wcscmp (l1->LocaleName, L"en-US") == 0);
     assert (wcscmp (l2->LocaleName, L"en-US") == 0);

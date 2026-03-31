@@ -44,7 +44,7 @@
 /**
  * We need to handle "POSIX" locale specially in some cases.
  */
-#define P32_IS_POSIX(l) (l->Type == LOCALE_TYPE_POSIX)
+#define P32_IS_POSIX(l) (l->Type == LocaleType_POSIX)
 
 /**
  * Evaluates to non-zero if `Charset` is a SBCS code page where all 256 bytes

@@ -47,7 +47,7 @@ bool p32_localeinfo_collate (locale_t locale, uintptr_t heap) {
    * For all other locales `LcColalteInfo` contains extra flags to pass to
    * functions `CompareString[Ex]` and `LCMapString[Ex]`.
    */
-  if (lcCollate->Type == LOCALE_TYPE_POSIX) {
+  if (lcCollate->Type == LocaleType_POSIX) {
     lcCollateInfo->StringCompareFlags        = 0;
     lcCollateInfo->StringCaseCompareFlags    = 0;
     lcCollateInfo->StringTransformationFlags = 0;
