@@ -48,6 +48,11 @@ typedef enum Calendar {
  * Represents Windows locale object.
  */
 typedef struct Locale {
+  /**
+   * Locale type.
+   *
+   * For some valid `Locale` object, it is never set to `LOCALE_TYPE_INVALID`.
+   */
   LocaleType Type;
   /**
    * Locale name

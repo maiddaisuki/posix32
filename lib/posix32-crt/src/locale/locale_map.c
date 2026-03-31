@@ -617,6 +617,8 @@ static bool P32LocaleMap (LocaleMap *localeMap, LocaleStringMap *stringMap, bool
       break;
   }
 
+  localeMap->KnownLocale.Type = LOCALE_TYPE_EXPLICIT;
+
   return true;
 }
 
