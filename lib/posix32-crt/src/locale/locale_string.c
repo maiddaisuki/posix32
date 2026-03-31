@@ -785,36 +785,46 @@ static bool P32FormatCrtLocaleString (wchar_t **address, uintptr_t heap, Locale 
    * rejects locale string constructed from strings returned by
    * `GetLocaleInfo[Ex]`.
    *
-   * However, we use this format only if no script was applied during locale
-   * resolution and only for UTF-8 (this format is not accepted with other
-   * character sets).
+   * We use this format only when all of the following conditions apply:
+   *
+   *  - no script was applied during locale resolution
+   *    (e.g. "Latn" in sr-Latn-RS)
+   *  - no modifier is required to properly distinguish locale
+   *    (e.g. "@valencia" in ca_ES@valencia)
+   *
+   * TODO: does UCRT support this format on all supported Windows versions?
    */
-  if (P32_CRT >= P32_UCRT && codePage == CP_UTF8 && locale->Map.Script == ScriptIndex_invalid) {
-    if (!p32_winlocale_get_language_code (&ll, heap, locale)) {
-      goto fail;
-    }
+  if (P32_CRT >= P32_UCRT && codePage == CP_UTF8) {
+    if (locale->Map.Script == ScriptIndex_invalid && locale->Map.Modifier == ModifierIndex_invalid) {
+      if (!p32_winlocale_get_language_code (&ll, heap, locale)) {
+        goto fail;
+      }
 
-    if (!p32_winlocale_get_country_code (&cc, heap, locale)) {
-      goto fail;
-    }
+      if (!p32_winlocale_get_country_code (&cc, heap, locale)) {
+        goto fail;
+      }
 
-    if (p32_private_aswprintf (address, heap, L"%s_%s.UTF-8", ll, cc) == -1) {
-      goto fail;
-    }
-  } else {
-    if (!p32_winlocale_get_language_name (&ll, heap, locale)) {
-      goto fail;
-    }
+      if (p32_private_aswprintf (address, heap, L"%s_%s.UTF-8", ll, cc) == -1) {
+        goto fail;
+      }
 
-    if (!p32_winlocale_get_country_name (&cc, heap, locale)) {
-      goto fail;
-    }
-
-    if (p32_private_aswprintf (address, heap, L"%s_%s.%u", ll, cc, codePage) == -1) {
-      goto fail;
+      goto done;
     }
   }
 
+  if (!p32_winlocale_get_language_name (&ll, heap, locale)) {
+    goto fail;
+  }
+
+  if (!p32_winlocale_get_country_name (&cc, heap, locale)) {
+    goto fail;
+  }
+
+  if (p32_private_aswprintf (address, heap, L"%s_%s.%u", ll, cc, codePage) == -1) {
+    goto fail;
+  }
+
+done:
   success = true;
 
 fail:
