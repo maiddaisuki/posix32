@@ -668,13 +668,45 @@ static bool P32FormatCLocaleString (wchar_t **address, uintptr_t heap) {
 }
 
 /**
- * Copy `locale->LocaleName` to `*address`
+ * Format locale string for Windows pseudo locale.
  *
- * This is used for Windows pseudo locales.
+ * When Windows pseudo locales are used with their default ANSI code pages,
+ * we simply copy `locale->LocaleName` to `*address`.
+ *
+ * Otherwise, we append `codePage` to `locale->LocaleName`.
  *
  * Returns `true` on success, and `false` otherwise.
  */
-static bool P32FormatPseudoLocaleString (wchar_t **address, uintptr_t heap, Locale *locale) {
+static bool P32FormatPseudoLocaleString (wchar_t **address, uintptr_t heap, Locale *locale, uint32_t codePage) {
+  /**
+   * Windows pseudo locales were introduced in Windows Vista and are only
+   * supported with locale names; we emulate them with `LCID` locales.
+   *
+   * This means that code pages stored in `locale->CodePage` are default
+   * code pages for `locale->LocaleId` and not for Windows pseudo locale
+   * `locale->LocaleName`.
+   *
+   * To ensure proper formatting, we have to lookup `KnownLocale` structure
+   * for `locale->KnownLocale` in order to check whether `codePage` is
+   * `locale->LocaleName`'s default ANSI code page
+   */
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
+  /**
+   * Information about `locale->KnownLocale`.
+   */
+  KnownLocale knownLocale = {0};
+
+  p32_known_locale (locale->KnownLocale, &knownLocale);
+
+  if (codePage != knownLocale.AnsiCodePage) {
+    return p32_private_aswprintf (address, heap, L"%s.%u", locale->LocaleName, codePage) != -1;
+  }
+#else
+  if (codePage != locale->CodePage.Ansi) {
+    return p32_private_aswprintf (address, heap, L"%s.%u", locale->LocaleName, codePage) != -1;
+  }
+#endif
+
   return p32_private_wcsdup (address, locale->LocaleName, heap) != -1;
 }
 
@@ -691,7 +723,7 @@ static bool P32FormatWindowsLocaleString (wchar_t **address, uintptr_t heap, Loc
   }
 
   if (locale->Type == LocaleType_PseudoLocale) {
-    return P32FormatPseudoLocaleString (address, heap, locale);
+    return P32FormatPseudoLocaleString (address, heap, locale, codePage);
   }
 
   return p32_private_aswprintf (address, heap, L"%s.%u", locale->LocaleName, codePage) != -1;
@@ -716,15 +748,8 @@ static bool P32FormatCrtLocaleString (wchar_t **address, uintptr_t heap, Locale 
    * When Windows locale name is passed to CRT's `[_w]setlocale` or
    * `_[w]create_locale`, it uses locale's default ANSI code page.
    *
-   * Windows pseudo locales must be used with their default ANSI code pages.
-   *
-   * For Windows pseudo locales, there is no way to set specific code page when
-   * using locale names, and `GetLocaleInfoEx` returns string which are not
-   * accepted by CRT's `[_w]setlocale` and `_[w]create_locale`.
-   *
-   * If Windows pseudo locale is used only for specific locale categories and
-   * `codePage` is not that pseude locale's default ANSI code page, we will
-   * use information from `locale->Map` to construct reasonable locale string.
+   * If `codePage` is `locale`'s default ANSI code page,
+   * simply copy `locale->LocaleName` to `*address`.
    */
   if (locale->CodePage.Ansi == codePage) {
     return p32_private_wcsdup (address, locale->LocaleName, heap) != -1;

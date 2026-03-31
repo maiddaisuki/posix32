@@ -19,6 +19,14 @@
 
 #include "locale_types/locale_map.h"
 
+typedef struct KnownLocaleInfo {
+  const char      *String;
+  size_t           Length;
+  KnownLocaleIndex KnownLocale;
+} KnownLocaleInfo;
+
+bool p32_lookup_known_locale (KnownLocaleInfo *info);
+
 typedef struct LanguageInfo {
   const char       *String;
   size_t            Length;

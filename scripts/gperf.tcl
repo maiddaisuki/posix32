@@ -15,6 +15,7 @@ set sources [list \
   modifier        \
   language_codes  \
   language_names  \
+  locale_names    \
   script          \
   sorting         \
   sorting_id      \

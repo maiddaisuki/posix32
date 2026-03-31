@@ -14,6 +14,7 @@ posix32_crt_sources = files (
   'gperf/modifier.c',
   'gperf/language_codes.c',
   'gperf/language_names.c',
+  'gperf/locale_names.c',
   'gperf/script.c',
   'gperf/sorting.c',
   'gperf/sorting_id.c',

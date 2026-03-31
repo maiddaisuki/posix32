@@ -72,6 +72,7 @@
 #define P32_LOCALE_PARSER_ISO     0
 #define P32_LOCALE_PARSER_WINDOWS 1
 #define P32_LOCALE_PARSER_CRT     2
+#define P32_LOCALE_PARSER_KLN     3
 
 #if P32_LOCALE_PARSER == P32_LOCALE_PARSER_ISO
 /**
@@ -132,6 +133,18 @@
  */
 #define FuncName     P32ParseCrtLocaleString
 #define SingleLookup false
+#elif P32_LOCALE_PARSER == P32_LOCALE_PARSER_KLN
+/**
+ * Known Locale Name:
+ *
+ * - "C"
+ * - "POSIX"
+ * - "qps-ploc"
+ * - "qps-ploca"
+ * - "qps-plocm"
+ */
+#define FuncName     P32ParseKnownLocaleName
+#define SingleLookup false
 #else
 #error P32_LOCALE_PARSER is set to invalid value
 #endif
@@ -142,7 +155,9 @@ static int FuncName (LocaleMap *localeMap, const wchar_t *localeString, uintptr_
 #if P32_LOCALE_PARSER == P32_LOCALE_PARSER_WINDOWS
   ptrdiff_t scriptSeparatorPosition = 0;
 #endif
+#if P32_LOCALE_PARSER != P32_LOCALE_PARSER_KLN
   ptrdiff_t countrySeparatorPosition = 0;
+#endif
 #if P32_LOCALE_PARSER == P32_LOCALE_PARSER_WINDOWS
   ptrdiff_t sortingSeparatorPosition = 0;
 #endif
@@ -186,6 +201,7 @@ static int FuncName (LocaleMap *localeMap, const wchar_t *localeString, uintptr_
 
   separator = wcschr (localeString, L'_');
 
+#if P32_LOCALE_PARSER != P32_LOCALE_PARSER_KLN
 #if P32_LOCALE_PARSER == P32_LOCALE_PARSER_WINDOWS
 #define xx sortingSeparatorPosition
 #else
@@ -212,6 +228,7 @@ static int FuncName (LocaleMap *localeMap, const wchar_t *localeString, uintptr_
   }
 
 #undef xx
+#endif
 
   /**
    * Format-specific processing.
@@ -321,10 +338,12 @@ static int FuncName (LocaleMap *localeMap, const wchar_t *localeString, uintptr_
   }
 #endif
 
+#if P32_LOCALE_PARSER != P32_LOCALE_PARSER_KLN
   if (countrySeparatorPosition > 0) {
     stringMap.Language[countrySeparatorPosition] = '\0';
     stringMap.Country                            = stringMap.Language + countrySeparatorPosition + 1;
   }
+#endif
 
 #if P32_LOCALE_PARSER == P32_LOCALE_PARSER_WINDOWS
   if (sortingSeparatorPosition > 0) {
@@ -343,6 +362,11 @@ static int FuncName (LocaleMap *localeMap, const wchar_t *localeString, uintptr_
     stringMap.Modifier                            = stringMap.Language + modifierSeparatorPosition + 1;
   }
 
+#if P32_LOCALE_PARSER == P32_LOCALE_PARSER_KLN
+  if (!P32KnownLocaleMap (localeMap, &stringMap)) {
+    returnCode = 1;
+  }
+#else
   if (!P32LocaleMap (localeMap, &stringMap, SingleLookup)) {
 #if P32_LOCALE_PARSER == P32_LOCALE_PARSER_CRT
     returnCode = -1;
@@ -350,6 +374,7 @@ static int FuncName (LocaleMap *localeMap, const wchar_t *localeString, uintptr_
     returnCode = 1;
 #endif
   }
+#endif
 
 fail:
   HeapFree (heapHandle, 0, stringMap.Language);

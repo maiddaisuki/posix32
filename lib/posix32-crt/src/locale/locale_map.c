@@ -40,49 +40,6 @@
  */
 
 /*******************************************************************************
- * Locale Names
- *
- * Locale string may specify locale names such as "C" and "POSIX" instead of
- * explicit locales like "en-US".
- *
- * In addition to "C" and "POSIX" locales, we also support Windows pseudo
- * locales, which were introduced in Windows Vista.
- */
-
-/**
- * Mapping between Known Locale name and corresponding `KnownLocaleIndex` value.
- */
-typedef struct KnownLocaleName {
-  const wchar_t   *LocaleName;
-  KnownLocaleIndex KnownLocale;
-} KnownLocaleName;
-
-/**
- * Known Locale names.
- */
-static const KnownLocaleName KnownLocaleNames[] = {
-  {L"C",         KnownLocale_POSIX   },
-  {L"POSIX",     KnownLocale_POSIX   },
-  {L"qps-ploc",  KnownLocale_QpsPloc },
-  {L"qps-ploca", KnownLocale_QpsPloca},
-  {L"qps-plocm", KnownLocale_QpsPlocm},
-};
-
-/**
- * Check if `localeString` is a Known Locale name.
- */
-static bool P32LocaleName (const wchar_t *localeString, LocaleMap *localeMap) {
-  for (size_t i = 0; i < _countof (KnownLocaleNames); ++i) {
-    if (wcscmp (localeString, KnownLocaleNames[i].LocaleName) == 0) {
-      p32_known_locale_map (localeMap, KnownLocaleNames[i].KnownLocale);
-      return true;
-    }
-  }
-
-  return false;
-}
-
-/*******************************************************************************
  * Locale String Normalization
  *
  * The parser requires that locale string contains only ASCII characters.
@@ -475,6 +432,83 @@ static void P32Modifier (LocaleMap *localeMap, LocaleStringMap *stringMap) {
 }
 
 /**
+ * Attempt to construct `LocaleMap` object from `stringMap`.
+ *
+ * This function is used to construct `LocaleMap` for some Known Locale.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+static bool P32KnownLocaleMap (LocaleMap *localeMap, LocaleStringMap *stringMap) {
+  assert (stringMap->Language != NULL);
+
+  KnownLocaleInfo knownLocaleInfo = {0};
+
+  knownLocaleInfo.String = stringMap->Language;
+  knownLocaleInfo.Length = strlen (knownLocaleInfo.String);
+
+  if (!p32_lookup_known_locale (&knownLocaleInfo)) {
+    return false;
+  }
+
+  p32_known_locale_map (localeMap, knownLocaleInfo.KnownLocale);
+
+  if (stringMap->Charset != NULL) {
+    CharsetInfo charsetInfo = {0};
+
+    charsetInfo.String = stringMap->Charset;
+    charsetInfo.Length = strlen (charsetInfo.String);
+
+    if (!p32_lookup_charset (&charsetInfo)) {
+      return false;
+    }
+
+    localeMap->CodePage = charsetInfo.CodePage;
+
+    /**
+     * Information about Known Locale `localeMap->KnownLocale`.
+     */
+    KnownLocale knownLocale = {0};
+
+    p32_known_locale (localeMap->KnownLocale, &knownLocale);
+
+    /**
+     * If user requested default ANSI or OEM code page with "POSIX" locale,
+     * use code page 28591 (ISO-8859-1).
+     */
+    if (knownLocale.Type == LocaleType_POSIX) {
+      if (localeMap->CodePage == P32_CODEPAGE_ACP || localeMap->CodePage == P32_CODEPAGE_OCP) {
+        localeMap->CodePage = P32_CODEPAGE_POSIX;
+      }
+
+      /**
+       * TODO: allow "POSIX" locale with character sets other than ISO-8859-1.
+       */
+      if (localeMap->CodePage != P32_CODEPAGE_POSIX) {
+        return false;
+      }
+    }
+
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
+    /**
+     * We emulate Windows pseudo locales with `LCID` locales.
+     *
+     * If user requested locale's default ANSI or OEM code page,
+     * we must ensure that the appropriate code page is used.
+     */
+    if (knownLocale.Type == LocaleType_PseudoLocale) {
+      if (localeMap->CodePage == P32_CODEPAGE_ACP) {
+        localeMap->CodePage = knownLocale.AnsiCodePage;
+      } else if (localeMap->CodePage == P32_CODEPAGE_OCP) {
+        localeMap->CodePage = knownLocale.OemCodePage;
+      }
+    }
+#endif
+  }
+
+  return true;
+}
+
+/**
  * Construct `LocaleMap` object from `stringMap`.
  *
  * Returns `true` on success, and `false` otherwise.
@@ -662,18 +696,26 @@ static int P32ParseCrtLocaleString (LocaleMap *localeMap, const wchar_t *localeS
 #undef P32_LOCALE_PARSER
 
 /**
+ * Try to parse `localeString` as Known Locale name.
+ *
+ * Return values:
+ *
+ *   1: locale string has other format
+ *   0: locale string is valid
+ *  -1: locale string is invalid
+ */
+static int P32ParseKnownLocaleName (LocaleMap *localeMap, const wchar_t *localeString, uintptr_t heap);
+
+#define P32_LOCALE_PARSER P32_LOCALE_PARSER_KLN
+#include "locale_map/locale_parser.c"
+#undef P32_LOCALE_PARSER
+
+/**
  * External Functions
  */
 
 bool p32_locale_map (LocaleMap *localeMap, const wchar_t *localeString, uintptr_t heap) {
   HANDLE heapHandle = (HANDLE) heap;
-
-  /**
-   * Check if `localeString` is a Known Locale name.
-   */
-  if (P32LocaleName (localeString, localeMap)) {
-    return true;
-  }
 
   /**
    * Check if `localeString` needs to be normalized.
@@ -692,6 +734,13 @@ bool p32_locale_map (LocaleMap *localeMap, const wchar_t *localeString, uintptr_
    * Try to parse locale string.
    */
   bool success = false;
+
+  switch (P32ParseKnownLocaleName (localeMap, localeString, heap)) {
+    case 0:
+      success = true;
+    case -1:
+      goto free;
+  }
 
   switch (P32ParseIsoLocaleString (localeMap, localeString, heap)) {
     case 0:
