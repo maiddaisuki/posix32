@@ -37,17 +37,15 @@ int main (void) {
   p32_test_init ();
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
-  if (setlocale (LC_ALL, "qps-ploc") == NULL) {
-    assert (setlocale (LC_ALL, "en_US.UTF-8") != NULL);
-    assert (setlocale (LC_COLLATE, "qps-ploc") != NULL);
-    assert (setlocale (LC_MONETARY, "qps-ploc") != NULL);
-    assert (setlocale (LC_MESSAGES, "qps-ploc") != NULL);
-    assert (setlocale (LC_NUMERIC, "qps-ploc") != NULL);
-    assert (setlocale (LC_TIME, "qps-ploc") != NULL);
+  if (setlocale (LC_ALL, "qps-ploc") != NULL) {
+    assert (strcmp (getlocalename_l (LC_ALL, LC_GLOBAL_LOCALE), "qps-ploc") == 0);
+  } else {
+    assert (setlocale (LC_ALL, "qps-ploc.UTF-8") != NULL);
+    assert (strcmp (getlocalename_l (LC_ALL, LC_GLOBAL_LOCALE), "qps-ploc.65001") == 0);
   }
 #else
   assert (setlocale (LC_ALL, "qps-ploc") != NULL);
-  assert (strcmp (setlocale (LC_ALL, NULL), "qps-ploc") == 0);
+  assert (strcmp (getlocalename_l (LC_ALL, LC_GLOBAL_LOCALE), "qps-ploc") == 0);
 #endif
 
   /**
