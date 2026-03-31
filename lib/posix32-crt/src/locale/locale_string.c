@@ -919,13 +919,13 @@ static bool P32FormatLocaleString (
   LocaleStringFormat format
 ) {
   switch (format) {
-    case LOCALE_STRING_FORMAT_C:
+    case LocaleStringFormat_C:
       return P32FormatCLocaleString (address, heap);
-    case LOCALE_STRING_FORMAT_WINDOWS:
+    case LocaleStringFormat_Windows:
       return P32FormatWindowsLocaleString (address, heap, locale, codePage);
-    case LOCALE_STRING_FORMAT_CRT:
+    case LocaleStringFormat_CRT:
       return P32FormatCrtLocaleString (address, heap, locale, codePage);
-    case LOCALE_STRING_FORMAT_ISO:
+    case LocaleStringFormat_ISO:
       return P32FormatIsoLocaleString (address, heap, locale, codePage);
     default:
       return false;
@@ -983,7 +983,7 @@ static bool P32ConverLocaleStrings (LocaleStrings *localeStrings, uintptr_t heap
    * Locale strings in Windows and ISO formats must contain only ASCII
    * characters, and as such, best-fit conversion is not allowed.
    */
-  if (localeStrings->Format != LOCALE_STRING_FORMAT_CRT) {
+  if (localeStrings->Format != LocaleStringFormat_CRT) {
     conversionRequest.Flags |= (P32_CHARSET_CONVERSION_NO_BEST_FIT);
   }
 
@@ -1086,7 +1086,7 @@ bool p32_localestr_format (LocaleStrings *localeStrings, uintptr_t heap, Windows
    * However, we do not want to do it if we're formatting locale string for use
    * with CRT's `[_w]setlocale`.
    */
-  if (localeStrings->Mask == LC_ALL && format != LOCALE_STRING_FORMAT_CRT) {
+  if (localeStrings->Mask == LC_ALL && format != LocaleStringFormat_CRT) {
     if (!P32FormatLocaleString (&localeStrings->W.LcAll, heap, &winLocale->LcCtype, codePage, format)) {
       goto fail;
     }

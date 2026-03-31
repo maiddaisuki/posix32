@@ -30,20 +30,20 @@ typedef enum LocaleStringFormat {
   /**
    * Explicit request to store "C" string.
    */
-  LOCALE_STRING_FORMAT_C = 0,
+  LocaleStringFormat_C = 0,
   /**
    * Format locale strings using the same format as Windows locale names.
    */
-  LOCALE_STRING_FORMAT_WINDOWS,
+  LocaleStringFormat_Windows,
   /**
    * Format locale strings for use with CRT's functions `[_w]setlocale` and
    * `_[w]create_locale`.
    */
-  LOCALE_STRING_FORMAT_CRT,
+  LocaleStringFormat_CRT,
   /**
    * Format locale strings using portable format `ll_CC.CHARSET@MODIFIER`.
    */
-  LOCALE_STRING_FORMAT_ISO,
+  LocaleStringFormat_ISO,
 } LocaleStringFormat;
 
 /**

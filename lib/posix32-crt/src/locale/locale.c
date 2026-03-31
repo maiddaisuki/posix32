@@ -1629,7 +1629,7 @@ static bool P32LocaleStrings (locale_t locale, uintptr_t heap) {
   /**
    * Format locale string using Windows Format.
    */
-  locale->WindowsLocaleStrings.Format     = LOCALE_STRING_FORMAT_WINDOWS;
+  locale->WindowsLocaleStrings.Format     = LocaleStringFormat_Windows;
   locale->WindowsLocaleStrings.A.CodePage = P32_CODEPAGE_ASCII;
   locale->WindowsLocaleStrings.W.CodePage = locale->Charset.CodePage;
 
@@ -1640,7 +1640,7 @@ static bool P32LocaleStrings (locale_t locale, uintptr_t heap) {
   /**
    * Format locale string using CRT Format.
    */
-  locale->CrtLocaleStrings.Format     = LOCALE_STRING_FORMAT_CRT;
+  locale->CrtLocaleStrings.Format     = LocaleStringFormat_CRT;
   locale->CrtLocaleStrings.A.CodePage = locale->WinLocale.LcCtype.CodePage.Ansi;
   locale->CrtLocaleStrings.W.CodePage = locale->Charset.CodePage;
 
@@ -1650,7 +1650,7 @@ static bool P32LocaleStrings (locale_t locale, uintptr_t heap) {
    * In this case, we set CRT's locale to "C" locale.
    */
   if (locale->Charset.CodePage == CP_UTF8) {
-    locale->CrtLocaleStrings.Format = LOCALE_STRING_FORMAT_C;
+    locale->CrtLocaleStrings.Format = LocaleStringFormat_C;
   }
 #endif
 
@@ -1678,7 +1678,7 @@ static bool P32LocaleStrings (locale_t locale, uintptr_t heap) {
   /**
    * Format locale string using ISO Format.
    */
-  locale->IsoLocaleStrings.Format = LOCALE_STRING_FORMAT_ISO;
+  locale->IsoLocaleStrings.Format = LocaleStringFormat_ISO;
   /**
    * TODO: should we use locale->Charset.CodePage?
    */
