@@ -55,6 +55,13 @@ typedef struct Locale {
    */
   LocaleType Type;
   /**
+   * If this `Locale` object represenst some Known Locale, then this field is
+   * set to corresponding `KnownLocaleIndex` value.
+   *
+   * Otherwise, it is set to `KnownLocaleIndex_Invalid`.
+   */
+  KnownLocaleIndex KnownLocale;
+  /**
    * Locale name
    */
   wchar_t *LocaleName;

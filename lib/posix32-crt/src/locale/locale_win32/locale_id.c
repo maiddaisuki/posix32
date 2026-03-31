@@ -493,14 +493,20 @@ static bool P32LlSsCc (ResolvedLocaleMap *locale, LocaleMap *map, uintptr_t heap
  */
 static bool P32LocaleName (Locale *locale, uintptr_t heap, ResolvedLocaleMap *resolved, LocaleMap *localeMap) {
   /**
+   * If `localeMap` describes some Known Locale, we might me able to use
+   * locale name stored in `KnownLocale` structure.
+   *
    * Windows Pseudo locales were added in Windows Vista and are only supported
    * with locale names. We emulate them with `LCID` locales.
-   *
-   * Simply copy locale name from `localeMap`.
    */
-  if (localeMap != NULL && localeMap->KnownLocale.Type == LocaleType_PseudoLocale) {
-    assert (localeMap->KnownLocale.LocaleName != NULL);
-    return p32_private_wcsdup (&locale->LocaleName, localeMap->KnownLocale.LocaleName, heap) != -1;
+  if (localeMap != NULL && localeMap->KnownLocale != KnownLocaleIndex_Invalid) {
+    KnownLocale knownLocale = {0};
+
+    p32_known_locale (localeMap->KnownLocale, &knownLocale);
+
+    if (knownLocale.Type == LocaleType_PseudoLocale) {
+      return p32_private_wcsdup (&locale->LocaleName, knownLocale.LocaleString, heap) != -1;
+    }
   }
 
   SubLanguage sublanguage = {0};
@@ -704,7 +710,15 @@ bool p32_winlocale_resolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap
   locale->Map.Country  = sublanguage.Map.Country;
   locale->Map.Modifier = localeMap->Modifier;
 
-  locale->Type = localeMap->KnownLocale.Type;
+  locale->KnownLocale = localeMap->KnownLocale;
+
+  if (locale->KnownLocale == KnownLocaleIndex_Invalid) {
+    locale->Type = LocaleType_WindowsLocale;
+  } else {
+    KnownLocale knownLocale = {0};
+    p32_known_locale (locale->KnownLocale, &knownLocale);
+    locale->Type = knownLocale.Type;
+  }
 
   return true;
 
@@ -724,6 +738,7 @@ bool p32_winlocale_copy (Locale *destLocale, uintptr_t heap, Locale *srcLocale) 
   }
 
   destLocale->Type                = srcLocale->Type;
+  destLocale->KnownLocale         = srcLocale->KnownLocale;
   destLocale->LocaleId            = srcLocale->LocaleId;
   destLocale->Calendar            = srcLocale->Calendar;
   destLocale->AlternativeCalendar = srcLocale->AlternativeCalendar;
@@ -745,6 +760,7 @@ void p32_winlocale_destroy (Locale *locale, uintptr_t heap) {
   P32GeoDestroy (locale, heap);
 
   locale->Type                = LocaleType_Invalid;
+  locale->KnownLocale         = KnownLocaleIndex_Invalid;
   locale->LocaleId            = 0;
   locale->Calendar            = 0;
   locale->AlternativeCalendar = 0;

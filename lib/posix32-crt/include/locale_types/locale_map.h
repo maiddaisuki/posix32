@@ -23,6 +23,7 @@
 
 #include "locale_types/base_language.h"
 #include "locale_types/country.h"
+#include "locale_types/known_locale.h"
 #include "locale_types/language.h"
 #include "locale_types/modifier.h"
 #include "locale_types/script.h"
@@ -36,18 +37,55 @@
 #include "locale_types/locale_type.h"
 
 /**
- * A known locale.
+ * A Known Locale.
  */
 typedef struct KnownLocale {
   /**
-   * Known locale's type.
+   * Locale type.
    */
   LocaleType Type;
+  int        Reserved;
   /**
-   * Known locale's name.
+   * Locale's default ANSI code page.
+   */
+  uint32_t AnsiCodePage;
+  /**
+   * Locale's default OEM code page.
+   */
+  uint32_t OemCodePage;
+  /**
+   * Known Locale name.
+   */
+  wchar_t *LocaleString;
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
+  /**
+   * Locale name.
+   *
+   * When some special locale names, `GetLocaleInfoEx` may return inadequate
+   * information which cannot be used. This includes Windows pseudo locales
+   * such as `qps-ploc`, and `x-IV_mathan`.
+   *
+   * In particular, it affects the following information:
+   *
+   * - LOCALE_SENGLANGUAGE
+   * - LOCALE_SENGCOUNTRY
+   * - LOCALE_SISO639LANGNAME
+   * - LOCALE_SISO3166CTRYNAME
+   *
+   * We need this information to construct locale string passed to
+   * CRT's `[_w]setlocale` and locale name returned by `getlocalename_l`.
+   *
+   * This locale name will be used instead of that pseudo locale's name when
+   * retrieveing such information with `GetLocaleInfoEx`.
    */
   wchar_t *LocaleName;
+#endif
 } KnownLocale;
+
+/**
+ * Retrieve `KnownLocale` structure for `index`.
+ */
+P32_TEST_DECL void p32_known_locale (KnownLocaleIndex index, KnownLocale *knownLocale);
 
 /**
  * Basic information about language.
@@ -239,20 +277,25 @@ SublanguageIndex p32_sublanguage_from_id (uint16_t subLangId, LanguageIndex ll);
 /**
  * Information required to construct `Locale` object.
  *
- * This structure is filled by `p32_locale_map` function.
- * This structure does not need to be freed.
+ * This structure is filled by `p32_locale_map` and `p32_known_locale_map`
+ * functions. This structure does not need to be freed.
  *
  * This structure is used by `p32_winlocale_resolve`.
  */
 typedef struct LocaleMap {
-  KnownLocale   KnownLocale;
-  BaseLanguage  Language;
-  ScriptIndex   Script;
-  CountryIndex  Country;
-  SortingIndex  Sorting;
-  ModifierIndex Modifier;
-  uint32_t      CodePage;
+  KnownLocaleIndex KnownLocale;
+  BaseLanguage     Language;
+  ScriptIndex      Script;
+  CountryIndex     Country;
+  SortingIndex     Sorting;
+  ModifierIndex    Modifier;
+  uint32_t         CodePage;
 } LocaleMap;
+
+/**
+ * Construct `LocaleMap` for `knownLocale`.
+ */
+P32_TEST_DECL void p32_known_locale_map (LocaleMap *localeMap, KnownLocaleIndex knownLocale);
 
 /**
  * Parse locale string `localeString` and fill in `localeMap`.

@@ -49,37 +49,32 @@
  * locales, which were introduced in Windows Vista.
  */
 
-#define KNOWN_LOCALE(locale, type) {type, locale}
-#define BASE_LANGUAGE(ll, ss, cc)  {ll, ss, cc}
-#define LOCALE_MAP(type, locale, ll, ss, cc, cp)                                \
-  {KNOWN_LOCALE (type, locale), BASE_LANGUAGE (ll, ss, cc), -1, -1, -1, -1, cp}
-
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-#define PSEUDO_LOCALE_CODEPAGE(cp) P32_CODEPAGE_ACP
-#else
-#define PSEUDO_LOCALE_CODEPAGE(cp) cp
-#endif
+/**
+ * Mapping between Known Locale name and corresponding `KnownLocaleIndex` value.
+ */
+typedef struct KnownLocaleName {
+  const wchar_t   *LocaleName;
+  KnownLocaleIndex KnownLocale;
+} KnownLocaleName;
 
 /**
- * Known locale names.
+ * Known Locale names.
  */
-static const LocaleMap LocaleNames[] = {
-  /* clang-format off */
-  LOCALE_MAP (L"C",         LocaleType_POSIX,        en, -1, US, P32_CODEPAGE_POSIX),
-  LOCALE_MAP (L"POSIX",     LocaleType_POSIX,        en, -1, US, P32_CODEPAGE_POSIX),
-  LOCALE_MAP (L"qps-ploc",  LocaleType_PseudoLocale, en, -1, US, PSEUDO_LOCALE_CODEPAGE (1250)),
-  LOCALE_MAP (L"qps-ploca", LocaleType_PseudoLocale, ja, -1, JP, PSEUDO_LOCALE_CODEPAGE (932)),
-  LOCALE_MAP (L"qps-plocm", LocaleType_PseudoLocale, ar, -1, SA, PSEUDO_LOCALE_CODEPAGE (1256)),
-  /* clang-format on */
+static const KnownLocaleName KnownLocaleNames[] = {
+  {L"C",         KnownLocale_POSIX   },
+  {L"POSIX",     KnownLocale_POSIX   },
+  {L"qps-ploc",  KnownLocale_QpsPloc },
+  {L"qps-ploca", KnownLocale_QpsPloca},
+  {L"qps-plocm", KnownLocale_QpsPlocm},
 };
 
 /**
- * Check if `localeString` is a known locale name.
+ * Check if `localeString` is a Known Locale name.
  */
 static bool P32LocaleName (const wchar_t *localeString, LocaleMap *localeMap) {
-  for (size_t i = 0; i < _countof (LocaleNames); ++i) {
-    if (wcscmp (localeString, LocaleNames[i].KnownLocale.LocaleName) == 0) {
-      *localeMap = LocaleNames[i];
+  for (size_t i = 0; i < _countof (KnownLocaleNames); ++i) {
+    if (wcscmp (localeString, KnownLocaleNames[i].LocaleName) == 0) {
+      p32_known_locale_map (localeMap, KnownLocaleNames[i].KnownLocale);
       return true;
     }
   }
@@ -617,7 +612,7 @@ static bool P32LocaleMap (LocaleMap *localeMap, LocaleStringMap *stringMap, bool
       break;
   }
 
-  localeMap->KnownLocale.Type = LocaleType_WindowsLocale;
+  localeMap->KnownLocale = KnownLocaleIndex_Invalid;
 
   return true;
 }
@@ -674,7 +669,7 @@ bool p32_locale_map (LocaleMap *localeMap, const wchar_t *localeString, uintptr_
   HANDLE heapHandle = (HANDLE) heap;
 
   /**
-   * Check if `localeString` is a known locale name.
+   * Check if `localeString` is a Known Locale name.
    */
   if (P32LocaleName (localeString, localeMap)) {
     return true;
