@@ -129,3 +129,53 @@ void p32_known_locale_map (LocaleMap *localeMap, KnownLocaleIndex index) {
 #endif
   }
 }
+
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
+bool p32_known_locale_language_name (wchar_t **address, uintptr_t heap, KnownLocaleIndex knownLocale) {
+  assert (knownLocale >= KnownLocaleIndex_MIN && knownLocale <= KnownLocaleIndex_MAX);
+
+  Locale locale = {0};
+
+  locale.Type        = LocaleType_WindowsLocale;
+  locale.KnownLocale = KnownLocaleIndex_Invalid;
+  locale.LocaleName  = KnownLocaleNames[knownLocale].KnownLocale.LocaleName;
+
+  return p32_winlocale_get_language_name (address, heap, &locale);
+}
+
+bool p32_known_locale_country_name (wchar_t **address, uintptr_t heap, KnownLocaleIndex knownLocale) {
+  assert (knownLocale >= KnownLocaleIndex_MIN && knownLocale <= KnownLocaleIndex_MAX);
+
+  Locale locale = {0};
+
+  locale.Type        = LocaleType_WindowsLocale;
+  locale.KnownLocale = KnownLocaleIndex_Invalid;
+  locale.LocaleName  = KnownLocaleNames[knownLocale].KnownLocale.LocaleName;
+
+  return p32_winlocale_get_country_name (address, heap, &locale);
+}
+
+bool p32_known_locale_language_code (wchar_t **address, uintptr_t heap, KnownLocaleIndex knownLocale) {
+  assert (knownLocale >= KnownLocaleIndex_MIN && knownLocale <= KnownLocaleIndex_MAX);
+
+  Locale locale = {0};
+
+  locale.Type        = LocaleType_WindowsLocale;
+  locale.KnownLocale = KnownLocaleIndex_Invalid;
+  locale.LocaleName  = KnownLocaleNames[knownLocale].KnownLocale.LocaleName;
+
+  return p32_winlocale_get_language_code (address, heap, &locale);
+}
+
+bool p32_known_locale_country_code (wchar_t **address, uintptr_t heap, KnownLocaleIndex knownLocale) {
+  assert (knownLocale >= KnownLocaleIndex_MIN && knownLocale <= KnownLocaleIndex_MAX);
+
+  Locale locale = {0};
+
+  locale.Type        = LocaleType_WindowsLocale;
+  locale.KnownLocale = KnownLocaleIndex_Invalid;
+  locale.LocaleName  = KnownLocaleNames[knownLocale].KnownLocale.LocaleName;
+
+  return p32_winlocale_get_country_code (address, heap, &locale);
+}
+#endif

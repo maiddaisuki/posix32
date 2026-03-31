@@ -87,6 +87,36 @@ typedef struct KnownLocale {
  */
 P32_TEST_DECL void p32_known_locale (KnownLocaleIndex index, KnownLocale *knownLocale);
 
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
+/**
+ * Get language name for `knownLocale`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+P32_TEST_DECL bool p32_known_locale_language_name (wchar_t **address, uintptr_t heap, KnownLocaleIndex knownLocale);
+
+/**
+ * Get country name for `knownLocale`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+P32_TEST_DECL bool p32_known_locale_country_name (wchar_t **address, uintptr_t heap, KnownLocaleIndex knownLocale);
+
+/**
+ * Get ISO-639 language code for `knownLocale`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+P32_TEST_DECL bool p32_known_locale_language_code (wchar_t **address, uintptr_t heap, KnownLocaleIndex knownLocale);
+
+/**
+ * Get ISO-3166 country code for `knownLocale`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+P32_TEST_DECL bool p32_known_locale_country_code (wchar_t **address, uintptr_t heap, KnownLocaleIndex knownLocale);
+#endif
+
 /**
  * Basic information about language.
  *

@@ -772,11 +772,7 @@ bool p32_winlocale_equal (Locale *l1, Locale *l2) {
 
 P32_TEST_DECL bool p32_winlocale_get_language_name (wchar_t **address, uintptr_t heap, Locale *locale) {
   if (locale->Type == LocaleType_PseudoLocale) {
-    Language language = {0};
-
-    p32_language (locale->Map.Language, &language);
-
-    return p32_private_wcsdup (address, language.Name, heap) != -1;
+    return p32_known_locale_language_name (address, heap, locale->KnownLocale);
   }
 
   return P32GetLangaugeNameFromLocale (address, heap, locale);
@@ -784,11 +780,7 @@ P32_TEST_DECL bool p32_winlocale_get_language_name (wchar_t **address, uintptr_t
 
 P32_TEST_DECL bool p32_winlocale_get_country_name (wchar_t **address, uintptr_t heap, Locale *locale) {
   if (locale->Type == LocaleType_PseudoLocale) {
-    Country country = {0};
-
-    p32_country (locale->Map.Country, &country);
-
-    return p32_private_wcsdup (address, country.Name, heap) != -1;
+    return p32_known_locale_country_name (address, heap, locale->KnownLocale);
   }
 
   return P32GetCountryNameFromLocale (address, heap, locale);
@@ -796,11 +788,7 @@ P32_TEST_DECL bool p32_winlocale_get_country_name (wchar_t **address, uintptr_t 
 
 P32_TEST_DECL bool p32_winlocale_get_language_code (wchar_t **address, uintptr_t heap, Locale *locale) {
   if (locale->Type == LocaleType_PseudoLocale) {
-    Language language = {0};
-
-    p32_language (locale->Map.Language, &language);
-
-    return p32_private_wcsdup (address, language.Code, heap) != -1;
+    return p32_known_locale_language_code (address, heap, locale->KnownLocale);
   }
 
   return P32GetLangaugeCodeFromLocale (address, heap, locale);
@@ -808,11 +796,7 @@ P32_TEST_DECL bool p32_winlocale_get_language_code (wchar_t **address, uintptr_t
 
 P32_TEST_DECL bool p32_winlocale_get_country_code (wchar_t **address, uintptr_t heap, Locale *locale) {
   if (locale->Type == LocaleType_PseudoLocale) {
-    Country country = {0};
-
-    p32_country (locale->Map.Country, &country);
-
-    return p32_private_wcsdup (address, country.Code, heap) != -1;
+    return p32_known_locale_country_code (address, heap, locale->KnownLocale);
   }
 
   return P32GetCountryCodeFromLocale (address, heap, locale);
