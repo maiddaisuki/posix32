@@ -419,18 +419,20 @@ bool p32_winlocale_get_ebcdic_code_page (uint32_t *codePage, uintptr_t heap, Loc
 }
 #endif
 
-#if P32_REGION_NAMES
-#include "locale_win32/region_name.c"
-#else
-#include "locale_win32/region_id.c"
-#endif
-
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 #include "locale_win32/locale_id.c"
 #endif
 
+#if (P32_GEO_API & P32_GEO_API_GEOID)
+#include "locale_win32/region_id.c"
+#endif
+
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
 #include "locale_win32/locale_name.c"
+#endif
+
+#if (P32_GEO_API & P32_GEO_API_RN)
+#include "locale_win32/region_name.c"
 #endif
 
 static bool P32FillLocaleInfo (Locale *locale, uintptr_t heap) {

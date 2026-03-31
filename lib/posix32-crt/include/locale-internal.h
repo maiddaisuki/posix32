@@ -47,12 +47,23 @@
 #endif
 
 /**
- * `GetGeoInfoEx` and related APIs are available since Windows 10 1709.
+ * If this bit is set in `P32_GEO_API`, the the library will be build with
+ * `GEOID` support (`GetGeoInfo`).
+ */
+#define P32_GEO_API_GEOID (1)
+/**
+ * If this bit is set in `P32_GEO_API`, the the library will be build with
+ * Region Name support (`GetGeoInfoEx`).
+ */
+#define P32_GEO_API_RN    (1 << 1)
+
+/**
+ * Region Names were introduced in Windows 10 1709 to replace `GEOID`.
  */
 #if P32_WINNT > P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI >= NTDDI_WIN10_RS3)
-#define P32_REGION_NAMES 1
+#define P32_GEO_API (P32_GEO_API_RN)
 #else
-#define P32_REGION_NAMES 0
+#define P32_GEO_API (P32_GEO_API_GEOID)
 #endif
 
 /**
