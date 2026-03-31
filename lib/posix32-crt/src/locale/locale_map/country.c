@@ -28,7 +28,7 @@
 
 #include "locale-internal.h"
 
-#define COUNTRY_DECL(name, code) {TEXT (name), TEXT (code)}
+#define COUNTRY_DECL(name, code) {TEXT (code)}
 
 static const Country Countries[] = {
   /* clang-format off */

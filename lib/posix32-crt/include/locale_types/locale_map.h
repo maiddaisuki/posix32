@@ -194,10 +194,12 @@ void p32_script (ScriptIndex index, Script *script);
  * Information about country.
  */
 typedef struct Country {
+#if 0 /* no longer needed; values are preserved in `locale_map/country.c` */
   /**
    * Country name in english (e.g. "United States").
    */
   const wchar_t *Name;
+#endif
   /**
    * ISO-639 country codes (e.g. "US").
    */
