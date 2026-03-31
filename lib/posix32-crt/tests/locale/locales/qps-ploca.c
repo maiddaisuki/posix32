@@ -38,7 +38,7 @@ int main (void) {
   p32_test_init ();
 
   assert (setlocale (LC_ALL, "qps-ploca") != NULL);
-  assert (strcmp (setlocale (LC_ALL, NULL), "qps-ploca") == 0);
+  assert (strcmp (getlocalename_l (LC_ALL, LC_GLOBAL_LOCALE), "qps-ploca") == 0);
 
   /**
    * LC_CTYPE
