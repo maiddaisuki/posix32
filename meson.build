@@ -57,8 +57,6 @@ windows_versions = {
   'win8.1':   ['-DP32_WINNT=0x0603'],
   # _WIN32_WINNT_WIN10
   'win10':    ['-DP32_WINNT=0x0A00'],
-  # _WIN32_WINNT_WIN10 + LIBPOSIX32_WIN10PLUS
-  'win10+':   ['-DP32_WINNT=0x0A00', '-DLIBPOSIX32_WIN10PLUS'],
 }
 
 cc = meson.get_compiler('c')
@@ -68,6 +66,7 @@ building_static = get_option('default_library') in ['static', 'both']
 
 opt_uwp   = get_option('uwp')
 opt_winnt = get_option('winnt')
+opt_ntddi = get_option('ntddi')
 
 is_mingw  = cc.has_define('__MINGW32__')
 is_64bit  = cc.has_define('_WIN64')
@@ -99,8 +98,8 @@ if opt_uwp
     error('UWP: this configuration supports only shared libraries')
   endif
 
-  if opt_winnt not in ['win10', 'win10+']
-    error ('UWP: value of `winnt` option must be `win10` or `win10+`')
+  if opt_winnt not in ['win10']
+    error ('UWP: value of `winnt` option must be `win10`')
   endif
 
   # Find windowsapp library
@@ -125,6 +124,10 @@ endif
 
 p32_args_private += ['-DHAVE_CONFIG_H', '-D_XOPEN_SOURCE=800',]
 p32_args_private += windows_versions[opt_winnt]
+
+if opt_winnt in ['win10']
+  p32_args_private += ['-DP32_NTDDI=@0@'.format(opt_ntddi)]
+endif
 
 if opt_uwp
   # FIXME: replace with WINAPI_FAMILY_PC_APP once fixed in mingw-w64

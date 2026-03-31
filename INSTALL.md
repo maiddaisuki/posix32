@@ -64,6 +64,7 @@ The following table lists all supported options:
 | ----------- | --------------------------------------------------------- |
 | winpthreads | Use `pkgconf` to locate `winpthreads` even with mingw-w64 |
 | winnt       | Minimal Windows NT version to support                     |
+| ntddi       | Minimal `NTDDI` version to support (Windows 10 or later)  |
 | uwp         | Configure for UWP                                         |
 | lfs         | Default value of `_FILE_OFFSET_BITS`                      |
 | y2k         | Default value of `_TIME_BITS`                             |
@@ -105,25 +106,38 @@ The `winnt` option accepts the following values:
 | `win7`     | Configure for Windows 7            |
 | `win8`     | Configure for Windows 8            |
 | `win8.1`   | Configure for Windows 8.1          |
-| `win10`    | Configure for Windows 10           |
-| `win10+`   | Configure for Windows 10 and later |
+| `win10`    | Configure for Windows 10 and later |
 
 Default value is `win10`.
 
-With `win10`, the library will avoid using Windows functions which were
-introduced after initial Windows 10 release.
-
-With `win10+`, the library will use latest Windows functions available in SDK,
-which may prevent the library from running on devices with older Windows 10/11
-updates.
+When this option is set to `win10`, you can use `ntddi` option to set minimal
+`NTDDI` version to support.
 
 Note that any combination of CRT and `winnt` is valid, although some
 combination make little practical sense, such as `UCRT and winxp` or
-`crtdll.dll and win10+`.
+`crtdll.dll and win10`.
 
 | Build System | Syntax        |
 | ------------ | ------------- |
 | Meson        | -Dwinnt=VALUE |
+
+#### NTDDI Version
+
+When configuring for Windows 10 and later, the `ntddi` option can be used to
+further customize minimum Windows version to support.
+
+Default value is `0x0A000000` which corresponds to `NTDDI_WIN10`; that is,
+the library will be usable on any device with Windows 10 and later.
+
+This option can be set to any valid value that can be set for `NTDDI_VERSION`:
+
+- You can set it to one of `NTDDI_WIN10_*` and `NTDDI_WIN11_*` constants defined
+  in your toolchain's `sdkddkver.h`
+- You can set it to `WDK_NTDDI_VERSION` to use the latest `NTDDI` version
+  supported by the SDK
+
+If this option is set to any value less than `NTDDI_WIN10`, it will result in
+behavior as if it was set to `NTDDI_WIN10`. _Do not do this on purpose._
 
 ### \_FILE_OFFSET_BITS and \_TIME_BITS
 
@@ -153,7 +167,7 @@ This options allows to configure `posix32` for use with UWP Apps.
 When you configure `posix32` for UWP, the follwing conditions must be met:
 
 - CRT must be UCRT
-- value of `winnt` option must be `win10` or `win10+`
+- value of `winnt` option must be `win10`
 - Building against static CRT is not allowed (as with MSVC's `/MT` switch)
 - Building `posix32` as static library is not allowed
 

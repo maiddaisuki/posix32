@@ -38,7 +38,7 @@
 /**
  * `GetGeoInfoEx` and related APIs are available since Windows 10 1709.
  */
-#if defined(LIBPOSIX32_WIN10PLUS)
+#if P32_WINNT > P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI >= NTDDI_WIN10_RS3)
 #define P32_REGION_NAMES 1
 #else
 #define P32_REGION_NAMES 0

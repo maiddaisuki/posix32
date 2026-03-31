@@ -33,6 +33,14 @@
 #define _WIN32_WINNT 0x0A00
 
 /**
+ * This will make Windows headers define `NTDDI_VERSION` to the latest
+ * NTDDI version supported by the SDK.
+ */
+#ifdef NTDDI_VERSION
+#undef NTDDI_VERSION
+#endif
+
+/**
  * Windows NT 3.1
  *
  * Major version: 3
@@ -115,6 +123,14 @@
  */
 #ifndef P32_WINNT
 #define P32_WINNT _WIN32_WINNT
+#endif
+
+/**
+ * When the library is configured for Windows 10 or later,
+ * this is the minimal NTDDI version to support.
+ */
+#ifndef P32_NTDDI
+#define P32_NTDDI WDK_DDI_VERSION
 #endif
 
 #ifndef _XOPEN_SOURCE
