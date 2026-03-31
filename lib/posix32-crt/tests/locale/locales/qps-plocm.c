@@ -34,7 +34,7 @@
  */
 
 int main (void) {
-#if P32_CRT >= P32_MSVCR70 || (P32_MSVCRT && _WIN32_WINNT >= _WIN32_WINNT_WIN2K)
+#if P32_CRT >= P32_MSVCR70 || (P32_MSVCRT && P32_WINNT >= P32_WINNT_2000)
   p32_test_init ();
 
   assert (setlocale (LC_ALL, "qps-plocm") != NULL);

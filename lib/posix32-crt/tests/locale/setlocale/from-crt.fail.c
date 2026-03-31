@@ -74,7 +74,7 @@ static void Handler (void) {
 int main (void) {
   p32_test_init ();
 
-#if P32_CRT >= P32_MSVCR70 || (P32_MSVCRT && _WIN32_WINNT >= _WIN32_WINNT_WIN2K)
+#if P32_CRT >= P32_MSVCR70 || (P32_MSVCRT && P32_WINNT >= P32_WINNT_2000)
   /**
    * Set CRT's global locale.
    */

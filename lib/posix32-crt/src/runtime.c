@@ -68,7 +68,7 @@ void p32_terminate (const wchar_t *message, void *context) {
    */
   OutputDebugStringW (message);
 
-#if _WIN32_WINNT >= _WIN32_WINNT_WIN7
+#if P32_WINNT >= P32_WINNT_WIN7
   EXCEPTION_RECORD exceptionRecord = {0};
 
   exceptionRecord.ExceptionCode    = STATUS_FATAL_APP_EXIT;

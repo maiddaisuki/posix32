@@ -723,7 +723,7 @@ static void P32CharsetConversionFlags (Charset *charset) {
   switch (charset->CodePage) {
     case 54936: /* GB18030 */
     case 65001: /* UTF-8   */
-#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
+#if P32_WINNT >= P32_WINNT_VISTA
       /**
        * WC_ERR_INVALID_CHARS is only allowed with GB18030 and UTF-8, and this
        * is the only flag allowed to be used with these code pages.

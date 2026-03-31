@@ -118,7 +118,7 @@ static bool __cdecl Test (Locale *locale) {
    */
   LPWSTR Cc = NULL;
 
-#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
+#if P32_WINNT >= P32_WINNT_WIN7
   /**
    * ISO 639-2 language code
    */
@@ -134,7 +134,7 @@ static bool __cdecl Test (Locale *locale) {
   assert (p32_winlocale_get_country_name (&CountryName, heap, locale));
   assert (p32_winlocale_get_language_code (&Ll, heap, locale));
   assert (p32_winlocale_get_country_code (&Cc, heap, locale));
-#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
+#if P32_WINNT >= P32_WINNT_VISTA
   do {
     LocaleInfoRequest infoRequest = {0};
 
@@ -155,7 +155,7 @@ static bool __cdecl Test (Locale *locale) {
   DoTest (Ll, Cc);
   DoTest (Ll, CountryName);
 
-#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
+#if P32_WINNT >= P32_WINNT_VISTA
   DoTest (LanguageName, Ccc);
   DoTest (Ll, Ccc);
   DoTest (Lll, Ccc);
@@ -167,7 +167,7 @@ static bool __cdecl Test (Locale *locale) {
   assert (HeapFree (heapHandle, 0, CountryName));
   assert (HeapFree (heapHandle, 0, Ll));
   assert (HeapFree (heapHandle, 0, Cc));
-#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
+#if P32_WINNT >= P32_WINNT_VISTA
   assert (HeapFree (heapHandle, 0, Lll));
   assert (HeapFree (heapHandle, 0, Ccc));
 #endif

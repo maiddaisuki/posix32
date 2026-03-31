@@ -36,7 +36,7 @@
  * This file defines functions to manipulate `LocaleStrings` structure.
  */
 
-#if P32_CRT <= P32_MSVCRT41 || (P32_MSVCRT && _WIN32_WINNT <= _WIN32_WINNT_NT4)
+#if P32_CRT <= P32_MSVCRT41 || (P32_MSVCRT && P32_WINNT <= P32_WINNT_NT_4)
 #define P32_USE_LEGACY_LOCALE_STRINGS
 #endif
 

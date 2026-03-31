@@ -46,19 +46,19 @@ p32_deps = []
 # Macros to define based on value of `winver` option
 windows_versions = {
   # _WIN32_WINNT_WINXP
-  'winxp':    ['-D_WIN32_WINNT=0x0501'],
+  'winxp':    ['-DP32_WINNT=0x0501'],
   # _WIN32_WINNT_VISTA
-  'winvista': ['-D_WIN32_WINNT=0x0600'],
+  'winvista': ['-DP32_WINNT=0x0600'],
   # _WIN32_WINNT_WIN7
-  'win7':     ['-D_WIN32_WINNT=0x0601'],
+  'win7':     ['-DP32_WINNT=0x0601'],
   # _WIN32_WINNT_WIN8
-  'win8':     ['-D_WIN32_WINNT=0x0602'],
+  'win8':     ['-DP32_WINNT=0x0602'],
   # _WIN32_WINNT_WINBLUE
-  'win8.1':   ['-D_WIN32_WINNT=0x0603'],
+  'win8.1':   ['-DP32_WINNT=0x0603'],
   # _WIN32_WINNT_WIN10
-  'win10':    ['-D_WIN32_WINNT=0x0A00'],
+  'win10':    ['-DP32_WINNT=0x0A00'],
   # _WIN32_WINNT_WIN10 + LIBPOSIX32_WIN10PLUS
-  'win10+':   ['-D_WIN32_WINNT=0x0A00', '-DLIBPOSIX32_WIN10PLUS'],
+  'win10+':   ['-DP32_WINNT=0x0A00', '-DLIBPOSIX32_WIN10PLUS'],
 }
 
 cc = meson.get_compiler('c')

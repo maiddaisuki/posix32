@@ -734,7 +734,7 @@ bool p32_winlocale_equal (Locale *l1, Locale *l2) {
     assert (wcscmp (l2->LocaleName, L"en-US") == 0);
   }
 
-#if _WIN32_WINNT >= _WIN32_WINNT_WIN7
+#if P32_WINNT >= P32_WINNT_WIN7
   LPWSTR localeName1 = _alloca (LOCALE_NAME_MAX_LENGTH * sizeof (WCHAR));
   LPWSTR localeName2 = _alloca (LOCALE_NAME_MAX_LENGTH * sizeof (WCHAR));
 

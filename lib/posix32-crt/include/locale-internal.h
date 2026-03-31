@@ -29,7 +29,7 @@
  * Locale names were introduced in Windows Vista.
  * CRT supports locale names since msvcr110.dll.
  */
-#if _WIN32_WINNT >= _WIN32_WINNT_VISTA && P32_CRT >= P32_MSVCR110
+#if P32_WINNT >= P32_WINNT_VISTA && P32_CRT >= P32_MSVCR110
 #define P32_LOCALE_NAMES 1
 #else
 #define P32_LOCALE_NAMES 0

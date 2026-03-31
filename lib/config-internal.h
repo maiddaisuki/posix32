@@ -25,8 +25,96 @@
 #define UNICODE
 #endif
 
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT _WIN32_WINNT_WIN7
+/**
+ * Define `_WIN32_WINNT` to the latest known Windows version.
+ *
+ * This will make Windows headers expose the latest APIs available in the SDK.
+ */
+#define _WIN32_WINNT 0x0A00
+
+/**
+ * Windows NT 3.1
+ *
+ * Major version: 3
+ * Minor version: 10
+ */
+#define P32_WINNT_NT_3_1  (0x030A)
+/**
+ * Windows NT 3.5
+ *
+ * Major version: 3
+ * Minor version: 50
+ */
+#define P32_WINNT_NT_3_5  (0x0332)
+/**
+ * Windows NT 3.51
+ *
+ * Major version: 3
+ * Minor version: 51
+ */
+#define P32_WINNT_NT_3_51 (0x0333)
+/**
+ * Windows NT 4
+ *
+ * Major version: 4
+ * Minor version: 0
+ */
+#define P32_WINNT_NT_4    _WIN32_WINNT_NT4
+/**
+ * Windows 2000
+ *
+ * Major version: 5
+ * Minor version: 0
+ */
+#define P32_WINNT_2000    _WIN32_WINNT_WIN2K
+/**
+ * Windows XP
+ *
+ * Major version: 5
+ * Minor version: 1
+ */
+#define P32_WINNT_XP      _WIN32_WINNT_WINXP
+/**
+ * Windows Vista
+ *
+ * Major version: 6
+ * Minor version: 0
+ */
+#define P32_WINNT_VISTA   _WIN32_WINNT_VISTA
+/**
+ * Windows 7
+ *
+ * Major version: 6
+ * Minor version: 1
+ */
+#define P32_WINNT_WIN7    _WIN32_WINNT_WIN7
+/**
+ * Windows 8
+ *
+ * Major version: 6
+ * Minor version: 2
+ */
+#define P32_WINNT_WIN8    _WIN32_WINNT_WIN8
+/**
+ * Windows 8.1
+ *
+ * Major version: 6
+ * Minor version: 3
+ */
+#define P32_WINNT_WIN8_1  _WIN32_WINNT_WINBLUE
+/**
+ * Windows 10
+ *
+ * Major version: 10
+ * Minor version: 0
+ */
+#define P32_WINNT_WIN10   _WIN32_WINNT_WIN10
+
+/**
+ * Minimal Windows NT version to be supported by the library.
+ */
+#ifndef P32_WINNT
+#define P32_WINNT _WIN32_WINNT
 #endif
 
 #ifndef _XOPEN_SOURCE
