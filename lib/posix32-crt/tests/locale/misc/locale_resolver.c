@@ -255,6 +255,7 @@ static void DoTest (Locale *originaLocale, LPCWSTR ll, LPCWSTR cc) {
     }
 
     p32_winlocale_destroy (&resolvedLocale, heap);
+    assert (resolvedLocale.Type == LOCALE_TYPE_INVALID);
   } else {
     exit_code = EXIT_FAILURE;
     fwprintf (stderr, L"ERROR: %s (%s)\n", originaLocale->LocaleName, LocaleString);
@@ -284,6 +285,7 @@ static void DoTestLocaleName (Locale *originalLocale) {
     }
 
     p32_winlocale_destroy (&resolvedLocale, heap);
+    assert (resolvedLocale.Type == LOCALE_TYPE_INVALID);
   } else {
     exit_code = EXIT_FAILURE;
     fwprintf (stderr, L"ERROR: %s\n", originalLocale->LocaleName);

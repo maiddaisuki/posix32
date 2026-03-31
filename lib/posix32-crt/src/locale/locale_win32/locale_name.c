@@ -709,10 +709,11 @@ fail:
 void p32_winlocale_destroy (Locale *locale, uintptr_t heap) {
   P32GeoDestroy (locale, heap);
 
+  locale->Type                = LOCALE_TYPE_INVALID;
   locale->Calendar            = 0;
   locale->AlternativeCalendar = 0;
-  locale->CodePage.Ansi       = CP_ACP;
-  locale->CodePage.Oem        = CP_OEMCP;
+  locale->CodePage.Ansi       = P32_CODEPAGE_ACP;
+  locale->CodePage.Oem        = P32_CODEPAGE_OCP;
   locale->Map.Language        = LanguageIndex_invalid;
   locale->Map.Script          = ScriptIndex_invalid;
   locale->Map.Country         = CountryIndex_invalid;
