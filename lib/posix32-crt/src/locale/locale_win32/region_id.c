@@ -16,7 +16,7 @@
 
 #include "locale-internal.h"
 
-P32_STATIC_ASSERT (sizeof ((Locale) {0}.GeoId), "Size of `Locale.GeoId` must be 4 bytes.");
+P32_STATIC_ASSERT (sizeof ((Locale){0}.GeoId), "Size of `Locale.GeoId` must be 4 bytes.");
 
 static bool P32Geo (Locale *locale, uintptr_t heap) {
   LocaleInfoRequest infoRequest = {0};

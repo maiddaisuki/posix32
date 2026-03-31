@@ -203,8 +203,10 @@ static int FuncName (LocaleMap *localeMap, const wchar_t *localeString, uintptr_
     /**
      * `xx` must precede both charset and modifier.
      */
-    if ((modifierSeparatorPosition > 0 && modifierSeparatorPosition < xx)
-        || (charsetSeparatorPosition > 0 && charsetSeparatorPosition < xx)) {
+    if (
+      (modifierSeparatorPosition > 0 && modifierSeparatorPosition < xx)
+      || (charsetSeparatorPosition > 0 && charsetSeparatorPosition < xx)
+    ) {
       return -1;
     }
   }

@@ -738,8 +738,10 @@ bool p32_winlocale_equal (Locale *l1, Locale *l2) {
   LPWSTR localeName1 = _alloca (LOCALE_NAME_MAX_LENGTH * sizeof (WCHAR));
   LPWSTR localeName2 = _alloca (LOCALE_NAME_MAX_LENGTH * sizeof (WCHAR));
 
-  if (ResolveLocaleName (l1->LocaleName, localeName1, LOCALE_NAME_MAX_LENGTH) != 0
-      && ResolveLocaleName (l2->LocaleName, localeName2, LOCALE_NAME_MAX_LENGTH) != 0) {
+  if (
+    ResolveLocaleName (l1->LocaleName, localeName1, LOCALE_NAME_MAX_LENGTH) != 0
+    && ResolveLocaleName (l2->LocaleName, localeName2, LOCALE_NAME_MAX_LENGTH) != 0
+  ) {
     return wcscmp (localeName1, localeName2) == 0;
   }
 #endif

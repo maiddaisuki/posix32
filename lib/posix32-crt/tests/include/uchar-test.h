@@ -48,8 +48,10 @@ const Text AsciiText = {STRING ("Simple English text.")};
  */
 const Text SBCSText = {
   15,
-  (char[]) {C ('S'), C (0xF6), C ('m'), C (0xE8), C (' '), C ('f'), C (0xFB), C ('n'), C ('n'), C (0xFF), C (' '),
-            C ('t'), C (0xEA), C ('x'), C ('t'), C (0x0)},
+  (char[]) {
+            C ('S'), C (0xF6), C ('m'), C (0xE8), C (' '), C ('f'), C (0xFB), C ('n'), C ('n'), C (0xFF), C (' '), C ('t'),
+            C (0xEA), C ('x'), C ('t'), C (0x0)
+  },
   STRING_W ("Sömè fûnnÿ têxt")
 };
 
@@ -58,8 +60,10 @@ const Text SBCSText = {
  */
 const Text DBCSText = {
   14,
-  (char[]) {C (0x93), C (0xFA), C (0x96), C (0x7B), C (0x8C), C (0xEA), C (0x83), C (0x65), C (0x83), C (0x4E),
-            C (0x83), C (0x58), C (0x83), C (0x67), C (0x0)},
+  (char[]) {
+            C (0x93), C (0xFA), C (0x96), C (0x7B), C (0x8C), C (0xEA), C (0x83), C (0x65), C (0x83), C (0x4E), C (0x83),
+            C (0x58), C (0x83), C (0x67), C (0x0)
+  },
   STRING_W ("日本語テクスト")
 };
 
@@ -68,8 +72,10 @@ const Text DBCSText = {
  */
 const Text MixedText = {
   13,
-  (char[]) {C (0x93), C (0xFA), C ('n'), C ('i'), C (0x96), C (0x7B), C ('h'), C ('o'), C ('n'), C (0x8C), C (0xEA),
-            C ('g'), C ('o'), C (0x0)},
+  (char[]) {
+            C (0x93), C (0xFA), C ('n'), C ('i'), C (0x96), C (0x7B), C ('h'), C ('o'), C ('n'), C (0x8C), C (0xEA), C ('g'),
+            C ('o'), C (0x0)
+  },
   STRING_W ("日ni本hon語go")
 };
 
