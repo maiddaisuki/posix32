@@ -1,7 +1,7 @@
 # Target system
 option (
-  'winver',
-  description: 'Windows version to target',
+  'winnt',
+  description: 'Minimal Windows NT version to support',
   type: 'combo',
   choices: ['winxp', 'winvista', 'win7', 'win8', 'win8.1', 'win10', 'win10+'],
   value: 'win10'

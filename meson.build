@@ -43,7 +43,7 @@ p32_args_test = ['-DLIBPOSIX32_TEST']
 # Dependencies common for all libraries
 p32_deps = []
 
-# Macros to define based on value of `winver` option
+# Macros to define based on value of `winnt` option
 windows_versions = {
   # _WIN32_WINNT_WINXP
   'winxp':    ['-DP32_WINNT=0x0501'],
@@ -66,8 +66,8 @@ cc = meson.get_compiler('c')
 building_shared = get_option('default_library') in ['shared', 'both']
 building_static = get_option('default_library') in ['static', 'both']
 
-opt_uwp    = get_option('uwp')
-opt_winver = get_option('winver')
+opt_uwp   = get_option('uwp')
+opt_winnt = get_option('winnt')
 
 is_mingw  = cc.has_define('__MINGW32__')
 is_64bit  = cc.has_define('_WIN64')
@@ -99,8 +99,8 @@ if opt_uwp
     error('UWP: this configuration supports only shared libraries')
   endif
 
-  if opt_winver not in ['win10', 'win10+']
-    error ('UWP: value of -Dwinver option must be win10 or win10+')
+  if opt_winnt not in ['win10', 'win10+']
+    error ('UWP: value of `winnt` option must be `win10` or `win10+`')
   endif
 
   # Find windowsapp library
@@ -124,7 +124,7 @@ if opt_uwp
 endif
 
 p32_args_private += ['-DHAVE_CONFIG_H', '-D_XOPEN_SOURCE=800',]
-p32_args_private += windows_versions[opt_winver]
+p32_args_private += windows_versions[opt_winnt]
 
 if opt_uwp
   # FIXME: replace with WINAPI_FAMILY_PC_APP once fixed in mingw-w64

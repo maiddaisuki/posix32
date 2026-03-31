@@ -63,7 +63,7 @@ The following table lists all supported options:
 | Option      | Description                                               |
 | ----------- | --------------------------------------------------------- |
 | winpthreads | Use `pkgconf` to locate `winpthreads` even with mingw-w64 |
-| winver      | Windows version to target                                 |
+| winnt       | Minimal Windows NT version to support                     |
 | uwp         | Configure for UWP                                         |
 | lfs         | Default value of `_FILE_OFFSET_BITS`                      |
 | y2k         | Default value of `_TIME_BITS`                             |
@@ -96,7 +96,7 @@ even when using mingw-w64. This may be useful if want to use your own build of
 
 The library can be configured for Windows XP and any later version.
 
-The `-Dwinver` option accepts the following values:
+The `winnt` option accepts the following values:
 
 | Value      | Description                        |
 | ---------- | ---------------------------------- |
@@ -117,13 +117,13 @@ With `win10+`, the library will use latest Windows functions available in SDK,
 which may prevent the library from running on devices with older Windows 10/11
 updates.
 
-Note that any combination of CRT and `winver` is valid, although some
+Note that any combination of CRT and `winnt` is valid, although some
 combination make little practical sense, such as `UCRT and winxp` or
 `crtdll.dll and win10+`.
 
-| Build System | Syntax         |
-| ------------ | -------------- |
-| Meson        | -Dwinver=VALUE |
+| Build System | Syntax        |
+| ------------ | ------------- |
+| Meson        | -Dwinnt=VALUE |
 
 ### \_FILE_OFFSET_BITS and \_TIME_BITS
 
@@ -153,7 +153,7 @@ This options allows to configure `posix32` for use with UWP Apps.
 When you configure `posix32` for UWP, the follwing conditions must be met:
 
 - CRT must be UCRT
-- `winver` must be `win10` or `win10+`
+- value of `winnt` option must be `win10` or `win10+`
 - Building against static CRT is not allowed (as with MSVC's `/MT` switch)
 - Building `posix32` as static library is not allowed
 
