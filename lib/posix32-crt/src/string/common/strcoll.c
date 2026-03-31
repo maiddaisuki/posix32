@@ -24,7 +24,7 @@ static int p32_strcoll_posix (const char *str1, const char *str2, locale_t local
   UNREFERENCED_PARAMETER (locale);
 }
 
-#if !P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 static int p32_strcoll_ansi (const char *str1, const char *str2, locale_t locale) {
   DWORD flags = locale->LocaleInfo.LcCollate.StringCompareFlags;
   return P32CompareStringA (&locale->WinLocale.LcCollate, flags, str1, -1, str2, -1);
@@ -72,7 +72,7 @@ fail:
 static void P32LocaleFunction_strcoll (LocaleFunctions *functions, Charset *charset, Locale *locale) {
   if (P32_IS_POSIX (locale)) {
     functions->F_strcoll = p32_strcoll_posix;
-#if !P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
   } else if (P32_IS_ANSI (locale, charset)) {
     functions->F_strcoll = p32_strcoll_ansi;
 #endif

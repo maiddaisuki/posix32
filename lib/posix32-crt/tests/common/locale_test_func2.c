@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#if !P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 static LocaleCallback2 callback2 = NULL;
 #endif
 
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
 static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeString, DWORD flags, LPARAM param) {
   UNREFERENCED_PARAMETER (flags);
 #else
@@ -32,7 +32,7 @@ static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeString) {
   LocaleCallback2 callback = NULL;
   Locale          locale   = {0};
 
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
   if (localeString[0] == L'\0') {
     return TRUE;
   } else if (wcscmp (localeString, L"x-IV_mathan") == 0) {
@@ -282,7 +282,7 @@ void p32_locale_test_func2 (LocaleCallback2 callback, int flags) {
   /**
    * Test all supported locales.
    */
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
   EnumSystemLocalesEx (CallbackWrapper2, LOCALE_ALL, (LPARAM) callback, NULL);
 #else
   callback2 = callback;

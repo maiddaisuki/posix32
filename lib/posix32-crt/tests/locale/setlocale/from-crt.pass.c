@@ -53,7 +53,7 @@ typedef const char *(*__cdecl setlocale_t) (int, const char *);
 #define STR(s)          s
 #endif
 
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
 #define LOCALE_LC_COLLATE  L"de-DE"
 #define LOCALE_LC_CTYPE    L"en-US"
 #define LOCALE_LC_MONETARY L"es-ES"

@@ -62,7 +62,7 @@
 static int exit_code = EXIT_SUCCESS;
 
 typedef struct {
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
   LPCWSTR Locale;
 #else
   LCID Locale;
@@ -70,7 +70,7 @@ typedef struct {
   DWORD Flags;
 } ExpectedFailure;
 
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
 #define EXPECTED_FAILURE(locale_name, langid, sublangid) TEXT (locale_name)
 #define EQUAL_LOCALE(l1, l2)                             wcscmp (l1->LocaleName, l2.Locale) == 0
 #else
@@ -83,7 +83,7 @@ typedef struct {
  * default ANSI/OEM code pages is known to fail.
  */
 static ExpectedFailure ExpectedFailures[] = {
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
   /**
    * Locale: Arabic_world
    * ACP: 1256
@@ -207,7 +207,7 @@ static ExpectedFailure ExpectedFailures[] = {
    * OCP: 850
    */
   {EXPECTED_FAILURE ("ff-Latn-NG",  LANG_FULAH,           0x01),                                    P32_FLAG_ANSI | P32_FLAG_OEM},
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
   /**
    * Locale: Fula (Latin)_Cameroon
    * ACP: 1252
@@ -388,7 +388,7 @@ static ExpectedFailure ExpectedFailures[] = {
    */
   {EXPECTED_FAILURE ("yo",          LANG_YORUBA,          SUBLANG_YORUBA_NIGERIA),                  P32_FLAG_ANSI | P32_FLAG_OEM},
   {EXPECTED_FAILURE ("yo-NG",       LANG_YORUBA,          SUBLANG_YORUBA_NIGERIA),                  P32_FLAG_ANSI | P32_FLAG_OEM},
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
   /**
    * Locale: Yoruba_Benin
    * ACP: 1252
@@ -442,7 +442,7 @@ static bool __cdecl Test (Locale *locale) {
   HANDLE    heapHandle = GetProcessHeap ();
   uintptr_t heap       = (uintptr_t) heapHandle;
 
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
   /**
    * Skip partial locale names which do not include country/region code.
    */

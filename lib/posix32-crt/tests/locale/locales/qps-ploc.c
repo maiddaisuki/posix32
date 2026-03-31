@@ -36,7 +36,7 @@
 int main (void) {
   p32_test_init ();
 
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
   if (setlocale (LC_ALL, "qps-ploc") == NULL) {
     assert (setlocale (LC_ALL, "en_US.UTF-8") != NULL);
     assert (setlocale (LC_COLLATE, "qps-ploc") != NULL);

@@ -51,7 +51,7 @@
  */
 #define LOCALE      L"en-US.ACP"
 #define LOCALE_NAME "en-US.1252"
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
 #define LOCALE_STRING L"en-US"
 #else
 #define LOCALE_STRING L"English_United States.1252"

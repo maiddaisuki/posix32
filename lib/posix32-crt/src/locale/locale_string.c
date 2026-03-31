@@ -711,7 +711,7 @@ static bool P32FormatCrtLocaleString (wchar_t **address, uintptr_t heap, Locale 
     return P32FormatCLocaleString (address, heap);
   }
 
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
   /**
    * When Windows locale name is passed to CRT's `[_w]setlocale` or
    * `_[w]create_locale`, it uses locale's default ANSI code page.

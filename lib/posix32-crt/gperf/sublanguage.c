@@ -60,7 +60,7 @@
 
 #include "locale-internal.h"
 
-#if !P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"

@@ -28,7 +28,7 @@
 
 #include "locale-internal.h"
 
-#if !P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 #define SORTING_DECL(id, ll, sorting) {id, ll, sorting}
 
 static const SortingId SortingIds[] = {

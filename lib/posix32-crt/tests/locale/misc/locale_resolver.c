@@ -74,7 +74,7 @@
 static int exit_code = EXIT_SUCCESS;
 
 typedef struct {
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
 #define KNOWN_FAILURE(name_from, name_to, langid, sublang_from, sublang_to) name_from, name_to
   const wchar_t *From;
   const wchar_t *To;
@@ -86,14 +86,14 @@ typedef struct {
 #endif
 } KnownFailure;
 
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
 #define EQUAL_LOCALE(l, n) (wcscmp (l->LocaleName, n) == 0)
 #else
 #define EQUAL_LOCALE(l, i) (l->LocaleId == i)
 #endif
 
 KnownFailure KnownFailures[] = {
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
   /**
    * German_Germany
    */
@@ -183,7 +183,7 @@ static bool IsKnownFailure (Locale *from, Locale *to) {
  * Return `true` if they represent the same locale. Otherwise, return `false`
  */
 static bool IsEqualLocale (Locale *from, Locale *to) {
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
   size_t length  = wcslen (from->LocaleName);
   size_t compare = 0;
 
@@ -213,7 +213,7 @@ static bool IsEqualLocale (Locale *from, Locale *to) {
   } else {
     return wcscmp (from->LocaleName, to->LocaleName) == 0;
   }
-#else /* !P32_LOCALE_NAMES */
+#else /* LCID */
   LANGID fromLangId = LANGIDFROMLCID (from->LocaleId);
   LANGID toLangId   = LANGIDFROMLCID (to->LocaleId);
 

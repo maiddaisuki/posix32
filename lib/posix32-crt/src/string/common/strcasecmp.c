@@ -34,7 +34,7 @@ static int p32_strcasecmp_posix (const char *str1, const char *str2, locale_t lo
   }
 }
 
-#if !P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 static int p32_strcasecmp_ansi (const char *str1, const char *str2, locale_t locale) {
   DWORD flags = locale->LocaleInfo.LcCtype.CaseCmpFlags;
   return P32CompareStringA (&locale->WinLocale.LcCtype, flags, str1, -1, str2, -1);
@@ -82,7 +82,7 @@ fail:
 static void P32LocaleFunction_strcasecmp (LocaleFunctions *functions, Charset *charset, Locale *locale) {
   if (P32_IS_POSIX (locale)) {
     functions->F_strcasecmp = p32_strcasecmp_posix;
-#if !P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
   } else if (P32_IS_ANSI (locale, charset)) {
     functions->F_strcasecmp = p32_strcasecmp_ansi;
 #endif

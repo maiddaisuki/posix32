@@ -291,7 +291,7 @@ void p32_country (CountryIndex index, Country *country) {
   *country = Countries[index];
 }
 
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
 CountryIndex p32_country_by_cc (const wchar_t *cc) {
   for (CountryIndex i = 0; i < (CountryIndex) _countof (Countries); ++i) {
     if (wcscmp (cc, Countries[i].Code) == 0) {

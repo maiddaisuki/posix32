@@ -56,7 +56,7 @@
 
 #define GLOBAL_LOCALE      "en-US.ACP"
 #define GLOBAL_LOCALE_NAME "en-US.1252"
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
 #define GLOBAL_LOCALE_STRING L"en-US"
 #else
 #define GLOBAL_LOCALE_STRING L"English_United States.1252"
@@ -77,7 +77,7 @@ typedef const char *(*__cdecl setlocale_t) (int, const char *);
 
 #define THREAD_LOCALE      "ja-JP.ACP"
 #define THREAD_LOCALE_NAME "ja-JP.932"
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
 #define THREAD_LOCALE_STRING L"ja-JP"
 #else
 #define THREAD_LOCALE_STRING L"Japanese_Japan.932"

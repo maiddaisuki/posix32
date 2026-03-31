@@ -24,7 +24,7 @@
  * Returns `true` on success and `false` otherwise.
  */
 static bool P32WcTrans (wchar_t *out, wchar_t in, uint32_t flags, locale_t locale) {
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
   LPCWSTR localeName = locale->WinLocale.LcCtype.LocaleName;
   return LCMapStringEx (localeName, flags, &in, 1, out, 1, NULL, NULL, 0) == 1;
 #else

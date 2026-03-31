@@ -78,7 +78,7 @@ typedef struct Language {
    * ISO 3166 language code (e.g. "en").
    */
   const wchar_t *Code;
-#if !P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
   /**
    * `LANGID`.
    *
@@ -94,7 +94,7 @@ typedef struct Language {
  */
 void p32_language (LanguageIndex index, Language *language);
 
-#if !P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 /**
  * Lookup `LanguageIndex` for primary language ID (`LANGID`) `langId` and
  * language code `ll`.
@@ -139,7 +139,7 @@ typedef struct Country {
  */
 void p32_country (CountryIndex index, Country *country);
 
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
 /**
  * Lookup `CountryIndex` for country code `cc`.
  *
@@ -164,7 +164,7 @@ typedef struct Sorting {
  */
 void p32_sorting (SortingIndex index, Sorting *sorting);
 
-#if !P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 /**
  * Information about sorting order ID used to construct `LCID` locale.
  */
@@ -210,7 +210,7 @@ typedef struct Modifier {
  */
 void p32_modifier (ModifierIndex index, Modifier *modifier);
 
-#if !P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 /**
  * Complete information about some known `LCID` locale.
  */

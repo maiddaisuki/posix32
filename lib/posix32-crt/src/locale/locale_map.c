@@ -54,7 +54,7 @@
 #define LOCALE_MAP(type, locale, ll, ss, cc, cp)                                \
   {KNOWN_LOCALE (type, locale), BASE_LANGUAGE (ll, ss, cc), -1, -1, -1, -1, cp}
 
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
 #define PSEUDO_LOCALE_CODEPAGE(cp) P32_CODEPAGE_ACP
 #else
 #define PSEUDO_LOCALE_CODEPAGE(cp) cp
@@ -590,7 +590,7 @@ static bool P32LocaleMap (LocaleMap *localeMap, LocaleStringMap *stringMap, bool
       localeMap->Language.Script = Arab;
     }
 
-#if !P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
     /**
      * fa-AF.
      *

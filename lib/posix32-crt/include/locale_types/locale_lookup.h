@@ -69,7 +69,7 @@ typedef struct ModifierInfo {
 
 bool p32_lookup_modifier (ModifierInfo *info);
 
-#if !P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 typedef struct SubLangInfo {
   const char      *String;
   size_t           Length;

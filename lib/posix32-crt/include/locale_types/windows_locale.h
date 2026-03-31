@@ -53,7 +53,7 @@ typedef struct Locale {
    * Locale name
    */
   wchar_t *LocaleName;
-#if !P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
   /**
    * LCID
    */
@@ -140,7 +140,7 @@ typedef struct CrtLocale {
 } CrtLocale;
 #endif
 
-#if defined(LIBPOSIX32_TEST) && !P32_LOCALE_NAMES
+#if defined(LIBPOSIX32_TEST) && (P32_LOCALE_API & P32_LOCALE_API_LCID)
 /**
  * Attempt to construct `Locale` object from existing valid `localeId`.
  *

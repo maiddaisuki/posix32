@@ -28,10 +28,10 @@
 
 #include "locale-internal.h"
 
-#if P32_LOCALE_NAMES
-#define LANGUAGE_DECL(name, ll, id) {TEXT (name), TEXT (ll)}
-#else
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 #define LANGUAGE_DECL(name, ll, id) {TEXT (name), TEXT (ll), (uint16_t) id}
+#else
+#define LANGUAGE_DECL(name, ll, id) {TEXT (name), TEXT (ll)}
 #endif
 
 static const Language Languages[] = {
@@ -303,7 +303,7 @@ void p32_language (LanguageIndex index, Language *language) {
   *language = Languages[index];
 }
 
-#if !P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 LanguageIndex p32_language_from_id (uint16_t langId, const wchar_t *ll) {
   for (LanguageIndex i = 0; i < (LanguageIndex) _countof (Languages); i++) {
     if (Languages[i].LangId == langId && wcscmp (Languages[i].Code, ll) == 0) {

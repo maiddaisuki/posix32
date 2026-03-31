@@ -39,7 +39,7 @@
  * This file defines functions declared in wchar.h.
  */
 
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
 static int P32CompareString (Locale *locale, DWORD flags, LPCWSTR wcs1, INT len1, LPCWSTR wcs2, INT len2) {
   int ret = CompareStringEx (locale->LocaleName, flags, wcs1, len1, wcs2, len2, NULL, NULL, 0);
 

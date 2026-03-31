@@ -28,7 +28,7 @@
 
 #include "locale-internal.h"
 
-#if !P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 #define SUBLANG_DECL(id, ll, ss, cc) {.SubLangId = id, .Map.Language = ll, .Map.Script = ss, .Map.Country = cc}
 
 static const SubLanguage Sublanguages[] = {

@@ -49,7 +49,7 @@
 #define SETLOCALE(c, l) _wsetlocale (c, l)
 #define CMP(s1, s2)     wcscmp (s1, s2)
 
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
 #define GLOBAL_LOCALE L"en-US"
 #else
 #define GLOBAL_LOCALE L"English_United States.1252"
@@ -57,7 +57,7 @@
 #define GLOBAL_LOCALE_NAME   "en-US.1252"
 #define GLOBAL_LOCALE_STRING GLOBAL_LOCALE
 
-#if P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
 #define THREAD_LOCALE L"de-DE"
 #else
 #define THREAD_LOCALE L"German_Germany.1252"

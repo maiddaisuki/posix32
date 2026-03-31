@@ -30,7 +30,7 @@ static size_t p32_strxfrm_posix (char *dest, const char *src, size_t size, local
   UNREFERENCED_PARAMETER (locale);
 }
 
-#if !P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 static size_t p32_strxfrm_ansi (char *dest, const char *src, size_t size, locale_t locale) {
   INT destSize = (INT) __min (size, INT_MAX);
 
@@ -112,7 +112,7 @@ einval:
 static void P32LocaleFunction_strxfrm (LocaleFunctions *functions, Charset *charset, Locale *locale) {
   if (P32_IS_POSIX (locale)) {
     functions->F_strxfrm = p32_strxfrm_posix;
-#if !P32_LOCALE_NAMES
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
   } else if (P32_IS_ANSI (locale, charset)) {
     functions->F_strxfrm = p32_strxfrm_ansi;
 #endif

@@ -26,13 +26,24 @@
 #include "p32_locale.h"
 
 /**
+ * If this bit is set in `P32_LOCALE_API`, then the library will be built with
+ * `LCID` support.
+ */
+#define P32_LOCALE_API_LCID (1)
+/**
+ * If this bit is set in `P32_LOCALE_API`, then the library will be built with
+ * Locale Name support.
+ */
+#define P32_LOCALE_API_LN   (1 << 1)
+
+/**
  * Locale names were introduced in Windows Vista.
  * CRT supports locale names since msvcr110.dll.
  */
 #if P32_WINNT >= P32_WINNT_VISTA && P32_CRT >= P32_MSVCR110
-#define P32_LOCALE_NAMES 1
+#define P32_LOCALE_API (P32_LOCALE_API_LN)
 #else
-#define P32_LOCALE_NAMES 0
+#define P32_LOCALE_API (P32_LOCALE_API_LCID)
 #endif
 
 /**
