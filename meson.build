@@ -23,6 +23,15 @@ if host_machine.system() != 'windows'
   error ('posix32 is a library for native Windows platforms')
 endif
 
+cpu = host_machine.cpu_family()
+
+# We could support Itanium (`ia64`) if there is a need; we would have to add
+# corresponding `P32_ARCH_*` constant in `posix32.h` and modify arch-specific
+# code.
+if cpu not in ['x86', 'x86_64', 'arm', 'aarch64']
+  error ('Arch `@0@` is not supported,'.format(cpu))
+endif
+
 # Import required modules
 fs = import ('fs')
 
@@ -30,12 +39,16 @@ tclsh = find_program ('tclsh', native: true)
 gperf = find_program ('gperf', native: true)
 
 # Following include directories are common for all libraries
-p32_includes = []
+p32_includes         = []
 p32_includes_private = []
 
-# Following arguments are common for all libraries
-p32_args = []
+# Following compiler arguments are common for all libraries
+p32_args         = []
 p32_args_private = []
+
+# Following linker arguments are common for all libraries
+p32_link_args         = []
+p32_link_args_private = []
 
 # Extra arguments to use with unit tests
 p32_args_test = ['-DLIBPOSIX32_TEST']
@@ -43,20 +56,120 @@ p32_args_test = ['-DLIBPOSIX32_TEST']
 # Dependencies common for all libraries
 p32_deps = []
 
-# Macros to define based on value of `winnt` option
+# Supported Windows NT versions
+#
+# For each supported `winnt` value it contains:
+#
+# - `P32_WINNT` value to use during compilation
+# - `cpu`-specific major and minor subsystem versions
+#
+# If `windows_versions[winnt]` does not contain subsystem versions for `cpu`,
+# then `winnt` does not support `cpu`.
+#
+# For example, this prevents configuring with `-Dwinnt=winxp` for arm;
+# this makes no sense since arm processors are only supported since Windows 8.
+#
 windows_versions = {
-  # _WIN32_WINNT_WINXP
-  'winxp':    ['-DP32_WINNT=0x0501'],
-  # _WIN32_WINNT_VISTA
-  'winvista': ['-DP32_WINNT=0x0600'],
-  # _WIN32_WINNT_WIN7
-  'win7':     ['-DP32_WINNT=0x0601'],
-  # _WIN32_WINNT_WIN8
-  'win8':     ['-DP32_WINNT=0x0602'],
-  # _WIN32_WINNT_WINBLUE
-  'win8.1':   ['-DP32_WINNT=0x0603'],
-  # _WIN32_WINNT_WIN10
-  'win10':    ['-DP32_WINNT=0x0A00'],
+  # Windows XP
+  'winxp': {
+    'args': [
+      '-DP32_WINNT=0x0501', # _WIN32_WINNT_WINXP
+    ],
+    'x86': {
+      'major': 5,
+      'minor': 1,
+    },
+    'x86_64': {
+      'major': 5,
+      'minor': 2,
+    },
+  },
+  # Windows Vista
+  'winvista': {
+    'args': [
+      '-DP32_WINNT=0x0600', # _WIN32_WINNT_VISTA
+    ],
+    'x86': {
+      'major': 6,
+      'minor': 0,
+    },
+    'x86_64': {
+      'major': 6,
+      'minor': 0,
+    },
+  },
+  # Windows 7
+  'win7': {
+    'args': [
+      '-DP32_WINNT=0x0601', # _WIN32_WINNT_WIN7
+    ],
+    'x86': {
+      'major': 6,
+      'minor': 1,
+    },
+    'x86_64': {
+      'major': 6,
+      'minor': 1,
+    },
+  },
+  # Windows 8
+  'win8': {
+    'args': [
+      '-DP32_WINNT=0x0602', # _WIN32_WINNT_WIN8
+    ],
+    'x86': {
+      'major': 6,
+      'minor': 2,
+    },
+    'x86_64': {
+      'major': 6,
+      'minor': 2,
+    },
+    'arm': {
+      'major': 6,
+      'minor': 2,
+    },
+  },
+  # Windows 8.1
+  'win8.1': {
+    'args': [
+      '-DP32_WINNT=0x0603', # _WIN32_WINNT_WINBLUE
+    ],
+    'x86': {
+      'major': 6,
+      'minor': 3,
+    },
+    'x86_64': {
+      'major': 6,
+      'minor': 3,
+    },
+    'arm': {
+      'major': 6,
+      'minor': 3,
+    },
+  },
+  # Windows 10
+  'win10': {
+    'args': [
+      '-DP32_WINNT=0x0A00', # _WIN32_WINNT_WIN10
+    ],
+    'x86': {
+      'major': 10,
+      'minor': 0,
+    },
+    'x86_64': {
+      'major': 10,
+      'minor': 0,
+    },
+    'arm': {
+      'major': 10,
+      'minor': 0,
+    },
+    'aarch64': {
+      'major': 10,
+      'minor': 0,
+    },
+  },
 }
 
 cc = meson.get_compiler('c')
@@ -67,6 +180,11 @@ building_static = get_option('default_library') in ['static', 'both']
 opt_uwp   = get_option('uwp')
 opt_winnt = get_option('winnt')
 opt_ntddi = get_option('ntddi')
+
+# Check if `cpu` is supported with `opt_winnt`
+if not windows_versions[opt_winnt].has_key(cpu)
+  error ('`@0@` images cannot run on `@1@`; configure for higher Windows NT version.'.format(cpu, opt_winnt))
+endif
 
 is_mingw  = cc.has_define('__MINGW32__')
 is_64bit  = cc.has_define('_WIN64')
@@ -123,7 +241,7 @@ if opt_uwp
 endif
 
 p32_args_private += ['-DHAVE_CONFIG_H', '-D_XOPEN_SOURCE=800',]
-p32_args_private += windows_versions[opt_winnt]
+p32_args_private += windows_versions[opt_winnt]['args']
 
 if opt_winnt in ['win10']
   p32_args_private += ['-DP32_NTDDI=@0@'.format(opt_ntddi)]
@@ -165,6 +283,19 @@ if cc.get_argument_syntax() == 'msvc'
   p32_args_test += cc.get_supported_arguments (
     '/Oi-', # Disable built-in functions
   )
+
+  # How to set subsystem version
+  subsystem_link_args = '/SUBSYSTEM:CONSOLE,@0@.@1@'.format (
+    windows_versions[opt_winnt][cpu]['major'],
+    windows_versions[opt_winnt][cpu]['minor']
+  )
+
+  if cc.has_link_argument (subsystem_link_args)
+    p32_link_args_private += subsystem_link_args
+    unset_variable ('subsystem_link_args')
+  else
+    error ('Toolchain cannot create images for `@0@`.'.format(opt_winnt))
+  endif
 elif cc.get_argument_syntax() == 'gcc'
   # Tell compiler that source and execution charset is UTF-8
   if cc.has_multi_arguments('-finput-charset=utf-8', '-fexec-charset=utf-8')
@@ -181,6 +312,36 @@ elif cc.get_argument_syntax() == 'gcc'
   p32_args_test += cc.get_supported_arguments (
     '-fno-builtin',
   )
+
+  # FIXME: mingw-w64 toolchains produce broken executables when subsystem
+  #   version is set to 6.3 (Windows 8.1) or later. Until it is fixed, we set
+  #   subsystem version to 6.2 when configuting for Windows 8.1 or later.
+  #
+  # See <https://sourceforge.net/p/mingw-w64/mailman/message/59315202/>
+  #
+  major = windows_versions[opt_winnt][cpu]['major']
+  minor = windows_versions[opt_winnt][cpu]['minor']
+
+  if major > 6 or (major == 6 and minor > 2)
+    major = 6
+    minor = 2
+  endif
+
+  # How to set subsystem version
+  subsystem_link_args = '-Wl,--subsystem,console:@0@.@1@'.format (
+    major,
+    minor
+  )
+
+  unset_variable ('minor')
+  unset_variable ('major')
+
+  if cc.has_link_argument (subsystem_link_args)
+    p32_link_args_private += subsystem_link_args
+    unset_variable ('subsystem_link_args')
+  else
+    error ('Toolchain cannot create images for `@0@`.'.format(opt_winnt))
+  endif
 else
   error ('Unsupported compiler. Please open an issue and provide information about you compiler.')
 endif

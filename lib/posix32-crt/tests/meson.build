@@ -24,6 +24,10 @@ posix32_crt_test = library (
   c_shared_args: [
     '-DLIBPOSIX32_DLL',
   ],
+  link_args: [
+    p32_link_args,
+    p32_link_args_private,
+  ],
   dependencies: [
     p32_deps,
   ],
@@ -32,6 +36,10 @@ posix32_crt_test = library (
 
 # Dependency object to link against `posix32-crt_test`
 posix32_crt_test_dep = declare_dependency (
+  link_args: [
+    p32_link_args,
+    p32_link_args_private,
+  ],
   link_with: [
     posix32_crt_test,
   ],

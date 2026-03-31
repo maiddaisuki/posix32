@@ -38,6 +38,10 @@ posix32 = library (
   c_shared_args: [
     '-DLIBPOSIX32_DLL',
   ],
+  link_args: [
+    p32_link_args,
+    p32_link_args_private,
+  ],
 
   vs_module_defs: posix32_def,
   version: meson.project_version(),
