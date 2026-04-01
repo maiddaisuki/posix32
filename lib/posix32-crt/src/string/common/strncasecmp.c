@@ -68,7 +68,7 @@ static int p32_strncasecmp_ansi (const char *str1, const char *str2, size_t coun
   /**
    * Locale-specific flags for `StringCompare[Ex]`.
    */
-  DWORD flags = LINGUISTIC_IGNORECASE | NORM_LINGUISTIC_CASING | SORT_STRINGSORT;
+  DWORD flags = locale->LocaleInfo.LcCtype.CaseCmpFlags;
 
   return P32CompareStringA (&locale->WinLocale.LcCtype, flags, str1, (INT) str1Length, str2, (INT) str2Length);
 }
@@ -108,7 +108,7 @@ int p32_private_strncasecmp_l (const char *str1, const char *str2, size_t count,
   /**
    * Locale-specific flags for `StringCompare[Ex]`.
    */
-  DWORD flags = LINGUISTIC_IGNORECASE | NORM_LINGUISTIC_CASING | SORT_STRINGSORT;
+  DWORD flags = locale->LocaleInfo.LcCtype.CaseCmpFlags;
 
   diff = P32CompareStringW (&locale->WinLocale.LcCtype, flags, wcs1, wcs1Length, wcs2, wcs2Length);
 

@@ -26,7 +26,11 @@ static int p32_strcoll_posix (const char *str1, const char *str2, locale_t local
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 static int p32_strcoll_ansi (const char *str1, const char *str2, locale_t locale) {
+  /**
+   * Locale-specific flags for `StringCompare[Ex]`.
+   */
   DWORD flags = locale->LocaleInfo.LcCollate.StringCompareFlags;
+
   return P32CompareStringA (&locale->WinLocale.LcCollate, flags, str1, -1, str2, -1);
 }
 #endif
