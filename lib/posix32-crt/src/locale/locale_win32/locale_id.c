@@ -581,7 +581,7 @@ static bool P32LocaleFromLCID (Locale *locale, uintptr_t heap) {
     goto fail;
   }
 
-  if (!P32FillLocaleInfo (locale, heap)) {
+  if (!P32WinlocaleInfo (locale, heap)) {
     goto fail;
   }
 
@@ -695,9 +695,9 @@ bool p32_winlocale_resolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap
   }
 
   /**
-   * Gather basic infromation for `locale->LocaleId`.
+   * Finish construction of `locale`.
    */
-  if (!P32FillLocaleInfo (locale, heap)) {
+  if (!P32WinlocaleInfo (locale, heap)) {
     goto fail;
   }
 

@@ -167,17 +167,17 @@ static bool P32GetLanguageCodeFromLocale (wchar_t **address, uintptr_t heap, Loc
 static bool P32GetCountryCodeFromLocale (wchar_t **address, uintptr_t heap, Locale *locale);
 
 /**
- * Fill `locale` with information about locale it represents.
+ * Finish construction of `Locale` object `locale`.
  *
- * Currently this information includes:
+ * Store the following information in `locale`:
  *
- * - Default and alternative calendar used by locale
- * - Default ANSI and OEM code page used by locale
- * - Geological information
+ * - Default ANSI and OEM code page used by `locale`
+ * - Default and alternative calendar used by `locale`
+ * - Geological information (`GEOID` or Region Name)
  *
  * Returns `true` on success, and `false` otherwise.
  */
-static bool P32FillLocaleInfo (Locale *locale, uintptr_t heap);
+static bool P32WinlocaleInfo (Locale *locale, uintptr_t heap);
 
 /*******************************************************************************
  * Functions to obtain locale information.
@@ -381,7 +381,7 @@ static bool P32GetCountryCodeFromLocale (wchar_t **address, uintptr_t heap, Loca
   return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
 }
 
-static bool P32FillLocaleInfo (Locale *locale, uintptr_t heap) {
+static bool P32WinlocaleInfo (Locale *locale, uintptr_t heap) {
   uint32_t calendar            = 0;
   uint32_t alternativeCalendar = 0;
   uint32_t ansiCodePage        = 0;

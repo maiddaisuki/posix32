@@ -524,7 +524,7 @@ static bool P32DefaultLocale (Locale *locale, uintptr_t heap, DefaultLocaleType 
 
   locale->LocaleName = address;
 
-  if (!P32FillLocaleInfo (locale, heap)) {
+  if (!P32WinlocaleInfo (locale, heap)) {
     goto fail_free;
   }
 
@@ -576,7 +576,7 @@ bool p32_winlocale_resolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap
       return false;
     }
 
-    if (!P32FillLocaleInfo (locale, heap)) {
+    if (!P32WinlocaleInfo (locale, heap)) {
       HeapFree (heapHandle, 0, locale->LocaleName);
       locale->LocaleName = NULL;
 
@@ -669,9 +669,9 @@ bool p32_winlocale_resolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap
   resolvedLocale.Locale = NULL;
 
   /**
-   * Gather basic infromation for `locale->LocaleName`.
+   * Finish construction of `locale`.
    */
-  if (!P32FillLocaleInfo (locale, heap)) {
+  if (!P32WinlocaleInfo (locale, heap)) {
     goto fail_destroy;
   }
 
