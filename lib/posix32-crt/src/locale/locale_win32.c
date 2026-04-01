@@ -92,6 +92,80 @@ static bool P32GeoDuplicate (Locale *destLocale, uintptr_t heap, Locale *srcLoca
  */
 static void P32GeoDestroy (Locale *locale, uintptr_t heap);
 
+/*******************************************************************************
+ * Structures, functions and macros to call appropriate implementation.
+ */
+
+/**
+ * Retrieve locale information as a string.
+ *
+ * Retrieved string is stored in `*request->OutputW`.
+ *
+ * If `P32_LOCALE_INFO_REQUEST_CONVERT` flag is set in `request->Flags`, then
+ * string converted to `request->CodePage` is stored in `request->OutputA`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+static bool P32GetTextualLocaleInfo (LocaleInfoRequest *request, uintptr_t heap, Locale *locale);
+
+/**
+ * Retrieve locale information as an integer value.
+ *
+ * Retrieved value is stored in `*request->Output`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+static bool P32GetNumericLocaleInfo (LocaleInfoRequest *request, uintptr_t heap, Locale *locale);
+
+/**
+ * Retrieve calendar information as a string.
+ *
+ * Retrieved string is stored in `*request->OutputW`.
+ *
+ * If `P32_LOCALE_INFO_REQUEST_CONVERT` flag is set in `request->Flags`, then
+ * string converted to `request->CodePage` is stored in `request->OutputA`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+static bool P32GetTextualCalendarInfo (CalendarInfoRequest *request, uintptr_t heap, Locale *locale);
+
+/**
+ * Retrieve calendar information as an integer value.
+ *
+ * Retrieved value is stored in `*request->Output`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+static bool P32GetNumericCalendarInfo (CalendarInfoRequest *request, uintptr_t heap, Locale *locale);
+
+/**
+ * Get language name for `locale`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+static bool P32GetLanguageNameFromLocale (wchar_t **address, uintptr_t heap, Locale *locale);
+
+/**
+ * Get country name for `locale`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+static bool P32GetCountryNameFromLocale (wchar_t **address, uintptr_t heap, Locale *locale);
+
+/**
+ * Get ISO-639 language code for `locale`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+static bool P32GetLanguageCodeFromLocale (wchar_t **address, uintptr_t heap, Locale *locale);
+
+/**
+ * Get ISO-3166 country code for `locale`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+static bool P32GetCountryCodeFromLocale (wchar_t **address, uintptr_t heap, Locale *locale);
+
 /**
  * Fill `locale` with information about locale it represents.
  *
@@ -109,16 +183,6 @@ static bool P32FillLocaleInfo (Locale *locale, uintptr_t heap);
  * Functions to obtain locale information.
  */
 
-/**
- * Retrieve locale information as a string.
- *
- * Retrieved string is stored in `*request->OutputW`.
- *
- * If `P32_LOCALE_INFO_REQUEST_CONVERT` flag is set in `request->Flags`, then
- * string converted to `request->CodePage` is stored in `request->OutputA`.
- *
- * Returns `true` on success, and `false` otherwise.
- */
 static bool P32GetTextualLocaleInfo (LocaleInfoRequest *request, uintptr_t heap, Locale *locale) {
   HANDLE heapHandle = (HANDLE) heap;
 
@@ -188,28 +252,11 @@ fail:
   return false;
 }
 
-/**
- * Retrieve locale information as an integer value.
- *
- * Retrieved value is stored in `*request->Output`.
- *
- * Returns `true` on success, and `false` otherwise.
- */
 static bool P32GetNumericLocaleInfo (LocaleInfoRequest *request, uintptr_t heap, Locale *locale) {
   return P32GetLocaleInfo (locale, LOCALE_RETURN_NUMBER | request->Info, (LPWSTR) request->Output, 2) == 2;
   UNREFERENCED_PARAMETER (heap);
 }
 
-/**
- * Retrieve calendar information as a string.
- *
- * Retrieved string is stored in `*request->OutputW`.
- *
- * If `P32_LOCALE_INFO_REQUEST_CONVERT` flag is set in `request->Flags`, then
- * string converted to `request->CodePage` is stored in `request->OutputA`.
- *
- * Returns `true` on success, and `false` otherwise.
- */
 static bool P32GetTextualCalendarInfo (CalendarInfoRequest *request, uintptr_t heap, Locale *locale) {
   HANDLE heapHandle = (HANDLE) heap;
 
@@ -286,13 +333,6 @@ fail:
   return false;
 }
 
-/**
- * Retrieve calendar information as an integer value.
- *
- * Retrieved value is stored in `*request->Output`.
- *
- * Returns `true` on success, and `false` otherwise.
- */
 static bool P32GetNumericCalendarInfo (CalendarInfoRequest *request, uintptr_t heap, Locale *locale) {
   Calendar calendar = locale->Calendar;
 
@@ -305,11 +345,6 @@ static bool P32GetNumericCalendarInfo (CalendarInfoRequest *request, uintptr_t h
   UNREFERENCED_PARAMETER (heap);
 }
 
-/**
- * Get language name for `locale`.
- *
- * Returns `true` on success, and `false` otherwise.
- */
 static bool P32GetLanguageNameFromLocale (wchar_t **address, uintptr_t heap, Locale *locale) {
   LocaleInfoRequest infoRequest = {0};
 
@@ -319,11 +354,6 @@ static bool P32GetLanguageNameFromLocale (wchar_t **address, uintptr_t heap, Loc
   return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
 }
 
-/**
- * Get country name for `locale`.
- *
- * Returns `true` on success, and `false` otherwise.
- */
 static bool P32GetCountryNameFromLocale (wchar_t **address, uintptr_t heap, Locale *locale) {
   LocaleInfoRequest infoRequest = {0};
 
@@ -333,11 +363,6 @@ static bool P32GetCountryNameFromLocale (wchar_t **address, uintptr_t heap, Loca
   return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
 }
 
-/**
- * Get ISO-639 language code for `locale`.
- *
- * Returns `true` on success, and `false` otherwise.
- */
 static bool P32GetLanguageCodeFromLocale (wchar_t **address, uintptr_t heap, Locale *locale) {
   LocaleInfoRequest infoRequest = {0};
 
@@ -347,11 +372,6 @@ static bool P32GetLanguageCodeFromLocale (wchar_t **address, uintptr_t heap, Loc
   return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
 }
 
-/**
- * Get ISO-3166 country code for `locale`.
- *
- * Returns `true` on success, and `false` otherwise.
- */
 static bool P32GetCountryCodeFromLocale (wchar_t **address, uintptr_t heap, Locale *locale) {
   LocaleInfoRequest infoRequest = {0};
 
