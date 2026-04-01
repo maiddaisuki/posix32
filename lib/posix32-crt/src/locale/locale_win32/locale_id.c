@@ -91,6 +91,28 @@ static int P32WinlocaleLCIDCompareStringW (
   return CompareStringW (locale->LocaleId, flags, wcs1, wcs1Length, wcs2, wcs2Length);
 }
 
+static int P32WinlocaleLCIDMapStringA (
+  Locale     *locale,
+  uint32_t    flags,
+  const char *in,
+  int         inLength,
+  char       *out,
+  int         outLength
+) {
+  return LCMapStringA (locale->LocaleId, flags, in, inLength, out, outLength);
+}
+
+static int P32WinlocaleLCIDMapStringW (
+  Locale        *locale,
+  uint32_t       flags,
+  const wchar_t *in,
+  int            inLength,
+  wchar_t       *out,
+  int            outLength
+) {
+  return LCMapStringW (locale->LocaleId, flags, in, inLength, out, outLength);
+}
+
 /**
  * Attempt to construct `LCID` object from `ll`, `ss` and `cc`.
  *

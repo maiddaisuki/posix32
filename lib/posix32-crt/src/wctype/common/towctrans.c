@@ -17,23 +17,6 @@
 #include "p32_wctype.h"
 
 /**
- * Map single wide character using `flags`.
- *
- * This function is wrapper around `LCMapStringW` or `LCMapStringEx`.
- *
- * Returns `true` on success and `false` otherwise.
- */
-static bool P32WcTrans (wchar_t *out, wchar_t in, uint32_t flags, locale_t locale) {
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-  LPCWSTR localeName = locale->WinLocale.LcCtype.LocaleName;
-  return LCMapStringEx (localeName, flags, &in, 1, out, 1, NULL, NULL, 0) == 1;
-#else
-  LCID localeId = locale->WinLocale.LcCtype.LocaleId;
-  return LCMapStringW (localeId, flags, &in, 1, out, 1) == 1;
-#endif
-}
-
-/**
  * Get flags for LCMapString[Ex] for character mapping `wctrans`.
  *
  * This function returns `0` if `wctrans` describes invalid character mapping.
@@ -107,7 +90,7 @@ wint_t p32_towctrans_l (wint_t wc, wctrans_t wctrans, locale_t locale) {
   /**
    * Return `wc` unchanged if failed to apply mapping described by `wctrans`.
    */
-  if (!P32WcTrans (&wcTranslated, wc, flags, locale)) {
+  if (p32_winlocale_map_unicode_string (&locale->WinLocale.LcCtype, flags, &wc, 1, &wcTranslated, 1) == 0) {
     return wc;
   }
 

@@ -98,6 +98,22 @@ static int P32WinlocaleLCIDCompareStringA (Locale *, uint32_t, const char *, int
 static int P32WinlocaleLCIDCompareStringW (Locale *, uint32_t, const wchar_t *, int, const wchar_t *, int);
 
 /**
+ * Wrapper around `LCMapStringA` which uses `Locale` object instead of
+ * `LCID` object.
+ *
+ * Return value is the same as for `LCMapStringA`.
+ */
+static int P32WinlocaleLCIDMapStringA (Locale *, uint32_t, const char *, int, char *, int);
+
+/**
+ * Wrapper around `LCMapStringW` which uses `Locale` object instead of
+ * `LCID` object.
+ *
+ * Return value is the same as for `LCMapStringW`.
+ */
+static int P32WinlocaleLCIDMapStringW (Locale *, uint32_t, const wchar_t *, int, wchar_t *, int);
+
+/**
  * Implementation for `p32_winlocale_system_default`.
  */
 static bool P32WinlocaleLCIDSystemDefault (Locale *locale, uintptr_t heap);
@@ -155,6 +171,14 @@ static int P32WinlocaleLNGetCalendarInfoW (Locale *, Calendar, uint32_t, wchar_t
  * Return value is the same as for `CompareStringEx`.
  */
 static int P32WinlocaleLNCompareStringW (Locale *, uint32_t, const wchar_t *, int, const wchar_t *, int);
+
+/**
+ * Wrapper around `LCMapStringEx` which uses `Locale` object instead of
+ * Locale Name.
+ *
+ * Return value is the same as for `LCMapStringEx`.
+ */
+static int P32WinlocaleLNMapStringW (Locale *, uint32_t, const wchar_t *, int, wchar_t *, int);
 
 /**
  * Implementation for `p32_winlocale_system_default`.
@@ -354,12 +378,14 @@ static bool P32WinlocaleInfo (Locale *locale, uintptr_t heap);
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 #define WinlocaleCompareStringA P32WinlocaleLCIDCompareStringA
+#define WinlocaleMapStringA     P32WinlocaleLCIDMapStringA
 #endif
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 #define WinlocaleGetLocaleInfoW   P32WinlocaleLCIDGetLocaleInfoW
 #define WinlocaleGetCalendarInfoW P32WinlocaleLCIDGetCalendarInfoW
 #define WinlocaleCompareStringW   P32WinlocaleLCIDCompareStringW
+#define WinlocaleMapStringW       P32WinlocaleLCIDMapStringW
 #define WinlocaleGetLanguageName  P32GetLanguageNameFromLocale
 #define WinlocaleGetCountryName   P32GetCountryNameFromLocale
 #define WinlocaleGetLanguageCode  P32GetLanguageCodeFromLocale
@@ -374,6 +400,7 @@ static bool P32WinlocaleInfo (Locale *locale, uintptr_t heap);
 #define WinlocaleGetLocaleInfoW   P32WinlocaleLNGetLocaleInfoW
 #define WinlocaleGetCalendarInfoW P32WinlocaleLNGetCalendarInfoW
 #define WinlocaleCompareStringW   P32WinlocaleLNCompareStringW
+#define WinlocaleMapStringW       P32WinlocaleLNMapStringW
 #define WinlocaleGetLanguageName  P32WinlocaleLNGetLanguageName
 #define WinlocaleGetCountryName   P32WinlocaleLNGetCountryName
 #define WinlocaleGetLanguageCode  P32WinlocaleLNGetLanguageCode
@@ -711,6 +738,17 @@ int p32_winlocale_compare_ansi_string (
 ) {
   return WinlocaleCompareStringA (locale, flags, str1, str1Length, str2, str2Length);
 }
+
+int p32_winlocale_map_ansi_string (
+  Locale     *locale,
+  uint32_t    flags,
+  const char *str,
+  int         strLength,
+  char       *buffer,
+  int         bufferSize
+) {
+  return WinlocaleMapStringA (locale, flags, str, strLength, buffer, bufferSize);
+}
 #endif /* ANSI APIs */
 
 int p32_winlocale_compare_unicode_string (
@@ -722,6 +760,17 @@ int p32_winlocale_compare_unicode_string (
   int            str2Length
 ) {
   return WinlocaleCompareStringW (locale, flags, str1, str1Length, str2, str2Length);
+}
+
+int p32_winlocale_map_unicode_string (
+  Locale        *locale,
+  uint32_t       flags,
+  const wchar_t *str,
+  int            strLength,
+  wchar_t       *buffer,
+  int            bufferSize
+) {
+  return WinlocaleMapStringW (locale, flags, str, strLength, buffer, bufferSize);
 }
 
 bool p32_winlocale_system_default (Locale *locale, uintptr_t heap) {

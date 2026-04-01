@@ -37,13 +37,13 @@ static size_t p32_strxfrm_ansi (char *dest, const char *src, size_t size, locale
   /**
    * Locale-specific flags for `LCMapString[Ex]`.
    */
-  DWORD flags = locale->LocaleInfo.LcCollate.StringTransformationFlags;
+  DWORD flags = LCMAP_SORTKEY | locale->LocaleInfo.LcCollate.StringTransformationFlags;
 
   /**
    * NOTE: LCMapString(LCMAP_SORTKEY) returns number of bytes, not number
    * of characters.
    */
-  INT bufferSize = P32LCMapSortKeyA (&locale->WinLocale.LcCollate, flags, src, -1, NULL, 0);
+  INT bufferSize = p32_winlocale_map_ansi_string (&locale->WinLocale.LcCollate, flags, src, -1, NULL, 0);
 
   if (bufferSize == 0) {
     goto einval;
@@ -53,7 +53,7 @@ static size_t p32_strxfrm_ansi (char *dest, const char *src, size_t size, locale
     return bufferSize - 1;
   }
 
-  INT written = P32LCMapSortKeyA (&locale->WinLocale.LcCollate, flags, src, -1, dest, destSize);
+  INT written = p32_winlocale_map_ansi_string (&locale->WinLocale.LcCollate, flags, src, -1, dest, destSize);
   assert (written == bufferSize);
 
   return written - 1;
@@ -79,13 +79,13 @@ size_t p32_private_strxfrm_l (char *dest, const char *src, size_t size, locale_t
   /**
    * Locale-specific flags for `LCMapString[Ex]`.
    */
-  DWORD flags = locale->LocaleInfo.LcCollate.StringTransformationFlags;
+  DWORD flags = LCMAP_SORTKEY | locale->LocaleInfo.LcCollate.StringTransformationFlags;
 
   /**
    * NOTE: LCMapString(LCMAP_SORTKEY) returns number of bytes, not number
    * of characters.
    */
-  INT bufferSize = P32LCMapSortKeyW (&locale->WinLocale.LcCollate, flags, wcs, -1, NULL, 0);
+  INT bufferSize = p32_winlocale_map_unicode_string (&locale->WinLocale.LcCollate, flags, wcs, -1, NULL, 0);
 
   if (bufferSize == 0) {
     free (wcs);
@@ -97,7 +97,8 @@ size_t p32_private_strxfrm_l (char *dest, const char *src, size_t size, locale_t
     return bufferSize - 1;
   }
 
-  INT written = P32LCMapSortKeyW (&locale->WinLocale.LcCollate, flags, wcs, -1, (wchar_t *) dest, destSize);
+  INT written =
+    p32_winlocale_map_unicode_string (&locale->WinLocale.LcCollate, flags, wcs, -1, (wchar_t *) dest, destSize);
   assert (written == bufferSize);
 
   free (wcs);

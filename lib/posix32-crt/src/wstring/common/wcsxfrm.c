@@ -39,13 +39,13 @@ static size_t p32_wcsxfrm_generic (wchar_t *dest, const wchar_t *src, size_t siz
   /**
    * Locale specific flags for `LcMapString[Ex]`.
    */
-  DWORD flags = locale->LocaleInfo.LcCollate.StringTransformationFlags;
+  DWORD flags = LCMAP_SORTKEY | locale->LocaleInfo.LcCollate.StringTransformationFlags;
 
   /**
    * NOTE: `LCMapString(LCMAP_SORTKEY)` returns number of bytes, not number of
    * characters.
    */
-  INT bufferSize = P32LCMapSortKey (&locale->WinLocale.LcCollate, flags, src, -1, NULL, 0);
+  INT bufferSize = p32_winlocale_map_unicode_string (&locale->WinLocale.LcCollate, flags, src, -1, NULL, 0);
 
   if (bufferSize == 0) {
     goto einval;
@@ -55,7 +55,7 @@ static size_t p32_wcsxfrm_generic (wchar_t *dest, const wchar_t *src, size_t siz
     return bufferSize - 1;
   }
 
-  INT written = P32LCMapSortKey (&locale->WinLocale.LcCollate, flags, src, -1, dest, destSize);
+  INT written = p32_winlocale_map_unicode_string (&locale->WinLocale.LcCollate, flags, src, -1, dest, destSize);
   assert (written == bufferSize);
 
   for (INT i = written - 1; i >= 0; --i) {

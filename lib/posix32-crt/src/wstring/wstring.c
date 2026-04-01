@@ -39,16 +39,6 @@
  * This file defines functions declared in wchar.h.
  */
 
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-static int P32LCMapSortKey (Locale *locale, DWORD flags, LPCWSTR src, INT srcSize, LPWSTR dest, INT destSize) {
-  return LCMapStringEx (locale->LocaleName, flags | LCMAP_SORTKEY, src, srcSize, dest, destSize, NULL, NULL, 0);
-}
-#else
-static int P32LCMapSortKey (Locale *locale, DWORD flags, LPCWSTR src, INT srcSize, LPWSTR dest, INT destSize) {
-  return LCMapStringW (locale->LocaleId, flags | LCMAP_SORTKEY, src, srcSize, dest, destSize);
-}
-#endif
-
 /**
  * Locale independant functions.
  */

@@ -61,20 +61,6 @@
  */
 #define P32_IS_ANSI(l, c) (l->CodePage.Ansi == c->CodePage || c->CodePage == P32_CODEPAGE_ASCII)
 
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-static int P32LCMapSortKeyW (Locale *locale, DWORD flags, LPCWSTR src, INT srcSize, LPWSTR dest, INT destSize) {
-  return LCMapStringEx (locale->LocaleName, flags | LCMAP_SORTKEY, src, srcSize, dest, destSize, NULL, NULL, 0);
-}
-#else
-static int P32LCMapSortKeyA (Locale *locale, DWORD flags, LPCSTR src, INT srcSize, LPSTR dest, INT destSize) {
-  return LCMapStringA (locale->LocaleId, flags | LCMAP_SORTKEY, src, srcSize, dest, destSize);
-}
-
-static int P32LCMapSortKeyW (Locale *locale, DWORD flags, LPCWSTR src, INT srcSize, LPWSTR dest, INT destSize) {
-  return LCMapStringW (locale->LocaleId, flags | LCMAP_SORTKEY, src, srcSize, dest, destSize);
-}
-#endif
-
 /**
  * Convert multibyte character string to wide character string.
  *

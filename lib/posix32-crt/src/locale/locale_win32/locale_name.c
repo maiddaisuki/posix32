@@ -90,6 +90,17 @@ static int P32WinlocaleLNCompareStringW (
   return CompareStringEx (locale->LocaleName, flags, wcs1, wcs1Length, wcs2, wcs2Length, NULL, NULL, 0);
 }
 
+static int P32WinlocaleLNMapStringW (
+  Locale        *locale,
+  uint32_t       flags,
+  const wchar_t *in,
+  int            inLength,
+  wchar_t       *out,
+  int            outLength
+) {
+  return LCMapStringEx (locale->LocaleName, flags, in, inLength, out, outLength, NULL, NULL, 0);
+}
+
 /**
  * Check whether `localeName` is a valid supported locale.
  *
