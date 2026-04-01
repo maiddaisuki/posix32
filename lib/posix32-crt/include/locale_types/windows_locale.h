@@ -154,6 +154,11 @@ typedef struct CrtLocale {
 #endif
 
 /**
+ * Portability wrapper for `AreFileApisANSI`.
+ */
+P32_TEST_DECL bool p32_winlocale_are_file_apis_ansi (void);
+
+/**
  * Construct `Locale` object corresponding to System Default Locale.
  *
  * Returns `true` on success, and `false` otherwise.

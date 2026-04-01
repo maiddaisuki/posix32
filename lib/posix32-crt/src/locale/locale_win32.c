@@ -659,6 +659,18 @@ fail:
  * External Functions.
  */
 
+bool p32_winlocale_are_file_apis_ansi (void) {
+/**
+ * The functions `SetFileApisToANSI`, `SetFileApisToOEM` and `AreFileApisANSI`
+ * are not available to UWP Applications.
+ */
+#ifdef LIBPOSIX32_UWP
+  return TRUE;
+#else
+  return AreFileApisANSI ();
+#endif
+}
+
 bool p32_winlocale_system_default (Locale *locale, uintptr_t heap) {
   return WinlocaleSystemDefault (locale, heap);
 }

@@ -760,19 +760,11 @@ locale_t p32_oem_locale (void) {
 }
 
 locale_t p32_fileapi_locale (void) {
-/**
- * The functions `SetFileApisToANSI`, `SetFileApisToOEM` and `AreFileApisANSI`
- * are not available to UWP Applications.
- */
-#ifdef LIBPOSIX32_UWP
-  return p32_ansi_locale ();
-#else
-  if (AreFileApisANSI ()) {
+  if (p32_winlocale_are_file_apis_ansi ()) {
     return p32_ansi_locale ();
   } else {
     return p32_oem_locale ();
   }
-#endif
 }
 
 /**
