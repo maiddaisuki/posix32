@@ -153,15 +153,6 @@ typedef struct CrtLocale {
 } CrtLocale;
 #endif
 
-#if defined(LIBPOSIX32_TEST) && (P32_LOCALE_API & P32_LOCALE_API_LCID)
-/**
- * Attempt to construct `Locale` object from existing valid `localeId`.
- *
- * Returns `true` on success, and `false` otherwise.
- */
-P32_TEST_DECL bool p32_winlocale_from_lcid (Locale *locale, uintptr_t heap, uint32_t localeId);
-#endif
-
 /**
  * Construct `Locale` object corresponding to System Default Locale.
  *
@@ -368,6 +359,15 @@ P32_TEST_DECL bool p32_winlocale_get_language_code (wchar_t **address, uintptr_t
 P32_TEST_DECL bool p32_winlocale_get_country_code (wchar_t **address, uintptr_t heap, Locale *locale);
 
 #ifdef LIBPOSIX32_TEST
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
+/**
+ * Attempt to construct `Locale` object from existing valid `localeId`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+P32_TEST_DECL bool p32_winlocale_from_lcid (Locale *locale, uintptr_t heap, uint32_t localeId);
+#endif
+
 /**
  * Get `locale`'s default ANSI code page.
  */

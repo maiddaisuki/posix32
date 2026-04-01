@@ -17,12 +17,7 @@
 #include "locale-internal.h"
 
 static bool P32Geo (Locale *locale, uintptr_t heap) {
-  LocaleInfoRequest infoRequest = {0};
-
-  infoRequest.Info    = LOCALE_SISO3166CTRYNAME;
-  infoRequest.OutputW = &locale->GeoName;
-
-  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
+  return WinlocaleGetCountryCode (&locale->GeoName, heap, locale);
 }
 
 static bool P32GeoDuplicate (Locale *destLocale, uintptr_t heap, Locale *srcLocale) {
