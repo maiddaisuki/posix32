@@ -79,6 +79,17 @@ static int P32WinlocaleLNGetCalendarInfoW (
   return GetCalendarInfoEx (locale->LocaleName, calendar, NULL, info, buffer, bufferSize, (LPDWORD) value);
 }
 
+static int P32WinlocaleLNCompareStringW (
+  Locale        *locale,
+  uint32_t       flags,
+  const wchar_t *wcs1,
+  int            wcs1Length,
+  const wchar_t *wcs2,
+  int            wcs2Length
+) {
+  return CompareStringEx (locale->LocaleName, flags, wcs1, wcs1Length, wcs2, wcs2Length, NULL, NULL, 0);
+}
+
 /**
  * Check whether `localeName` is a valid supported locale.
  *

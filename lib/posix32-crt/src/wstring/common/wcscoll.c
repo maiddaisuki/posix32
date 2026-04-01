@@ -33,7 +33,15 @@ static int p32_wcscoll_generic (const wchar_t *wcs1, const wchar_t *wcs2, locale
    */
   DWORD flags = locale->LocaleInfo.LcCollate.StringCompareFlags;
 
-  return P32CompareString (&locale->WinLocale.LcCollate, flags, wcs1, -1, wcs2, -1);
+  INT diff = p32_winlocale_compare_unicode_string (&locale->WinLocale.LcCollate, flags, wcs1, -1, wcs2, -1);
+
+  if (diff == 0) {
+    diff = _NLSCMPERROR;
+  } else {
+    diff -= 2;
+  }
+
+  return diff;
 }
 
 static void P32LocaleFunction_wcscoll (LocaleFunctions *functions, Locale *locale) {

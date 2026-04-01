@@ -31,7 +31,15 @@ static int p32_strcoll_ansi (const char *str1, const char *str2, locale_t locale
    */
   DWORD flags = locale->LocaleInfo.LcCollate.StringCompareFlags;
 
-  return P32CompareStringA (&locale->WinLocale.LcCollate, flags, str1, -1, str2, -1);
+  INT diff = p32_winlocale_compare_ansi_string (&locale->WinLocale.LcCollate, flags, str1, -1, str2, -1);
+
+  if (diff == 0) {
+    diff = _NLSCMPERROR;
+  } else {
+    diff -= 2;
+  }
+
+  return diff;
 }
 #endif
 
@@ -64,7 +72,13 @@ int p32_private_strcoll_l (const char *str1, const char *str2, locale_t locale) 
    */
   DWORD flags = locale->LocaleInfo.LcCollate.StringCompareFlags;
 
-  diff = P32CompareStringW (&locale->WinLocale.LcCollate, flags, wcs1, wcs1Length, wcs2, wcs2Length);
+  diff = p32_winlocale_compare_unicode_string (&locale->WinLocale.LcCollate, flags, wcs1, wcs1Length, wcs2, wcs2Length);
+
+  if (diff == 0) {
+    diff = _NLSCMPERROR;
+  } else {
+    diff -= 2;
+  }
 
 fail:
   free (wcs1);

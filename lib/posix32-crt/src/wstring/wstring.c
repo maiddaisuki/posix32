@@ -40,38 +40,10 @@
  */
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
-static int P32CompareString (Locale *locale, DWORD flags, LPCWSTR wcs1, INT len1, LPCWSTR wcs2, INT len2) {
-  int ret = CompareStringEx (locale->LocaleName, flags, wcs1, len1, wcs2, len2, NULL, NULL, 0);
-
-#ifdef LIBPOSIX32_TEST
-  _ASSERT_EXPR (ret != 0, L"Call to CompareStringEx has failed.\n");
-#endif
-
-  if (ret == 0) {
-    return _NLSCMPERROR;
-  }
-
-  return ret - 2;
-}
-
 static int P32LCMapSortKey (Locale *locale, DWORD flags, LPCWSTR src, INT srcSize, LPWSTR dest, INT destSize) {
   return LCMapStringEx (locale->LocaleName, flags | LCMAP_SORTKEY, src, srcSize, dest, destSize, NULL, NULL, 0);
 }
 #else
-static int P32CompareString (Locale *locale, DWORD flags, LPCWSTR wcs1, INT len1, LPCWSTR wcs2, INT len2) {
-  int ret = CompareStringW (locale->LocaleId, flags, wcs1, len1, wcs2, len2);
-
-#ifdef LIBPOSIX32_TEST
-  _ASSERT_EXPR (ret != 0, L"Call to CompareStringW has failed.\n");
-#endif
-
-  if (ret == 0) {
-    return _NLSCMPERROR;
-  }
-
-  return ret - 2;
-}
-
 static int P32LCMapSortKey (Locale *locale, DWORD flags, LPCWSTR src, INT srcSize, LPWSTR dest, INT destSize) {
   return LCMapStringW (locale->LocaleId, flags | LCMAP_SORTKEY, src, srcSize, dest, destSize);
 }

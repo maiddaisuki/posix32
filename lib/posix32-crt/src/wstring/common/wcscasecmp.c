@@ -43,7 +43,15 @@ static int p32_wcscasecmp_generic (const wchar_t *wcs1, const wchar_t *wcs2, loc
    */
   DWORD flags = locale->LocaleInfo.LcCtype.CaseCmpFlags;
 
-  return P32CompareString (&locale->WinLocale.LcCtype, flags, wcs1, -1, wcs2, -1);
+  INT diff = p32_winlocale_compare_unicode_string (&locale->WinLocale.LcCtype, flags, wcs1, -1, wcs2, -1);
+
+  if (diff == 0) {
+    diff = _NLSCMPERROR;
+  } else {
+    diff -= 2;
+  }
+
+  return diff;
 }
 
 static void P32LocaleFunction_wcscasecmp (LocaleFunctions *functions, Locale *locale) {

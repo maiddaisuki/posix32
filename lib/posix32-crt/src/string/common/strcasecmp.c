@@ -41,7 +41,15 @@ static int p32_strcasecmp_ansi (const char *str1, const char *str2, locale_t loc
    */
   DWORD flags = locale->LocaleInfo.LcCtype.CaseCmpFlags;
 
-  return P32CompareStringA (&locale->WinLocale.LcCtype, flags, str1, -1, str2, -1);
+  INT diff = p32_winlocale_compare_ansi_string (&locale->WinLocale.LcCtype, flags, str1, -1, str2, -1);
+
+  if (diff == 0) {
+    diff = _NLSCMPERROR;
+  } else {
+    diff -= 2;
+  }
+
+  return diff;
 }
 #endif
 
@@ -74,7 +82,13 @@ int p32_private_strcasecmp_l (const char *str1, const char *str2, locale_t local
    */
   DWORD flags = locale->LocaleInfo.LcCtype.CaseCmpFlags;
 
-  diff = P32CompareStringW (&locale->WinLocale.LcCtype, flags, wcs1, wcs1Length, wcs2, wcs2Length);
+  diff = p32_winlocale_compare_unicode_string (&locale->WinLocale.LcCtype, flags, wcs1, wcs1Length, wcs2, wcs2Length);
+
+  if (diff == 0) {
+    diff = _NLSCMPERROR;
+  } else {
+    diff -= 2;
+  }
 
 fail:
   free (wcs1);

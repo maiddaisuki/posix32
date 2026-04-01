@@ -69,6 +69,28 @@ static int P32WinlocaleLCIDGetCalendarInfoW (
   return GetCalendarInfoW (locale->LocaleId, calendar, info, buffer, bufferSize, (LPDWORD) value);
 }
 
+static int P32WinlocaleLCIDCompareStringA (
+  Locale     *locale,
+  uint32_t    flags,
+  const char *str1,
+  int         str1Length,
+  const char *str2,
+  int         str2Length
+) {
+  return CompareStringA (locale->LocaleId, flags, str1, str1Length, str2, str2Length);
+}
+
+static int P32WinlocaleLCIDCompareStringW (
+  Locale        *locale,
+  uint32_t       flags,
+  const wchar_t *wcs1,
+  int            wcs1Length,
+  const wchar_t *wcs2,
+  int            wcs2Length
+) {
+  return CompareStringW (locale->LocaleId, flags, wcs1, wcs1Length, wcs2, wcs2Length);
+}
+
 /**
  * Attempt to construct `LCID` object from `ll`, `ss` and `cc`.
  *

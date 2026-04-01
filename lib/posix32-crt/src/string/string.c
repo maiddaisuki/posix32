@@ -62,50 +62,6 @@
 #define P32_IS_ANSI(l, c) (l->CodePage.Ansi == c->CodePage || c->CodePage == P32_CODEPAGE_ASCII)
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
-static int P32CompareStringW (Locale *locale, DWORD flags, LPCWSTR wcs1, INT len1, LPCWSTR wcs2, INT len2) {
-  int ret = CompareStringEx (locale->LocaleName, flags, wcs1, len1, wcs2, len2, NULL, NULL, 0);
-
-#ifdef LIBPOSIX32_TEST
-  _ASSERT_EXPR (ret != 0, L"Call to CompareStringEx has failed.\n");
-#endif
-
-  if (ret == 0) {
-    return _NLSCMPERROR;
-  }
-
-  return ret - 2;
-}
-#else
-static int P32CompareStringA (Locale *locale, DWORD flags, LPCSTR str1, INT len1, LPCSTR str2, INT len2) {
-  int ret = CompareStringA (locale->LocaleId, flags, str1, len1, str2, len2);
-
-#ifdef LIBPOSIX32_TEST
-  _ASSERT_EXPR (ret != 0, L"Call to CompareStringA has failed.\n");
-#endif
-
-  if (ret == 0) {
-    return _NLSCMPERROR;
-  }
-
-  return ret - 2;
-}
-
-static int P32CompareStringW (Locale *locale, DWORD flags, LPCWSTR wcs1, INT len1, LPCWSTR wcs2, INT len2) {
-  int ret = CompareStringW (locale->LocaleId, flags, wcs1, len1, wcs2, len2);
-
-#ifdef LIBPOSIX32_TEST
-  _ASSERT_EXPR (ret != 0, L"Call to CompareStringW has failed.\n");
-#endif
-
-  if (ret == 0) {
-    return _NLSCMPERROR;
-  }
-
-  return ret - 2;
-}
-#endif
-
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
 static int P32LCMapSortKeyW (Locale *locale, DWORD flags, LPCWSTR src, INT srcSize, LPWSTR dest, INT destSize) {
   return LCMapStringEx (locale->LocaleName, flags | LCMAP_SORTKEY, src, srcSize, dest, destSize, NULL, NULL, 0);
 }
