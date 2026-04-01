@@ -94,6 +94,10 @@ static void P32GeoDestroy (Locale *locale, uintptr_t heap);
 
 /*******************************************************************************
  * Structures, functions and macros to call appropriate implementation.
+ *
+ * This segment defines `Winlocale*` macros; these macros redirect to
+ * appropriate implementation of specific functions for the current library
+ * configuration.
  */
 
 /**
@@ -106,7 +110,7 @@ static void P32GeoDestroy (Locale *locale, uintptr_t heap);
  *
  * Returns `true` on success, and `false` otherwise.
  */
-static bool P32GetTextualLocaleInfo (LocaleInfoRequest *request, uintptr_t heap, Locale *locale);
+static bool P32GetTextualLocaleInfoW (LocaleInfoRequest *request, uintptr_t heap, Locale *locale);
 
 /**
  * Retrieve locale information as an integer value.
@@ -115,7 +119,7 @@ static bool P32GetTextualLocaleInfo (LocaleInfoRequest *request, uintptr_t heap,
  *
  * Returns `true` on success, and `false` otherwise.
  */
-static bool P32GetNumericLocaleInfo (LocaleInfoRequest *request, uintptr_t heap, Locale *locale);
+static bool P32GetNumericLocaleInfoW (LocaleInfoRequest *request, uintptr_t heap, Locale *locale);
 
 /**
  * Retrieve calendar information as a string.
@@ -127,7 +131,7 @@ static bool P32GetNumericLocaleInfo (LocaleInfoRequest *request, uintptr_t heap,
  *
  * Returns `true` on success, and `false` otherwise.
  */
-static bool P32GetTextualCalendarInfo (CalendarInfoRequest *request, uintptr_t heap, Locale *locale);
+static bool P32GetTextualCalendarInfoW (CalendarInfoRequest *request, uintptr_t heap, Locale *locale);
 
 /**
  * Retrieve calendar information as an integer value.
@@ -136,7 +140,7 @@ static bool P32GetTextualCalendarInfo (CalendarInfoRequest *request, uintptr_t h
  *
  * Returns `true` on success, and `false` otherwise.
  */
-static bool P32GetNumericCalendarInfo (CalendarInfoRequest *request, uintptr_t heap, Locale *locale);
+static bool P32GetNumericCalendarInfoW (CalendarInfoRequest *request, uintptr_t heap, Locale *locale);
 
 /**
  * Get language name for `locale`.
@@ -179,11 +183,17 @@ static bool P32GetCountryCodeFromLocale (wchar_t **address, uintptr_t heap, Loca
  */
 static bool P32WinlocaleInfo (Locale *locale, uintptr_t heap);
 
+#define WinlocaleGetTextualLocaleInfo P32GetTextualLocaleInfoW
+#define WinlocaleGetNumericLocaleInfo P32GetNumericLocaleInfoW
+
+#define WinlocaleGetTextualCalendarInfo P32GetTextualCalendarInfoW
+#define WinlocaleGetNumericCalendarInfo P32GetNumericCalendarInfoW
+
 /*******************************************************************************
  * Functions to obtain locale information.
  */
 
-static bool P32GetTextualLocaleInfo (LocaleInfoRequest *request, uintptr_t heap, Locale *locale) {
+static bool P32GetTextualLocaleInfoW (LocaleInfoRequest *request, uintptr_t heap, Locale *locale) {
   HANDLE heapHandle = (HANDLE) heap;
 
   LPWSTR buffer     = NULL;
@@ -252,12 +262,12 @@ fail:
   return false;
 }
 
-static bool P32GetNumericLocaleInfo (LocaleInfoRequest *request, uintptr_t heap, Locale *locale) {
+static bool P32GetNumericLocaleInfoW (LocaleInfoRequest *request, uintptr_t heap, Locale *locale) {
   return P32GetLocaleInfo (locale, LOCALE_RETURN_NUMBER | request->Info, (LPWSTR) request->Output, 2) == 2;
   UNREFERENCED_PARAMETER (heap);
 }
 
-static bool P32GetTextualCalendarInfo (CalendarInfoRequest *request, uintptr_t heap, Locale *locale) {
+static bool P32GetTextualCalendarInfoW (CalendarInfoRequest *request, uintptr_t heap, Locale *locale) {
   HANDLE heapHandle = (HANDLE) heap;
 
   Calendar calendar = locale->Calendar;
@@ -333,7 +343,7 @@ fail:
   return false;
 }
 
-static bool P32GetNumericCalendarInfo (CalendarInfoRequest *request, uintptr_t heap, Locale *locale) {
+static bool P32GetNumericCalendarInfoW (CalendarInfoRequest *request, uintptr_t heap, Locale *locale) {
   Calendar calendar = locale->Calendar;
 
   if (request->Flags & P32_CALENDAR_INFO_REQUEST_ALTERNATIVE) {
@@ -351,7 +361,7 @@ static bool P32GetLanguageNameFromLocale (wchar_t **address, uintptr_t heap, Loc
   infoRequest.Info    = LOCALE_SENGLANGUAGE;
   infoRequest.OutputW = address;
 
-  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
+  return WinlocaleGetTextualLocaleInfo (&infoRequest, heap, locale);
 }
 
 static bool P32GetCountryNameFromLocale (wchar_t **address, uintptr_t heap, Locale *locale) {
@@ -360,7 +370,7 @@ static bool P32GetCountryNameFromLocale (wchar_t **address, uintptr_t heap, Loca
   infoRequest.Info    = LOCALE_SENGCOUNTRY;
   infoRequest.OutputW = address;
 
-  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
+  return WinlocaleGetTextualLocaleInfo (&infoRequest, heap, locale);
 }
 
 static bool P32GetLanguageCodeFromLocale (wchar_t **address, uintptr_t heap, Locale *locale) {
@@ -369,7 +379,7 @@ static bool P32GetLanguageCodeFromLocale (wchar_t **address, uintptr_t heap, Loc
   infoRequest.Info    = LOCALE_SISO639LANGNAME;
   infoRequest.OutputW = address;
 
-  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
+  return WinlocaleGetTextualLocaleInfo (&infoRequest, heap, locale);
 }
 
 static bool P32GetCountryCodeFromLocale (wchar_t **address, uintptr_t heap, Locale *locale) {
@@ -378,7 +388,7 @@ static bool P32GetCountryCodeFromLocale (wchar_t **address, uintptr_t heap, Loca
   infoRequest.Info    = LOCALE_SISO3166CTRYNAME;
   infoRequest.OutputW = address;
 
-  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
+  return WinlocaleGetTextualLocaleInfo (&infoRequest, heap, locale);
 }
 
 static bool P32WinlocaleInfo (Locale *locale, uintptr_t heap) {
@@ -388,7 +398,6 @@ static bool P32WinlocaleInfo (Locale *locale, uintptr_t heap) {
   uint32_t oemCodePage         = 0;
 
   LocaleInfoRequest infoRequest = {0};
-  infoRequest.Flags             = (P32_LOCALE_INFO_REQUEST_NUMERIC);
 
   /**
    * Locale's default calendar.
@@ -396,7 +405,7 @@ static bool P32WinlocaleInfo (Locale *locale, uintptr_t heap) {
   infoRequest.Info   = LOCALE_ICALENDARTYPE;
   infoRequest.Output = &calendar;
 
-  if (!p32_winlocale_get_locale_info (&infoRequest, heap, locale)) {
+  if (!WinlocaleGetNumericLocaleInfo (&infoRequest, heap, locale)) {
     goto fail;
   }
 
@@ -408,7 +417,7 @@ static bool P32WinlocaleInfo (Locale *locale, uintptr_t heap) {
   infoRequest.Info   = LOCALE_IOPTIONALCALENDAR;
   infoRequest.Output = &alternativeCalendar;
 
-  if (!p32_winlocale_get_locale_info (&infoRequest, heap, locale)) {
+  if (!WinlocaleGetNumericLocaleInfo (&infoRequest, heap, locale)) {
     goto fail;
   }
 
@@ -419,7 +428,7 @@ static bool P32WinlocaleInfo (Locale *locale, uintptr_t heap) {
   infoRequest.Info   = LOCALE_IDEFAULTANSICODEPAGE;
   infoRequest.Output = &ansiCodePage;
 
-  if (!p32_winlocale_get_locale_info (&infoRequest, heap, locale)) {
+  if (!WinlocaleGetNumericLocaleInfo (&infoRequest, heap, locale)) {
     goto fail;
   }
 
@@ -430,7 +439,7 @@ static bool P32WinlocaleInfo (Locale *locale, uintptr_t heap) {
   infoRequest.Info   = LOCALE_IDEFAULTCODEPAGE;
   infoRequest.Output = &oemCodePage;
 
-  if (!p32_winlocale_get_locale_info (&infoRequest, heap, locale)) {
+  if (!WinlocaleGetNumericLocaleInfo (&infoRequest, heap, locale)) {
     goto fail;
   }
 
@@ -475,18 +484,18 @@ fail:
 
 bool p32_winlocale_get_locale_info (LocaleInfoRequest *request, uintptr_t heap, Locale *locale) {
   if (request->Flags & P32_LOCALE_INFO_REQUEST_NUMERIC) {
-    return P32GetNumericLocaleInfo (request, heap, locale);
+    return WinlocaleGetNumericLocaleInfo (request, heap, locale);
   }
 
-  return P32GetTextualLocaleInfo (request, heap, locale);
+  return WinlocaleGetTextualLocaleInfo (request, heap, locale);
 }
 
 bool p32_winlocale_get_calendar_info (CalendarInfoRequest *request, uintptr_t heap, Locale *locale) {
   if (request->Flags & P32_LOCALE_INFO_REQUEST_NUMERIC) {
-    return P32GetNumericCalendarInfo (request, heap, locale);
+    return WinlocaleGetNumericCalendarInfo (request, heap, locale);
   }
 
-  return P32GetTextualCalendarInfo (request, heap, locale);
+  return WinlocaleGetTextualCalendarInfo (request, heap, locale);
 }
 
 #ifdef LIBPOSIX32_TEST
@@ -494,39 +503,35 @@ bool p32_winlocale_get_ansi_code_page (uint32_t *codePage, uintptr_t heap, Local
   LocaleInfoRequest infoRequest = {0};
 
   infoRequest.Info   = LOCALE_IDEFAULTANSICODEPAGE;
-  infoRequest.Flags  = P32_LOCALE_INFO_REQUEST_NUMERIC;
   infoRequest.Output = codePage;
 
-  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
+  return WinlocaleGetNumericLocaleInfo (&infoRequest, heap, locale);
 }
 
 bool p32_winlocale_get_oem_code_page (uint32_t *codePage, uintptr_t heap, Locale *locale) {
   LocaleInfoRequest infoRequest = {0};
 
   infoRequest.Info   = LOCALE_IDEFAULTCODEPAGE;
-  infoRequest.Flags  = P32_LOCALE_INFO_REQUEST_NUMERIC;
   infoRequest.Output = codePage;
 
-  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
+  return WinlocaleGetNumericLocaleInfo (&infoRequest, heap, locale);
 }
 
 bool p32_winlocale_get_mac_code_page (uint32_t *codePage, uintptr_t heap, Locale *locale) {
   LocaleInfoRequest infoRequest = {0};
 
   infoRequest.Info   = LOCALE_IDEFAULTMACCODEPAGE;
-  infoRequest.Flags  = P32_LOCALE_INFO_REQUEST_NUMERIC;
   infoRequest.Output = codePage;
 
-  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
+  return WinlocaleGetNumericLocaleInfo (&infoRequest, heap, locale);
 }
 
 bool p32_winlocale_get_ebcdic_code_page (uint32_t *codePage, uintptr_t heap, Locale *locale) {
   LocaleInfoRequest infoRequest = {0};
 
   infoRequest.Info   = LOCALE_IDEFAULTEBCDICCODEPAGE;
-  infoRequest.Flags  = P32_LOCALE_INFO_REQUEST_NUMERIC;
   infoRequest.Output = codePage;
 
-  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
+  return WinlocaleGetNumericLocaleInfo (&infoRequest, heap, locale);
 }
 #endif

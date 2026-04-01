@@ -21,11 +21,10 @@ P32_STATIC_ASSERT (sizeof ((Locale){0}.GeoId), "Size of `Locale.GeoId` must be 4
 static bool P32Geo (Locale *locale, uintptr_t heap) {
   LocaleInfoRequest infoRequest = {0};
 
-  infoRequest.Flags  = (P32_LOCALE_INFO_REQUEST_NUMERIC);
   infoRequest.Info   = LOCALE_IGEOID;
   infoRequest.Output = (uint32_t *) &locale->GeoId;
 
-  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
+  return WinlocaleGetNumericLocaleInfo (&infoRequest, heap, locale);
 }
 
 static bool P32GeoDuplicate (Locale *destLocale, uintptr_t heap, Locale *srcLocale) {
