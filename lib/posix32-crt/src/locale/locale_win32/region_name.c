@@ -16,15 +16,25 @@
 
 #include "locale-internal.h"
 
-static bool P32Geo (Locale *locale, uintptr_t heap) {
+/**
+ * File Summary:
+ *
+ * This file defines functions to manipulate geological information stored in
+ * `Locale` objects as Region Names.
+ *
+ * Functions defined in this file must not be called directly outside of this
+ * file; use `WinlocaleGeo*` macros defined in `locale_win32.c` instead.
+ */
+
+static bool P32WinlocaleRegionName (Locale *locale, uintptr_t heap) {
   return WinlocaleGetCountryCode (&locale->GeoName, heap, locale);
 }
 
-static bool P32GeoDuplicate (Locale *destLocale, uintptr_t heap, Locale *srcLocale) {
+static bool P32WinlocaleRegionNameCopy (Locale *destLocale, uintptr_t heap, Locale *srcLocale) {
   return p32_private_wcsdup (&destLocale->GeoName, srcLocale->GeoName, heap) != -1;
 }
 
-static void P32GeoDestroy (Locale *locale, uintptr_t heap) {
+static void P32WinlocaleRegionNameDestroy (Locale *locale, uintptr_t heap) {
   if (locale->GeoName != NULL) {
     HeapFree ((HANDLE) heap, 0, locale->GeoName);
     locale->GeoName = NULL;

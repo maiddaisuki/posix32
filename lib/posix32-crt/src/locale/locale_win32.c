@@ -184,23 +184,52 @@ static bool P32WinlocaleLNGetCountryCode (wchar_t **address, uintptr_t heap, Loc
 #endif
 
 /**
- * Store geological infromation in `locale`.
+ * Functions defined in `locale_win32/region_id.c`.
+ */
+#if (P32_GEO_API & P32_GEO_API_GEOID)
+/**
+ * Store `GEOID` object in `locale`.
  *
  * Returns `true` on success, and `false` otherwise.
  */
-static bool P32Geo (Locale *locale, uintptr_t heap);
+static bool P32WinlocaleGeo (Locale *locale, uintptr_t heap);
 
 /**
- * Copy geological information from `srcLocale` to `destLocale`,
+ * Copy `GEOID` object from `srcLocale` to `destLocale`,
  *
  * Returns `true` on success, and `false` otherwise.
  */
-static bool P32GeoDuplicate (Locale *destLocale, uintptr_t heap, Locale *srcLocale);
+static bool P32WinlocaleGeoCopy (Locale *destLocale, uintptr_t heap, Locale *srcLocale);
 
 /**
- * Destroy geological information stored in `locale`.
+ * Destroy `GEOID` object stored in `locale`.
  */
-static void P32GeoDestroy (Locale *locale, uintptr_t heap);
+static void P32WinlocaleGeoDestroy (Locale *locale, uintptr_t heap);
+#endif
+
+/**
+ * Functions defined in `locale_win32/region_name.c`.
+ */
+#if (P32_GEO_API & P32_GEO_API_RN)
+/**
+ * Store Region Name in `locale`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+static bool P32WinlocaleRegionName (Locale *locale, uintptr_t heap);
+
+/**
+ * Copy Region Name from `srcLocale` to `destLocale`,
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+static bool P32WinlocaleRegionNameCopy (Locale *destLocale, uintptr_t heap, Locale *srcLocale);
+
+/**
+ * Destroy Region Name stored in `locale`.
+ */
+static void P32WinlocaleRegionNameDestroy (Locale *locale, uintptr_t heap);
+#endif
 
 /*******************************************************************************
  * Structures, functions and macros to call appropriate implementation.
@@ -325,6 +354,16 @@ static bool P32WinlocaleInfo (Locale *locale, uintptr_t heap);
 #define WinlocaleCopy             P32WinlocaleLNCopy
 #define WinlocaleEqual            P32WinlocaleLNEqual
 #define WinlocaleDestroy          P32WinlocaleLNDestroy
+#endif
+
+#if (P32_GEO_API & P32_GEO_API_GEOID)
+#define WinlocaleGeo        P32WinlocaleGeo
+#define WinlocaleGeoCopy    P32WinlocaleGeoCopy
+#define WinlocaleGeoDestroy P32WinlocaleGeoDestroy
+#else
+#define WinlocaleGeo        P32WinlocaleRegionName
+#define WinlocaleGeoCopy    P32WinlocaleRegionNameCopy
+#define WinlocaleGeoDestroy P32WinlocaleRegionNameDestroy
 #endif
 
 /*******************************************************************************
@@ -581,7 +620,7 @@ static bool P32WinlocaleInfo (Locale *locale, uintptr_t heap) {
     goto fail;
   }
 
-  if (!P32Geo (locale, heap)) {
+  if (!WinlocaleGeo (locale, heap)) {
     goto fail;
   }
 

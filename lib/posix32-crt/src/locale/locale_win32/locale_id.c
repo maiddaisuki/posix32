@@ -732,7 +732,7 @@ static bool P32WinlocaleLCIDCopy (Locale *destLocale, uintptr_t heap, Locale *sr
     goto fail;
   }
 
-  if (!P32GeoDuplicate (destLocale, heap, srcLocale)) {
+  if (!WinlocaleGeoCopy (destLocale, heap, srcLocale)) {
     goto fail_destroy;
   }
 
@@ -756,7 +756,7 @@ fail:
 static void P32WinlocaleLCIDDestroy (Locale *locale, uintptr_t heap) {
   HANDLE heapHandle = (HANDLE) heap;
 
-  P32GeoDestroy (locale, heap);
+  WinlocaleGeoDestroy (locale, heap);
 
   locale->Type                = LocaleType_Invalid;
   locale->KnownLocale         = KnownLocaleIndex_Invalid;
