@@ -200,14 +200,6 @@ static bool P32GetNumericLocaleInfo (LocaleInfoRequest *request, uintptr_t heap,
   UNREFERENCED_PARAMETER (heap);
 }
 
-bool p32_winlocale_get_locale_info (LocaleInfoRequest *request, uintptr_t heap, Locale *locale) {
-  if (request->Flags & P32_LOCALE_INFO_REQUEST_NUMERIC) {
-    return P32GetNumericLocaleInfo (request, heap, locale);
-  }
-
-  return P32GetTextualLocaleInfo (request, heap, locale);
-}
-
 /**
  * Retrieve calendar information as a string.
  *
@@ -313,14 +305,6 @@ static bool P32GetNumericCalendarInfo (CalendarInfoRequest *request, uintptr_t h
   UNREFERENCED_PARAMETER (heap);
 }
 
-bool p32_winlocale_get_calendar_info (CalendarInfoRequest *request, uintptr_t heap, Locale *locale) {
-  if (request->Flags & P32_LOCALE_INFO_REQUEST_NUMERIC) {
-    return P32GetNumericCalendarInfo (request, heap, locale);
-  }
-
-  return P32GetTextualCalendarInfo (request, heap, locale);
-}
-
 /**
  * Get language name for `locale`.
  *
@@ -376,48 +360,6 @@ static bool P32GetCountryCodeFromLocale (wchar_t **address, uintptr_t heap, Loca
 
   return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
 }
-
-#ifdef LIBPOSIX32_TEST
-bool p32_winlocale_get_ansi_code_page (uint32_t *codePage, uintptr_t heap, Locale *locale) {
-  LocaleInfoRequest infoRequest = {0};
-
-  infoRequest.Info   = LOCALE_IDEFAULTANSICODEPAGE;
-  infoRequest.Flags  = P32_LOCALE_INFO_REQUEST_NUMERIC;
-  infoRequest.Output = codePage;
-
-  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
-}
-
-bool p32_winlocale_get_oem_code_page (uint32_t *codePage, uintptr_t heap, Locale *locale) {
-  LocaleInfoRequest infoRequest = {0};
-
-  infoRequest.Info   = LOCALE_IDEFAULTCODEPAGE;
-  infoRequest.Flags  = P32_LOCALE_INFO_REQUEST_NUMERIC;
-  infoRequest.Output = codePage;
-
-  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
-}
-
-bool p32_winlocale_get_mac_code_page (uint32_t *codePage, uintptr_t heap, Locale *locale) {
-  LocaleInfoRequest infoRequest = {0};
-
-  infoRequest.Info   = LOCALE_IDEFAULTMACCODEPAGE;
-  infoRequest.Flags  = P32_LOCALE_INFO_REQUEST_NUMERIC;
-  infoRequest.Output = codePage;
-
-  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
-}
-
-bool p32_winlocale_get_ebcdic_code_page (uint32_t *codePage, uintptr_t heap, Locale *locale) {
-  LocaleInfoRequest infoRequest = {0};
-
-  infoRequest.Info   = LOCALE_IDEFAULTEBCDICCODEPAGE;
-  infoRequest.Flags  = P32_LOCALE_INFO_REQUEST_NUMERIC;
-  infoRequest.Output = codePage;
-
-  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
-}
-#endif
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 #include "locale_win32/locale_id.c"
@@ -502,3 +444,65 @@ static bool P32FillLocaleInfo (Locale *locale, uintptr_t heap) {
 fail:
   return false;
 }
+
+/*******************************************************************************
+ * External Functions.
+ */
+
+bool p32_winlocale_get_locale_info (LocaleInfoRequest *request, uintptr_t heap, Locale *locale) {
+  if (request->Flags & P32_LOCALE_INFO_REQUEST_NUMERIC) {
+    return P32GetNumericLocaleInfo (request, heap, locale);
+  }
+
+  return P32GetTextualLocaleInfo (request, heap, locale);
+}
+
+bool p32_winlocale_get_calendar_info (CalendarInfoRequest *request, uintptr_t heap, Locale *locale) {
+  if (request->Flags & P32_LOCALE_INFO_REQUEST_NUMERIC) {
+    return P32GetNumericCalendarInfo (request, heap, locale);
+  }
+
+  return P32GetTextualCalendarInfo (request, heap, locale);
+}
+
+#ifdef LIBPOSIX32_TEST
+bool p32_winlocale_get_ansi_code_page (uint32_t *codePage, uintptr_t heap, Locale *locale) {
+  LocaleInfoRequest infoRequest = {0};
+
+  infoRequest.Info   = LOCALE_IDEFAULTANSICODEPAGE;
+  infoRequest.Flags  = P32_LOCALE_INFO_REQUEST_NUMERIC;
+  infoRequest.Output = codePage;
+
+  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
+}
+
+bool p32_winlocale_get_oem_code_page (uint32_t *codePage, uintptr_t heap, Locale *locale) {
+  LocaleInfoRequest infoRequest = {0};
+
+  infoRequest.Info   = LOCALE_IDEFAULTCODEPAGE;
+  infoRequest.Flags  = P32_LOCALE_INFO_REQUEST_NUMERIC;
+  infoRequest.Output = codePage;
+
+  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
+}
+
+bool p32_winlocale_get_mac_code_page (uint32_t *codePage, uintptr_t heap, Locale *locale) {
+  LocaleInfoRequest infoRequest = {0};
+
+  infoRequest.Info   = LOCALE_IDEFAULTMACCODEPAGE;
+  infoRequest.Flags  = P32_LOCALE_INFO_REQUEST_NUMERIC;
+  infoRequest.Output = codePage;
+
+  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
+}
+
+bool p32_winlocale_get_ebcdic_code_page (uint32_t *codePage, uintptr_t heap, Locale *locale) {
+  LocaleInfoRequest infoRequest = {0};
+
+  infoRequest.Info   = LOCALE_IDEFAULTEBCDICCODEPAGE;
+  infoRequest.Flags  = P32_LOCALE_INFO_REQUEST_NUMERIC;
+  infoRequest.Output = codePage;
+
+  return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
+}
+#endif
