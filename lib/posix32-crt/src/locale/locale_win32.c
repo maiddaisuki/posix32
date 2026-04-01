@@ -381,22 +381,6 @@ static bool P32GetCountryCodeFromLocale (wchar_t **address, uintptr_t heap, Loca
   return p32_winlocale_get_locale_info (&infoRequest, heap, locale);
 }
 
-#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
-#include "locale_win32/locale_id.c"
-#endif
-
-#if (P32_GEO_API & P32_GEO_API_GEOID)
-#include "locale_win32/region_id.c"
-#endif
-
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-#include "locale_win32/locale_name.c"
-#endif
-
-#if (P32_GEO_API & P32_GEO_API_RN)
-#include "locale_win32/region_name.c"
-#endif
-
 static bool P32FillLocaleInfo (Locale *locale, uintptr_t heap) {
   uint32_t calendar            = 0;
   uint32_t alternativeCalendar = 0;
@@ -464,6 +448,26 @@ static bool P32FillLocaleInfo (Locale *locale, uintptr_t heap) {
 fail:
   return false;
 }
+
+/*******************************************************************************
+ * Implementation.
+ */
+
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
+#include "locale_win32/locale_id.c"
+#endif
+
+#if (P32_GEO_API & P32_GEO_API_GEOID)
+#include "locale_win32/region_id.c"
+#endif
+
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
+#include "locale_win32/locale_name.c"
+#endif
+
+#if (P32_GEO_API & P32_GEO_API_RN)
+#include "locale_win32/region_name.c"
+#endif
 
 /*******************************************************************************
  * External Functions.
