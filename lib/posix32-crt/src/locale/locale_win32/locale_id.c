@@ -256,7 +256,7 @@ fail:
 }
 
 /**
- * Construct `LCID` object for langauge described by `map->Language`.
+ * Construct `LCID` object for language described by `map->Language`.
  *
  * If this functions fails, then `ll` is not supported by the operating system.
  * This may happen if `ll` is a language which does not have assigned `LANG_*`
@@ -798,7 +798,7 @@ bool p32_winlocale_equal (Locale *l1, Locale *l2) {
 }
 
 P32_TEST_DECL bool p32_winlocale_get_language_name (wchar_t **address, uintptr_t heap, Locale *locale) {
-  return P32GetLangaugeNameFromLocale (address, heap, locale);
+  return P32GetLanguageNameFromLocale (address, heap, locale);
 }
 
 P32_TEST_DECL bool p32_winlocale_get_country_name (wchar_t **address, uintptr_t heap, Locale *locale) {
@@ -806,7 +806,7 @@ P32_TEST_DECL bool p32_winlocale_get_country_name (wchar_t **address, uintptr_t 
 }
 
 P32_TEST_DECL bool p32_winlocale_get_language_code (wchar_t **address, uintptr_t heap, Locale *locale) {
-  return P32GetLangaugeCodeFromLocale (address, heap, locale);
+  return P32GetLanguageCodeFromLocale (address, heap, locale);
 }
 
 P32_TEST_DECL bool p32_winlocale_get_country_code (wchar_t **address, uintptr_t heap, Locale *locale) {

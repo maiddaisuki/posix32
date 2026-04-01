@@ -326,7 +326,7 @@ bool p32_winlocale_get_calendar_info (CalendarInfoRequest *request, uintptr_t he
  *
  * Returns `true` on success, and `false` otherwise.
  */
-static bool P32GetLangaugeNameFromLocale (wchar_t **address, uintptr_t heap, Locale *locale) {
+static bool P32GetLanguageNameFromLocale (wchar_t **address, uintptr_t heap, Locale *locale) {
   LocaleInfoRequest infoRequest = {0};
 
   infoRequest.Info    = LOCALE_SENGLANGUAGE;
@@ -354,7 +354,7 @@ static bool P32GetCountryNameFromLocale (wchar_t **address, uintptr_t heap, Loca
  *
  * Returns `true` on success, and `false` otherwise.
  */
-static bool P32GetLangaugeCodeFromLocale (wchar_t **address, uintptr_t heap, Locale *locale) {
+static bool P32GetLanguageCodeFromLocale (wchar_t **address, uintptr_t heap, Locale *locale) {
   LocaleInfoRequest infoRequest = {0};
 
   infoRequest.Info    = LOCALE_SISO639LANGNAME;

@@ -775,7 +775,7 @@ P32_TEST_DECL bool p32_winlocale_get_language_name (wchar_t **address, uintptr_t
     return p32_known_locale_language_name (address, heap, locale->KnownLocale);
   }
 
-  return P32GetLangaugeNameFromLocale (address, heap, locale);
+  return P32GetLanguageNameFromLocale (address, heap, locale);
 }
 
 P32_TEST_DECL bool p32_winlocale_get_country_name (wchar_t **address, uintptr_t heap, Locale *locale) {
@@ -791,7 +791,7 @@ P32_TEST_DECL bool p32_winlocale_get_language_code (wchar_t **address, uintptr_t
     return p32_known_locale_language_code (address, heap, locale->KnownLocale);
   }
 
-  return P32GetLangaugeCodeFromLocale (address, heap, locale);
+  return P32GetLanguageCodeFromLocale (address, heap, locale);
 }
 
 P32_TEST_DECL bool p32_winlocale_get_country_code (wchar_t **address, uintptr_t heap, Locale *locale) {
