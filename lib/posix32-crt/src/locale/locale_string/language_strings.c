@@ -65,7 +65,7 @@ typedef struct LanguageString {
  * 2. Whether this locale can be set using `Language_Country.CodePage` format.
  *
  *  If this is simple string `yes` or `no`, then this locale is respectively
- *  can or cannot be set using `Langauge_Country.CodePage` format in all CRTs
+ *  can or cannot be set using `Language_Country.CodePage` format in all CRTs
  *  which support it.
  *
  *  Otherwise, it is the name of earliest CRT which supports using this locale
@@ -298,7 +298,7 @@ static const LanguageString LanguageStrings[] = {
    * crtdll.dll | ll_CC: yes
    *
    * Language string "swedish-finland" is not recognized by CRTs which do not
-   * fully support `Langauge_Country` format.
+   * fully support `Language_Country` format.
    */
   {sv, FI,    L"swedish-finland"           },
 #endif
