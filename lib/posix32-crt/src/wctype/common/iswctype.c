@@ -73,23 +73,6 @@ static const WcType1 WcType1Map[] = {
   (wctype & chartype) && (bits & map[bit].IncludeBits) && (bits & map[bit].ExcludeBits) == 0
 
 /**
- * Get character information of type `category` for single wide character `wc`.
- *
- * Note that this function uses GetStringTypeW instead of GetStringTypeExW.
- * These functions are locale-independant and are equivalent when used with
- * wide characters.
- *
- * ANSI version (GetStringTypeExA) uses passed LCID to convert its input
- * to Unicode using locale's default ANSI code page, but otherwise does not
- * depend on locale settings.
- */
-static void P32GetCharType (uint16_t *bits, wchar_t wc, uint32_t category) {
-  if (!GetStringTypeW (category, &wc, 1, bits)) {
-    bits = 0;
-  }
-}
-
-/**
  * Return subset of character classes from `wctype` which apply to single
  * wide character `wc`.
  */
@@ -101,7 +84,7 @@ static uint16_t P32IsCharType (wchar_t wc, wctype_t wctype, locale_t locale) {
    */
   uint16_t charType1Bits = 0;
 
-  P32GetCharType (&charType1Bits, wc, CT_CTYPE1);
+  p32_winlocale_get_unicode_string_type (&locale->WinLocale.LcCtype, CT_CTYPE1, &wc, 1, &charType1Bits);
 
   if (P32_IS_CHARTYPE (charType1Bits, wctype, P32_CHARTYPE_ALNUM, WcType1Map, P32_CHARTYPE_BIT_ALNUM)) {
     charTypeBits |= P32_CHARTYPE_ALNUM;
@@ -141,7 +124,6 @@ static uint16_t P32IsCharType (wchar_t wc, wctype_t wctype, locale_t locale) {
   }
 
   return charTypeBits;
-  UNREFERENCED_PARAMETER (locale);
 }
 
 int p32_iswctype_l (wint_t wc, wctype_t wctype, locale_t locale) {

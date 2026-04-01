@@ -181,6 +181,13 @@ P32_TEST_DECL int p32_winlocale_compare_unicode_string (Locale *, uint32_t, cons
 P32_TEST_DECL int p32_winlocale_map_unicode_string (Locale *, uint32_t, const wchar_t *, int, wchar_t *, int);
 
 /**
+ * Portability wrapper for `GetStringTypeW`.
+ *
+ * `Locale` argument is ignored; this function always operates on Unicode.
+ */
+P32_TEST_DECL int p32_winlocale_get_unicode_string_type (Locale *, uint32_t, const wchar_t *, int, uint16_t *);
+
+/**
  * Construct `Locale` object corresponding to System Default Locale.
  *
  * Returns `true` on success, and `false` otherwise.

@@ -773,6 +773,17 @@ int p32_winlocale_map_unicode_string (
   return WinlocaleMapStringW (locale, flags, str, strLength, buffer, bufferSize);
 }
 
+int p32_winlocale_get_unicode_string_type (
+  Locale        *locale,
+  uint32_t       flags,
+  const wchar_t *str,
+  int            strLength,
+  uint16_t      *bits
+) {
+  return GetStringTypeW (flags, str, strLength, bits);
+  UNREFERENCED_PARAMETER (locale);
+}
+
 bool p32_winlocale_system_default (Locale *locale, uintptr_t heap) {
   return WinlocaleSystemDefault (locale, heap);
 }
