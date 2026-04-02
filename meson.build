@@ -38,17 +38,17 @@ fs = import ('fs')
 tclsh = find_program ('tclsh', native: true)
 gperf = find_program ('gperf', native: true)
 
-# Following include directories are common for all libraries
-p32_includes         = []
-p32_includes_private = []
+# Include directories
+p32_includes         = [] # for external usage only
+p32_includes_private = [] # for internal usage
 
-# Following compiler arguments are common for all libraries
-p32_args         = []
-p32_args_private = []
+# Compiler arguments
+p32_args         = [] # for external and internal usage
+p32_args_private = [] # for internal usage
 
-# Following linker arguments are common for all libraries
-p32_link_args         = []
-p32_link_args_private = []
+# Linker arguments
+p32_link_args         = [] # for external and internal usage
+p32_link_args_private = [] # for internal usage
 
 # Extra arguments to use with unit tests
 p32_args_test = ['-DLIBPOSIX32_TEST']

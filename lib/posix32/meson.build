@@ -30,7 +30,6 @@ posix32 = library (
   install: true,
 
   include_directories: [
-    p32_includes,
     p32_includes_private,
   ],
   c_args: [

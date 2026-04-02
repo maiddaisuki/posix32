@@ -3,7 +3,8 @@
 # meson.build for posix32
 #
 
-p32_includes += include_directories('posix32')
+p32_includes         += include_directories('posix32', 'posix32/posix32-wrap')
+p32_includes_private += include_directories('posix32')
 
 p32_headers = files (
   'posix32/posix32-ext/p32_wchar-ext.h',

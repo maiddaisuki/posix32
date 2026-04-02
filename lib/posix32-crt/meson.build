@@ -3,8 +3,8 @@
 # posix32-crt library
 #
 
-posix32_crt_includes = include_directories('include')
-posix32_crt_args = ['-DP32_BUILD', '-DP32_CRT_BUILD']
+posix32_crt_includes = [include_directories('include')]
+posix32_crt_args     = ['-DP32_BUILD', '-DP32_CRT_BUILD']
 
 posix32_crt_sources = files (
   # gperf-generated
@@ -92,7 +92,6 @@ posix32_crt = library (
   install: true,
 
   include_directories: [
-    p32_includes,
     p32_includes_private,
     posix32_crt_includes,
   ],
@@ -119,10 +118,7 @@ posix32_crt_libname = fs.name(posix32_crt.full_path())
 # Dependency object to link against `posix32-crt`
 posix32_crt_dep = declare_dependency (
   link_with: [
-    posix32_crt
-  ],
-  include_directories: [
-    p32_includes
+    posix32_crt,
   ],
   dependencies: [
     p32_deps,
