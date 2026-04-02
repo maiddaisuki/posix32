@@ -47,8 +47,6 @@ posix32_crt_test_dep = declare_dependency (
   compile_args: [
     p32_args,
     p32_args_private,
-    p32_args_test,
-    building_shared ? [] : ['-DLIBPOSIX32_STATIC'],
   ],
   link_args: [
     p32_link_args,

@@ -46,12 +46,16 @@ p32_includes_private = [] # for internal usage
 p32_args         = [] # for external and internal usage
 p32_args_private = [] # for internal usage
 
+# How to disable use of built-in functions
+p32_args_no_builtin = []
+
 # Linker arguments
 p32_link_args         = [] # for external and internal usage
 p32_link_args_private = [] # for internal usage
 
-# Extra arguments to use with unit tests
-p32_args_test = ['-DLIBPOSIX32_TEST']
+# Extra compiler and linker arguments to use with unit tests
+p32_test_args      = ['-DLIBPOSIX32_TEST']
+p32_test_link_args = []
 
 # Dependencies common for all libraries
 p32_deps = []
@@ -280,7 +284,7 @@ if cc.get_argument_syntax() == 'msvc'
     '/we4013', # Diagnose use of undeclared functions
   )
 
-  p32_args_test += cc.get_supported_arguments (
+  p32_args_no_builtin += cc.get_supported_arguments (
     '/Oi-', # Disable built-in functions
   )
 
@@ -309,7 +313,7 @@ elif cc.get_argument_syntax() == 'gcc'
     '-Werror=invalid-utf8',
   )
 
-  p32_args_test += cc.get_supported_arguments (
+  p32_args_no_builtin += cc.get_supported_arguments (
     '-fno-builtin',
   )
 
@@ -345,6 +349,20 @@ elif cc.get_argument_syntax() == 'gcc'
 else
   error ('Unsupported compiler. Please open an issue and provide information about you compiler.')
 endif
+
+# When building only static libraries, we need to ensure that when we are
+# compiling unit tests, functions are not declared with
+# `__declspec (dllimport)`, which is default.
+#
+# `declare_dependency` does not have equivalents of `*_shared_args` and
+# `*_static_args`, so we have to pass `-DLIBPOSIX32_STATIC` in `compile_args`.
+#
+if not building_shared
+  p32_test_args += '-DLIBPOSIX32_STATIC'
+endif
+
+# Disable use of built-in functions when compiling unit tests
+p32_test_args += p32_args_no_builtin
 
 # Find POSIX threads
 opt_winpthreads = get_option('winpthreads').enable_if(not is_mingw)

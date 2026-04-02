@@ -23,6 +23,8 @@ foreach test : tests
   foreach variant : variants
     test ('wchar/@0@/@1@'.format(test, variant),
       executable ('@0@.@1@'.format (test, variant), 'c89/@0@/@1@.c'.format(test, variant),
+        c_args:       [p32_test_args],
+        link_with:    [p32_test_link_args],
         dependencies: [posix32_crt_test_dep],
       )
     )
@@ -43,6 +45,8 @@ foreach test : tests
   foreach variant : variants
     test ('wchar/@0@/@1@'.format(test, variant),
       executable ('@0@.@1@'.format (test, variant), 'c95/@0@/@1@.c'.format(test, variant),
+        c_args:       [p32_test_args],
+        link_with:    [p32_test_link_args],
         dependencies: [posix32_crt_test_dep],
       )
     )
@@ -67,6 +71,8 @@ foreach test : tests
   foreach variant : variants
     test ('wchar/@0@/@1@'.format(test, variant),
       executable ('@0@.@1@'.format (test, variant), 'c95/@0@/@1@.c'.format(test, variant),
+        c_args:       [p32_test_args],
+        link_with:    [p32_test_link_args],
         dependencies: [posix32_crt_test_dep],
       )
     )
