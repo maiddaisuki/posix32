@@ -97,9 +97,16 @@ subdir('posix32')
 posix32_dep = declare_dependency (
   version: meson.project_version(),
 
-  include_directories: p32_includes,
-  compile_args: p32_args,
+  include_directories: [
+    p32_includes,
+  ],
+  compile_args: [
+    p32_args,
+  ],
   link_with: [
     posix32,
+  ],
+  dependencies: [
+    posix32_crt_dep,
   ],
 )

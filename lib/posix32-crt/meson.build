@@ -108,10 +108,10 @@ posix32_crt = library (
     p32_link_args,
     p32_link_args_private,
   ],
+  vs_module_defs: posix32_crt_def,
   dependencies: [
     p32_deps,
   ],
-  vs_module_defs: posix32_crt_def,
 )
 
 posix32_crt_libname = fs.name(posix32_crt.full_path())
@@ -123,7 +123,10 @@ posix32_crt_dep = declare_dependency (
   ],
   include_directories: [
     p32_includes
-  ]
+  ],
+  dependencies: [
+    p32_deps,
+  ],
 )
 
 if get_option('tests')

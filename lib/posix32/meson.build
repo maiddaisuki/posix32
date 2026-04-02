@@ -25,6 +25,8 @@ posix32_def = configure_file (
 
 posix32 = library (
   'posix32', 'posix32.c',
+
+  version: meson.project_version(),
   install: true,
 
   include_directories: [
@@ -42,10 +44,7 @@ posix32 = library (
     p32_link_args,
     p32_link_args_private,
   ],
-
   vs_module_defs: posix32_def,
-  version: meson.project_version(),
-
   dependencies: [
     posix32_crt_dep,
   ],
