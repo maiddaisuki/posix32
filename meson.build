@@ -405,7 +405,7 @@ if not is_64bit and sizeof_time_t == 8
 
   if is_mingw
     # Try using _TIME_BITS=32
-    set_variable ('time_bits32_args', '-D_TIME_BITS')
+    set_variable ('time_bits32_args', '-D_TIME_BITS=32')
 
     _sizeof_time_t = cc.sizeof (
       'time_t',
