@@ -256,6 +256,28 @@
 #define P32_TEST_DECL
 #endif
 
+/**
+ * When building `posix32` as a shared library, we want to link against shared
+ * version of `winpthreads`.
+ *
+ * `winpthreads` decorates its functions with `__declspec (dllimport)` only when
+ * `WINPTHREADS_USE_DLLIMPORT` is defined; this allows us to ensure that we are
+ * linking against the DLL since linking against static `winpthreads` will fail.
+ *
+ * When building `posix32` as a static library, we want to reference
+ * `winpthreads`'s symbols without `__declspec (dllimport)`; this allows
+ * static code to link against both shared and static versions of `winpthreads`.
+ */
+#ifdef LIBPOSIX32_DLL
+#ifndef WINPTHREADS_USE_DLLIMPORT
+#define WINPTHREADS_USE_DLLIMPORT
+#endif
+#else
+#ifdef WINPTHREADS_USE_DLLIMPORT
+#undef WINPTHREADS_USE_DLLIMPORT
+#endif
+#endif
+
 #else /* !P32_BUILD */
 
 #define P32_TEST_DECL P32_DECL

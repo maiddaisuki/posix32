@@ -350,7 +350,7 @@ endif
 opt_winpthreads = get_option('winpthreads').enable_if(not is_mingw)
 
 if opt_winpthreads.enabled()
-  threads = dependency('winpthreads', required: true)
+  threads = dependency('winpthreads', required: true, static: not building_shared)
 else
   threads = dependency('threads', required: true)
 endif
