@@ -73,103 +73,42 @@
 
 static int exit_code = EXIT_SUCCESS;
 
-typedef struct {
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-#define KNOWN_FAILURE(name_from, name_to, langid, sublang_from, sublang_to) name_from, name_to
-  const wchar_t *From;
-  const wchar_t *To;
-#else
-#define KNOWN_FAILURE(name_from, name_to, langid, sublang_from, sublang_to)                                            \
-  MAKELCID (MAKELANGID (langid, sublang_from), SORT_DEFAULT), MAKELCID (MAKELANGID (langid, sublang_to), SORT_DEFAULT)
+typedef bool (*FuncIsEqualLocale) (Locale *, Locale *);
+typedef bool (*FuncIsKnownFailure) (Locale *, Locale *);
+
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
+#define KNOWN_FAILURE_LCID(langid, sublang_from, sublang_to) \
+  {MAKELCID (MAKELANGID (langid, sublang_from), SORT_DEFAULT), MAKELCID (MAKELANGID (langid, sublang_to), SORT_DEFAULT)}
+
+/**
+ * A pair of `LCID` locales.
+ */
+typedef struct KnownLCIDFailure {
+  /**
+   * Original locale used to construct locale strings passed to
+   * `p32_locale_map`.
+   */
   LCID From;
+  /**
+   * Locale resolved by `p32_winlocale_resolve`.
+   */
   LCID To;
-#endif
-} KnownFailure;
+} KnownLCIDFailure;
 
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-#define EQUAL_LOCALE(l, n) (wcscmp (l->LocaleName, n) == 0)
-#else
-#define EQUAL_LOCALE(l, i) (l->LocaleId == i)
-#endif
-
-KnownFailure KnownFailures[] = {
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-  /**
-   * German_Germany
-   */
-  {KNOWN_FAILURE (L"de-DE_phoneb", L"de-DE", 0x00, 0x00, 0x00)},
-  /**
-   * Spanish_Spain
-   */
-  {KNOWN_FAILURE (L"es-ES_tradnl", L"es-ES", 0x00, 0x00, 0x00)},
-  /**
-   * Hungarian_Hungary
-   */
-  {KNOWN_FAILURE (L"hu-HU_technl", L"hu-HU", 0x00, 0x00, 0x00)},
-  /**
-   * Japanese_Japan
-   */
-  {KNOWN_FAILURE (L"ja-JP_radstr", L"ja-JP", 0x00, 0x00, 0x00)},
-  /**
-   * Georgian_Georgia
-   */
-  {KNOWN_FAILURE (L"ka-GE_modern", L"ka-GE", 0x00, 0x00, 0x00)},
-  /**
-   * Mongolian_Mongolia
-   */
-  {KNOWN_FAILURE (L"mn-MN", L"mn-Cyrl-MN", 0x00, 0x00, 0x00)},
-  /**
-   * Manipuri (Bangla)_India
-   */
-  {KNOWN_FAILURE (L"mni-IN", L"mni-Beng-IN", 0x00, 0x00, 0x00)},
-  /**
-   * Norwegian_Norway -> Norwegian Bokmål_Norway
-   */
-  {KNOWN_FAILURE (L"no", L"nb-NO", 0x00, 0x00, 0x00)},
-  /**
-   * Punjabi_India
-   */
-  {KNOWN_FAILURE (L"pa-Guru", L"pa-IN", 0x00, 0x00, 0x00)},
-  /**
-   * Chinese (Simplified)_China
-   */
-  {KNOWN_FAILURE (L"zh-CN", L"zh-Hans-CN", 0x00, 0x00, 0x00)},
-  {KNOWN_FAILURE (L"zh-CN_phoneb", L"zh-Hans-CN", 0x00, 0x00, 0x00)},
-  {KNOWN_FAILURE (L"zh-CN_stroke", L"zh-Hans-CN", 0x00, 0x00, 0x00)},
-  /**
-   * Chinese (Simplified)_Singapore
-   */
-  {KNOWN_FAILURE (L"zh-SG", L"zh-Hans-SG", 0x00, 0x00, 0x00)},
-  {KNOWN_FAILURE (L"zh-SG_phoneb", L"zh-Hans-SG", 0x00, 0x00, 0x00)},
-  {KNOWN_FAILURE (L"zh-SG_stroke", L"zh-Hans-SG", 0x00, 0x00, 0x00)},
-  /**
-   * Chinese (Traditional)_Hong Kong SAR
-   */
-  {KNOWN_FAILURE (L"zh-HK", L"zh-Hant-HK", 0x00, 0x00, 0x00)},
-  {KNOWN_FAILURE (L"zh-HK_radstr", L"zh-Hant-HK", 0x00, 0x00, 0x00)},
-  /**
-   * Chinese (Traditional)_Macao SAR
-   */
-  {KNOWN_FAILURE (L"zh-MO", L"zh-Hant-MO", 0x00, 0x00, 0x00)},
-  {KNOWN_FAILURE (L"zh-MO_radstr", L"zh-Hant-MO", 0x00, 0x00, 0x00)},
-  {KNOWN_FAILURE (L"zh-MO_stroke", L"zh-Hant-MO", 0x00, 0x00, 0x00)},
-  /**
-   * Chinese (Traditional)_Taiwan
-   */
-  {KNOWN_FAILURE (L"zh-TW", L"zh-Hant-TW", 0x00, 0x00, 0x00)},
-  {KNOWN_FAILURE (L"zh-TW_pronun", L"zh-Hant-TW", 0x00, 0x00, 0x00)},
-  {KNOWN_FAILURE (L"zh-TW_radstr", L"zh-Hant-TW", 0x00, 0x00, 0x00)},
-#else
+/**
+ * Known cases when `p32_winlocale_resolve` may construct locale different
+ * from one originally used to construct locale string.
+ */
+static KnownLCIDFailure KnownLCIDFailures[] = {
   /**
    * Spanish_Spain (0A 01 -> 0A 03)
    */
-  {KNOWN_FAILURE (L"es-ES", L"es-ES", LANG_SPANISH, SUBLANG_SPANISH, SUBLANG_SPANISH_MODERN)}
-#endif
+  KNOWN_FAILURE_LCID (LANG_SPANISH, SUBLANG_SPANISH, SUBLANG_SPANISH_MODERN),
 };
 
-static bool IsKnownFailure (Locale *from, Locale *to) {
-  for (size_t i = 0; i < _countof (KnownFailures); ++i) {
-    if (EQUAL_LOCALE (from, KnownFailures[i].From) && EQUAL_LOCALE (to, KnownFailures[i].To)) {
+static bool IsKnownLCIDFailure (Locale *from, Locale *to) {
+  for (size_t i = 0; i < _countof (KnownLCIDFailures); ++i) {
+    if (KnownLCIDFailures[i].From == from->LocaleId && KnownLCIDFailures[i].To == to->LocaleId) {
       return true;
     }
   }
@@ -177,13 +116,119 @@ static bool IsKnownFailure (Locale *from, Locale *to) {
   return false;
 }
 
-/**
- * Compare two `Locale` object.
- *
- * Return `true` if they represent the same locale. Otherwise, return `false`
- */
-static bool IsEqualLocale (Locale *from, Locale *to) {
+static bool IsEqualLCIDLocale (Locale *from, Locale *to) {
+  LANGID fromLangId = LANGIDFROMLCID (from->LocaleId);
+  LANGID toLangId   = LANGIDFROMLCID (to->LocaleId);
+
+  if (fromLangId != toLangId) {
+    return false;
+  }
+
+  WORD fromSortingId = SORTIDFROMLCID (from->LocaleId);
+  WORD toSortingId   = SORTIDFROMLCID (to->LocaleId);
+
+  if (fromSortingId != toSortingId) {
+    fwprintf (stdout, L"UNRESOLVED: %s -> %s\n", from->LocaleName, to->LocaleName);
+  }
+
+  return true;
+}
+#endif /* `LCID` locales */
+
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
+#define KNOWN_FAILURE_LN(from, to) {from, to}
+
+/**
+ * A pair of locale names.
+ */
+typedef struct KnownLNFailure {
+  const wchar_t *From;
+  const wchar_t *To;
+} KnownLNFailure;
+
+/**
+ * Known cases when `p32_winlocale_resolve` may construct locale different
+ * from one originally used to construct locale string.
+ */
+static KnownLNFailure KnownLNFailures[] = {
+  /**
+   * German_Germany
+   */
+  KNOWN_FAILURE_LN (L"de-DE_phoneb", L"de-DE"),
+  /**
+   * Spanish_Spain
+   */
+  KNOWN_FAILURE_LN (L"es-ES_tradnl", L"es-ES"),
+  /**
+   * Hungarian_Hungary
+   */
+  KNOWN_FAILURE_LN (L"hu-HU_technl", L"hu-HU"),
+  /**
+   * Japanese_Japan
+   */
+  KNOWN_FAILURE_LN (L"ja-JP_radstr", L"ja-JP"),
+  /**
+   * Georgian_Georgia
+   */
+  KNOWN_FAILURE_LN (L"ka-GE_modern", L"ka-GE"),
+  /**
+   * Mongolian_Mongolia
+   */
+  KNOWN_FAILURE_LN (L"mn-MN", L"mn-Cyrl-MN"),
+  /**
+   * Manipuri (Bangla)_India
+   */
+  KNOWN_FAILURE_LN (L"mni-IN", L"mni-Beng-IN"),
+  /**
+   * Norwegian_Norway -> Norwegian Bokmål_Norway
+   */
+  KNOWN_FAILURE_LN (L"no", L"nb-NO"),
+  /**
+   * Punjabi_India
+   */
+  KNOWN_FAILURE_LN (L"pa-Guru", L"pa-IN"),
+  /**
+   * Chinese (Simplified)_China
+   */
+  KNOWN_FAILURE_LN (L"zh-CN", L"zh-Hans-CN"),
+  KNOWN_FAILURE_LN (L"zh-CN_phoneb", L"zh-Hans-CN"),
+  KNOWN_FAILURE_LN (L"zh-CN_stroke", L"zh-Hans-CN"),
+  /**
+   * Chinese (Simplified)_Singapore
+   */
+  KNOWN_FAILURE_LN (L"zh-SG", L"zh-Hans-SG"),
+  KNOWN_FAILURE_LN (L"zh-SG_phoneb", L"zh-Hans-SG"),
+  KNOWN_FAILURE_LN (L"zh-SG_stroke", L"zh-Hans-SG"),
+  /**
+   * Chinese (Traditional)_Hong Kong SAR
+   */
+  KNOWN_FAILURE_LN (L"zh-HK", L"zh-Hant-HK"),
+  KNOWN_FAILURE_LN (L"zh-HK_radstr", L"zh-Hant-HK"),
+  /**
+   * Chinese (Traditional)_Macao SAR
+   */
+  KNOWN_FAILURE_LN (L"zh-MO", L"zh-Hant-MO"),
+  KNOWN_FAILURE_LN (L"zh-MO_radstr", L"zh-Hant-MO"),
+  KNOWN_FAILURE_LN (L"zh-MO_stroke", L"zh-Hant-MO"),
+  /**
+   * Chinese (Traditional)_Taiwan
+   */
+  KNOWN_FAILURE_LN (L"zh-TW", L"zh-Hant-TW"),
+  KNOWN_FAILURE_LN (L"zh-TW_pronun", L"zh-Hant-TW"),
+  KNOWN_FAILURE_LN (L"zh-TW_radstr", L"zh-Hant-TW"),
+};
+
+static bool IsKnownLNFailure (Locale *from, Locale *to) {
+  for (size_t i = 0; i < _countof (KnownLNFailures); ++i) {
+    if (!wcscmp (KnownLNFailures[i].From, from->LocaleName) && !wcscmp (KnownLNFailures[i].To, to->LocaleName)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+static bool IsEqualLNLocale (Locale *from, Locale *to) {
   size_t length  = wcslen (from->LocaleName);
   size_t compare = 0;
 
@@ -209,27 +254,21 @@ static bool IsEqualLocale (Locale *from, Locale *to) {
     }
 
     return wcsncmp (from->LocaleName, to->LocaleName, compare) == 0;
-  } else {
-    return wcscmp (from->LocaleName, to->LocaleName) == 0;
-  }
-#else /* LCID */
-  LANGID fromLangId = LANGIDFROMLCID (from->LocaleId);
-  LANGID toLangId   = LANGIDFROMLCID (to->LocaleId);
-
-  if (fromLangId != toLangId) {
-    return false;
   }
 
-  WORD fromSortingId = SORTIDFROMLCID (from->LocaleId);
-  WORD toSortingId   = SORTIDFROMLCID (to->LocaleId);
-
-  if (fromSortingId != toSortingId) {
-    fwprintf (stdout, L"UNRESOLVED: %s -> %s\n", from->LocaleName, to->LocaleName);
-  }
-
-  return true;
-#endif
+  return wcscmp (from->LocaleName, to->LocaleName) == 0;
 }
+#endif /* Locale Names */
+
+/**
+ * Pointer to `IsEqualLCIDLocale` or `IsEqualLNLocale`.
+ */
+static FuncIsEqualLocale IsEqualLocale;
+
+/**
+ * Pointer to `IsKnownLCIDFailure` or `IsKnownLNFailure`.
+ */
+static FuncIsKnownFailure IsKnownFailure;
 
 /**
  * Resolve locale from `ll` and `cc`.
@@ -378,6 +417,17 @@ static bool __cdecl Test (Locale *locale) {
 
 int main (void) {
   p32_test_init ();
+
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
+  IsKnownFailure = IsKnownLNFailure;
+  IsEqualLocale  = IsEqualLNLocale;
+#else
+  IsKnownFailure = IsKnownLCIDFailure;
+  IsEqualLocale  = IsEqualLCIDLocale;
+#endif
+
+  assert (IsKnownFailure != NULL);
+  assert (IsEqualLocale != NULL);
 
   /**
    * Test all supported locales.
