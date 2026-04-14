@@ -61,22 +61,16 @@
  */
 static int exit_code = EXIT_SUCCESS;
 
+typedef DWORD (*FuncIsExpectedFailure) (Locale *);
+
 typedef struct {
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-  LPCWSTR Locale;
-#else
-  LCID Locale;
-#endif
-  DWORD Flags;
+  LCID    LocaleId;
+  LPCWSTR LocaleName;
+  DWORD   Flags;
 } ExpectedFailure;
 
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-#define EXPECTED_FAILURE(locale_name, langid, sublangid) TEXT (locale_name)
-#define EQUAL_LOCALE(l1, l2)                             wcscmp (l1->LocaleName, l2.Locale) == 0
-#else
-#define EXPECTED_FAILURE(locale_name, langid, sublangid) MAKELCID (MAKELANGID (langid, sublangid), SORT_DEFAULT)
-#define EQUAL_LOCALE(l1, l2)                             l1->LocaleId == l2.Locale
-#endif
+#define EXPECTED_FAILURE(locale_name, langid, sublangid)                      \
+  MAKELCID (MAKELANGID (langid, sublangid), SORT_DEFAULT), TEXT (locale_name)
 
 /**
  * Creation of `locale_t` object for the following locales with their
@@ -398,19 +392,41 @@ static ExpectedFailure ExpectedFailures[] = {
 #endif
 };
 
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 /**
- * Return non-zero if creation of `locale_t` object for specified `locale` is
- * expected to fail.
+ * Check if `locale` is in `ExpectedFailures`.
  */
-static DWORD IsExpectedFailure (Locale *locale) {
+static DWORD IsExpectedFailureLCID (Locale *locale) {
   for (size_t i = 0; i < _countof (ExpectedFailures); ++i) {
-    if (EQUAL_LOCALE (locale, ExpectedFailures[i])) {
+    if (ExpectedFailures[i].LocaleId == locale->LocaleId) {
       return ExpectedFailures[i].Flags & P32_FLAG;
     }
   }
 
-  return FALSE;
+  return 0;
 }
+#endif
+
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
+/**
+ * Check if `locale` is in `ExpectedFailures`.
+ */
+static DWORD IsExpectedFailureLN (Locale *locale) {
+  for (size_t i = 0; i < _countof (ExpectedFailures); ++i) {
+    if (wcscmp (locale->LocaleName, ExpectedFailures[i].LocaleName) == 0) {
+      return ExpectedFailures[i].Flags & P32_FLAG;
+    }
+  }
+
+  return 0;
+}
+#endif
+
+/**
+ * Return non-zero if creation of `locale_t` object for specified `Locale` is
+ * expected to fail.
+ */
+static FuncIsExpectedFailure IsExpectedFailure;
 
 /**
  * Try to create `locale_t` object for `localeString`.
@@ -527,6 +543,14 @@ int main (void) {
   p32_test_init ();
 
   assert (setlocale (LC_ALL, "en-US") != NULL);
+
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
+  IsExpectedFailure = IsExpectedFailureLN;
+#else
+  IsExpectedFailure = IsExpectedFailureLCID;
+#endif
+
+  assert (IsExpectedFailure != NULL);
 
   /**
    * Test all supported locales.
