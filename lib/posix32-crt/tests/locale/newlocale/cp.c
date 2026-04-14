@@ -51,15 +51,16 @@ static bool __cdecl Test (uint32_t codePage) {
   wchar_t *localeStringW = NULL;
 
   switch (codePage) {
-#if P32_WINNT >= P32_WINNT_NT_4
     case 708:   /* ASMO-708   */
     case 720:   /* OEM Arabic */
     case 1256:  /* CP1256     */
     case 10004: /* MAC Arabic */
     case 28596: /* ISO-8859-6 */
-      assert (p32_private_aswprintf (&localeStringW, heap, L"ar-SA.%u", codePage) != -1);
-      break;
-#endif
+      if (P32_WINNT_CHECK (P32_WINNT_NT_4, WindowsNt4)) {
+        assert (p32_private_aswprintf (&localeStringW, heap, L"ar-SA.%u", codePage) != -1);
+        break;
+      }
+      goto en_US;
     case 852:   /* OEM Latin 2        */
     case 870:   /* IBM Latin 2        */
     case 1250:  /* CP1250             */
@@ -105,12 +106,13 @@ static bool __cdecl Test (uint32_t codePage) {
     case 1145:  /* IBM Latin America/Spain (+ Euro) */
       assert (p32_private_aswprintf (&localeStringW, heap, L"es-ES.%u", codePage) != -1);
       break;
-#if P32_WINNT >= P32_WINNT_NT_4
     case 1257:  /* CP1257      */
     case 28603: /* IBM-8859-13 */
-      assert (p32_private_aswprintf (&localeStringW, heap, L"et-EE.%u", codePage) != -1);
-      break;
-#endif
+      if (P32_WINNT_CHECK (P32_WINNT_NT_4, WindowsNt4)) {
+        assert (p32_private_aswprintf (&localeStringW, heap, L"et-EE.%u", codePage) != -1);
+        break;
+      }
+      goto en_US;
     case 20278: /* IBM Finland/Sweden          */
     case 1143:  /* IBM Finland/Sweden (+ Euro) */
       assert (p32_private_aswprintf (&localeStringW, heap, L"fi-FI.%u", codePage) != -1);
@@ -118,24 +120,26 @@ static bool __cdecl Test (uint32_t codePage) {
     case 863: /* OEM French Canadian  */
       assert (p32_private_aswprintf (&localeStringW, heap, L"fr-CA.%u", codePage) != -1);
       break;
-#if P32_WINNT >= P32_WINNT_NT_4
     case 862:   /* OEM Hebrew   */
     case 1255:  /* CP1252       */
     case 10005: /* MAC Hebrew   */
     case 20424: /* IBM Hebrew   */
     case 28598: /* ISO-8859-8   */
     case 38598: /* ISO-8859-8-I */
-      assert (p32_private_aswprintf (&localeStringW, heap, L"he-IL.%u", codePage) != -1);
-      break;
-#endif
+      if (P32_WINNT_CHECK (P32_WINNT_NT_4, WindowsNt4)) {
+        assert (p32_private_aswprintf (&localeStringW, heap, L"he-IL.%u", codePage) != -1);
+        break;
+      }
+      goto en_US;
     case 10082: /* MAC Croatian */
       assert (p32_private_aswprintf (&localeStringW, heap, L"hr-HR.%u", codePage) != -1);
       break;
-#if P32_WINNT >= P32_WINNT_2000
     case 65001: /* UTF-8 */
-      assert (p32_private_aswprintf (&localeStringW, heap, L"hy-AM.%u", codePage) != -1);
-      break;
-#endif
+      if (P32_WINNT_CHECK (P32_WINNT_2000, WindowsNt2000)) {
+        assert (p32_private_aswprintf (&localeStringW, heap, L"hy-AM.%u", codePage) != -1);
+        break;
+      }
+      goto en_US;
     case 861:   /* OEM Icelandic          */
     case 20871: /* IBM Icelandic          */
     case 1149:  /* IBM Icelandic (+ Euro) */
@@ -158,12 +162,13 @@ static bool __cdecl Test (uint32_t codePage) {
     case 51949: /* EUC-KR              */
       assert (p32_private_aswprintf (&localeStringW, heap, L"ko-KR.%u", codePage) != -1);
       break;
-#if P32_WINNT >= P32_WINNT_NT_4
     case 775:   /* OEM Baltic */
     case 28594: /* ISO-8859-4 */
-      assert (p32_private_aswprintf (&localeStringW, heap, L"lv-LV.%u", codePage) != -1);
-      break;
-#endif
+      if (P32_WINNT_CHECK (P32_WINNT_NT_4, WindowsNt4)) {
+        assert (p32_private_aswprintf (&localeStringW, heap, L"lv-LV.%u", codePage) != -1);
+        break;
+      }
+      goto en_US;
     case 865: /* OEM Nordic */
       assert (p32_private_aswprintf (&localeStringW, heap, L"nb-NO.%u", codePage) != -1);
       break;
@@ -179,18 +184,20 @@ static bool __cdecl Test (uint32_t codePage) {
     case 28595: /* ISO-8859-5   */
       assert (p32_private_aswprintf (&localeStringW, heap, L"ru-RU.%u", codePage) != -1);
       break;
-#if P32_WINNT >= P32_WINNT_NT_4
     case 21025: /* IBM Serbian/Bulgarian (Cyrillic) */
-      assert (p32_private_aswprintf (&localeStringW, heap, L"bg-BG.%u", codePage) != -1);
-      break;
-#endif
-#if P32_WINNT >= P32_WINNT_NT_4
+      if (P32_WINNT_CHECK (P32_WINNT_NT_4, WindowsNt4)) {
+        assert (p32_private_aswprintf (&localeStringW, heap, L"bg-BG.%u", codePage) != -1);
+        break;
+      }
+      goto en_US;
     case 874:   /* Thai     */
     case 10021: /* MAC Thai */
     case 20838: /* IBM Thai */
-      assert (p32_private_aswprintf (&localeStringW, heap, L"th-TH.%u", codePage) != -1);
-      break;
-#endif
+      if (P32_WINNT_CHECK (P32_WINNT_NT_4, WindowsNt4)) {
+        assert (p32_private_aswprintf (&localeStringW, heap, L"th-TH.%u", codePage) != -1);
+        break;
+      }
+      goto en_US;
     case 857:   /* OEM Turkish */
     case 1026:  /* IBM Turkish */
     case 20905: /* IBM Turkish */
@@ -199,17 +206,19 @@ static bool __cdecl Test (uint32_t codePage) {
     case 28599: /* ISO-8859-9  */
       assert (p32_private_aswprintf (&localeStringW, heap, L"tr-TR.%u", codePage) != -1);
       break;
-#if P32_WINNT >= P32_WINNT_NT_4
     case 10017: /* MAC Ukrainian */
     case 21866: /* KOI8-U        */
-      assert (p32_private_aswprintf (&localeStringW, heap, L"uk-UA.%u", codePage) != -1);
-      break;
-#endif
-#if P32_WINNT >= P32_WINNT_NT_4
+      if (P32_WINNT_CHECK (P32_WINNT_NT_4, WindowsNt4)) {
+        assert (p32_private_aswprintf (&localeStringW, heap, L"uk-UA.%u", codePage) != -1);
+        break;
+      }
+      goto en_US;
     case 1258: /* CP1258 */
-      assert (p32_private_aswprintf (&localeStringW, heap, L"vi-VN.%u", codePage) != -1);
-      break;
-#endif
+      if (P32_WINNT_CHECK (P32_WINNT_NT_4, WindowsNt4)) {
+        assert (p32_private_aswprintf (&localeStringW, heap, L"vi-VN.%u", codePage) != -1);
+        break;
+      }
+      goto en_US;
     case 936:   /* GBK                             */
     case 10008: /* MAC Chinese Simplified (EUC-CN) */
     case 20936: /* EUC-CN                          */
@@ -235,6 +244,7 @@ static bool __cdecl Test (uint32_t codePage) {
     case 10010: /* MAC Romanian          */
     case 864:   /* OEM Arabic            */
     default:
+en_US:
       assert (p32_private_aswprintf (&localeStringW, heap, L"en-US.%u", codePage) != -1);
       break;
   }
