@@ -119,7 +119,7 @@ int main (void) {
   TestThreadLocale.Locale     = THREAD_LOCALE_STRING;
   TestThreadLocale.LocaleName = THREAD_LOCALE_NAME;
 
-  if (P32_LOCALE_API & P32_LOCALE_API_LN) {
+  if (P32_CRT >= P32_MSVCR110 && P32_WINNT_CHECK (P32_WINNT_VISTA, WindowsNtVista)) {
     TestGlobalLocale.LocaleString = GLOBAL_LOCALE_CRT_NAME;
     TestThreadLocale.LocaleString = THREAD_LOCALE_CRT_NAME;
   } else {

@@ -175,7 +175,7 @@ int main (void) {
   assert ((crt_setlocale = (setlocale_t) (UINT_PTR) GetProcAddress (crt, "setlocale")) != NULL);
 #endif
 
-  if (P32_LOCALE_API & P32_LOCALE_API_LN) {
+  if (P32_CRT >= P32_MSVCR110 && P32_WINNT_CHECK (P32_WINNT_VISTA, WindowsNtVista)) {
     TestGlobalLocale.Locale       = GLOBAL_LOCALE_CRT_NAME;
     TestGlobalLocale.LocaleString = GLOBAL_LOCALE_CRT_NAME;
 

@@ -545,7 +545,13 @@ int main (void) {
   assert (setlocale (LC_ALL, "en-US") != NULL);
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
-  IsExpectedFailure = IsExpectedFailureLN;
+  if (P32_WINNT_CHECK (P32_WINNT_VISTA, WindowsNtVista)) {
+    IsExpectedFailure = IsExpectedFailureLN;
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
+  } else {
+    IsExpectedFailure = IsExpectedFailureLCID;
+#endif
+  }
 #else
   IsExpectedFailure = IsExpectedFailureLCID;
 #endif

@@ -56,8 +56,13 @@
  * If we're building for CRT which does not support locale names, we always
  * use `LCID` locales regardless of targeted Windows version.
  *
- * If we're targeting Windows version older than Windows Vista, we will always
- * use `LCID` locales regardless of CRT.
+ * If we're building for CRT which supports locale names, we either:
+ *
+ * - compile-in only Locale Name based implementaion; this means we are
+ *   targeting Windows Vista or later
+ *
+ * - compile-in both implementaions and choose appropriate implementation to
+ *   use at runtime; this means we are targeting Windows XP or older
  */
 
 /*******************************************************************************
@@ -84,6 +89,7 @@ static int P32WinlocaleLCIDGetLocaleInfoW (Locale *, uint32_t, wchar_t *, int);
  */
 static int P32WinlocaleLCIDGetCalendarInfoW (Locale *, Calendar, uint32_t, wchar_t *, int, uint32_t *);
 
+#if !(P32_LOCALE_API & P32_LOCALE_API_LN)
 /**
  * Wrapper around `CompareStringA` which uses `Locale` object instead of
  * `LCID` object.
@@ -91,6 +97,7 @@ static int P32WinlocaleLCIDGetCalendarInfoW (Locale *, Calendar, uint32_t, wchar
  * Return value is the same as for `CompareStringA`.
  */
 static int P32WinlocaleLCIDCompareStringA (Locale *, uint32_t, const char *, int, const char *, int);
+#endif
 
 /**
  * Wrapper around `CompareStringW` which uses `Locale` object instead of
@@ -100,6 +107,7 @@ static int P32WinlocaleLCIDCompareStringA (Locale *, uint32_t, const char *, int
  */
 static int P32WinlocaleLCIDCompareStringW (Locale *, uint32_t, const wchar_t *, int, const wchar_t *, int);
 
+#if !(P32_LOCALE_API & P32_LOCALE_API_LN)
 /**
  * Wrapper around `LCMapStringA` which uses `Locale` object instead of
  * `LCID` object.
@@ -107,6 +115,7 @@ static int P32WinlocaleLCIDCompareStringW (Locale *, uint32_t, const wchar_t *, 
  * Return value is the same as for `LCMapStringA`.
  */
 static int P32WinlocaleLCIDMapStringA (Locale *, uint32_t, const char *, int, char *, int);
+#endif
 
 /**
  * Wrapper around `LCMapStringW` which uses `Locale` object instead of
@@ -328,6 +337,56 @@ static void P32WinlocaleRegionNameDestroy (Locale *locale, uintptr_t heap);
  */
 #define P32AtomicExchange(target, source) InterlockedExchangePointer ((void *volatile *) target, F (source))
 
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID) && (P32_LOCALE_API & P32_LOCALE_API_LN)
+#define DYNAMIC_CHECKS
+#define DYNAMIC_IMPLEMENTATION
+
+/**
+ * Function type corresponding to `GetSystemDefaultLocaleName`.
+ */
+typedef INT (WINAPI *FuncGetSystemDefaultLocaleName) (LPWSTR, INT);
+
+/**
+ * Function type corresponding to `GetUserDefaultLocaleName`.
+ */
+typedef INT (WINAPI *FuncGetUserDefaultLocaleName) (LPWSTR, INT);
+
+/**
+ * Function type corresponding to `CompareStringEx`.
+ */
+typedef INT (WINAPI *FuncCompareStringEx) (
+  LPCWSTR,
+  DWORD,
+  LPCWSTR,
+  INT,
+  LPCWSTR,
+  INT,
+  LPNLSVERSIONINFO,
+  LPVOID,
+  LPARAM
+);
+
+/**
+ * Function type corresponding to `GetCalendarInfoEx`.
+ */
+typedef INT (WINAPI *FuncGetCalendarInfoEx) (LPCWSTR, CALID, LPCWSTR, CALTYPE, LPWSTR, INT, LPDWORD);
+
+/**
+ * Function type corresponding to `GetLocaleInfoEx`.
+ */
+typedef INT (WINAPI *FuncGetLocaleInfoEx) (LPCWSTR, LCTYPE, LPWSTR, INT);
+
+/**
+ * Function type corresponding to `LCMapStringEx`.
+ */
+typedef INT (WINAPI *FuncLCMapStringEx) (LPCWSTR, DWORD, LPCWSTR, INT, LPWSTR, INT, LPNLSVERSIONINFO, LPVOID, LPARAM);
+
+/**
+ * Function type corresponding to `EnumSystemLocalesEx`.
+ */
+typedef BOOL (WINAPI *FuncEnumSystemLocalesEx) (LOCALE_ENUMPROCEX, DWORD, LPARAM, LPVOID);
+#endif /* LCID and Locale Name APIs */
+
 #if P32_WINNT < P32_WINNT_WIN7
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
 #define DYNAMIC_CHECKS
@@ -356,6 +415,23 @@ static INT WINAPI P32ResolveLocaleName (LPCWSTR, LPWSTR, INT);
 typedef struct LocaleApi {
   pthread_once_t Init;
 
+/**
+ * When the library is configured with support for both `LCID` locales and
+ * Locale Names, we choose appropriate implementation at runtime.
+ *
+ * We will have to lookup Locale Name APIs at runtime since we cannot reference
+ * them directly; this would prevent DLL from loading on old Windows versions.
+ */
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID) && (P32_LOCALE_API & P32_LOCALE_API_LN)
+  FuncGetSystemDefaultLocaleName PtrGetSystemDefaultLocaleName;
+  FuncGetUserDefaultLocaleName   PtrGetUserDefaultLocaleName;
+  FuncCompareStringEx            PtrCompareStringEx;
+  FuncGetCalendarInfoEx          PtrGetCalendarInfoEx;
+  FuncGetLocaleInfoEx            PtrGetLocaleInfoEx;
+  FuncLCMapStringEx              PtrLCMapStringEx;
+  FuncEnumSystemLocalesEx        PtrEnumSystemLocalesEx;
+#endif /* LCID and Locale Name APIs */
+
 #if P32_WINNT < P32_WINNT_WIN7
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
   /**
@@ -377,6 +453,16 @@ typedef struct LocaleApi {
 static LocaleApi P32LocaleApi = {
   .Init = PTHREAD_ONCE_INIT,
 
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID) && (P32_LOCALE_API & P32_LOCALE_API_LN)
+  .PtrGetSystemDefaultLocaleName = NULL,
+  .PtrGetUserDefaultLocaleName   = NULL,
+  .PtrCompareStringEx            = NULL,
+  .PtrGetCalendarInfoEx          = NULL,
+  .PtrGetLocaleInfoEx            = NULL,
+  .PtrLCMapStringEx              = NULL,
+  .PtrEnumSystemLocalesEx        = NULL,
+#endif /* LCID and Locale Name APIs */
+
 #if P32_WINNT < P32_WINNT_WIN7
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
   .PtrResolveLocaleName = P32InitResolveLocaleName,
@@ -390,6 +476,66 @@ static LocaleApi P32LocaleApi = {
 static void P32InitLocaleApi (void) {
   HMODULE kernel32 = P32GetModuleHandle ("kernel32.dll");
   assert (kernel32 != NULL);
+
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID) && (P32_LOCALE_API & P32_LOCALE_API_LN)
+  /**
+   * Lookup Locale Name APIs.
+   */
+  FuncGetSystemDefaultLocaleName ptrGetSystemDefaultLocaleName = NULL;
+  FuncGetUserDefaultLocaleName   ptrGetUserDefaultLocaleName   = NULL;
+  FuncCompareStringEx            ptrCompareStringEx            = NULL;
+  FuncGetCalendarInfoEx          ptrGetCalendarInfoEx          = NULL;
+  FuncGetLocaleInfoEx            ptrGetLocaleInfoEx            = NULL;
+  FuncLCMapStringEx              ptrLCMapStringEx              = NULL;
+  FuncEnumSystemLocalesEx        ptrEnumSystemLocalesEx        = NULL;
+
+  if (kernel32 != NULL) {
+    if (P32_WINNT_CHECK (P32_WINNT_VISTA, WindowsNtVista)) {
+      ptrGetSystemDefaultLocaleName = P32GetProcAddress (kernel32, GetSystemDefaultLocaleName);
+      assert (ptrGetSystemDefaultLocaleName);
+      ptrGetUserDefaultLocaleName = P32GetProcAddress (kernel32, GetUserDefaultLocaleName);
+      assert (ptrGetUserDefaultLocaleName);
+      ptrCompareStringEx = P32GetProcAddress (kernel32, CompareStringEx);
+      assert (ptrCompareStringEx);
+      ptrGetCalendarInfoEx = P32GetProcAddress (kernel32, GetCalendarInfoEx);
+      assert (ptrGetCalendarInfoEx);
+      ptrGetLocaleInfoEx = P32GetProcAddress (kernel32, GetLocaleInfoEx);
+      assert (ptrGetLocaleInfoEx);
+      ptrLCMapStringEx = P32GetProcAddress (kernel32, LCMapStringEx);
+      assert (ptrLCMapStringEx);
+      ptrEnumSystemLocalesEx = P32GetProcAddress (kernel32, EnumSystemLocalesEx);
+      assert (ptrEnumSystemLocalesEx);
+    }
+  }
+
+  if (ptrGetSystemDefaultLocaleName != NULL) {
+    P32AtomicExchange (&P32LocaleApi.PtrGetSystemDefaultLocaleName, ptrGetSystemDefaultLocaleName);
+  }
+
+  if (ptrGetUserDefaultLocaleName != NULL) {
+    P32AtomicExchange (&P32LocaleApi.PtrGetUserDefaultLocaleName, ptrGetUserDefaultLocaleName);
+  }
+
+  if (ptrCompareStringEx != NULL) {
+    P32AtomicExchange (&P32LocaleApi.PtrCompareStringEx, ptrCompareStringEx);
+  }
+
+  if (ptrGetCalendarInfoEx != NULL) {
+    P32AtomicExchange (&P32LocaleApi.PtrGetCalendarInfoEx, ptrGetCalendarInfoEx);
+  }
+
+  if (ptrGetLocaleInfoEx != NULL) {
+    P32AtomicExchange (&P32LocaleApi.PtrGetLocaleInfoEx, ptrGetLocaleInfoEx);
+  }
+
+  if (ptrLCMapStringEx != NULL) {
+    P32AtomicExchange (&P32LocaleApi.PtrLCMapStringEx, ptrLCMapStringEx);
+  }
+
+  if (ptrEnumSystemLocalesEx != NULL) {
+    P32AtomicExchange (&P32LocaleApi.PtrEnumSystemLocalesEx, ptrEnumSystemLocalesEx);
+  }
+#endif /* LCID and Locale Name APIs */
 
 #if P32_WINNT < P32_WINNT_WIN7
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
@@ -414,6 +560,16 @@ static void P32InitLocaleApi (void) {
 #endif /* P32_WINNT < Windows 7 */
 }
 #endif /* DYNAMIC_CHECKS */
+
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID) && (P32_LOCALE_API & P32_LOCALE_API_LN)
+#define GetSystemDefaultLocaleName P32LocaleApi.PtrGetSystemDefaultLocaleName
+#define GetUserDefaultLocaleName   P32LocaleApi.PtrGetUserDefaultLocaleName
+#define CompareStringEx            P32LocaleApi.PtrCompareStringEx
+#define GetCalendarInfoEx          P32LocaleApi.PtrGetCalendarInfoEx
+#define GetLocaleInfoEx            P32LocaleApi.PtrGetLocaleInfoEx
+#define LCMapStringEx              P32LocaleApi.PtrLCMapStringEx
+#define EnumSystemLocalesEx        P32LocaleApi.PtrEnumSystemLocalesEx
+#endif /* LCID and Locale Name APIs */
 
 #if P32_WINNT < P32_WINNT_WIN7
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
@@ -441,6 +597,177 @@ static INT WINAPI P32ResolveLocaleName (LPCWSTR localeName, LPWSTR buffer, INT b
  * appropriate implementation of specific functions for the current library
  * configuration.
  */
+
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID) && (P32_LOCALE_API & P32_LOCALE_API_LN)
+/**
+ * Function type for `WinlocaleGetLocaleInfoW`;
+ * a wrapper to call `GetLocaleInfoW` or `GetLocaleInfoEx`.
+ */
+typedef int (*FuncWinlocaleGetLocaleInfoW) (Locale *, uint32_t, wchar_t *, int);
+
+/**
+ * Function type for `WinlocaleGetCalendarInfoW`;
+ * a wrapper to call `GetCalendarInfoW` or `GetCalendarInfoEx`.
+ */
+typedef int (*FuncWinlocaleGetCalendarInfoW) (Locale *, Calendar, uint32_t, wchar_t *, int, uint32_t *);
+
+/**
+ * Function type for `WinlocaleCompareStringW`;
+ * a wrapper to call `CompareStringW` or `CompareStringEx`.
+ */
+typedef int (*FuncWinlocaleCompareStringW) (Locale *, uint32_t, const wchar_t *, int, const wchar_t *, int);
+
+/**
+ * Function type for `WinlocaleMapStringW`;
+ * a wrapper to call `LCMapStringW` or `LCMapStringEx`.
+ */
+typedef int (*FuncWinlocaleMapStringW) (Locale *, uint32_t, const wchar_t *, int, wchar_t *, int);
+
+/**
+ * Function type for `WinlocaleGetLanguageName`;
+ * implementation for `p32_winlocale_get_language_name`.
+ */
+typedef bool (*FuncWinlocaleGetLanguageName) (wchar_t **, uintptr_t, Locale *);
+
+/**
+ * Function type for `WinlocaleGetCountryName`;
+ * implementation for `p32_winlocale_get_country_name`.
+ */
+typedef bool (*FuncWinlocaleGetCountryName) (wchar_t **, uintptr_t, Locale *);
+
+/**
+ * Function type for `WinlocaleGetLanguageCode`;
+ * implementation for `p32_winlocale_get_language_code`.
+ */
+typedef bool (*FuncWinlocaleGetLanguageCode) (wchar_t **, uintptr_t, Locale *);
+
+/**
+ * Function type for `WinlocaleGetCountryCode`;
+ * implementation for `p32_winlocale_get_country_code`.
+ */
+typedef bool (*FuncWinlocaleGetCountryCode) (wchar_t **, uintptr_t, Locale *);
+
+/**
+ * Function type for `WinlocaleSystemDefault`;
+ * implementation for `p32_winlocale_system_default`.
+ */
+typedef bool (*FuncWinlocaleSystemDefault) (Locale *, uintptr_t);
+
+/**
+ * Function type for `WinlocaleUserDefault`;
+ * implementation for `p32_winlocale_user_default`.
+ */
+typedef bool (*FuncWinlocaleUserDefault) (Locale *, uintptr_t);
+
+/**
+ * Function type for `WinlocaleResolve`;
+ * implementation for `p32_winlocale_resolve`.
+ */
+typedef bool (*FuncWinlocaleResolve) (Locale *, uintptr_t, LocaleMap *);
+
+/**
+ * Function type for `WinlocaleCopy`;
+ * implementation for `p32_winlocale_copy`.
+ */
+typedef bool (*FuncWinlocaleCopy) (Locale *, uintptr_t, Locale *);
+
+/**
+ * Function type for `WinlocaleCopy`;
+ * implementation for `p32_winlocale_copy`.
+ */
+typedef bool (*FuncWinlocaleEqual) (Locale *, Locale *);
+
+/**
+ * Function type for `WinlocaleDestroy`;
+ * implementation for `p32_winlocale_destroy`.
+ */
+typedef void (*FuncWinlocaleDestroy) (Locale *, uintptr_t);
+
+#ifdef LIBPOSIX32_TEST
+/**
+ * Function type for `WinlocaleEnumSystemLocales`;
+ * implementation for `p32_winlocale_enum_system_locales`.
+ */
+typedef void (*FuncWinlocaleEnumSystemLocales) (EnumSystemLocalesCallback, uintptr_t, void *);
+#endif
+
+/**
+ * Initialization thunk for `WinlocaleGetLocaleInfoW`.
+ */
+static int P32InitWinlocaleGetLocaleInfoW (Locale *, uint32_t, wchar_t *, int);
+
+/**
+ * Initialization thunk for `WinlocaleGetCalendarInfoW`.
+ */
+static int P32InitWinlocaleGetCalendarInfoW (Locale *, Calendar, uint32_t, wchar_t *, int, uint32_t *);
+
+/**
+ * Initialization thunk for `WinlocaleCompareStringW`.
+ */
+static int P32InitWinlocaleCompareStringW (Locale *, uint32_t, const wchar_t *, int, const wchar_t *, int);
+
+/**
+ * Initialization thunk for `WinlocaleMapStringW`.
+ */
+static int P32InitWinlocaleMapStringW (Locale *, uint32_t, const wchar_t *, int, wchar_t *, int);
+
+/**
+ * Initialization thunk for `WinlocaleGetLanguageName `.
+ */
+static bool P32InitWinlocaleGetLanguageName (wchar_t **, uintptr_t, Locale *);
+
+/**
+ * Initialization thunk for `WinlocaleGetCountryName `.
+ */
+static bool P32InitWinlocaleGetCountryName (wchar_t **, uintptr_t, Locale *);
+
+/**
+ * Initialization thunk for `WinlocaleGetLanguageCode`.
+ */
+static bool P32InitWinlocaleGetLanguageCode (wchar_t **, uintptr_t, Locale *);
+
+/**
+ * Initialization thunk for `WinlocaleGetCountryCode`.
+ */
+static bool P32InitWinlocaleGetCountryCode (wchar_t **, uintptr_t, Locale *);
+
+/**
+ * Initialization thunk for `WinlocaleSystemDefault`.
+ */
+static bool P32InitWinlocaleSystemDefault (Locale *, uintptr_t);
+
+/**
+ * Initialization thunk for `WinlocaleUserDefault`.
+ */
+static bool P32InitWinlocaleUserDefault (Locale *, uintptr_t);
+
+/**
+ * Initialization thunk for `WinlocaleResolve`.
+ */
+static bool P32InitWinlocaleResolve (Locale *, uintptr_t, LocaleMap *);
+
+/**
+ * Initialization thunk for `WinlocaleCopy`.
+ */
+static bool P32InitWinlocaleCopy (Locale *, uintptr_t, Locale *);
+
+/**
+ * Initialization thunk for `WinlocaleEqual`.
+ */
+static bool P32InitWinlocaleEqual (Locale *, Locale *);
+
+/**
+ * Initialization thunk for `WinlocaleDestroy`.
+ */
+static void P32InitWinlocaleDestroy (Locale *, uintptr_t);
+
+#ifdef LIBPOSIX32_TEST
+/**
+ * Initialization thunk for `WinlocaleEnumSystemLocales`.
+ */
+static void P32InitWinlocaleEnumSystemLocales (EnumSystemLocalesCallback, uintptr_t, void *);
+#endif
+#endif /* LCID and Locale Name APIs */
 
 /**
  * Retrieve locale information as a string.
@@ -525,6 +852,183 @@ static bool P32GetCountryCodeFromLocale (wchar_t **address, uintptr_t heap, Loca
  */
 static bool P32WinlocaleInfo (Locale *locale, uintptr_t heap);
 
+#ifdef DYNAMIC_IMPLEMENTATION
+/**
+ * Pointers to implementation.
+ */
+typedef struct WinlocaleApi {
+  pthread_once_t Init;
+
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID) && (P32_LOCALE_API & P32_LOCALE_API_LN)
+  FuncWinlocaleGetLocaleInfoW   PtrWinlocaleGetLocaleInfoW;
+  FuncWinlocaleGetCalendarInfoW PtrWinlocaleGetCalendarInfoW;
+  FuncWinlocaleCompareStringW   PtrWinlocaleCompareStringW;
+  FuncWinlocaleMapStringW       PtrWinlocaleMapStringW;
+  FuncWinlocaleGetLanguageName  PtrWinlocaleGetLanguageName;
+  FuncWinlocaleGetCountryName   PtrWinlocaleGetCountryName;
+  FuncWinlocaleGetLanguageCode  PtrWinlocaleGetLanguageCode;
+  FuncWinlocaleGetCountryCode   PtrWinlocaleGetCountryCode;
+  FuncWinlocaleSystemDefault    PtrWinlocaleSystemDefault;
+  FuncWinlocaleUserDefault      PtrWinlocaleUserDefault;
+  FuncWinlocaleResolve          PtrWinlocaleResolve;
+  FuncWinlocaleCopy             PtrWinlocaleCopy;
+  FuncWinlocaleEqual            PtrWinlocaleEqual;
+  FuncWinlocaleDestroy          PtrWinlocaleDestroy;
+
+#ifdef LIBPOSIX32_TEST
+  FuncWinlocaleEnumSystemLocales PtrWinlocaleEnumSystemLocales;
+#endif
+#endif /* LCID and Locale Name APIs */
+} WinlocaleApi;
+
+/**
+ * Implementation.
+ */
+static WinlocaleApi P32WinlocaleApi = {
+  .Init = PTHREAD_ONCE_INIT,
+
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID) && (P32_LOCALE_API & P32_LOCALE_API_LN)
+  .PtrWinlocaleGetLocaleInfoW   = P32InitWinlocaleGetLocaleInfoW,
+  .PtrWinlocaleGetCalendarInfoW = P32InitWinlocaleGetCalendarInfoW,
+  .PtrWinlocaleCompareStringW   = P32InitWinlocaleCompareStringW,
+  .PtrWinlocaleMapStringW       = P32InitWinlocaleMapStringW,
+  .PtrWinlocaleGetLanguageName  = P32InitWinlocaleGetLanguageName,
+  .PtrWinlocaleGetCountryName   = P32InitWinlocaleGetCountryName,
+  .PtrWinlocaleGetLanguageCode  = P32InitWinlocaleGetLanguageCode,
+  .PtrWinlocaleGetCountryCode   = P32InitWinlocaleGetCountryCode,
+  .PtrWinlocaleSystemDefault    = P32InitWinlocaleSystemDefault,
+  .PtrWinlocaleUserDefault      = P32InitWinlocaleUserDefault,
+  .PtrWinlocaleResolve          = P32InitWinlocaleResolve,
+  .PtrWinlocaleCopy             = P32InitWinlocaleCopy,
+  .PtrWinlocaleEqual            = P32InitWinlocaleEqual,
+  .PtrWinlocaleDestroy          = P32InitWinlocaleDestroy,
+
+#ifdef LIBPOSIX32_TEST
+  .PtrWinlocaleEnumSystemLocales = P32InitWinlocaleEnumSystemLocales,
+#endif
+#endif /* LCID and Locale Name APIs */
+};
+
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
+/**
+ * Store pointers to Locale Name based implementation in `P32WinlocaleApi`.
+ *
+ * This function returns `true` on success.
+ *
+ * This function returns `false` on failure. This may happen if any required
+ * function is missing from `P32LocaleApi`; this should never happen under
+ * normal circumstances.
+ */
+static bool P32InitLocaleNameApi (void) {
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
+  if (P32LocaleApi.PtrGetSystemDefaultLocaleName == NULL) {
+    return false;
+  }
+
+  if (P32LocaleApi.PtrGetUserDefaultLocaleName == NULL) {
+    return false;
+  }
+
+  if (P32LocaleApi.PtrCompareStringEx == NULL) {
+    return false;
+  }
+
+  if (P32LocaleApi.PtrGetCalendarInfoEx == NULL) {
+    return false;
+  }
+
+  if (P32LocaleApi.PtrGetLocaleInfoEx == NULL) {
+    return false;
+  }
+
+  if (P32LocaleApi.PtrLCMapStringEx == NULL) {
+    return false;
+  }
+
+#ifdef LIBPOSIX32_TEST
+  if (P32LocaleApi.PtrEnumSystemLocalesEx == NULL) {
+    return false;
+  }
+#endif
+
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetLocaleInfoW, P32WinlocaleLNGetLocaleInfoW);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetCalendarInfoW, P32WinlocaleLNGetCalendarInfoW);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleCompareStringW, P32WinlocaleLNCompareStringW);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleMapStringW, P32WinlocaleLNMapStringW);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleSystemDefault, P32WinlocaleLNSystemDefault);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleUserDefault, P32WinlocaleLNUserDefault);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleResolve, P32WinlocaleLNResolve);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleCopy, P32WinlocaleLNCopy);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleEqual, P32WinlocaleLNEqual);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleDestroy, P32WinlocaleLNDestroy);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetLanguageName, P32WinlocaleLNGetLanguageName);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetCountryName, P32WinlocaleLNGetCountryName);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetLanguageCode, P32WinlocaleLNGetLanguageCode);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetCountryCode, P32WinlocaleLNGetCountryCode);
+
+#ifdef LIBPOSIX32_TEST
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleEnumSystemLocales, P32WinlocaleLNEnumSystemLocalesW);
+#endif
+#endif /* LCID and Locale Name APIs */
+
+  return true;
+}
+#endif /* Locale Name APIs */
+
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
+/**
+ * Store pointers to `LCID` based implementation in `P32WinlocaleApi`.
+ *
+ * This function must only be called when code is running on Windows NT.
+ */
+static void P32InitLocaleApiWindowsNt (void) {
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetLocaleInfoW, P32WinlocaleLCIDGetLocaleInfoW);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetCalendarInfoW, P32WinlocaleLCIDGetCalendarInfoW);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleCompareStringW, P32WinlocaleLCIDCompareStringW);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleMapStringW, P32WinlocaleLCIDMapStringW);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleSystemDefault, P32WinlocaleLCIDSystemDefault);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleUserDefault, P32WinlocaleLCIDUserDefault);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleResolve, P32WinlocaleLCIDResolve);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleCopy, P32WinlocaleLCIDCopy);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleEqual, P32WinlocaleLCIDEqual);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleDestroy, P32WinlocaleLCIDDestroy);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetLanguageName, P32GetLanguageNameFromLocale);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetCountryName, P32GetCountryNameFromLocale);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetLanguageCode, P32GetLanguageCodeFromLocale);
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetCountryCode, P32GetCountryCodeFromLocale);
+
+#ifdef LIBPOSIX32_TEST
+  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleEnumSystemLocales, P32WinlocaleLCIDEnumSystemLocalesW);
+#endif
+#endif /* LCID and Locale Name APIs */
+}
+#endif /* LCID APIs */
+
+/**
+ * Initialize `P32WinlocaleApi`.
+ */
+static void P32InitWinlocaleApi (void) {
+  pthread_once (&P32LocaleApi.Init, P32InitLocaleApi);
+
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
+  /**
+   * If the code is running on Windows Vista or later, attempt to use
+   * Locale Name APIs.
+   */
+  if (P32_WINNT_CHECK (P32_WINNT_VISTA, WindowsNtVista)) {
+    if (P32InitLocaleNameApi ()) {
+      return;
+    }
+  }
+#endif
+
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
+  P32InitLocaleApiWindowsNt ();
+#endif
+}
+#endif /* DYNAMIC_IMPLEMENTATION */
+
 #define WinlocaleGetTextualLocaleInfo P32GetTextualLocaleInfoW
 #define WinlocaleGetNumericLocaleInfo P32GetNumericLocaleInfoW
 
@@ -535,6 +1039,122 @@ static bool P32WinlocaleInfo (Locale *locale, uintptr_t heap);
 #define WinlocaleCompareStringA P32WinlocaleLCIDCompareStringA
 #define WinlocaleMapStringA     P32WinlocaleLCIDMapStringA
 #endif
+
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID) && (P32_LOCALE_API & P32_LOCALE_API_LN)
+#define WinlocaleEnumSystemLocales P32WinlocaleApi.PtrWinlocaleEnumSystemLocales
+#define WinlocaleGetLocaleInfoW    P32WinlocaleApi.PtrWinlocaleGetLocaleInfoW
+#define WinlocaleGetCalendarInfoW  P32WinlocaleApi.PtrWinlocaleGetCalendarInfoW
+#define WinlocaleCompareStringW    P32WinlocaleApi.PtrWinlocaleCompareStringW
+#define WinlocaleMapStringW        P32WinlocaleApi.PtrWinlocaleMapStringW
+#define WinlocaleGetLanguageName   P32WinlocaleApi.PtrWinlocaleGetLanguageName
+#define WinlocaleGetCountryName    P32WinlocaleApi.PtrWinlocaleGetCountryName
+#define WinlocaleGetLanguageCode   P32WinlocaleApi.PtrWinlocaleGetLanguageCode
+#define WinlocaleGetCountryCode    P32WinlocaleApi.PtrWinlocaleGetCountryCode
+#define WinlocaleSystemDefault     P32WinlocaleApi.PtrWinlocaleSystemDefault
+#define WinlocaleUserDefault       P32WinlocaleApi.PtrWinlocaleUserDefault
+#define WinlocaleResolve           P32WinlocaleApi.PtrWinlocaleResolve
+#define WinlocaleCopy              P32WinlocaleApi.PtrWinlocaleCopy
+#define WinlocaleEqual             P32WinlocaleApi.PtrWinlocaleEqual
+#define WinlocaleDestroy           P32WinlocaleApi.PtrWinlocaleDestroy
+
+static int P32InitWinlocaleGetLocaleInfoW (Locale *locale, uint32_t info, wchar_t *buffer, int bufferSize) {
+  pthread_once (&P32WinlocaleApi.Init, P32InitWinlocaleApi);
+  return WinlocaleGetLocaleInfoW (locale, info, buffer, bufferSize);
+}
+
+static int P32InitWinlocaleGetCalendarInfoW (
+  Locale   *locale,
+  Calendar  calendar,
+  uint32_t  info,
+  wchar_t  *buffer,
+  int       bufferSize,
+  uint32_t *value
+) {
+  pthread_once (&P32WinlocaleApi.Init, P32InitWinlocaleApi);
+  return WinlocaleGetCalendarInfoW (locale, calendar, info, buffer, bufferSize, value);
+}
+
+static int P32InitWinlocaleCompareStringW (
+  Locale        *locale,
+  uint32_t       flags,
+  const wchar_t *wcs1,
+  int            wcs1Length,
+  const wchar_t *wcs2,
+  int            wcs2Length
+) {
+  pthread_once (&P32WinlocaleApi.Init, P32InitWinlocaleApi);
+  return WinlocaleCompareStringW (locale, flags, wcs1, wcs1Length, wcs2, wcs2Length);
+}
+
+static int P32InitWinlocaleMapStringW (
+  Locale        *locale,
+  uint32_t       flags,
+  const wchar_t *wcs,
+  int            wcsLength,
+  wchar_t       *buffer,
+  int            bufferSize
+) {
+  pthread_once (&P32WinlocaleApi.Init, P32InitWinlocaleApi);
+  return WinlocaleMapStringW (locale, flags, wcs, wcsLength, buffer, bufferSize);
+}
+
+static bool P32InitWinlocaleGetLanguageName (wchar_t **address, uintptr_t heap, Locale *locale) {
+  pthread_once (&P32WinlocaleApi.Init, P32InitWinlocaleApi);
+  return WinlocaleGetLanguageName (address, heap, locale);
+}
+
+static bool P32InitWinlocaleGetCountryName (wchar_t **address, uintptr_t heap, Locale *locale) {
+  pthread_once (&P32WinlocaleApi.Init, P32InitWinlocaleApi);
+  return WinlocaleGetCountryName (address, heap, locale);
+}
+
+static bool P32InitWinlocaleGetLanguageCode (wchar_t **address, uintptr_t heap, Locale *locale) {
+  pthread_once (&P32WinlocaleApi.Init, P32InitWinlocaleApi);
+  return WinlocaleGetLanguageCode (address, heap, locale);
+}
+
+static bool P32InitWinlocaleGetCountryCode (wchar_t **address, uintptr_t heap, Locale *locale) {
+  pthread_once (&P32WinlocaleApi.Init, P32InitWinlocaleApi);
+  return WinlocaleGetCountryCode (address, heap, locale);
+}
+
+static bool P32InitWinlocaleSystemDefault (Locale *locale, uintptr_t heap) {
+  pthread_once (&P32WinlocaleApi.Init, P32InitWinlocaleApi);
+  return WinlocaleSystemDefault (locale, heap);
+}
+
+static bool P32InitWinlocaleUserDefault (Locale *locale, uintptr_t heap) {
+  pthread_once (&P32WinlocaleApi.Init, P32InitWinlocaleApi);
+  return WinlocaleUserDefault (locale, heap);
+}
+
+static bool P32InitWinlocaleResolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap) {
+  pthread_once (&P32WinlocaleApi.Init, P32InitWinlocaleApi);
+  return WinlocaleResolve (locale, heap, localeMap);
+}
+
+static bool P32InitWinlocaleCopy (Locale *destLocale, uintptr_t heap, Locale *srcLocale) {
+  pthread_once (&P32WinlocaleApi.Init, P32InitWinlocaleApi);
+  return WinlocaleCopy (destLocale, heap, srcLocale);
+}
+
+static bool P32InitWinlocaleEqual (Locale *l1, Locale *l2) {
+  pthread_once (&P32WinlocaleApi.Init, P32InitWinlocaleApi);
+  return WinlocaleEqual (l1, l2);
+}
+
+static void P32InitWinlocaleDestroy (Locale *locale, uintptr_t heap) {
+  pthread_once (&P32WinlocaleApi.Init, P32InitWinlocaleApi);
+  WinlocaleDestroy (locale, heap);
+}
+
+#ifdef LIBPOSIX32_TEST
+static void P32InitWinlocaleEnumSystemLocales (EnumSystemLocalesCallback callback, uintptr_t heap, void *data) {
+  pthread_once (&P32WinlocaleApi.Init, P32InitWinlocaleApi);
+  WinlocaleEnumSystemLocales (callback, heap, data);
+}
+#endif
+#else /* Only one implementation is compiled id */
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 #define WinlocaleEnumSystemLocales P32WinlocaleLCIDEnumSystemLocalesW
@@ -552,7 +1172,7 @@ static bool P32WinlocaleInfo (Locale *locale, uintptr_t heap);
 #define WinlocaleCopy              P32WinlocaleLCIDCopy
 #define WinlocaleEqual             P32WinlocaleLCIDEqual
 #define WinlocaleDestroy           P32WinlocaleLCIDDestroy
-#else
+#else /* Locale Name APIs */
 #define WinlocaleEnumSystemLocales P32WinlocaleLNEnumSystemLocalesW
 #define WinlocaleGetLocaleInfoW    P32WinlocaleLNGetLocaleInfoW
 #define WinlocaleGetCalendarInfoW  P32WinlocaleLNGetCalendarInfoW
@@ -568,7 +1188,9 @@ static bool P32WinlocaleInfo (Locale *locale, uintptr_t heap);
 #define WinlocaleCopy              P32WinlocaleLNCopy
 #define WinlocaleEqual             P32WinlocaleLNEqual
 #define WinlocaleDestroy           P32WinlocaleLNDestroy
-#endif
+#endif /* Locale Name APIs */
+
+#endif /* Only one implementation is compiled id */
 
 #if (P32_GEO_API & P32_GEO_API_GEOID)
 #define WinlocaleGeo        P32WinlocaleGeo
@@ -896,7 +1518,8 @@ bool p32_winlocale_are_file_apis_ansi (void) {
   return AreFileApisANSI ();
 #endif
 }
-#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
+
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID) && !(P32_LOCALE_API & P32_LOCALE_API_LN)
 int p32_winlocale_compare_ansi_string (
   Locale     *locale,
   uint32_t    flags,

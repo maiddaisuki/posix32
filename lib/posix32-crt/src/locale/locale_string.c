@@ -28,6 +28,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-winver.h"
+
 #include "locale-internal.h"
 
 /**
@@ -743,18 +745,19 @@ static bool P32FormatCrtLocaleString (wchar_t **address, uintptr_t heap, Locale 
     return P32FormatCLocaleString (address, heap);
   }
 
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-  /**
-   * When Windows locale name is passed to CRT's `[_w]setlocale` or
-   * `_[w]create_locale`, it uses locale's default ANSI code page.
-   *
-   * If `codePage` is `locale`'s default ANSI code page,
-   * simply copy `locale->LocaleName` to `*address`.
-   */
-  if (locale->CodePage.Ansi == codePage) {
-    return p32_private_wcsdup (address, locale->LocaleName, heap) != -1;
+  if (P32_CRT >= P32_MSVCR110 && P32_WINNT_CHECK (P32_WINNT_VISTA, WindowsNtVista)) {
+    /**
+     * When Windows locale name is passed to CRT's `[_w]setlocale` or
+     * `_[w]create_locale`, it uses locale's default ANSI code page.
+     *
+     * If `codePage` is `locale`'s default ANSI code page,
+     * simply copy `locale->LocaleName` to `*address`.
+     */
+    if (locale->CodePage.Ansi == codePage) {
+      return p32_private_wcsdup (address, locale->LocaleName, heap) != -1;
+    }
   }
-#endif
+
 #ifdef P32_USE_LANGUAGE_STRINGS
   /**
    * Attempt to look up `LanguageString` entry for `locale`.

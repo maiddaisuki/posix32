@@ -116,7 +116,7 @@ int main (void) {
   assert ((crt_setlocale = (setlocale_t) (UINT_PTR) GetProcAddress (crt, "setlocale")) != NULL);
 #endif
 
-  if (P32_LOCALE_API & P32_LOCALE_API_LN) {
+  if (P32_CRT >= P32_MSVCR110 && P32_WINNT_CHECK (P32_WINNT_VISTA, WindowsNtVista)) {
     TestLocale.LcCollate  = LOCALE_NAME_LC_COLLATE;
     TestLocale.LcCtype    = LOCALE_NAME_LC_CTYPE;
     TestLocale.LcMonetary = LOCALE_NAME_LC_MONETARY;

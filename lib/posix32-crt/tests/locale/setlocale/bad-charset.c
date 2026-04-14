@@ -117,7 +117,7 @@ int main (void) {
   TestLocale.Locale     = LOCALE_STRING;
   TestLocale.LocaleName = LOCALE_NAME;
 
-  if (P32_LOCALE_API & P32_LOCALE_API_LN) {
+  if (P32_CRT >= P32_MSVCR110 && P32_WINNT_CHECK (P32_WINNT_VISTA, WindowsNtVista)) {
     TestLocale.LocaleString = LOCALE_CRT_NAME;
   } else {
     TestLocale.LocaleString = LOCALE_CRT_STRING;

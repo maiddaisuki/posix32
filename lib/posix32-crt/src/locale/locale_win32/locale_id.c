@@ -69,6 +69,7 @@ static int P32WinlocaleLCIDGetCalendarInfoW (
   return GetCalendarInfoW (locale->LocaleId, calendar, info, buffer, bufferSize, (LPDWORD) value);
 }
 
+#if !(P32_LOCALE_API & P32_LOCALE_API_LN)
 static int P32WinlocaleLCIDCompareStringA (
   Locale     *locale,
   uint32_t    flags,
@@ -79,6 +80,7 @@ static int P32WinlocaleLCIDCompareStringA (
 ) {
   return CompareStringA (locale->LocaleId, flags, str1, str1Length, str2, str2Length);
 }
+#endif
 
 static int P32WinlocaleLCIDCompareStringW (
   Locale        *locale,
@@ -91,6 +93,7 @@ static int P32WinlocaleLCIDCompareStringW (
   return CompareStringW (locale->LocaleId, flags, wcs1, wcs1Length, wcs2, wcs2Length);
 }
 
+#if !(P32_LOCALE_API & P32_LOCALE_API_LN)
 static int P32WinlocaleLCIDMapStringA (
   Locale     *locale,
   uint32_t    flags,
@@ -101,6 +104,7 @@ static int P32WinlocaleLCIDMapStringA (
 ) {
   return LCMapStringA (locale->LocaleId, flags, in, inLength, out, outLength);
 }
+#endif
 
 static int P32WinlocaleLCIDMapStringW (
   Locale        *locale,

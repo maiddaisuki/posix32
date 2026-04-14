@@ -43,7 +43,8 @@ int main (void) {
      * `locale_t` object for `qps-ploc` locale cannot be created with its
      * default ANSI code page; try to create it with UTF-8 instead.
      */
-  } else if (setlocale (LC_ALL, "qps-ploc.UTF-8") != NULL) {
+  } else if (P32_WINNT_CHECK (P32_WINNT_VISTA, WindowsNtVista)) {
+    assert (setlocale (LC_ALL, "qps-ploc.UTF-8") != NULL);
     assert (strcmp (getlocalename_l (LC_ALL, LC_GLOBAL_LOCALE), "qps-ploc.65001") == 0);
 #endif
   } else {

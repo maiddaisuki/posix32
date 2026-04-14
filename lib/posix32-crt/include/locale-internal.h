@@ -37,14 +37,24 @@
 #define P32_LOCALE_API_LN   (1 << 1)
 
 /**
- * Locale names were introduced in Windows Vista.
  * CRT supports locale names since msvcr110.dll.
  */
-#if P32_WINNT >= P32_WINNT_VISTA && P32_CRT >= P32_MSVCR110
+#if P32_CRT >= P32_MSVCR110
+
+/**
+ * Locale names were introduced in Windows Vista.
+ */
+#if P32_WINNT >= P32_WINNT_VISTA
 #define P32_LOCALE_API (P32_LOCALE_API_LN)
 #else
-#define P32_LOCALE_API (P32_LOCALE_API_LCID)
+#define P32_LOCALE_API (P32_LOCALE_API_LCID | P32_LOCALE_API_LN)
 #endif
+
+#else /* CRT does not support locale names */
+
+#define P32_LOCALE_API (P32_LOCALE_API_LCID)
+
+#endif /* CRT does not support locale names */
 
 /**
  * If this bit is set in `P32_GEO_API`, the the library will be build with

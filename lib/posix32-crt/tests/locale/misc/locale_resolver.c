@@ -419,8 +419,15 @@ int main (void) {
   p32_test_init ();
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
-  IsKnownFailure = IsKnownLNFailure;
-  IsEqualLocale  = IsEqualLNLocale;
+  if (P32_WINNT_CHECK (P32_WINNT_VISTA, WindowsNtVista)) {
+    IsKnownFailure = IsKnownLNFailure;
+    IsEqualLocale  = IsEqualLNLocale;
+#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
+  } else {
+    IsKnownFailure = IsKnownLCIDFailure;
+    IsEqualLocale  = IsEqualLCIDLocale;
+#endif
+  }
 #else
   IsKnownFailure = IsKnownLCIDFailure;
   IsEqualLocale  = IsEqualLCIDLocale;
