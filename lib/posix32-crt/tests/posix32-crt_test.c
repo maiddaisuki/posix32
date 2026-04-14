@@ -41,7 +41,35 @@
  */
 
 /**
- * Flags passed to `p32_locale_test_func2` or `p32_locale_test_func4`.
+ * Strucutre used with `p32_locale_test_func*` functions.
+ *
+ * It is used to pass data to underlying callbacks.
+ */
+typedef struct LocaleTestFuncData {
+  /**
+   * `flags` argument passed to `p32_locale_test_func*`.
+   */
+  int Flags;
+  /**
+   * Heap to use for memory allocations from callbacks.
+   */
+  union {
+    uintptr_t Heap;
+    void     *HeapHandle;
+  };
+  /**
+   * `callback` argument passed to `p32_locale_test_func*`.
+   */
+  union {
+    LocaleCallback1 Callback1;
+    LocaleCallback2 Callback2;
+    LocaleCallback3 Callback3;
+    LocaleCallback4 Callback4;
+  };
+} LocaleTestFuncData;
+
+/**
+ * Flags passed to `p32_locale_test_func*` functions.
  */
 static int P32LocaleTestFlags = 0;
 

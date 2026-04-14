@@ -841,6 +841,48 @@ static bool P32WinlocaleLCIDEqual (Locale *l1, Locale *l2) {
 }
 
 #ifdef LIBPOSIX32_TEST
+/**
+ * `EnumSystemLocales` functions do not provide mechanism to pass additional
+ * arguments to the callback function, so use static object instead.
+ *
+ * This imposes a limitation that `p32_winlocale_enum_system_locales` cannot be
+ * called from multiple threads at the same time; this limitation is not
+ * an issue since this function is only used as a "main loop" for unit tests.
+ */
+static EnumSystemLocaleData P32LCIDEnumSystemLocaleData;
+
+/**
+ * Callback for `EnumSystemLocalesW`.
+ */
+static BOOL WINAPI P32LCIDEnumSystemLocalesW (LPWSTR localeString) {
+  Locale locale = {0};
+
+  locale.Type        = LocaleType_WindowsLocale;
+  locale.KnownLocale = KnownLocaleIndex_Invalid;
+  locale.LocaleId    = wcstoul (localeString, NULL, 16);
+
+  if (PRIMARYLANGID (LANGIDFROMLCID (locale.LocaleId)) == LANG_INVARIANT) {
+    return TRUE;
+  }
+
+  if (!P32WinlocaleFromLCID (&locale, P32LCIDEnumSystemLocaleData.Heap)) {
+    return TRUE;
+  }
+
+  bool keepGoing = P32LCIDEnumSystemLocaleData.Callback (&locale, P32LCIDEnumSystemLocaleData.Data);
+  P32WinlocaleLCIDDestroy (&locale, P32LCIDEnumSystemLocaleData.Heap);
+
+  return keepGoing;
+}
+
+static void P32WinlocaleLCIDEnumSystemLocalesW (EnumSystemLocalesCallback callback, uintptr_t heap, void *data) {
+  P32LCIDEnumSystemLocaleData.Callback = callback;
+  P32LCIDEnumSystemLocaleData.Heap     = heap;
+  P32LCIDEnumSystemLocaleData.Data     = data;
+
+  EnumSystemLocalesW (P32LCIDEnumSystemLocalesW, LCID_INSTALLED | LCID_ALTERNATE_SORTS);
+}
+
 bool p32_winlocale_from_lcid (Locale *locale, uintptr_t heap, uint32_t localeId) {
   locale->LocaleId = localeId;
   return P32WinlocaleFromLCID (locale, heap);

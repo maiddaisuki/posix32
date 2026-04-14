@@ -821,3 +821,54 @@ static bool P32WinlocaleLNGetCountryCode (wchar_t **address, uintptr_t heap, Loc
 
   return P32GetCountryCodeFromLocale (address, heap, locale);
 }
+
+#ifdef LIBPOSIX32_TEST
+/**
+ * Callback for `EnumSystemLocalesEx`.
+ */
+static BOOL WINAPI P32LNEnumSystemLocalesW (LPWSTR localeString, DWORD flags, LPARAM enumSystemLocaleData) {
+  /**
+   * Data passed through `EnumSystemLocalesEx`.
+   */
+  EnumSystemLocaleData *data = (EnumSystemLocaleData *) enumSystemLocaleData;
+
+  if (localeString[0] == L'\0') {
+    return TRUE;
+  } else if (wcscmp (localeString, L"x-IV_mathan") == 0) {
+    return TRUE;
+  }
+
+  Locale locale = {0};
+
+  locale.Type        = LocaleType_WindowsLocale;
+  locale.KnownLocale = KnownLocaleIndex_Invalid;
+
+  if (p32_private_wcsdup (&locale.LocaleName, localeString, data->Heap) == -1) {
+    return TRUE;
+  }
+
+  BOOL keepGoing = TRUE;
+
+  if (!P32WinlocaleInfo (&locale, data->Heap)) {
+    goto done;
+  }
+
+  keepGoing = data->Callback (&locale, data->Data);
+
+done:
+  P32WinlocaleLNDestroy (&locale, data->Heap);
+
+  return keepGoing;
+  UNREFERENCED_PARAMETER (flags);
+}
+
+static void P32WinlocaleLNEnumSystemLocalesW (EnumSystemLocalesCallback callback, uintptr_t heap, void *data) {
+  EnumSystemLocaleData enumSystemLocaleData = {0};
+
+  enumSystemLocaleData.Callback = callback;
+  enumSystemLocaleData.Heap     = heap;
+  enumSystemLocaleData.Data     = data;
+
+  EnumSystemLocalesEx (P32LNEnumSystemLocalesW, LOCALE_ALL, (LPARAM) &enumSystemLocaleData, NULL);
+}
+#endif

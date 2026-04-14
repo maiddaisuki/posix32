@@ -14,78 +14,39 @@
  * limitations under the License.
  */
 
-#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
-static LocaleCallback2 callback2 = NULL;
-#endif
+static bool P32LocaleTestFunc2 (Locale *locale, void *localeTestFuncData) {
+  LocaleTestFuncData *data = (LocaleTestFuncData *) localeTestFuncData;
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
-static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeString, DWORD flags, LPARAM param) {
-  UNREFERENCED_PARAMETER (flags);
-#else
-static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeString) {
-  assert (callback2 != NULL);
-#endif
-
-  HANDLE    heapHandle = GetProcessHeap ();
-  uintptr_t heap       = (uintptr_t) heapHandle;
-
-  LocaleCallback2 callback = NULL;
-  Locale          locale   = {0};
-
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-  if (localeString[0] == L'\0') {
-    return TRUE;
-  } else if (wcscmp (localeString, L"x-IV_mathan") == 0) {
-    return TRUE;
-  }
-
   /**
    * Skip partial locale names which do not include country/region code.
    */
-  switch (wcslen (localeString)) {
+  switch (wcslen (locale->LocaleName)) {
     case 2:
     case 3:
       return TRUE;
     case 7:
-      if (localeString[2] == L'-') {
+      if (locale->LocaleName[2] == L'-') {
         return TRUE;
       }
       break;
     case 8:
-      if (localeString[3] == L'-') {
+      if (locale->LocaleName[3] == L'-') {
         return TRUE;
       }
       break;
   }
-
-  assert (p32_private_wcsdup (&locale.LocaleName, localeString, heap) != -1);
-
-  callback = (LocaleCallback2) param;
-#else
-  uint32_t localeId = wcstoul (localeString, NULL, 16);
-
-  if (PRIMARYLANGID (LANGIDFROMLCID (localeId)) == LANG_INVARIANT) {
-    return true;
-  }
-
-  assert (p32_winlocale_from_lcid (&locale, heap, localeId));
-  assert (locale.LocaleName != NULL);
-
-  callback = callback2;
 #endif
 
-  bool flagSetlocale = !!(P32LocaleTestFlags & P32_LOCALE_TEST_SETLOCALE);
-  bool flagUsableCp  = !!(P32LocaleTestFlags & P32_LOCALE_TEST_USABLE_CP);
-  bool flagTestAcp   = !!(P32LocaleTestFlags & P32_LOCALE_TEST_ACP);
-  bool flagTestOcp   = !!(P32LocaleTestFlags & P32_LOCALE_TEST_OCP);
-  bool flagTestUtf8  = !!(P32LocaleTestFlags & P32_LOCALE_TEST_UTF8);
-  bool flagOnce      = !!(P32LocaleTestFlags & P32_LOCALE_TEST_ONCE);
+  bool flagSetlocale = !!(data->Flags & P32_LOCALE_TEST_SETLOCALE);
+  bool flagUsableCp  = !!(data->Flags & P32_LOCALE_TEST_USABLE_CP);
+  bool flagTestAcp   = !!(data->Flags & P32_LOCALE_TEST_ACP);
+  bool flagTestOcp   = !!(data->Flags & P32_LOCALE_TEST_OCP);
+  bool flagTestUtf8  = !!(data->Flags & P32_LOCALE_TEST_UTF8);
+  bool flagOnce      = !!(data->Flags & P32_LOCALE_TEST_ONCE);
 
-  uint32_t ansiCodePage = 0;
-  uint32_t oemCodePage  = 0;
-
-  assert (p32_winlocale_get_ansi_code_page (&ansiCodePage, heap, &locale));
-  assert (p32_winlocale_get_oem_code_page (&oemCodePage, heap, &locale));
+  uint32_t ansiCodePage = locale->CodePage.Ansi;
+  uint32_t oemCodePage  = locale->CodePage.Oem;
 
   bool testAnsi = ansiCodePage != CP_ACP && flagTestAcp;
   bool testOem  = oemCodePage != CP_OEMCP && flagTestOcp;
@@ -121,21 +82,21 @@ static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeString) {
   if (testAnsi) {
     LPSTR testLocaleString = NULL;
 
-    assert (p32_private_asprintf (&testLocaleString, heap, L"%s.%u", locale.LocaleName, ansiCodePage) != -1);
+    assert (p32_private_asprintf (&testLocaleString, data->Heap, L"%s.%u", locale->LocaleName, ansiCodePage) != -1);
     locale_t testLocale = p32_newlocale (LC_ALL_MASK, testLocaleString, NULL);
 
     if (testLocale != NULL) {
       if (!flagSetlocale) {
-        keep_going &= callback (testLocale, testLocale->WindowsLocaleStrings.W.LcAll);
+        keep_going &= data->Callback2 (testLocale, testLocale->WindowsLocaleStrings.W.LcAll);
         tested      = true;
 #if P32_CRT >= P32_MSVCRT20
       } else if (_wsetlocale (LC_ALL, testLocale->CrtLocaleStrings.W.LcAll) != NULL) {
-        keep_going &= callback (testLocale, testLocale->WindowsLocaleStrings.W.LcAll);
+        keep_going &= data->Callback2 (testLocale, testLocale->WindowsLocaleStrings.W.LcAll);
         tested      = true;
 #endif
 #if P32_CRT < P32_UCRT
       } else if (setlocale (LC_ALL, testLocale->CrtLocaleStrings.A.LcAll)) {
-        keep_going &= callback (testLocale, testLocale->WindowsLocaleStrings.W.LcAll);
+        keep_going &= data->Callback2 (testLocale, testLocale->WindowsLocaleStrings.W.LcAll);
         tested      = true;
 #endif
       } else {
@@ -145,7 +106,7 @@ static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeString) {
       p32_freelocale (testLocale);
     }
 
-    assert (HeapFree (heapHandle, 0, testLocaleString));
+    assert (HeapFree (data->HeapHandle, 0, testLocaleString));
   }
 
   if (!keep_going || (flagOnce && tested)) {
@@ -158,21 +119,21 @@ static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeString) {
   if (testOem) {
     LPSTR testLocaleString = NULL;
 
-    assert (p32_private_asprintf (&testLocaleString, heap, L"%s.%u", locale.LocaleName, oemCodePage) != -1);
+    assert (p32_private_asprintf (&testLocaleString, data->Heap, L"%s.%u", locale->LocaleName, oemCodePage) != -1);
     locale_t testLocale = p32_newlocale (LC_ALL_MASK, testLocaleString, NULL);
 
     if (testLocale != NULL) {
       if (!flagSetlocale) {
-        keep_going &= callback (testLocale, testLocale->WindowsLocaleStrings.W.LcAll);
+        keep_going &= data->Callback2 (testLocale, testLocale->WindowsLocaleStrings.W.LcAll);
         tested      = true;
 #if P32_CRT >= P32_MSVCRT20
       } else if (_wsetlocale (LC_ALL, testLocale->CrtLocaleStrings.W.LcAll)) {
-        keep_going &= callback (testLocale, testLocale->WindowsLocaleStrings.W.LcAll);
+        keep_going &= data->Callback2 (testLocale, testLocale->WindowsLocaleStrings.W.LcAll);
         tested      = true;
 #endif
 #if P32_CRT < P32_UCRT
       } else if (setlocale (LC_ALL, testLocale->CrtLocaleStrings.A.LcAll)) {
-        keep_going &= callback (testLocale, testLocale->WindowsLocaleStrings.W.LcAll);
+        keep_going &= data->Callback2 (testLocale, testLocale->WindowsLocaleStrings.W.LcAll);
         tested      = true;
 #endif
       } else {
@@ -182,7 +143,7 @@ static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeString) {
       p32_freelocale (testLocale);
     }
 
-    assert (HeapFree (heapHandle, 0, testLocaleString));
+    assert (HeapFree (data->HeapHandle, 0, testLocaleString));
   }
 
   if (!keep_going || (flagOnce && tested)) {
@@ -195,21 +156,21 @@ static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeString) {
   if (testUnicode) {
     LPSTR testLocaleString = NULL;
 
-    assert (p32_private_asprintf (&testLocaleString, heap, L"%s.%u", locale.LocaleName, CP_UTF8) != -1);
+    assert (p32_private_asprintf (&testLocaleString, data->Heap, L"%s.%u", locale->LocaleName, CP_UTF8) != -1);
     locale_t testLocale = p32_newlocale (LC_ALL_MASK, testLocaleString, NULL);
 
     if (testLocale != NULL) {
       if (!flagSetlocale) {
-        keep_going &= callback (testLocale, testLocale->WindowsLocaleStrings.W.LcAll);
+        keep_going &= data->Callback2 (testLocale, testLocale->WindowsLocaleStrings.W.LcAll);
         tested      = true;
 #if P32_CRT >= P32_MSVCRT20
       } else if (_wsetlocale (LC_ALL, testLocale->CrtLocaleStrings.W.LcAll)) {
-        keep_going &= callback (testLocale, testLocale->WindowsLocaleStrings.W.LcAll);
+        keep_going &= data->Callback2 (testLocale, testLocale->WindowsLocaleStrings.W.LcAll);
         tested      = true;
 #endif
 #if P32_CRT < P32_UCRT
       } else if (setlocale (LC_ALL, testLocale->CrtLocaleStrings.A.LcAll)) {
-        keep_going &= callback (testLocale, testLocale->WindowsLocaleStrings.W.LcAll);
+        keep_going &= data->Callback2 (testLocale, testLocale->WindowsLocaleStrings.W.LcAll);
         tested      = true;
 #endif
       } else {
@@ -219,7 +180,7 @@ static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeString) {
       p32_freelocale (testLocale);
     }
 
-    assert (HeapFree (heapHandle, 0, testLocaleString));
+    assert (HeapFree (data->HeapHandle, 0, testLocaleString));
   }
 
   if (!keep_going || (flagOnce && tested)) {
@@ -227,14 +188,10 @@ static BOOL CALLBACK CallbackWrapper2 (LPWSTR localeString) {
   }
 
 stop:
-  p32_winlocale_destroy (&locale, heap);
-
   return keep_going;
 }
 
 void p32_locale_test_func2 (LocaleCallback2 callback, int flags) {
-  P32LocaleTestFlags = flags;
-
   bool keep_going = true;
 
   /**
@@ -279,13 +236,14 @@ void p32_locale_test_func2 (LocaleCallback2 callback, int flags) {
     return;
   }
 
+  LocaleTestFuncData localeTestFuncData = {0};
+
+  localeTestFuncData.Flags      = flags;
+  localeTestFuncData.HeapHandle = GetProcessHeap ();
+  localeTestFuncData.Callback2  = callback;
+
   /**
    * Test all supported locales.
    */
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-  EnumSystemLocalesEx (CallbackWrapper2, LOCALE_ALL, (LPARAM) callback, NULL);
-#else
-  callback2 = callback;
-  EnumSystemLocalesW (CallbackWrapper2, LCID_INSTALLED | LCID_ALTERNATE_SORTS);
-#endif
+  p32_winlocale_enum_system_locales (P32LocaleTestFunc2, localeTestFuncData.Heap, &localeTestFuncData);
 }

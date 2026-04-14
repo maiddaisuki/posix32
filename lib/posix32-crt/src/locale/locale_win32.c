@@ -142,6 +142,14 @@ static void P32WinlocaleLCIDDestroy (Locale *locale, uintptr_t heap);
  * Implementation for `p32_winlocale_equal`.
  */
 static bool P32WinlocaleLCIDEqual (Locale *l1, Locale *l2);
+
+#ifdef LIBPOSIX32_TEST
+/**
+ * Implementation for `p32_winlocale_enum_system_locales` using
+ * `EnumSystemLocalesW`.
+ */
+static void P32WinlocaleLCIDEnumSystemLocalesW (EnumSystemLocalesCallback, uintptr_t, void *);
+#endif
 #endif
 
 /**
@@ -229,6 +237,14 @@ static bool P32WinlocaleLNGetLanguageCode (wchar_t **address, uintptr_t heap, Lo
  * Implementation for `p32_winlocale_get_country_code`.
  */
 static bool P32WinlocaleLNGetCountryCode (wchar_t **address, uintptr_t heap, Locale *locale);
+
+#ifdef LIBPOSIX32_TEST
+/**
+ * Implementation for `p32_winlocale_enum_system_locales` using
+ * `EnumSystemLocalesEx`.
+ */
+static void P32WinlocaleLNEnumSystemLocalesW (EnumSystemLocalesCallback, uintptr_t, void *);
+#endif
 #endif
 
 /**
@@ -382,35 +398,37 @@ static bool P32WinlocaleInfo (Locale *locale, uintptr_t heap);
 #endif
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
-#define WinlocaleGetLocaleInfoW   P32WinlocaleLCIDGetLocaleInfoW
-#define WinlocaleGetCalendarInfoW P32WinlocaleLCIDGetCalendarInfoW
-#define WinlocaleCompareStringW   P32WinlocaleLCIDCompareStringW
-#define WinlocaleMapStringW       P32WinlocaleLCIDMapStringW
-#define WinlocaleGetLanguageName  P32GetLanguageNameFromLocale
-#define WinlocaleGetCountryName   P32GetCountryNameFromLocale
-#define WinlocaleGetLanguageCode  P32GetLanguageCodeFromLocale
-#define WinlocaleGetCountryCode   P32GetCountryCodeFromLocale
-#define WinlocaleSystemDefault    P32WinlocaleLCIDSystemDefault
-#define WinlocaleUserDefault      P32WinlocaleLCIDUserDefault
-#define WinlocaleResolve          P32WinlocaleLCIDResolve
-#define WinlocaleCopy             P32WinlocaleLCIDCopy
-#define WinlocaleEqual            P32WinlocaleLCIDEqual
-#define WinlocaleDestroy          P32WinlocaleLCIDDestroy
+#define WinlocaleEnumSystemLocales P32WinlocaleLCIDEnumSystemLocalesW
+#define WinlocaleGetLocaleInfoW    P32WinlocaleLCIDGetLocaleInfoW
+#define WinlocaleGetCalendarInfoW  P32WinlocaleLCIDGetCalendarInfoW
+#define WinlocaleCompareStringW    P32WinlocaleLCIDCompareStringW
+#define WinlocaleMapStringW        P32WinlocaleLCIDMapStringW
+#define WinlocaleGetLanguageName   P32GetLanguageNameFromLocale
+#define WinlocaleGetCountryName    P32GetCountryNameFromLocale
+#define WinlocaleGetLanguageCode   P32GetLanguageCodeFromLocale
+#define WinlocaleGetCountryCode    P32GetCountryCodeFromLocale
+#define WinlocaleSystemDefault     P32WinlocaleLCIDSystemDefault
+#define WinlocaleUserDefault       P32WinlocaleLCIDUserDefault
+#define WinlocaleResolve           P32WinlocaleLCIDResolve
+#define WinlocaleCopy              P32WinlocaleLCIDCopy
+#define WinlocaleEqual             P32WinlocaleLCIDEqual
+#define WinlocaleDestroy           P32WinlocaleLCIDDestroy
 #else
-#define WinlocaleGetLocaleInfoW   P32WinlocaleLNGetLocaleInfoW
-#define WinlocaleGetCalendarInfoW P32WinlocaleLNGetCalendarInfoW
-#define WinlocaleCompareStringW   P32WinlocaleLNCompareStringW
-#define WinlocaleMapStringW       P32WinlocaleLNMapStringW
-#define WinlocaleGetLanguageName  P32WinlocaleLNGetLanguageName
-#define WinlocaleGetCountryName   P32WinlocaleLNGetCountryName
-#define WinlocaleGetLanguageCode  P32WinlocaleLNGetLanguageCode
-#define WinlocaleGetCountryCode   P32WinlocaleLNGetCountryCode
-#define WinlocaleSystemDefault    P32WinlocaleLNSystemDefault
-#define WinlocaleUserDefault      P32WinlocaleLNUserDefault
-#define WinlocaleResolve          P32WinlocaleLNResolve
-#define WinlocaleCopy             P32WinlocaleLNCopy
-#define WinlocaleEqual            P32WinlocaleLNEqual
-#define WinlocaleDestroy          P32WinlocaleLNDestroy
+#define WinlocaleEnumSystemLocales P32WinlocaleLNEnumSystemLocalesW
+#define WinlocaleGetLocaleInfoW    P32WinlocaleLNGetLocaleInfoW
+#define WinlocaleGetCalendarInfoW  P32WinlocaleLNGetCalendarInfoW
+#define WinlocaleCompareStringW    P32WinlocaleLNCompareStringW
+#define WinlocaleMapStringW        P32WinlocaleLNMapStringW
+#define WinlocaleGetLanguageName   P32WinlocaleLNGetLanguageName
+#define WinlocaleGetCountryName    P32WinlocaleLNGetCountryName
+#define WinlocaleGetLanguageCode   P32WinlocaleLNGetLanguageCode
+#define WinlocaleGetCountryCode    P32WinlocaleLNGetCountryCode
+#define WinlocaleSystemDefault     P32WinlocaleLNSystemDefault
+#define WinlocaleUserDefault       P32WinlocaleLNUserDefault
+#define WinlocaleResolve           P32WinlocaleLNResolve
+#define WinlocaleCopy              P32WinlocaleLNCopy
+#define WinlocaleEqual             P32WinlocaleLNEqual
+#define WinlocaleDestroy           P32WinlocaleLNDestroy
 #endif
 
 #if (P32_GEO_API & P32_GEO_API_GEOID)
@@ -696,6 +714,18 @@ fail:
  * Implementation.
  */
 
+#ifdef LIBPOSIX32_TEST
+/**
+ * Structure used with `p32_winlocale_enum_system_locales` function;
+ * all fields of this structure correspond to its arguments.
+ */
+typedef struct EnumSystemLocaleData {
+  EnumSystemLocalesCallback Callback;
+  uintptr_t                 Heap;
+  void                     *Data;
+} EnumSystemLocaleData;
+#endif
+
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 #include "locale_win32/locale_id.c"
 #endif
@@ -841,6 +871,10 @@ bool p32_winlocale_get_calendar_info (CalendarInfoRequest *request, uintptr_t he
 }
 
 #ifdef LIBPOSIX32_TEST
+void p32_winlocale_enum_system_locales (EnumSystemLocalesCallback callback, uintptr_t heap, void *data) {
+  WinlocaleEnumSystemLocales (callback, heap, data);
+}
+
 bool p32_winlocale_get_ansi_code_page (uint32_t *codePage, uintptr_t heap, Locale *locale) {
   LocaleInfoRequest infoRequest = {0};
 

@@ -14,58 +14,16 @@
  * limitations under the License.
  */
 
-#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
-static LocaleCallback1 callback1 = NULL;
-#endif
-
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-static BOOL CALLBACK CallbackWrapper1 (LPWSTR localeString, DWORD flags, LPARAM param) {
-  UNREFERENCED_PARAMETER (flags);
-#else
-static BOOL CALLBACK CallbackWrapper1 (LPWSTR localeString) {
-  assert (callback1 != NULL);
-#endif
-
-  HANDLE    heapHandle = GetProcessHeap ();
-  uintptr_t heap       = (uintptr_t) heapHandle;
-
-  LocaleCallback1 callback = NULL;
-  Locale          locale   = {0};
-
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-  if (localeString[0] == L'\0') {
-    return true;
-  } else if (wcscmp (localeString, L"x-IV_mathan") == 0) {
-    return true;
-  }
-
-  assert (p32_private_wcsdup (&locale.LocaleName, localeString, heap) != -1);
-
-  callback = (LocaleCallback1) param;
-#else
-  uint32_t localeId = wcstoul (localeString, NULL, 16);
-
-  if (PRIMARYLANGID (LANGIDFROMLCID (localeId)) == LANG_INVARIANT) {
-    return true;
-  }
-
-  assert (p32_winlocale_from_lcid (&locale, heap, localeId));
-  assert (locale.LocaleName != NULL);
-
-  callback = callback1;
-#endif
-
-  bool keepGoing = callback (&locale);
-  p32_winlocale_destroy (&locale, heap);
-
-  return keepGoing;
+static bool P32LocaleTestFunc1 (Locale *locale, void *localeTestFuncData) {
+  LocaleTestFuncData *data = (LocaleTestFuncData *) localeTestFuncData;
+  return data->Callback1 (locale);
 }
 
 void p32_locale_test_func1 (LocaleCallback1 callback) {
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-  EnumSystemLocalesEx (CallbackWrapper1, LOCALE_ALL, (LPARAM) callback, NULL);
-#else
-  callback1 = callback;
-  EnumSystemLocalesW (CallbackWrapper1, LCID_INSTALLED | LCID_ALTERNATE_SORTS);
-#endif
+  LocaleTestFuncData localeTestFuncData = {0};
+
+  localeTestFuncData.HeapHandle = GetProcessHeap ();
+  localeTestFuncData.Callback1  = callback;
+
+  p32_winlocale_enum_system_locales (P32LocaleTestFunc1, localeTestFuncData.Heap, &localeTestFuncData);
 }

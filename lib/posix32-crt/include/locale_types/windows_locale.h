@@ -393,6 +393,21 @@ P32_TEST_DECL bool p32_winlocale_get_language_code (wchar_t **address, uintptr_t
 P32_TEST_DECL bool p32_winlocale_get_country_code (wchar_t **address, uintptr_t heap, Locale *locale);
 
 #ifdef LIBPOSIX32_TEST
+/**
+ * Callback used with `p32_winlocale_enum_system_locales` function.
+ */
+typedef bool (*EnumSystemLocalesCallback) (Locale *, void *);
+
+/**
+ * Call `callback` once for each locale supported by the operating system,
+ * as long as `callback` returns `true`.
+ *
+ * The `data` argument is passed as second argument to `callback`.
+ *
+ * This function is a portability wrapper for `EnumSystemLocales[Ex]`.
+ */
+P32_TEST_DECL void p32_winlocale_enum_system_locales (EnumSystemLocalesCallback callback, uintptr_t heap, void *data);
+
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 /**
  * Attempt to construct `Locale` object from existing valid `localeId`.
