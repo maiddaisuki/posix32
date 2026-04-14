@@ -21,6 +21,7 @@
 #endif
 
 #include <assert.h>
+#include <pthread.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -29,6 +30,8 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+
+#include "core-winver.h"
 
 #include "locale-internal.h"
 
@@ -294,6 +297,142 @@ static bool P32WinlocaleRegionNameCopy (Locale *destLocale, uintptr_t heap, Loca
  */
 static void P32WinlocaleRegionNameDestroy (Locale *locale, uintptr_t heap);
 #endif
+
+/*******************************************************************************
+ * Structures, functions and macros to lookup functions at runtime.
+ */
+
+/**
+ * Windows 9x systems lack Unicode support; use `GetModuleHandleA` instead of
+ * `GetModuleHandleW`.
+ */
+#if P32_WIN9X
+#define P32GetModuleHandle(module) GetModuleHandleA (module)
+#else
+#define P32GetModuleHandle(module) GetModuleHandleW (TEXT (module))
+#endif
+
+/**
+ * Convenience wrapper for `GetProcAddress`.
+ */
+#define P32GetProcAddress(module, func) (Func##func) (UINT_PTR) GetProcAddress (module, #func)
+
+/**
+ * Suppress warnings about conversion between data and function pointers with
+ * picky compilers.
+ */
+#define F(ptr) (PVOID) (UINT_PTR) ptr
+
+/**
+ * Convenience wrapper for `InterlockedExchangePointer`.
+ */
+#define P32AtomicExchange(target, source) InterlockedExchangePointer ((void *volatile *) target, F (source))
+
+#if P32_WINNT < P32_WINNT_WIN7
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
+#define DYNAMIC_CHECKS
+
+/**
+ * Function type corresponding to `ResolveLocaleName`.
+ */
+typedef INT (WINAPI *FuncResolveLocaleName) (LPCWSTR, LPWSTR, INT);
+
+/**
+ * Initialization thunk for `ResolveLocaleName`.
+ */
+static INT WINAPI P32InitResolveLocaleName (LPCWSTR, LPWSTR, INT);
+
+/**
+ * Stub to use if `ResolveLocaleName` is not available.
+ */
+static INT WINAPI P32ResolveLocaleName (LPCWSTR, LPWSTR, INT);
+#endif /* Locale name APIs */
+#endif /* P32_WINNT < Windows 7 */
+
+#ifdef DYNAMIC_CHECKS
+/**
+ * Pointers to Windows Locale APIs which are looked up at runtime.
+ */
+typedef struct LocaleApi {
+  pthread_once_t Init;
+
+#if P32_WINNT < P32_WINNT_WIN7
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
+  /**
+   * `ResolveLocaleName` is available since Windows 7.
+   *
+   * We do not rely on this function during locale resolution since its
+   * behavior does not satisfy our needs.
+   *
+   * See comments in `locale_name.c` for more details.
+   */
+  FuncResolveLocaleName PtrResolveLocaleName;
+#endif /* Locale Name APIs */
+#endif /* P32_WINNT < Windows 7 */
+} LocaleApi;
+
+/**
+ * Windows Locale APIs.
+ */
+static LocaleApi P32LocaleApi = {
+  .Init = PTHREAD_ONCE_INIT,
+
+#if P32_WINNT < P32_WINNT_WIN7
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
+  .PtrResolveLocaleName = P32InitResolveLocaleName,
+#endif /* Locale Name APIs */
+#endif /* P32_WINNT < Windows 7 */
+};
+
+/**
+ * Initialize `P32LocaleApi`.
+ */
+static void P32InitLocaleApi (void) {
+  HMODULE kernel32 = P32GetModuleHandle ("kernel32.dll");
+  assert (kernel32 != NULL);
+
+#if P32_WINNT < P32_WINNT_WIN7
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
+  /**
+   * Lookup `ResolveLocaleName`.
+   */
+  FuncResolveLocaleName ptrResolveLocaleName = NULL;
+
+  if (kernel32 != NULL) {
+    if (P32_WINNT_CHECK (P32_WINNT_WIN7, WindowsNt7)) {
+      ptrResolveLocaleName = P32GetProcAddress (kernel32, ResolveLocaleName);
+      assert (ptrResolveLocaleName != NULL);
+    }
+  }
+
+  if (ptrResolveLocaleName != NULL) {
+    P32AtomicExchange (&P32LocaleApi.PtrResolveLocaleName, ptrResolveLocaleName);
+  } else {
+    P32AtomicExchange (&P32LocaleApi.PtrResolveLocaleName, P32ResolveLocaleName);
+  }
+#endif /* Locale Name APIs */
+#endif /* P32_WINNT < Windows 7 */
+}
+#endif /* DYNAMIC_CHECKS */
+
+#if P32_WINNT < P32_WINNT_WIN7
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
+#define ResolveLocaleName P32LocaleApi.PtrResolveLocaleName
+
+static INT WINAPI P32InitResolveLocaleName (LPCWSTR localeName, LPWSTR buffer, INT bufferSize) {
+  pthread_once (&P32LocaleApi.Init, P32InitLocaleApi);
+  return ResolveLocaleName (localeName, buffer, bufferSize);
+}
+
+static INT WINAPI P32ResolveLocaleName (LPCWSTR localeName, LPWSTR buffer, INT bufferSize) {
+  SetLastError (ERROR_CALL_NOT_IMPLEMENTED);
+  return 0;
+  UNREFERENCED_PARAMETER (localeName);
+  UNREFERENCED_PARAMETER (buffer);
+  UNREFERENCED_PARAMETER (bufferSize);
+}
+#endif /* Locale name APIs */
+#endif /* P32_WINNT < Windows 7 */
 
 /*******************************************************************************
  * Structures, functions and macros to call appropriate implementation.

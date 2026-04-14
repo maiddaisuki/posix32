@@ -775,7 +775,6 @@ static bool P32WinlocaleLNEqual (Locale *l1, Locale *l2) {
     assert (wcscmp (l2->LocaleName, L"en-US") == 0);
   }
 
-#if P32_WINNT >= P32_WINNT_WIN7
   LPWSTR localeName1 = _alloca (LOCALE_NAME_MAX_LENGTH * sizeof (WCHAR));
   LPWSTR localeName2 = _alloca (LOCALE_NAME_MAX_LENGTH * sizeof (WCHAR));
 
@@ -785,7 +784,6 @@ static bool P32WinlocaleLNEqual (Locale *l1, Locale *l2) {
   ) {
     return wcscmp (localeName1, localeName2) == 0;
   }
-#endif
 
   return wcscmp (l1->LocaleName, l2->LocaleName) == 0;
 }
@@ -870,5 +868,9 @@ static void P32WinlocaleLNEnumSystemLocalesW (EnumSystemLocalesCallback callback
   enumSystemLocaleData.Data     = data;
 
   EnumSystemLocalesEx (P32LNEnumSystemLocalesW, LOCALE_ALL, (LPARAM) &enumSystemLocaleData, NULL);
+}
+
+int p32_winlocale_resolve_locale_name (const wchar_t *localeName, wchar_t *buffer, int bufferSize) {
+  return ResolveLocaleName (localeName, buffer, bufferSize);
 }
 #endif

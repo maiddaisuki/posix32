@@ -417,6 +417,13 @@ P32_TEST_DECL void p32_winlocale_enum_system_locales (EnumSystemLocalesCallback 
 P32_TEST_DECL bool p32_winlocale_from_lcid (Locale *locale, uintptr_t heap, uint32_t localeId);
 #endif
 
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
+/**
+ * Portability wrapper for `ResolveLocaleName`.
+ */
+P32_TEST_DECL int p32_winlocale_resolve_locale_name (const wchar_t *localeName, wchar_t *buffer, int bufferSize);
+#endif
+
 /**
  * Get `locale`'s default ANSI code page.
  */

@@ -196,19 +196,18 @@ static bool IsEqualLocale (Locale *from, Locale *to) {
   }
 
   if (compare) {
-#if P32_WINNT >= P32_WINNT_WIN7
     WCHAR LocaleName[LOCALE_NAME_MAX_LENGTH];
 
-    assert (ResolveLocaleName (from->LocaleName, LocaleName, LOCALE_NAME_MAX_LENGTH) != 0);
+    if (p32_winlocale_resolve_locale_name (from->LocaleName, LocaleName, LOCALE_NAME_MAX_LENGTH) != 0) {
+      if (wcscmp (LocaleName, to->LocaleName) == 0) {
+        return true;
+      }
 
-    if (wcscmp (LocaleName, to->LocaleName) == 0) {
-      return true;
+      fwprintf (stdout, L"UNRESOLVED: %s (%s) -> %s\n", from->LocaleName, LocaleName, to->LocaleName);
+    } else {
+      fwprintf (stdout, L"UNRESOLVED: %s -> %s\n", from->LocaleName, to->LocaleName);
     }
 
-    fwprintf (stdout, L"UNRESOLVED: %s (%s) -> %s\n", from->LocaleName, LocaleName, to->LocaleName);
-#else
-    fwprintf (stdout, L"UNRESOLVED: %s -> %s\n", from->LocaleName, to->LocaleName);
-#endif
     return wcsncmp (from->LocaleName, to->LocaleName, compare) == 0;
   } else {
     return wcscmp (from->LocaleName, to->LocaleName) == 0;
