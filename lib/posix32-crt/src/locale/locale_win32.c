@@ -408,6 +408,16 @@ static INT WINAPI P32ResolveLocaleName (LPCWSTR, LPWSTR, INT);
 #endif /* Locale name APIs */
 #endif /* P32_WINNT < Windows 7 */
 
+#if P32_WINNT < P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI < NTDDI_WIN10_RS3)
+#define DYNAMIC_CHECKS
+#define DYNAMIC_IMPLEMENTATION
+
+/**
+ * Function type corresponding to `GetGeoInfoEx`.
+ */
+typedef INT (WINAPI *FuncGetGeoInfoEx) (LPWSTR, GEOTYPE, LPWSTR, INT);
+#endif /* P32_WINNT < Windows 10 1709 */
+
 #ifdef DYNAMIC_CHECKS
 /**
  * Pointers to Windows Locale APIs which are looked up at runtime.
@@ -445,6 +455,13 @@ typedef struct LocaleApi {
   FuncResolveLocaleName PtrResolveLocaleName;
 #endif /* Locale Name APIs */
 #endif /* P32_WINNT < Windows 7 */
+
+#if P32_WINNT < P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI < NTDDI_WIN10_RS3)
+  /**
+   * `GetGeoInfoEx` was added in Windows 10 1709 to replace `GetGeoInfo`.
+   */
+  FuncGetGeoInfoEx PtrGetGeoInfoEx;
+#endif /* P32_WINNT < Windows 10 1709 */
 } LocaleApi;
 
 /**
@@ -468,6 +485,10 @@ static LocaleApi P32LocaleApi = {
   .PtrResolveLocaleName = P32InitResolveLocaleName,
 #endif /* Locale Name APIs */
 #endif /* P32_WINNT < Windows 7 */
+
+#if P32_WINNT < P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI < NTDDI_WIN10_RS3)
+  .PtrGetGeoInfoEx = NULL,
+#endif /* P32_WINNT < Windows 10 1709 */
 };
 
 /**
@@ -558,6 +579,23 @@ static void P32InitLocaleApi (void) {
   }
 #endif /* Locale Name APIs */
 #endif /* P32_WINNT < Windows 7 */
+
+#if P32_WINNT < P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI < NTDDI_WIN10_RS3)
+  /**
+   * Lookup `GetGeoInfoEx`.
+   */
+  FuncGetGeoInfoEx ptrGetGeoInfoEx = NULL;
+
+  if (kernel32 != NULL) {
+    if (P32_WINNT_CHECK (P32_WINNT_WIN10, WindowsNt10)) {
+      ptrGetGeoInfoEx = P32GetProcAddress (kernel32, GetGeoInfoEx);
+    }
+  }
+
+  if (ptrGetGeoInfoEx != NULL) {
+    P32AtomicExchange (&P32LocaleApi.PtrGetGeoInfoEx, ptrGetGeoInfoEx);
+  }
+#endif /* P32_WINNT < Windows 10 1709 */
 }
 #endif /* DYNAMIC_CHECKS */
 
@@ -589,6 +627,10 @@ static INT WINAPI P32ResolveLocaleName (LPCWSTR localeName, LPWSTR buffer, INT b
 }
 #endif /* Locale name APIs */
 #endif /* P32_WINNT < Windows 7 */
+
+#if P32_WINNT < P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI < NTDDI_WIN10_RS3)
+#define GetGeoInfoEx P32LocaleApi.PtrGetGeoInfoEx
+#endif /* P32_WINNT < Windows 10 1709 */
 
 /*******************************************************************************
  * Structures, functions and macros to call appropriate implementation.
@@ -769,6 +811,41 @@ static void P32InitWinlocaleEnumSystemLocales (EnumSystemLocalesCallback, uintpt
 #endif
 #endif /* LCID and Locale Name APIs */
 
+#if P32_WINNT < P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI < NTDDI_WIN10_RS3)
+/**
+ * Function type for `WinlocaleGeo`;
+ * corresponds to `P32WinlocaleGeo` and `P32WinlocaleRegionName`.
+ */
+typedef bool (*FuncWinlocaleGeo) (Locale *, uintptr_t);
+
+/**
+ * Function type for `WinlocaleGeoCopy`;
+ * corresponds to `P32WinlocaleGeoCopy` and `P32WinlocaleRegionNameCopy`.
+ */
+typedef bool (*FuncWinlocaleGeoCopy) (Locale *, uintptr_t, Locale *);
+
+/**
+ * Function type for `WinlocaleGeoDestroy`;
+ * corresponds to `P32WinlocaleGeoDestroy` and `P32WinlocaleRegionNameDestroy`.
+ */
+typedef void (*FuncWinlocaleGeoDestroy) (Locale *, uintptr_t);
+
+/**
+ * Initialization thunk for `WinlocaleGeo`.
+ */
+static bool P32InitWinlocaleGeo (Locale *, uintptr_t);
+
+/**
+ * Initialization thunk for `WinlocaleGeoCopy`.
+ */
+static bool P32InitWinlocaleGeoCopy (Locale *, uintptr_t, Locale *);
+
+/**
+ * Initialization thunk for `WinlocaleGeoDestroy`.
+ */
+static void P32InitWinlocaleGeoDestroy (Locale *, uintptr_t);
+#endif /* P32_WINNT < Windows 10 1709 */
+
 /**
  * Retrieve locale information as a string.
  *
@@ -879,6 +956,12 @@ typedef struct WinlocaleApi {
   FuncWinlocaleEnumSystemLocales PtrWinlocaleEnumSystemLocales;
 #endif
 #endif /* LCID and Locale Name APIs */
+
+#if P32_WINNT < P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI < NTDDI_WIN10_RS3)
+  FuncWinlocaleGeo        PtrWinlocaleGeo;
+  FuncWinlocaleGeoCopy    PtrWinlocaleGeoCopy;
+  FuncWinlocaleGeoDestroy PtrWinlocaleGeoDestroy;
+#endif /* P32_WINNT < Windows 10 1709 */
 } WinlocaleApi;
 
 /**
@@ -907,7 +990,27 @@ static WinlocaleApi P32WinlocaleApi = {
   .PtrWinlocaleEnumSystemLocales = P32InitWinlocaleEnumSystemLocales,
 #endif
 #endif /* LCID and Locale Name APIs */
+
+#if P32_WINNT < P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI < NTDDI_WIN10_RS3)
+  .PtrWinlocaleGeo        = P32InitWinlocaleGeo,
+  .PtrWinlocaleGeoCopy    = P32InitWinlocaleGeoCopy,
+  .PtrWinlocaleGeoDestroy = P32InitWinlocaleGeoDestroy,
+#endif /* P32_WINNT < Windows 10 1709 */
 };
+
+#if P32_WINNT < P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI < NTDDI_WIN10_RS3)
+static void P32InitGeoApi (void) {
+  if (P32LocaleApi.PtrGetGeoInfoEx != NULL) {
+    P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGeo, P32WinlocaleRegionName);
+    P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGeoCopy, P32WinlocaleRegionNameCopy);
+    P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGeoDestroy, P32WinlocaleRegionNameDestroy);
+  } else {
+    P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGeo, P32WinlocaleGeo);
+    P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGeoCopy, P32WinlocaleGeoCopy);
+    P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGeoDestroy, P32WinlocaleGeoDestroy);
+  }
+}
+#endif /* P32_WINNT < Windows 10 1709 */
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
 /**
@@ -971,6 +1074,10 @@ static bool P32InitLocaleNameApi (void) {
 #endif
 #endif /* LCID and Locale Name APIs */
 
+#if P32_WINNT < P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI < NTDDI_WIN10_RS3)
+  P32InitGeoApi ();
+#endif /* P32_WINNT < Windows 10 1709 */
+
   return true;
 }
 #endif /* Locale Name APIs */
@@ -1002,6 +1109,10 @@ static void P32InitLocaleApiWindowsNt (void) {
   P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleEnumSystemLocales, P32WinlocaleLCIDEnumSystemLocalesW);
 #endif
 #endif /* LCID and Locale Name APIs */
+
+#if P32_WINNT < P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI < NTDDI_WIN10_RS3)
+  P32InitGeoApi ();
+#endif /* P32_WINNT < Windows 10 1709 */
 }
 #endif /* LCID APIs */
 
@@ -1192,15 +1303,30 @@ static void P32InitWinlocaleEnumSystemLocales (EnumSystemLocalesCallback callbac
 
 #endif /* Only one implementation is compiled id */
 
-#if (P32_GEO_API & P32_GEO_API_GEOID)
-#define WinlocaleGeo        P32WinlocaleGeo
-#define WinlocaleGeoCopy    P32WinlocaleGeoCopy
-#define WinlocaleGeoDestroy P32WinlocaleGeoDestroy
-#else
+#if P32_WINNT < P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI < NTDDI_WIN10_RS3)
+#define WinlocaleGeo        P32WinlocaleApi.PtrWinlocaleGeo
+#define WinlocaleGeoCopy    P32WinlocaleApi.PtrWinlocaleGeoCopy
+#define WinlocaleGeoDestroy P32WinlocaleApi.PtrWinlocaleGeoDestroy
+
+static bool P32InitWinlocaleGeo (Locale *locale, uintptr_t heap) {
+  pthread_once (&P32WinlocaleApi.Init, P32InitWinlocaleApi);
+  return WinlocaleGeo (locale, heap);
+}
+
+static bool P32InitWinlocaleGeoCopy (Locale *destLocale, uintptr_t heap, Locale *srcLocale) {
+  pthread_once (&P32WinlocaleApi.Init, P32InitWinlocaleApi);
+  return WinlocaleGeoCopy (destLocale, heap, srcLocale);
+}
+
+static void P32InitWinlocaleGeoDestroy (Locale *locale, uintptr_t heap) {
+  pthread_once (&P32WinlocaleApi.Init, P32InitWinlocaleApi);
+  WinlocaleGeoDestroy (locale, heap);
+}
+#else /* Region Names APIs are always available */
 #define WinlocaleGeo        P32WinlocaleRegionName
 #define WinlocaleGeoCopy    P32WinlocaleRegionNameCopy
 #define WinlocaleGeoDestroy P32WinlocaleRegionNameDestroy
-#endif
+#endif /* Region Names APIs are always available */
 
 /*******************************************************************************
  * Functions to obtain locale information.
