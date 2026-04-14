@@ -51,6 +51,8 @@ AllowShortNamespacesOnASingleLine: false
 AlwaysBreakBeforeMultilineStrings: false
 AttributeMacros:
   - "__cdecl"
+  - "__stdcall"
+  - "WINAPI"
   - "CALLBACK"
   - "APIENTRY"
   - "P32_CORE_DECL"
