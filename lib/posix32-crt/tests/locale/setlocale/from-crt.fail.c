@@ -43,26 +43,45 @@
  * This test verifies that `setlocale` is capable of handling this scenario.
  */
 
+typedef struct TestStrings {
+  /**
+   * Locale to set.
+   */
+#if P32_CRT >= P32_MSVCRT20
+  wchar_t *Locale;
+#else
+  char *Locale;
+#endif
+} TestStrings;
+
 #if P32_CRT >= P32_MSVCRT20
 #define SETLOCALE(c, l) _wsetlocale (c, l)
 #define CMP(s1, s2)     wcscmp (s1, s2)
-#else
-typedef const char *(*__cdecl setlocale_t) (int, const char *);
-#define SETLOCALE(c, l) crt_setlocale (c, l)
-#define CMP(s1, s2)     strcmp (s1, s2)
-#endif
 
 /**
  * `locale_t` object for "ro-RO" locale cannot be created with its default
  * ANSI code page.
  */
-#if LOCALE_NAMES
-#define LOCALE_STRING L"ro-RO"
-#elif P32_CRT >= P32_MSVCRT20
 #define LOCALE_STRING L"Romanian_Romania"
+#define LOCALE_NAME   L"ro-RO"
 #else
-#define LOCALE_STRING "norwegian-bokmal"
+typedef const char *(*__cdecl setlocale_t) (int, const char *);
+
+#define SETLOCALE(c, l) crt_setlocale (c, l)
+#define CMP(s1, s2)     strcmp (s1, s2)
+
+/**
+ * `locale_t` object for "ro-RO" locale cannot be created with its default
+ * OEM code page.
+ */
+#define LOCALE_STRING   "Romanian_Romania"
+#define LOCALE_NAME     "ro-RO"
 #endif
+
+/**
+ * Locale strings for Global Locale.
+ */
+static TestStrings TestLocale;
 
 /**
  * Handler to run from `p32_terminate`.
@@ -74,24 +93,8 @@ static void Handler (void) {
 int main (void) {
   p32_test_init ();
 
-#if P32_CRT >= P32_MSVCR70 || (P32_MSVCRT && P32_WINNT >= P32_WINNT_2000)
-  /**
-   * Set CRT's global locale.
-   */
-  assert (SETLOCALE (LC_ALL, LOCALE_STRING) != NULL);
-#elif P32_CRT >= P32_MSVCRT20 || P32_MSVCRT
-  /**
-   * Set CRT's global locale.
-   */
-  if (SETLOCALE (LC_ALL, LOCALE_STRING) == NULL) {
-    return 77;
-  }
-#else
+#if P32_CRT <= P32_MSVCRT10
   setlocale_t crt_setlocale = NULL;
-
-  if (GetACP () != CP_UTF8) {
-    return 77;
-  }
 
   HMODULE crt = (HMODULE) p32_crt_handle ();
 
@@ -100,12 +103,20 @@ int main (void) {
   }
 
   assert ((crt_setlocale = (setlocale_t) (UINT_PTR) GetProcAddress (crt, "setlocale")) != NULL);
+#endif
+
+  if (P32_LOCALE_API & P32_LOCALE_API_LN) {
+    TestLocale.Locale = LOCALE_NAME;
+  } else {
+    TestLocale.Locale = LOCALE_STRING;
+  }
 
   /**
    * Set CRT's global locale.
    */
-  assert (SETLOCALE (LC_ALL, LOCALE_STRING) != NULL);
-#endif
+  if (SETLOCALE (LC_ALL, TestLocale.Locale) == NULL) {
+    return 77;
+  }
 
   p32_terminate_handler (Handler);
 
