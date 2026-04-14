@@ -36,17 +36,19 @@
 int main (void) {
   p32_test_init ();
 
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
   if (setlocale (LC_ALL, "qps-ploc") != NULL) {
     assert (strcmp (getlocalename_l (LC_ALL, LC_GLOBAL_LOCALE), "qps-ploc") == 0);
-  } else {
-    assert (setlocale (LC_ALL, "qps-ploc.UTF-8") != NULL);
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
+    /**
+     * `locale_t` object for `qps-ploc` locale cannot be created with its
+     * default ANSI code page; try to create it with UTF-8 instead.
+     */
+  } else if (setlocale (LC_ALL, "qps-ploc.UTF-8") != NULL) {
     assert (strcmp (getlocalename_l (LC_ALL, LC_GLOBAL_LOCALE), "qps-ploc.65001") == 0);
-  }
-#else
-  assert (setlocale (LC_ALL, "qps-ploc") != NULL);
-  assert (strcmp (getlocalename_l (LC_ALL, LC_GLOBAL_LOCALE), "qps-ploc") == 0);
 #endif
+  } else {
+    p32_terminate (L"Failed to set locale to \"qps-ploc\".\n");
+  }
 
   /**
    * LC_CTYPE
