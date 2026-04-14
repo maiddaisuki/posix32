@@ -308,4 +308,21 @@ typedef struct CharsetConversionRequest {
  */
 P32_TEST_DECL int p32_charset_convert (CharsetConversionRequest *request, uintptr_t heap);
 
+#ifdef LIBPOSIX32_TEST
+/**
+ * Callback used with `p32_charset_enum_system_code_pages`.
+ */
+typedef bool (*EnumSystemCodePagesCallback) (uint32_t, void *);
+
+/**
+ * Call `callback` once for each code page supported by the operating system,
+ * as long as it returns `true`.
+ *
+ * The `data` argument is passed as second argument to `callback`.
+ *
+ * This function is a portability wrapper for `EnumSystemCodePages`.
+ */
+P32_TEST_DECL void p32_charset_enum_system_code_pages (EnumSystemCodePagesCallback callback, void *data);
+#endif
+
 #endif /* LIBPOSIX32_CHARSET_H_INCLUDED */

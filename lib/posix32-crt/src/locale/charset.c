@@ -881,3 +881,43 @@ bool p32_charset_name (wchar_t **address, uintptr_t heap, uint32_t codePage) {
 
   return true;
 }
+
+#ifdef LIBPOSIX32_TEST
+/**
+ * Structure used with `p32_charset_enum_system_code_pages` function;
+ * all fields of this structure correspond to its arguments.
+ */
+typedef struct EnumSystemCodePagesData {
+  EnumSystemCodePagesCallback Callback;
+  void                       *Data;
+} EnumSystemCodePagesData;
+
+/**
+ * `EnumSystemCodePages` functions do not provide mechanism to pass additional
+ * arguments to the callback function, so use static object instead.
+ */
+static EnumSystemCodePagesData P32EnumSystemCodePagesData;
+
+/**
+ * Callback for `EnumSystemCodePagesW`.
+ */
+static BOOL CALLBACK P32EnumSystemCodePagesW (LPWSTR string) {
+  uint32_t codePage = wcstoul (string, NULL, 10);
+  return P32EnumSystemCodePagesData.Callback (codePage, P32EnumSystemCodePagesData.Data);
+}
+
+/**
+ * Implementaion for `p32_charset_enum_system_code_pages` using
+ * `EnumSystemCodePagesW`.
+ */
+static void P32CharsetEnumSystemLocalesW (void) {
+  EnumSystemCodePagesW (P32EnumSystemCodePagesW, CP_INSTALLED);
+}
+
+void p32_charset_enum_system_code_pages (EnumSystemCodePagesCallback callback, void *data) {
+  P32EnumSystemCodePagesData.Callback = callback;
+  P32EnumSystemCodePagesData.Data     = data;
+
+  P32CharsetEnumSystemLocalesW ();
+}
+#endif

@@ -68,11 +68,6 @@ typedef struct LocaleTestFuncData {
   };
 } LocaleTestFuncData;
 
-/**
- * Flags passed to `p32_locale_test_func*` functions.
- */
-static int P32LocaleTestFlags = 0;
-
 #include "common/crt_handle.c"
 #include "common/locale_test_func1.c"
 #include "common/locale_test_func2.c"

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-static LocaleCallback3 localeCallback3 = NULL;
-
-static BOOL CALLBACK P32CallbackWrapper3 (wchar_t *codePageString) {
-  assert (localeCallback3 != NULL);
-
-  uint32_t codePage = wcstoul (codePageString, NULL, 10);
-  return localeCallback3 (codePage);
+static bool P32LocaleTestFunc3 (uint32_t codePage, void *localeTestFuncData) {
+  LocaleTestFuncData *data = (LocaleTestFuncData *) localeTestFuncData;
+  return data->Callback3 (codePage);
 }
 
 void p32_locale_test_func3 (LocaleCallback3 callback) {
-  localeCallback3 = callback;
-  EnumSystemCodePagesW (P32CallbackWrapper3, CP_SUPPORTED);
+  LocaleTestFuncData localeTestFuncData = {0};
+
+  localeTestFuncData.HeapHandle = GetProcessHeap ();
+  localeTestFuncData.Callback3  = callback;
+
+  p32_charset_enum_system_code_pages (P32LocaleTestFunc3, &localeTestFuncData);
 }

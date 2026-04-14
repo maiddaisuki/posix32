@@ -14,18 +14,11 @@
  * limitations under the License.
  */
 
-static LocaleCallback4 localeCallback4 = NULL;
+static bool P32LocaleTestFunc4 (uint32_t codePage, void *localeTestFuncData) {
+  LocaleTestFuncData *data = (LocaleTestFuncData *) localeTestFuncData;
 
-static BOOL CALLBACK P32CallbackWrapper4 (wchar_t *codePageString) {
-  assert (localeCallback4 != NULL);
-
-  HANDLE    heapHandle = GetProcessHeap ();
-  uintptr_t heap       = (uintptr_t) heapHandle;
-
-  bool flagSetlocale = !!(P32LocaleTestFlags & P32_LOCALE_TEST_SETLOCALE);
-  bool flagUsableCp  = !!(P32LocaleTestFlags & P32_LOCALE_TEST_USABLE_CP);
-
-  uint32_t codePage = wcstoul (codePageString, NULL, 10);
+  bool flagSetlocale = !!(data->Flags & P32_LOCALE_TEST_SETLOCALE);
+  bool flagUsableCp  = !!(data->Flags & P32_LOCALE_TEST_USABLE_CP);
 
   if (flagUsableCp) {
     int rejectMask = 0;
@@ -35,7 +28,7 @@ static BOOL CALLBACK P32CallbackWrapper4 (wchar_t *codePageString) {
     }
 
     if (!p32_charset_usable (codePage, rejectMask, 0)) {
-      return TRUE;
+      return true;
     }
   }
 
@@ -44,7 +37,7 @@ static BOOL CALLBACK P32CallbackWrapper4 (wchar_t *codePageString) {
    * We emulate UTF-8 locales for older CRTs.
    */
   if (codePage == CP_UTF8 && flagSetlocale && flagUsableCp) {
-    return TRUE;
+    return true;
   }
 #endif
 
@@ -53,7 +46,7 @@ static BOOL CALLBACK P32CallbackWrapper4 (wchar_t *codePageString) {
   char    *localeStringA = NULL;
   wchar_t *localeStringW = NULL;
 
-  assert (p32_private_aswprintf (&localeStringW, heap, L"en-US.%u", codePage) != -1);
+  assert (p32_private_aswprintf (&localeStringW, data->Heap, L"en-US.%u", codePage) != -1);
 
   /**
    * Convert `localeStringW` to active ANSI code page.
@@ -65,21 +58,21 @@ static BOOL CALLBACK P32CallbackWrapper4 (wchar_t *codePageString) {
   conversionRequest.Input.W  = localeStringW;
   conversionRequest.Output.A = &localeStringA;
 
-  assert (p32_charset_convert (&conversionRequest, heap) != -1);
+  assert (p32_charset_convert (&conversionRequest, data->Heap) != -1);
 
   bool     keep_going = true;
   locale_t locale     = p32_newlocale (LC_ALL_MASK, localeStringA, NULL);
 
   if (locale != NULL) {
     if (!flagSetlocale) {
-      keep_going = localeCallback4 (locale, localeStringW);
+      keep_going = data->Callback4 (locale, localeStringW);
 #if P32_CRT >= P32_MSVCRT20
     } else if (_wsetlocale (LC_ALL, locale->CrtLocaleStrings.W.LcAll) != NULL) {
-      keep_going = localeCallback4 (locale, localeStringW);
+      keep_going = data->Callback4 (locale, localeStringW);
 #endif
 #if P32_CRT < P32_UCRT
     } else if (setlocale (LC_ALL, locale->CrtLocaleStrings.A.LcAll) != NULL) {
-      keep_going = localeCallback4 (locale, localeStringW);
+      keep_going = data->Callback4 (locale, localeStringW);
 #endif
     } else {
       fwprintf (stderr, L"%s: failed to set locale.\n", locale->CrtLocaleStrings.W.LcAll);
@@ -88,16 +81,13 @@ static BOOL CALLBACK P32CallbackWrapper4 (wchar_t *codePageString) {
     p32_freelocale (locale);
   }
 
-  assert (HeapFree (heapHandle, 0, localeStringA));
-  assert (HeapFree (heapHandle, 0, localeStringW));
+  assert (HeapFree (data->HeapHandle, 0, localeStringA));
+  assert (HeapFree (data->HeapHandle, 0, localeStringW));
 
   return keep_going;
 }
 
 void p32_locale_test_func4 (LocaleCallback4 callback, int flags) {
-  localeCallback4    = callback;
-  P32LocaleTestFlags = flags;
-
   bool keep_going = true;
 
   /**
@@ -114,15 +104,21 @@ void p32_locale_test_func4 (LocaleCallback4 callback, int flags) {
 #endif
   }
 
-  keep_going = localeCallback4 (posix, posix->WindowsLocaleStrings.W.LcAll);
+  keep_going = callback (posix, posix->WindowsLocaleStrings.W.LcAll);
   p32_freelocale (posix);
 
   if (!keep_going) {
     return;
   }
 
+  LocaleTestFuncData localetestFuncData = {0};
+
+  localetestFuncData.Flags      = flags;
+  localetestFuncData.HeapHandle = GetProcessHeap ();
+  localetestFuncData.Callback4  = callback;
+
   /**
    * Test all supported code pages.
    */
-  EnumSystemCodePagesW (P32CallbackWrapper4, CP_SUPPORTED);
+  p32_charset_enum_system_code_pages (P32LocaleTestFunc4, &localetestFuncData);
 }
