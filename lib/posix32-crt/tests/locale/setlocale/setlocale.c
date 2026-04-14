@@ -35,6 +35,25 @@
  * Simple test for `setlocale`.
  */
 
+typedef struct TestStrings {
+  /**
+   * Locale to set.
+   */
+  char *Locale;
+  /**
+   * Locale string expected to be returned by CRT's `[_w]setlocale`.
+   */
+#if P32_CRT >= P32_MSVCRT20
+  wchar_t *LocaleString;
+#else
+  char *LocaleString;
+#endif
+  /**
+   * Locale string expected to be returned by `getlocalename_l`.
+   */
+  char *LocaleName;
+} TestStrings;
+
 #if P32_CRT >= P32_MSVCRT20
 
 #define SETLOCALE(c, l) _wsetlocale (c, l)
@@ -44,29 +63,32 @@
 /**
  * "en-US" with its default ANSI code page the safest locale we can test.
  */
-#define LOCALE      "en-US.ACP"
-#define LOCALE_NAME "en-US.1252"
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-#define LOCALE_STRING L"en-US"
-#else
-#define LOCALE_STRING L"English_United States.1252"
-#endif
+#define LOCALE_STRING     "en-US.ACP"
+#define LOCALE_NAME       "en-US.1252"
+#define LOCALE_CRT_STRING L"English_United States.1252"
+#define LOCALE_CRT_NAME   L"en-US"
 
 #else /* crtdll.dll or msvcrt10.dll */
 typedef const char *(*__cdecl setlocale_t) (int, const char *);
 
-#define SETLOCALE(c, l) crt_setlocale (c, l)
-#define CMP(s1, s2)     strcmp (s1, s2)
-#define STR(s)          s
+#define SETLOCALE(c, l)   crt_setlocale (c, l)
+#define CMP(s1, s2)       strcmp (s1, s2)
+#define STR(s)            s
 
 /**
  * "en-US" with its default OEM code page the safest locale we can test.
  */
-#define LOCALE          "en-US.OCP"
-#define LOCALE_NAME     "en-US.437"
-#define LOCALE_STRING   "English_United States.437"
+#define LOCALE_STRING     "en-US.OCP"
+#define LOCALE_NAME       "en-US.437"
+#define LOCALE_CRT_STRING "English_United States.437"
+#define LOCALE_CRT_NAME   LOCALE_CRT_STRING
 
 #endif
+
+/**
+ * Locale strings for Global Locale.
+ */
+static TestStrings TestLocale;
 
 int main (void) {
   p32_test_init ();
@@ -83,6 +105,15 @@ int main (void) {
   assert ((crt_setlocale = (setlocale_t) (UINT_PTR) GetProcAddress (crt, "setlocale")) != NULL);
 #endif
 
+  TestLocale.Locale     = LOCALE_STRING;
+  TestLocale.LocaleName = LOCALE_NAME;
+
+  if (P32_LOCALE_API & P32_LOCALE_API_LN) {
+    TestLocale.LocaleString = LOCALE_CRT_NAME;
+  } else {
+    TestLocale.LocaleString = LOCALE_CRT_STRING;
+  }
+
   char *global_locale_c = NULL;
   char *global_locale   = NULL;
 
@@ -97,10 +128,10 @@ int main (void) {
   /**
    * Set Global Locale.
    */
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
+  assert (setlocale (LC_ALL, TestLocale.Locale) != NULL);
   assert ((global_locale = strdup (getlocalename_l (LC_ALL, LC_GLOBAL_LOCALE))) != NULL);
-  assert (strcmp (global_locale, LOCALE_NAME) == 0);
-  assert (CMP (SETLOCALE (LC_ALL, NULL), LOCALE_STRING) == 0);
+  assert (strcmp (global_locale, TestLocale.LocaleName) == 0);
+  assert (CMP (SETLOCALE (LC_ALL, NULL), TestLocale.LocaleString) == 0);
 
   /**
    * Set Global Locale back to "C".
@@ -114,7 +145,7 @@ int main (void) {
    */
   assert (setlocale (LC_ALL, global_locale) != NULL);
   assert (strcmp (global_locale, getlocalename_l (LC_ALL, LC_GLOBAL_LOCALE)) == 0);
-  assert (CMP (SETLOCALE (LC_ALL, NULL), LOCALE_STRING) == 0);
+  assert (CMP (SETLOCALE (LC_ALL, NULL), TestLocale.LocaleString) == 0);
 
   free (global_locale);
   free (global_locale_c);
