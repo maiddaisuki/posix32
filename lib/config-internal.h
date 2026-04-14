@@ -230,6 +230,10 @@
 #define P32_DEFN
 #endif
 
+#ifdef P32_CORE_BUILD
+#define P32_CORE_DECL P32_DEFN
+#endif
+
 #ifdef P32_CRT_BUILD
 #define P32_CRT_DECL(...) P32_DEFN
 #endif
@@ -283,6 +287,14 @@
 #define P32_TEST_DECL P32_DECL
 
 #endif /* P32_BUILD */
+
+/**
+ * Since `posix32-core` is an internal library, it does not provide any public
+ * APIs. We do not define `P32_CORE_DECL` in posix32-decl.h, so define it here.
+ */
+#ifndef P32_CORE_DECL
+#define P32_CORE_DECL P32_DECL
+#endif
 
 /**
  * This prevents `posix32-decl.h` from defining this macro.

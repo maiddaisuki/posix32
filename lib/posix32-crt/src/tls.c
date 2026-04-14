@@ -33,6 +33,8 @@
 #include <pthread.h>
 #endif
 
+#include "core-runtime.h"
+
 #include "crt-internal.h"
 
 /**

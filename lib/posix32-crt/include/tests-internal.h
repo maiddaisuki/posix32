@@ -17,6 +17,8 @@
 #ifndef LIBPOSIX32_TESTS_INTERNAL_H_INCLUDED
 #define LIBPOSIX32_TESTS_INTERNAL_H_INCLUDED
 
+#include "core-test.h"
+
 #include "crt-internal.h"
 #include "ctype-internal.h"
 #include "locale-internal.h"
@@ -24,18 +26,6 @@
 #include "time-internal.h"
 #include "uchar-internal.h"
 #include "wchar-internal.h"
-
-/**
- * Initialize a test.
- */
-P32_TEST_DECL void p32_test_init (void);
-
-/**
- * Get CRT's handle. This handle can be passed to `GetProcAddress`.
- *
- * This function returns `0` if library was built against static CRT.
- */
-P32_TEST_DECL uintptr_t p32_crt_handle (void);
 
 /**
  * The following flags can be passed to `p32_locale_test_func2` and

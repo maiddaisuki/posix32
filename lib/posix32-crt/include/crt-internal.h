@@ -67,40 +67,4 @@ void p32_destroy_global_locale_state (void);
 void p32_tls_check (void);
 #endif
 
-#ifdef LIBPOSIX32_TEST
-typedef void (*TerminateHandler) (void);
-
-/**
- * Set terminate handler to be invoked from `p32_terminate`.
- *
- * Some tests may need to test scenarios when process is expected to be
- * terminated by `p32_terminate`.
- *
- * In order to avoid marking such tests as `XFAIL`, those tests should
- * set terminate handler which will be called by `p32_terminate`.
- */
-P32_TEST_DECL void p32_terminate_handler (TerminateHandler handler);
-#endif
-
-/**
- * Terminate current process.
- *
- * The `message` is sent to debugger (if present) before terminating
- * the process.
- *
- * The `context` must be point to `CONTEXT` strcture.
- */
-P32_NORETURN void p32_terminate (const wchar_t *message, void *context);
-
-/**
- * Convenience macro to call `p32_terminate` function and supply `CONTEXT`
- * structure for it.
- */
-#define p32_terminate(msg)                            \
-  do {                                                \
-    CONTEXT context = {0};                            \
-    GetThreadContext (GetCurrentThread (), &context); \
-    p32_terminate (msg, &context);                    \
-  } while (0)
-
 #endif /* LIBPOSIX32_CRT_INTERNAL_H_INCLUDED */

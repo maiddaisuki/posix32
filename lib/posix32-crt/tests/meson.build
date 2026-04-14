@@ -17,46 +17,30 @@ posix32_crt_test = library (
   install: false,
 
   include_directories: [
-    p32_includes_private,
     posix32_crt_test_includes,
   ],
   c_args: [
-    p32_args,
-    p32_args_private,
     posix32_crt_test_args,
   ],
   c_shared_args: [
     '-DLIBPOSIX32_DLL',
   ],
-  link_args: [
-    p32_link_args,
-    p32_link_args_private,
-  ],
   vs_module_defs: posix32_crt_def,
   dependencies: [
-    p32_deps,
+    posix32_core_test_dep,
   ],
 )
 
 # Dependency object to link against `posix32-crt_test`
 posix32_crt_test_dep = declare_dependency (
   include_directories: [
-    p32_includes_private,
     posix32_crt_test_includes,
-  ],
-  compile_args: [
-    p32_args,
-    p32_args_private,
-  ],
-  link_args: [
-    p32_link_args,
-    p32_link_args_private,
   ],
   link_with: [
     posix32_crt_test,
   ],
   dependencies: [
-    p32_deps,
+    posix32_core_test_dep,
   ],
 )
 

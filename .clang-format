@@ -53,6 +53,7 @@ AttributeMacros:
   - "__cdecl"
   - "CALLBACK"
   - "APIENTRY"
+  - "P32_CORE_DECL"
   - "P32_CRT_DECL"
   - "P32_INLINE_DECL"
   - "P32_TEST_DECL"
@@ -162,13 +163,17 @@ IncludeCategories:
     SortPriority: 8
     CaseSensitive: false
   # Internal header files
-  - Regex: '^".*-internal'
+  - Regex: '^"core-.*'
     Priority: 3
     SortPriority: 9
     CaseSensitive: false
-  - Regex: '^".*'
-    Priority: 3
+  - Regex: '^".*-internal'
+    Priority: 4
     SortPriority: 10
+    CaseSensitive: false
+  - Regex: '^".*'
+    Priority: 4
+    SortPriority: 11
     CaseSensitive: false
 #IncludeIsMainRegex:
 #IncludeIsMainSourceRegex:

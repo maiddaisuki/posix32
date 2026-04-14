@@ -63,7 +63,6 @@ posix32_crt_sources = files (
   'src/wctype/wctrans.c',
   'src/wctype/wctype.c',
   'src/wstring/wstring.c',
-  'src/runtime.c',
   'src/tls.c',
 )
 
@@ -109,7 +108,7 @@ posix32_crt = library (
   ],
   vs_module_defs: posix32_crt_def,
   dependencies: [
-    p32_deps,
+    posix32_core_dep,
   ],
 )
 
@@ -121,7 +120,7 @@ posix32_crt_dep = declare_dependency (
     posix32_crt,
   ],
   dependencies: [
-    p32_deps,
+    posix32_core_dep,
   ],
 )
 

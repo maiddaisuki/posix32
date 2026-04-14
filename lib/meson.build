@@ -24,7 +24,10 @@ else
 endif
 
 posix32_Libs         += ['-lposix32']
-posix32_Libs_private += ['-lposix32-crt']
+posix32_Libs_private += [
+  '-lposix32-crt',
+  '-lposix32-core',
+]
 
 if opt_winpthreads.enabled()
   posix32_Requires     += ['winpthreads']
@@ -87,6 +90,7 @@ config_h = configure_file (
 # Modules
 #
 
+subdir('posix32-core')
 subdir('posix32-crt')
 subdir('posix32')
 

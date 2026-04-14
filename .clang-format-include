@@ -4,6 +4,10 @@ include/posix32/posix32-wrap/*.h
 include/posix32/sys/*.h
 include/posix32/*.h
 lib/posix32/*.c
+lib/posix32-core/include/*.h
+lib/posix32-core/src/*.c
+lib/posix32-core/tests/common/*.c
+lib/posix32-core/tests/*.c
 lib/posix32-crt/include/locale_types/*.h
 lib/posix32-crt/include/*.h
 lib/posix32-crt/src/ctype/common/*.c

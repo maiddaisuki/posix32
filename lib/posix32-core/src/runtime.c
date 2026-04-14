@@ -25,7 +25,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "crt-internal.h"
+#include "core-runtime.h"
 
 #undef p32_terminate
 
