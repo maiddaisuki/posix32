@@ -34,6 +34,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-memory.h"
 #include "core-runtime.h"
 
 #include "crt-internal.h"
@@ -372,19 +373,17 @@ static void P32InitGlobalLocaleState (void) {
     p32_terminate (L"Global Locale State: failed to create private heap.");
   }
 
+  P32GlobalLocale.Heap = (uintptr_t) heapHandle;
+
   /**
    * Request Low-Fragmentation Heap.
    */
-  ULONG lowFragmentationHeap = 2;
-
-  HeapSetInformation (heapHandle, HeapCompatibilityInformation, &lowFragmentationHeap, sizeof (ULONG));
+  p32_heap_low_fragmentation (P32GlobalLocale.Heap);
 
   /**
    * Request termination if heap corruption has occured.
    */
-  HeapSetInformation (heapHandle, HeapEnableTerminationOnCorruption, NULL, 0);
-
-  P32GlobalLocale.Heap = (uintptr_t) heapHandle;
+  p32_heap_terminate_on_corruption (P32GlobalLocale.Heap);
 
   /**
    * Cache active ANSI and OEM code pages.
@@ -923,17 +922,8 @@ static int P32DestroyGlobalLocaleState (void) {
 
     P32GlobalLocale.Heap = 0;
 
-#if defined(LIBPOSIX32_TEST) && defined(_DEBUG)
-    HEAP_SUMMARY heapSummary = {0};
-    heapSummary.cb           = sizeof (heapSummary);
-
-    if (HeapSummary (heapHandle, 0, &heapSummary)) {
-      _RPTW1 (_CRT_WARN, L"Global Locale State: heap <%p> is about to be destroyed.\n", heapHandle);
-      _RPTW1 (_CRT_WARN, L"  cbAllocated=%zu\n", heapSummary.cbAllocated);
-      _RPTW1 (_CRT_WARN, L"  cbCommitted=%zu\n", heapSummary.cbCommitted);
-      _RPTW1 (_CRT_WARN, L"  cbMaxReserve=%zu\n", heapSummary.cbMaxReserve);
-      _RPTW1 (_CRT_WARN, L"  cbReserved=%zu\n", heapSummary.cbReserved);
-    }
+#if defined(LIBPOSIX32_TEST)
+    p32_heap_print_summary (heap);
 #endif
 
     if (!HeapDestroy (heapHandle)) {

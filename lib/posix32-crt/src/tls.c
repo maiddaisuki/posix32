@@ -33,6 +33,7 @@
 #include <pthread.h>
 #endif
 
+#include "core-memory.h"
 #include "core-runtime.h"
 
 #include "crt-internal.h"
@@ -87,22 +88,22 @@ static ThreadStorage *P32InitTls (uint32_t tlsIndex) {
     return NULL;
   }
 
+  uintptr_t heap = (uintptr_t) heapHandle;
+
   /**
    * Request Low-Fragmentation Heap.
    */
-  ULONG lfh = 2;
-
-  HeapSetInformation (heapHandle, HeapCompatibilityInformation, &lfh, sizeof (ULONG));
+  p32_heap_low_fragmentation (heap);
 
   /**
    * Request termination if heap corruption has occured.
    */
-  HeapSetInformation (heapHandle, HeapEnableTerminationOnCorruption, NULL, 0);
+  p32_heap_terminate_on_corruption (heap);
 
   /**
    * TODO: is there any performance gain from calling `HeapLock`?
    */
-  HeapLock (heapHandle);
+  p32_heap_lock (heap);
 
   /**
    * Allocate TLS structure.
@@ -113,7 +114,7 @@ static ThreadStorage *P32InitTls (uint32_t tlsIndex) {
     p32_terminate (L"TLS: failed to allocate storage.");
   }
 
-  tls->Heap = (uintptr_t) heapHandle;
+  tls->Heap = heap;
 
   if (!TlsSetValue (tlsIndex, tls)) {
     p32_terminate (L"TLS: failed to set.");
@@ -129,30 +130,23 @@ static ThreadStorage *P32InitTls (uint32_t tlsIndex) {
  * When this function is called, all data stored in the TLS must be freed.
  */
 static void P32FreeTls (ThreadStorage *tls, uint32_t tlsIndex) {
-  HANDLE heapHandle = (HANDLE) tls->Heap;
-  tls->Heap         = 0;
+  uintptr_t heap       = tls->Heap;
+  HANDLE    heapHandle = (HANDLE) heap;
+
+  tls->Heap = 0;
 
   if (!HeapFree (heapHandle, 0, tls)) {
     p32_terminate (L"TLS: failed to deallocate storage.");
   }
 
-#if defined(LIBPOSIX32_TEST) && defined(_DEBUG)
-  HEAP_SUMMARY heapSummary = {0};
-  heapSummary.cb           = sizeof (heapSummary);
-
-  if (HeapSummary (heapHandle, 0, &heapSummary)) {
-    _RPTW1 (_CRT_WARN, L"TLS: heap <%p> is about to be destroyed.\n", heapHandle);
-    _RPTW1 (_CRT_WARN, L"  cbAllocated=%zu\n", heapSummary.cbAllocated);
-    _RPTW1 (_CRT_WARN, L"  cbCommitted=%zu\n", heapSummary.cbCommitted);
-    _RPTW1 (_CRT_WARN, L"  cbMaxReserve=%zu\n", heapSummary.cbMaxReserve);
-    _RPTW1 (_CRT_WARN, L"  cbReserved=%zu\n", heapSummary.cbReserved);
-  }
+#if defined(LIBPOSIX32_TEST)
+  p32_heap_print_summary (heap);
 #endif
 
   /**
    * TODO: is there any performance gain from calling `HeapLock`?
    */
-  HeapUnlock (heapHandle);
+  p32_heap_unlock (heap);
 
   if (!HeapDestroy (heapHandle)) {
     p32_terminate (L"TLS: failed to destroy private heap.");
