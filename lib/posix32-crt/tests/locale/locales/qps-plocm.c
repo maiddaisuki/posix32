@@ -34,8 +34,19 @@
  */
 
 int main (void) {
-#if P32_CRT >= P32_MSVCR70 || (P32_MSVCRT && P32_WINNT >= P32_WINNT_2000)
   p32_test_init ();
+
+  if (P32_CRT < P32_MSVCR70 && !P32_MSVCRT) {
+    return 77;
+  }
+
+  if (P32_MSVCRT && !P32_WINNT_CHECK (P32_WINNT_2000, WindowsNt2000)) {
+    return 77;
+  }
+
+  if (!P32_WINNT_CHECK (P32_WINNT_NT_4, WindowsNt4)) {
+    return 77;
+  }
 
   assert (setlocale (LC_ALL, "qps-plocm") != NULL);
   assert (strcmp (getlocalename_l (LC_ALL, LC_GLOBAL_LOCALE), "qps-plocm") == 0);
@@ -88,7 +99,4 @@ int main (void) {
   wprintf (L"PM_STR = %hs\n", nl_langinfo (PM_STR));
 
   return 0;
-#else
-  return 77;
-#endif
 }
