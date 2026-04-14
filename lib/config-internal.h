@@ -133,6 +133,37 @@
 #define P32_NTDDI WDK_DDI_VERSION
 #endif
 
+/**
+ * Windows 95
+ *
+ * Major version: 4
+ * Minor version: 0
+ */
+#define P32_WIN9X_95 (0x0400)
+/**
+ * Windows 98
+ *
+ * Major version: 4
+ * Minor version: 10
+ */
+#define P32_WIN9X_98 (0x040A)
+/**
+ * Windows Me
+ *
+ * Major version: 4
+ * Minor version: 90
+ */
+#define P32_WIN9X_ME (0x045A)
+
+/**
+ * Minimal Windows 9x version to be supported by the library.
+ *
+ * Value of zero means that library is configured without Windows 9x support.
+ */
+#ifndef P32_WIN9X
+#define P32_WIN9X 0
+#endif
+
 #ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 800
 #endif
