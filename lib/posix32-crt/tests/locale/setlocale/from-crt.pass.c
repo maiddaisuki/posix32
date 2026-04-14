@@ -42,29 +42,32 @@
  * This test verifies that `setlocale` is capable of handling this scenario.
  */
 
+typedef struct TestStrings {
+#if P32_CRT >= P32_MSVCRT20
+  wchar_t *LcCollate;
+  wchar_t *LcCtype;
+  wchar_t *LcMonetary;
+  wchar_t *LcNumeric;
+  wchar_t *LcTime;
+#else
+  char *LcCollate;
+  char *LcCtype;
+  char *LcMonetary;
+  char *LcNumeric;
+  char *LcTime;
+#endif
+} TestStrings;
+
 #if P32_CRT >= P32_MSVCRT20
 #define SETLOCALE(c, l) _wsetlocale (c, l)
 #define CMP(s1, s2)     wcscmp (s1, s2)
 #define STR(s)          TEXT (s)
 #else
 typedef const char *(*__cdecl setlocale_t) (int, const char *);
+
 #define SETLOCALE(c, l) crt_setlocale (c, l)
 #define CMP(s1, s2)     strcmp (s1, s2)
 #define STR(s)          s
-#endif
-
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-#define LOCALE_LC_COLLATE  L"de-DE"
-#define LOCALE_LC_CTYPE    L"en-US"
-#define LOCALE_LC_MONETARY L"es-ES"
-#define LOCALE_LC_NUMERIC  L"fr-FR"
-#define LOCALE_LC_TIME     L"it-IT"
-#else
-#define LOCALE_LC_COLLATE  STR ("German_Germany")
-#define LOCALE_LC_CTYPE    STR ("English_United States")
-#define LOCALE_LC_MONETARY STR ("Spanish_Spain")
-#define LOCALE_LC_NUMERIC  STR ("French_France")
-#define LOCALE_LC_TIME     STR ("Italian_Italy")
 #endif
 
 #if P32_CRT >= P32_MSVCRT20
@@ -81,6 +84,23 @@ typedef const char *(*__cdecl setlocale_t) (int, const char *);
   "LC_TIME=it-IT." CP ";"     \
   "LC_MESSAGES=C"
 
+#define LOCALE_STRING_LC_COLLATE  STR ("German_Germany")
+#define LOCALE_STRING_LC_CTYPE    STR ("English_United States")
+#define LOCALE_STRING_LC_MONETARY STR ("Spanish_Spain")
+#define LOCALE_STRING_LC_NUMERIC  STR ("French_France")
+#define LOCALE_STRING_LC_TIME     STR ("Italian_Italy")
+
+#define LOCALE_NAME_LC_COLLATE  STR ("de-DE")
+#define LOCALE_NAME_LC_CTYPE    STR ("en-US")
+#define LOCALE_NAME_LC_MONETARY STR ("es-ES")
+#define LOCALE_NAME_LC_NUMERIC  STR ("fr-FR")
+#define LOCALE_NAME_LC_TIME     STR ("it-IT")
+
+/**
+ * Locale strings for Global Locale.
+ */
+static TestStrings TestLocale;
+
 int main (void) {
   p32_test_init ();
 
@@ -96,11 +116,25 @@ int main (void) {
   assert ((crt_setlocale = (setlocale_t) (UINT_PTR) GetProcAddress (crt, "setlocale")) != NULL);
 #endif
 
-  assert (SETLOCALE (LC_COLLATE, LOCALE_LC_COLLATE) != NULL);
-  assert (SETLOCALE (LC_CTYPE, LOCALE_LC_CTYPE) != NULL);
-  assert (SETLOCALE (LC_MONETARY, LOCALE_LC_MONETARY) != NULL);
-  assert (SETLOCALE (LC_NUMERIC, LOCALE_LC_NUMERIC) != NULL);
-  assert (SETLOCALE (LC_TIME, LOCALE_LC_TIME) != NULL);
+  if (P32_LOCALE_API & P32_LOCALE_API_LN) {
+    TestLocale.LcCollate  = LOCALE_NAME_LC_COLLATE;
+    TestLocale.LcCtype    = LOCALE_NAME_LC_CTYPE;
+    TestLocale.LcMonetary = LOCALE_NAME_LC_MONETARY;
+    TestLocale.LcNumeric  = LOCALE_NAME_LC_NUMERIC;
+    TestLocale.LcTime     = LOCALE_NAME_LC_TIME;
+  } else {
+    TestLocale.LcCollate  = LOCALE_STRING_LC_COLLATE;
+    TestLocale.LcCtype    = LOCALE_STRING_LC_CTYPE;
+    TestLocale.LcMonetary = LOCALE_STRING_LC_MONETARY;
+    TestLocale.LcNumeric  = LOCALE_STRING_LC_NUMERIC;
+    TestLocale.LcTime     = LOCALE_STRING_LC_TIME;
+  }
+
+  assert (SETLOCALE (LC_COLLATE, TestLocale.LcCollate) != NULL);
+  assert (SETLOCALE (LC_CTYPE, TestLocale.LcCtype) != NULL);
+  assert (SETLOCALE (LC_MONETARY, TestLocale.LcMonetary) != NULL);
+  assert (SETLOCALE (LC_NUMERIC, TestLocale.LcNumeric) != NULL);
+  assert (SETLOCALE (LC_TIME, TestLocale.LcTime) != NULL);
 
   assert (setlocale (LC_ALL, NULL) != NULL);
   assert (strcmp (setlocale (LC_ALL, NULL), LOCALE_STRING) == 0);
