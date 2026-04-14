@@ -34,8 +34,11 @@
  */
 
 int main (void) {
-#if P32_CRT != P32_MSVCRT10
   p32_test_init ();
+
+  if (P32_CRT == P32_MSVCRT10) {
+    return 77;
+  }
 
   assert (setlocale (LC_ALL, "qps-ploca") != NULL);
   assert (strcmp (getlocalename_l (LC_ALL, LC_GLOBAL_LOCALE), "qps-ploca") == 0);
@@ -88,7 +91,4 @@ int main (void) {
   wprintf (L"PM_STR = %hs\n", nl_langinfo (PM_STR));
 
   return 0;
-#else
-  return 77;
-#endif
 }
