@@ -42,27 +42,40 @@
  * such code pages can be set for Thread Locale for those CRTs.
  */
 
+typedef struct TestStrings {
+  /**
+   * Locale to set.
+   */
+  char *Locale;
+  /**
+   * Locale string expected to be returned by CRT's `[_w]setlocale`.
+   */
+#if P32_CRT >= P32_MSVCRT20
+  wchar_t *LocaleString;
+#else
+  char *LocaleString;
+#endif
+  /**
+   * Locale string expected to be returned by `getlocalename_l`.
+   */
+  char *LocaleName;
+} TestStrings;
+
 #if P32_CRT >= P32_MSVCRT20
 
 #define SETLOCALE(c, l) _wsetlocale (c, l)
 #define CMP(s1, s2)     wcscmp (s1, s2)
 #define STR(s)          TEXT (s)
 
-#define GLOBAL_LOCALE      "en-US.ACP"
-#define GLOBAL_LOCALE_NAME "en-US.1252"
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-#define GLOBAL_LOCALE_STRING L"en-US"
-#else
-#define GLOBAL_LOCALE_STRING L"English_United States.1252"
-#endif
+#define GLOBAL_LOCALE_STRING     "en-US.ACP"
+#define GLOBAL_LOCALE_NAME       "en-US.1252"
+#define GLOBAL_LOCALE_CRT_STRING L"English_United States.1252"
+#define GLOBAL_LOCALE_CRT_NAME   L"en-US"
 
-#define THREAD_LOCALE      "de-DE.ACP"
-#define THREAD_LOCALE_NAME "de-DE.1252"
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-#define THREAD_LOCALE_STRING L"de-DE"
-#else
-#define THREAD_LOCALE_STRING L"German_Germany.1252"
-#endif
+#define THREAD_LOCALE_STRING     "de-DE.ACP"
+#define THREAD_LOCALE_NAME       "de-DE.1252"
+#define THREAD_LOCALE_CRT_STRING L"German_Germany.1252"
+#define THREAD_LOCALE_CRT_NAME   L"de-DE"
 
 #else /* crtdll.dll or msvcrt10.dll */
 typedef const char *(*__cdecl setlocale_t) (int, const char *);
@@ -71,15 +84,27 @@ typedef const char *(*__cdecl setlocale_t) (int, const char *);
 #define CMP(s1, s2)     strcmp (s1, s2)
 #define STR(s)          s
 
-#define GLOBAL_LOCALE        "en-US.OCP"
-#define GLOBAL_LOCALE_NAME   "en-US.437"
-#define GLOBAL_LOCALE_STRING "English_United States.437"
+#define GLOBAL_LOCALE_STRING     "en-US.OCP"
+#define GLOBAL_LOCALE_NAME       "en-US.437"
+#define GLOBAL_LOCALE_CRT_STRING "English_United States.437"
+#define GLOBAL_LOCALE_CRT_NAME   GLOBAL_LOCALE_CRT_STRING
 
-#define THREAD_LOCALE        "de-DE.OCP"
-#define THREAD_LOCALE_NAME   "de-DE.850"
-#define THREAD_LOCALE_STRING L"German_Germany.850"
+#define THREAD_LOCALE_STRING     "de-DE.OCP"
+#define THREAD_LOCALE_NAME       "de-DE.850"
+#define THREAD_LOCALE_CRT_STRING "German_Germany.850"
+#define THREAD_LOCALE_CRT_NAME   THREAD_LOCALE_CRT_STRING
 
 #endif
+
+/**
+ * Locale strings for Global Locale.
+ */
+static TestStrings TestGlobalLocale;
+
+/**
+ * Locale strings for Thread Locale.
+ */
+static TestStrings TestThreadLocale;
 
 static DWORD CALLBACK Thread (LPVOID Param) {
   const char *localeName = (char *) Param;
@@ -88,12 +113,12 @@ static DWORD CALLBACK Thread (LPVOID Param) {
   /**
    * Set Thread Locale.
    */
-  assert ((locale = newlocale (LC_ALL_MASK, THREAD_LOCALE, NULL)) != NULL);
+  assert ((locale = newlocale (LC_ALL_MASK, TestThreadLocale.Locale, NULL)) != NULL);
   assert (uselocale (locale) == LC_GLOBAL_LOCALE);
-  assert (strcmp (getlocalename_l (LC_ALL, uselocale (NULL)), THREAD_LOCALE_NAME) == 0);
+  assert (strcmp (getlocalename_l (LC_ALL, uselocale (NULL)), TestThreadLocale.LocaleName) == 0);
 #if P32_CRT >= P32_MSVCR80
   assert (_configthreadlocale (0) == _ENABLE_PER_THREAD_LOCALE);
-  assert (wcscmp (_wsetlocale (LC_ALL, NULL), THREAD_LOCALE_STRING) == 0);
+  assert (wcscmp (_wsetlocale (LC_ALL, NULL), TestThreadLocale.LocaleString) == 0);
 #endif
 
   locale_t bad_locale = NULL;
@@ -108,16 +133,16 @@ static DWORD CALLBACK Thread (LPVOID Param) {
   /**
    * Verify that Thread Locale has not changed.
    */
-  assert (strcmp (getlocalename_l (LC_ALL, uselocale (NULL)), THREAD_LOCALE_NAME) == 0);
+  assert (strcmp (getlocalename_l (LC_ALL, uselocale (NULL)), TestThreadLocale.LocaleName) == 0);
   assert (_configthreadlocale (0) == _ENABLE_PER_THREAD_LOCALE);
-  assert (wcscmp (_wsetlocale (LC_ALL, NULL), THREAD_LOCALE_STRING) == 0);
+  assert (wcscmp (_wsetlocale (LC_ALL, NULL), TestThreadLocale.LocaleString) == 0);
 
   /**
    * Set Thread Locale back to Global Locale.
    */
   assert (uselocale (LC_GLOBAL_LOCALE) == locale);
   assert (_configthreadlocale (0) == _DISABLE_PER_THREAD_LOCALE);
-  assert (wcscmp (_wsetlocale (LC_ALL, NULL), GLOBAL_LOCALE_STRING) == 0);
+  assert (wcscmp (_wsetlocale (LC_ALL, NULL), TestGlobalLocale.LocaleString) == 0);
 #else
   /**
    * Attempt to set Thread Locale using code page unsupported by CRT.
@@ -140,6 +165,13 @@ static DWORD CALLBACK Thread (LPVOID Param) {
 int main (void) {
   p32_test_init ();
 
+  /**
+   * Code page 10001 may not be supported/installed on old Windows versions.
+   */
+  if (!IsValidCodePage (10001)) {
+    return 77;
+  }
+
 #if P32_CRT <= P32_MSVCRT10
   setlocale_t crt_setlocale = NULL;
 
@@ -152,12 +184,26 @@ int main (void) {
   assert ((crt_setlocale = (setlocale_t) (UINT_PTR) GetProcAddress (crt, "setlocale")) != NULL);
 #endif
 
+  TestGlobalLocale.Locale     = GLOBAL_LOCALE_STRING;
+  TestGlobalLocale.LocaleName = GLOBAL_LOCALE_NAME;
+
+  TestThreadLocale.Locale     = THREAD_LOCALE_STRING;
+  TestThreadLocale.LocaleName = THREAD_LOCALE_NAME;
+
+  if (P32_LOCALE_API & P32_LOCALE_API_LN) {
+    TestGlobalLocale.LocaleString = GLOBAL_LOCALE_CRT_NAME;
+    TestThreadLocale.LocaleString = THREAD_LOCALE_CRT_NAME;
+  } else {
+    TestGlobalLocale.LocaleString = GLOBAL_LOCALE_CRT_STRING;
+    TestThreadLocale.LocaleString = THREAD_LOCALE_CRT_STRING;
+  }
+
   /**
    * Set Global Locale.
    */
-  assert (setlocale (LC_ALL, GLOBAL_LOCALE) != NULL);
-  assert (strcmp (getlocalename_l (LC_ALL, LC_GLOBAL_LOCALE), GLOBAL_LOCALE_NAME) == 0);
-  assert (CMP (SETLOCALE (LC_ALL, NULL), GLOBAL_LOCALE_STRING) == 0);
+  assert (setlocale (LC_ALL, TestGlobalLocale.Locale) != NULL);
+  assert (strcmp (getlocalename_l (LC_ALL, LC_GLOBAL_LOCALE), TestGlobalLocale.LocaleName) == 0);
+  assert (CMP (SETLOCALE (LC_ALL, NULL), TestGlobalLocale.LocaleString) == 0);
 
   HANDLE thread   = NULL;
   DWORD  exitCode = 0;
