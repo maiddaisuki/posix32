@@ -47,23 +47,42 @@
  * This test verifies that `uselocale` is capable of handling this scenario.
  */
 
-#define LOCALE      "en-US.ACP"
-#define LOCALE_NAME "en-US.1252"
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-#define LOCALE_STRING L"en-US"
-#else
-#define LOCALE_STRING L"English_United States.1252"
-#endif
+typedef struct TestStrings {
+  /**
+   * Locale to set.
+   */
+  char *Locale;
+  /**
+   * Locale string expected to be returned by CRT's `[_w]setlocale`.
+   */
+  wchar_t *LocaleString;
+  /**
+   * Locale string expected to be returned by `getlocalename_l`.
+   */
+  char *LocaleName;
+} TestStrings;
 
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-#define THREAD_LOCALE L"ro-RO"
-#else
-#define THREAD_LOCALE L"Romanian_Romania.932"
-#endif
-#define THREAD_LOCALE_NAME   "ro-RO.932"
-#define THREAD_LOCALE_STRING THREAD_LOCALE
+#define GLOBAL_LOCALE_STRING     "en-US.ACP"
+#define GLOBAL_LOCALE_NAME       "en-US.1252"
+#define GLOBAL_LOCALE_CRT_STRING L"English_United States.1252"
+#define GLOBAL_LOCALE_CRT_NAME   L"en-US"
+
+#define THREAD_LOCALE_STRING     "ro-RO.ACP"
+#define THREAD_LOCALE_NAME       "ro-RO.1250"
+#define THREAD_LOCALE_CRT_STRING L"Romanian_Romania.1250"
+#define THREAD_LOCALE_CRT_NAME   L"ro-RO"
 
 #if P32_CRT >= P32_MSVCR80
+/**
+ * Locale strings for Global Locale.
+ */
+static TestStrings TestGlobalLocale;
+
+/**
+ * Locale strings for Thread Locale.
+ */
+static TestStrings TestThreadLocale;
+
 /**
  * Handler to run from `p32_terminate`.
  */
@@ -80,14 +99,14 @@ static DWORD CALLBACK Thread (LPVOID Param) {
   assert (_configthreadlocale (_ENABLE_PER_THREAD_LOCALE) != -1);
   assert (_wsetlocale (LC_ALL, localeString) != NULL);
   _RPTW1 (_CRT_WARN, L"Thread Locale (CRT): %s\n", _wsetlocale (LC_ALL, NULL));
-  assert (wcscmp (_wsetlocale (LC_ALL, NULL), THREAD_LOCALE_STRING) == 0);
+  assert (wcscmp (_wsetlocale (LC_ALL, NULL), TestThreadLocale.LocaleString) == 0);
 
   p32_terminate_handler (Handler);
 
   /**
    * Set Thread Locale to Global Locale.
    *
-   * This attempt to will initialize Thread Locale from CRT's thread locale
+   * This will attempt to initialize Thread Locale from CRT's thread locale
    * and then set both to Global Locale.
    *
    * This step must fail and process must be termintaed by raised exception.
@@ -96,7 +115,7 @@ static DWORD CALLBACK Thread (LPVOID Param) {
 
   assert (_configthreadlocale (0) == _DISABLE_PER_THREAD_LOCALE);
   _RPTW1 (_CRT_WARN, L"Thread Locale (CRT, global): %s\n", _wsetlocale (LC_ALL, NULL));
-  assert (wcscmp (_wsetlocale (LC_ALL, NULL), LOCALE_STRING) == 0);
+  assert (wcscmp (_wsetlocale (LC_ALL, NULL), TestGlobalLocale.LocaleString) == 0);
 
   return EXIT_FAILURE;
 }
@@ -106,26 +125,40 @@ int main (void) {
 #if P32_CRT >= P32_MSVCR80
   p32_test_init ();
 
+  TestGlobalLocale.Locale     = GLOBAL_LOCALE_STRING;
+  TestGlobalLocale.LocaleName = GLOBAL_LOCALE_NAME;
+
+  TestThreadLocale.Locale     = THREAD_LOCALE_STRING;
+  TestThreadLocale.LocaleName = THREAD_LOCALE_NAME;
+
+  if (P32_LOCALE_API & P32_LOCALE_API_LN) {
+    TestGlobalLocale.LocaleString = GLOBAL_LOCALE_CRT_NAME;
+    TestThreadLocale.LocaleString = THREAD_LOCALE_CRT_NAME;
+  } else {
+    TestGlobalLocale.LocaleString = GLOBAL_LOCALE_CRT_STRING;
+    TestThreadLocale.LocaleString = THREAD_LOCALE_CRT_STRING;
+  }
+
   /**
    * Set Global Locale.
    */
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
-  assert (strcmp (setlocale (LC_ALL, NULL), LOCALE_NAME) == 0);
+  assert (setlocale (LC_ALL, TestGlobalLocale.Locale) != NULL);
+  assert (strcmp (getlocalename_l (LC_ALL, LC_GLOBAL_LOCALE), TestGlobalLocale.LocaleName) == 0);
   _RPTW1 (_CRT_WARN, L"Global Locale: %s\n", _wsetlocale (LC_ALL, NULL));
-  assert (wcscmp (_wsetlocale (LC_ALL, NULL), LOCALE_STRING) == 0);
+  assert (wcscmp (_wsetlocale (LC_ALL, NULL), TestGlobalLocale.LocaleString) == 0);
 
   HANDLE thread   = NULL;
   DWORD  exitCode = 0;
 
-  assert ((thread = CreateThread (NULL, 0, Thread, THREAD_LOCALE, 0, NULL)) != NULL);
+  assert ((thread = CreateThread (NULL, 0, Thread, TestThreadLocale.LocaleString, 0, NULL)) != NULL);
 
   WaitForSingleObject (thread, INFINITE);
   GetExitCodeThread (thread, &exitCode);
   CloseHandle (thread);
 
-  assert (strcmp (setlocale (LC_ALL, NULL), LOCALE_NAME) == 0);
+  assert (strcmp (getlocalename_l (LC_ALL, LC_GLOBAL_LOCALE), TestGlobalLocale.LocaleName) == 0);
   _RPTW1 (_CRT_WARN, L"Global Locale: %s\n", _wsetlocale (LC_ALL, NULL));
-  assert (wcscmp (_wsetlocale (LC_ALL, NULL), LOCALE_STRING) == 0);
+  assert (wcscmp (_wsetlocale (LC_ALL, NULL), TestGlobalLocale.LocaleString) == 0);
 
   return exitCode;
 #else
