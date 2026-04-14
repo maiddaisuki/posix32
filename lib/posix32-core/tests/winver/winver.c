@@ -14,25 +14,36 @@
  * limitations under the License.
  */
 
-#ifndef LIBPOSIX32_CORE_TEST_H_INCLUDED
-#define LIBPOSIX32_CORE_TEST_H_INCLUDED
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#else
+#include "config-internal.h"
+#endif
 
-#include <stdbool.h>
-#include <stdint.h>
+#include <assert.h>
+#include <stdlib.h>
 
-#include "core-runtime.h"
-#include "core-winver.h"
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
+#include "core-test.h"
 
 /**
- * Initialize a test.
- */
-P32_CORE_DECL void p32_test_init (void);
-
-/**
- * Get CRT's handle. This handle can be passed to `GetProcAddress`.
+ * Test Summary:
  *
- * This function returns `0` if library was built against static CRT.
+ * Test `p32_platform`, `p32_winnt` and `p32_win9x` functions.
  */
-P32_CORE_DECL uintptr_t p32_crt_handle (void);
 
-#endif /* LIBPOSIX32_CORE_TEST_H_INCLUDED */
+int main (void) {
+  p32_test_init ();
+
+  if (p32_platform () == WindowsPlatformNt) {
+    assert (p32_winnt () != WindowsNtInvalid);
+    assert (p32_win9x () == Windows9xInvalid);
+  } else {
+    assert (p32_winnt () == WindowsNtInvalid);
+    assert (p32_win9x () != Windows9xInvalid);
+  }
+
+  return EXIT_SUCCESS;
+}

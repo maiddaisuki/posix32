@@ -8,6 +8,7 @@ posix32_core_args     = ['-DP32_BUILD', '-DP32_CORE_BUILD']
 
 posix32_core_sources = files (
   'src/runtime.c',
+  'src/winver.c',
 )
 
 ##
