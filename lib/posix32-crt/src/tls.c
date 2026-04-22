@@ -45,36 +45,92 @@
  */
 
 /**
- * TLS index used by the library.
+ * Suppress warnings about conversion between data and function pointers with
+ * picky compilers.
  */
-static DWORD P32Tls = TLS_OUT_OF_INDEXES;
+#define F(ptr) (PVOID) (UINT_PTR) ptr
+
+/**
+ * Convenience wrapper for `InterlockedExchangePointer`.
+ */
+#define P32AtomicExchange(target, source) InterlockedExchangePointer ((void *volatile *) target, F (source))
 
 #ifndef LIBPOSIX32_DLL
 /**
- * Allocate TLS index.
+ * Function type corresponding to `TlsIndex`;
+ * returns TLS index used by the library.
  */
-static void P32TlsAlloc (void) {
-  P32Tls = TlsAlloc ();
+typedef uint32_t (*FuncTlsIndex) (void);
 
-  if (P32Tls == TLS_OUT_OF_INDEXES) {
+/**
+ * Initialization thunk for `TlsIndex`.
+ */
+static uint32_t P32InitTlsIndex (void);
+
+/**
+ * Get TLS index used by the library.
+ */
+static uint32_t P32TlsIndex (void);
+#endif /* Static build */
+
+/**
+ * Structure to store TLS Index used by the library.
+ *
+ * For static builds, we use `pthread_once` to allocate TLS index.
+ */
+typedef struct Tls {
+#ifndef LIBPOSIX32_DLL
+  pthread_once_t Init;
+  /**
+   * Pointer to `TlsIndex` implementation.
+   */
+  FuncTlsIndex PtrTlsIndex;
+#endif /* Static build */
+  /**
+   * TLS index used by the library.
+   */
+  uint32_t Index;
+} Tls;
+
+/**
+ * TLS Index used by the library.
+ */
+static Tls P32Tls = {
+#ifndef LIBPOSIX32_DLL
+  .Init        = PTHREAD_ONCE_INIT,
+  .PtrTlsIndex = P32InitTlsIndex,
+#endif /* Static build */
+  .Index = TLS_OUT_OF_INDEXES,
+};
+
+#ifndef LIBPOSIX32_DLL
+/**
+ * Initialize `P32Tls`.
+ */
+static void P32TlsInit (void) {
+  P32Tls.Index = TlsAlloc ();
+
+  if (P32Tls.Index == TLS_OUT_OF_INDEXES) {
     p32_terminate (L"TLS: failed to allocate TLS index.");
   }
+
+  P32AtomicExchange (&P32Tls.PtrTlsIndex, P32TlsIndex);
 }
-#endif
+#endif /* Static build */
 
-/**
- * Get TLS index.
- */
+#ifdef LIBPOSIX32_DLL
+#define TlsIndex P32TlsIndex
+#else /* Static build */
+#define TlsIndex P32Tls.PtrTlsIndex
+
+static uint32_t P32InitTlsIndex (void) {
+  pthread_once (&P32Tls.Init, P32TlsInit);
+  return TlsIndex ();
+}
+#endif /* Static build */
+
 static uint32_t P32TlsIndex (void) {
-#ifndef LIBPOSIX32_DLL
-  /**
-   * Use `pthread_once` instead of `DllMain` to allocate TLS.
-   */
-  static pthread_once_t P32TlsOnce = PTHREAD_ONCE_INIT;
-  pthread_once (&P32TlsOnce, P32TlsAlloc);
-#endif
-
-  return P32Tls;
+  return P32Tls.Index;
 }
 
 /**
@@ -162,7 +218,7 @@ static void P32FreeTls (ThreadStorage *tls, uint32_t tlsIndex) {
  * Destroy current thread's TLS.
  */
 static void P32DestroyTls (void) {
-  uint32_t       tlsIndex = P32TlsIndex ();
+  uint32_t       tlsIndex = TlsIndex ();
   ThreadStorage *tls      = TlsGetValue (tlsIndex);
 
   if (tls == NULL && GetLastError () != ERROR_SUCCESS) {
@@ -193,9 +249,9 @@ BOOL APIENTRY DllMain (HANDLE Module, DWORD Reason, LPVOID Reserved) {
      * DLL is being loaded.
      */
     case DLL_PROCESS_ATTACH: {
-      P32Tls = TlsAlloc ();
+      P32Tls.Index = TlsAlloc ();
 
-      if (P32Tls == TLS_OUT_OF_INDEXES) {
+      if (P32Tls.Index == TLS_OUT_OF_INDEXES) {
         return FALSE;
       }
     }
@@ -205,7 +261,7 @@ BOOL APIENTRY DllMain (HANDLE Module, DWORD Reason, LPVOID Reserved) {
      * New thread is created.
      */
     case DLL_THREAD_ATTACH: {
-      P32InitTls (P32TlsIndex ());
+      P32InitTls (TlsIndex ());
       break;
     }
 
@@ -224,11 +280,11 @@ BOOL APIENTRY DllMain (HANDLE Module, DWORD Reason, LPVOID Reserved) {
     case DLL_PROCESS_DETACH: {
       P32DestroyTls ();
 
-      if (!TlsFree (P32Tls)) {
+      if (!TlsFree (P32Tls.Index)) {
         p32_terminate (L"TLS: failed to free TLS index.");
       }
 
-      P32Tls = TLS_OUT_OF_INDEXES;
+      P32Tls.Index = TLS_OUT_OF_INDEXES;
 
       p32_destroy_global_locale_state ();
       break;
@@ -239,9 +295,9 @@ BOOL APIENTRY DllMain (HANDLE Module, DWORD Reason, LPVOID Reserved) {
   UNREFERENCED_PARAMETER (Module);
   UNREFERENCED_PARAMETER (Reserved);
 }
-#else
+#else  /* Static build */
 void p32_tls_check (void) {
-  uint32_t       tlsIndex = P32TlsIndex ();
+  uint32_t       tlsIndex = TlsIndex ();
   ThreadStorage *tls      = TlsGetValue (tlsIndex);
 
   if (tls == NULL && GetLastError () != ERROR_SUCCESS) {
@@ -267,10 +323,10 @@ void p32_tls_check (void) {
    */
   P32FreeTls (tls, tlsIndex);
 }
-#endif
+#endif /* Static build */
 
 ThreadStorage *p32_tls (bool allowNullTls) {
-  uint32_t       tlsIndex = P32TlsIndex ();
+  uint32_t       tlsIndex = TlsIndex ();
   ThreadStorage *tls      = TlsGetValue (tlsIndex);
 
   if (tls == NULL && GetLastError () != ERROR_SUCCESS) {
