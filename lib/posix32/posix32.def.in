@@ -1,5 +1,27 @@
 ; Export definition file for posix32 redirection library
 
+#ifdef __MINGW32__
+#include <_mingw_mac.h>
+
+#ifndef __MSVCRT_VERSION__
+#if defined(__CRTDLL__)
+#define __MSVCRT_VERSION__ 0x0000
+#elif defined(_UCRT)
+#define __MSVCRT_VERSION__ 0x0E00
+#else
+#define __MSVCRT_VERSION__ 0x0600
+#endif
+#endif /* __MSVCRT_VERSION__ */
+
+#endif /* __MINGW32__ */
+
+/**
+ * Make sure P32_PRAGMA does not generate any code.
+ */
+#define P32_PRAGMA(expr)
+
+#include "posix32.h"
+
 EXPORTS
 
 ; ctype.h
@@ -52,6 +74,10 @@ EXPORTS
     getlocalename_l = @posix32_crt@.p32_getlocalename_l
 
 ; stdlib.h
+
+#if P32_CRT < P32_UCRT
+    p32_mb_cur_max = @posix32_crt@.p32_mb_cur_max
+#endif
 
     mblen      = @posix32_crt@.p32_mblen
     mblen_l    = @posix32_crt@.p32_mblen_l

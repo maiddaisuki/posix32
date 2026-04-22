@@ -7,7 +7,7 @@ project (
   'posix32', 'c',
 
   version: files('VERSION')[0],
-  meson_version: '>=1.3.0',
+  meson_version: '>=1.3.2',
 
   default_options: {
     # Produce release builds by default
