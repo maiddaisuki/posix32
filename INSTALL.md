@@ -139,6 +139,10 @@ This option can be set to any valid value that can be set for `NTDDI_VERSION`:
 If this option is set to any value less than `NTDDI_WIN10`, it will result in
 behavior as if it was set to `NTDDI_WIN10`. _Do not do this on purpose._
 
+| Build System | Syntax        |
+| ------------ | ------------- |
+| Meson        | -Dntddi=VALUE |
+
 ### \_FILE_OFFSET_BITS and \_TIME_BITS
 
 The `lfs` and `y2k` options control default value for `_FILE_OFFSET_BITS` and
