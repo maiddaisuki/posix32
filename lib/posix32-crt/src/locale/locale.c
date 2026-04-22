@@ -1645,14 +1645,14 @@ static bool P32LocaleStrings (locale_t locale, uintptr_t heap) {
    * ANSI code page is returned as 0 (CP_ACP).
    */
   if (locale->CrtLocaleStrings.A.CodePage == CP_ACP) {
-#if P32_CRT >= P32_UCRT
+#if P32_CRT >= P32_MSVCR110
     /**
-     * This string is not used with UCRT.
+     * ANSI locale strings are not used with msvcr110.dll and later.
      */
     locale->CrtLocaleStrings.A.CodePage = CP_UTF8;
-#else
+#else  /* CRT < msvcr110.dll */
     locale->CrtLocaleStrings.A.CodePage = P32GlobalLocale.AnsiCodePage;
-#endif
+#endif /* CRT < msvcr110.dll */
   }
 
   if (!p32_localestr_format (&locale->CrtLocaleStrings, heap, &locale->WinLocale)) {
