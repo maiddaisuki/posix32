@@ -341,6 +341,16 @@ static locale_t P32InitGetOemLocale (void);
 static locale_t P32GetOemLocale (void);
 
 /**
+ * Initialization thunk for `p32_global_locale`.
+ */
+static locale_t P32InitGetGlobalLocale (void);
+
+/**
+ * Implementation for `p32_global_locale`.
+ */
+static locale_t P32GetGlobalLocale (void);
+
+/**
  * Structure for Global Locale State.
  */
 typedef struct GlobalLocaleState {
@@ -405,6 +415,10 @@ typedef struct GlobalLocaleState {
    * `locale_t` object representing Global Locale
    */
   locale_t GlobalLocale;
+  /**
+   * Implementation for `p32_global_locale`.
+   */
+  FuncGetLocale PtrGetGlobalLocale;
 } GlobalLocaleState;
 
 /**
@@ -429,7 +443,8 @@ static GlobalLocaleState P32GlobalLocale = {
   .PtrGetAnsiLocale    = P32InitGetAnsiLocale,
   .OemLocale           = NULL,
   .PtrGetOemLocale     = P32InitGetOemLocale,
-  .GlobalLocale        = NULL
+  .GlobalLocale        = NULL,
+  .PtrGetGlobalLocale  = P32InitGetGlobalLocale,
 };
 
 /**
@@ -1021,6 +1036,18 @@ static void P32InitGlobalLocale (void) {
     HeapFree (heapHandle, 0, threadLocale);
   }
 #endif
+
+  P32AtomicExchange (&P32GlobalLocale.PtrGetGlobalLocale, P32GetGlobalLocale);
+}
+
+static locale_t P32InitGetGlobalLocale (void) {
+  pthread_once (&P32GlobalLocale.GlobalInit, P32InitGlobalLocale);
+  return P32GlobalLocale.PtrGetGlobalLocale ();
+}
+
+static locale_t P32GetGlobalLocale (void) {
+  assert (P32GlobalLocale.GlobalLocale != NULL);
+  return P32GlobalLocale.GlobalLocale;
 }
 
 /**
@@ -1069,10 +1096,19 @@ void p32_destroy_global_locale_state (void) {
 #endif
 
 locale_t p32_global_locale (void) {
-#ifndef LIBPOSIX32_TEST
-  pthread_once (&P32GlobalLocale.GlobalInit, P32InitGlobalLocale);
-#endif
+  /**
+   * In test version of the library, we allow `p32_global_locale` to return
+   * `(locale_t) 0` if Global Locale was not initialized.
+   *
+   * We using this to make it possible to compare behavior of our functions
+   * and CRT functions; when `p32_active_locale` returns `NULL`, we call CRT
+   * version of the function which uses active CRT locale.
+   */
+#ifdef LIBPOSIX32_TEST
   return P32GlobalLocale.GlobalLocale;
+#else
+  return P32GlobalLocale.PtrGetGlobalLocale ();
+#endif
 }
 
 /*******************************************************************************
@@ -2547,7 +2583,7 @@ char *p32_setlocale (int category, const char *localeString) {
   /**
    * Make sure Global Locale is initialized.
    */
-  pthread_once (&P32GlobalLocale.GlobalInit, P32InitGlobalLocale);
+  P32GlobalLocale.PtrGetGlobalLocale ();
 
   /**
    * Return locale string for `category`.
@@ -2673,7 +2709,7 @@ char *p32_setlocale (int category, const char *localeString) {
 #endif
 
   if (P32SetLocale (locale)) {
-    locale_t oldLocale = InterlockedExchangePointer ((void *volatile *) &P32GlobalLocale.GlobalLocale, locale);
+    locale_t oldLocale = P32AtomicExchange (&P32GlobalLocale.GlobalLocale, locale);
     assert (oldLocale != NULL);
 
     /**
@@ -2824,14 +2860,17 @@ locale_t p32_duplocale (locale_t locale) {
    * Create copy of Global Gocale.
    */
   if (locale == LC_GLOBAL_LOCALE) {
-    pthread_once (&P32GlobalLocale.GlobalInit, P32InitGlobalLocale);
+    /**
+     * Make sure Global Locale is initialized.
+     */
+    P32GlobalLocale.PtrGetGlobalLocale ();
 
     if (pthread_rwlock_rdlock (&P32GlobalLocale.GlobalLock) != 0) {
       p32_terminate (L"Global Locale: failed to obtain read lock.");
     }
 
-    assert (P32GlobalLocale.GlobalLocale != NULL);
-    baseLocale = P32GlobalLocale.GlobalLocale;
+    baseLocale = p32_global_locale ();
+    assert (baseLocale != NULL);
   }
 
   HANDLE    heapHandle = GetProcessHeap ();
@@ -2955,10 +2994,8 @@ const char *p32_getlocalename_l (int category, locale_t locale) {
   }
 
   if (locale == LC_GLOBAL_LOCALE) {
-    pthread_once (&P32GlobalLocale.GlobalInit, P32InitGlobalLocale);
-
-    assert (P32GlobalLocale.GlobalLocale != NULL);
-    locale = P32GlobalLocale.GlobalLocale;
+    locale = P32GlobalLocale.PtrGetGlobalLocale ();
+    assert (locale != NULL);
   }
 
   const char *localeName = NULL;
