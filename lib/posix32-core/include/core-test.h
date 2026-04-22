@@ -20,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "core-memory.h"
 #include "core-runtime.h"
 #include "core-winver.h"
 
