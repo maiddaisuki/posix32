@@ -321,6 +321,16 @@ static locale_t P32InitGetUnicodeLocale (void);
 static locale_t P32GetUnicodeLocale (void);
 
 /**
+ * Initialization thunk for `p32_ansi_locale`.
+ */
+static locale_t P32InitGetAnsiLocale (void);
+
+/**
+ * Implementation for `p32_ansi_locale`.
+ */
+static locale_t P32GetAnsiLocale (void);
+
+/**
  * Structure for Global Locale State.
  */
 typedef struct GlobalLocaleState {
@@ -370,6 +380,10 @@ typedef struct GlobalLocaleState {
    */
   locale_t AnsiLocale;
   /**
+   * Implementation for `p32_ansi_locale`.
+   */
+  FuncGetLocale PtrGetAnsiLocale;
+  /**
    * `locale_t` object representing OEM Locale
    */
   locale_t OemLocale;
@@ -398,6 +412,7 @@ static GlobalLocaleState P32GlobalLocale = {
   .UnicodeLocale       = NULL,
   .PtrGetUnicodeLocale = P32InitGetUnicodeLocale,
   .AnsiLocale          = NULL,
+  .PtrGetAnsiLocale    = P32InitGetAnsiLocale,
   .OemLocale           = NULL,
   .GlobalLocale        = NULL
 };
@@ -620,7 +635,7 @@ static void P32InitAnsiLocale (void) {
    */
   if (codePage == CP_UTF8) {
     P32GlobalLocale.AnsiLocale = p32_unicode_locale ();
-    return;
+    goto done;
   }
 
   HANDLE heapHandle = (HANDLE) P32GlobalLocale.Heap;
@@ -643,7 +658,7 @@ static void P32InitAnsiLocale (void) {
     HeapFree (heapHandle, 0, localeString);
 
     if (P32GlobalLocale.AnsiLocale != NULL) {
-      return;
+      goto done;
     }
   }
 
@@ -662,7 +677,7 @@ static void P32InitAnsiLocale (void) {
     HeapFree (heapHandle, 0, localeString);
 
     if (P32GlobalLocale.AnsiLocale != NULL) {
-      return;
+      goto done;
     }
   }
 
@@ -682,6 +697,19 @@ static void P32InitAnsiLocale (void) {
   if (P32GlobalLocale.AnsiLocale == NULL) {
     p32_terminate (L"ANSI Locale: initialization has failed.");
   }
+
+done:
+  P32AtomicExchange (&P32GlobalLocale.PtrGetAnsiLocale, P32GetAnsiLocale);
+}
+
+static locale_t P32InitGetAnsiLocale (void) {
+  pthread_once (&P32GlobalLocale.AnsiInit, P32InitAnsiLocale);
+  return P32GlobalLocale.PtrGetAnsiLocale ();
+}
+
+static locale_t P32GetAnsiLocale (void) {
+  assert (P32GlobalLocale.AnsiLocale != NULL);
+  return P32GlobalLocale.AnsiLocale;
 }
 
 /**
@@ -696,18 +724,18 @@ static void P32DestroyAnsiLocale (void) {
   }
 
   /**
-   * Free ANSI Locale if it is not Unicode Locale.
+   * ANSI Locale uses `locale_t` object for Unicode Locale.
    */
-  if (P32GlobalLocale.AnsiLocale != P32GlobalLocale.UnicodeLocale) {
-    P32FreeLocale (P32GlobalLocale.AnsiLocale, P32GlobalLocale.Heap);
+  if (P32GlobalLocale.AnsiLocale == P32GlobalLocale.UnicodeLocale) {
+    return;
   }
 
+  P32FreeLocale (P32GlobalLocale.AnsiLocale, P32GlobalLocale.Heap);
   P32GlobalLocale.AnsiLocale = NULL;
 }
 
 locale_t p32_ansi_locale (void) {
-  pthread_once (&P32GlobalLocale.AnsiInit, P32InitAnsiLocale);
-  return P32GlobalLocale.AnsiLocale;
+  return P32GlobalLocale.PtrGetAnsiLocale ();
 }
 
 /**
@@ -734,8 +762,7 @@ static void P32InitOemLocale (void) {
    * then use ANSI Locale.
    */
   if (codePage == P32GlobalLocale.AnsiCodePage) {
-    pthread_once (&P32GlobalLocale.AnsiInit, P32InitAnsiLocale);
-    P32GlobalLocale.OemLocale = P32GlobalLocale.AnsiLocale;
+    P32GlobalLocale.OemLocale = p32_ansi_locale ();
     return;
   }
 
