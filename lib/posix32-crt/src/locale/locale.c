@@ -1896,7 +1896,7 @@ static bool P32SetLocale (locale_t locale) {
     _RPTW1 (_CRT_WARN, L"LC_ALL(%s): failed to set locale\n", locale->CrtLocaleStrings.W.LcAll);
 #endif
 
-    goto fail;
+    return false;
   }
 
 #if P32_CRT >= P32_MSVCRT20
@@ -1923,14 +1923,24 @@ static bool P32SetLocale (locale_t locale) {
     _RPTW1 (_CRT_ERROR, L"Call to _setmbcp(%u) has failed.\n", locale->Charset.CodePage);
 #endif
 
-    goto fail;
+    /**
+     * If we failed to set multibyte code page to `P32_CODEPAGE_POSIX` for
+     * "POSIX" locale, use code page CRT uses for "C" locale (`_MB_CP_SBCS`).
+     *
+     * Code page 28591 (ISO-8859-1) may be not supported or installed on
+     * old Windows systems.
+     */
+    if (codePage == P32_CODEPAGE_POSIX && locale->WinLocale.LcCtype.Type == LocaleType_POSIX) {
+      if (_setmbcp (_MB_CP_SBCS) != -1) {
+        return true;
+      }
+    }
+
+    return false;
   }
-#endif
+#endif /* CRT >= msvcrt20.dll */
 
   return true;
-
-fail:
-  return false;
 }
 
 /**

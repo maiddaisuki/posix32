@@ -816,9 +816,6 @@ bool p32_charset_info (Charset *charset) {
   } else if (charset->CodePage == P32_CODEPAGE_ISO_8859_1) {
     /**
      * Check if code page 28591 is supported by the operating system.
-     *
-     * TODO: is there any Windows NT or Windows 9x version which does not
-     *   support code page 28591?
      */
     if (!IsValidCodePage (P32_CODEPAGE_ISO_8859_1)) {
       charset->Flags |= P32_CHARSET_CONV_NO_BEST_FIT;
