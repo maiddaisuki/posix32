@@ -311,6 +311,16 @@ static locale_t P32InitGetPosixLocale (void);
 static locale_t P32GetPosixLocale (void);
 
 /**
+ * Initialization thunk for `p32_unicode_locale`.
+ */
+static locale_t P32InitGetUnicodeLocale (void);
+
+/**
+ * Implementation for `p32_unicode_locale`.
+ */
+static locale_t P32GetUnicodeLocale (void);
+
+/**
  * Structure for Global Locale State.
  */
 typedef struct GlobalLocaleState {
@@ -352,6 +362,10 @@ typedef struct GlobalLocaleState {
    */
   locale_t UnicodeLocale;
   /**
+   * Implementation for `p32_unicode_locale`.
+   */
+  FuncGetLocale PtrGetUnicodeLocale;
+  /**
    * `locale_t` object representing ANSI Locale
    */
   locale_t AnsiLocale;
@@ -369,22 +383,23 @@ typedef struct GlobalLocaleState {
  * Global Locale State.
  */
 static GlobalLocaleState P32GlobalLocale = {
-  .StateInit         = PTHREAD_ONCE_INIT,
-  .PosixInit         = PTHREAD_ONCE_INIT,
-  .UnicodeInit       = PTHREAD_ONCE_INIT,
-  .AnsiInit          = PTHREAD_ONCE_INIT,
-  .OemInit           = PTHREAD_ONCE_INIT,
-  .GlobalInit        = PTHREAD_ONCE_INIT,
-  .GlobalLock        = PTHREAD_RWLOCK_INITIALIZER,
-  .Heap              = 0,
-  .AnsiCodePage      = P32_CODEPAGE_ACP,
-  .OemCodePage       = P32_CODEPAGE_OCP,
-  .PosixLocale       = NULL,
-  .PtrGetPosixLocale = P32InitGetPosixLocale,
-  .UnicodeLocale     = NULL,
-  .AnsiLocale        = NULL,
-  .OemLocale         = NULL,
-  .GlobalLocale      = NULL
+  .StateInit           = PTHREAD_ONCE_INIT,
+  .PosixInit           = PTHREAD_ONCE_INIT,
+  .UnicodeInit         = PTHREAD_ONCE_INIT,
+  .AnsiInit            = PTHREAD_ONCE_INIT,
+  .OemInit             = PTHREAD_ONCE_INIT,
+  .GlobalInit          = PTHREAD_ONCE_INIT,
+  .GlobalLock          = PTHREAD_RWLOCK_INITIALIZER,
+  .Heap                = 0,
+  .AnsiCodePage        = P32_CODEPAGE_ACP,
+  .OemCodePage         = P32_CODEPAGE_OCP,
+  .PosixLocale         = NULL,
+  .PtrGetPosixLocale   = P32InitGetPosixLocale,
+  .UnicodeLocale       = NULL,
+  .PtrGetUnicodeLocale = P32InitGetUnicodeLocale,
+  .AnsiLocale          = NULL,
+  .OemLocale           = NULL,
+  .GlobalLocale        = NULL
 };
 
 /**
@@ -534,7 +549,7 @@ static void P32InitUnicodeLocale (void) {
     HeapFree (heapHandle, 0, localeString);
 
     if (P32GlobalLocale.UnicodeLocale != NULL) {
-      return;
+      goto done;
     }
   }
 
@@ -553,13 +568,26 @@ static void P32InitUnicodeLocale (void) {
     HeapFree (heapHandle, 0, localeString);
 
     if (P32GlobalLocale.UnicodeLocale != NULL) {
-      return;
+      goto done;
     }
   }
 
   if (P32GlobalLocale.UnicodeLocale == NULL) {
     p32_terminate (L"Unicode Locale: initialization has failed.");
   }
+
+done:
+  P32AtomicExchange (&P32GlobalLocale.PtrGetUnicodeLocale, P32GetUnicodeLocale);
+}
+
+static locale_t P32InitGetUnicodeLocale (void) {
+  pthread_once (&P32GlobalLocale.UnicodeInit, P32InitUnicodeLocale);
+  return P32GlobalLocale.PtrGetUnicodeLocale ();
+}
+
+static locale_t P32GetUnicodeLocale (void) {
+  assert (P32GlobalLocale.UnicodeLocale != NULL);
+  return P32GlobalLocale.UnicodeLocale;
 }
 
 /**
@@ -573,8 +601,7 @@ static void P32DestroyUnicodeLocale (void) {
 }
 
 locale_t p32_unicode_locale (void) {
-  pthread_once (&P32GlobalLocale.UnicodeInit, P32InitUnicodeLocale);
-  return P32GlobalLocale.UnicodeLocale;
+  return P32GlobalLocale.PtrGetUnicodeLocale ();
 }
 
 /**
@@ -592,8 +619,7 @@ static void P32InitAnsiLocale (void) {
    * If active ANSI code page is 65001 (UTF-8), then use Unicode Locale.
    */
   if (codePage == CP_UTF8) {
-    pthread_once (&P32GlobalLocale.UnicodeInit, P32InitUnicodeLocale);
-    P32GlobalLocale.AnsiLocale = P32GlobalLocale.UnicodeLocale;
+    P32GlobalLocale.AnsiLocale = p32_unicode_locale ();
     return;
   }
 
@@ -699,8 +725,7 @@ static void P32InitOemLocale (void) {
    * If active OEM code page is 65001 (UTF-8), then use Unicode Locale.
    */
   if (codePage == CP_UTF8) {
-    pthread_once (&P32GlobalLocale.UnicodeInit, P32InitUnicodeLocale);
-    P32GlobalLocale.OemLocale = P32GlobalLocale.UnicodeLocale;
+    P32GlobalLocale.OemLocale = p32_unicode_locale ();
     return;
   }
 
