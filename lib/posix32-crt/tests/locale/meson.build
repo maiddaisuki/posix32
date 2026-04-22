@@ -14,7 +14,7 @@ foreach test : tests
   test ('locale/misc/@0@'.format(test),
     executable ('misc.@0@'.format(test), 'misc/@0@.c'.format(test),
       c_args:       [p32_test_args],
-      link_with:    [p32_test_link_args],
+      link_args:    [p32_test_link_args],
       dependencies: [posix32_crt_test_dep],
     ),
   )
@@ -31,7 +31,7 @@ foreach test : tests
   test ('locale/locales/@0@'.format(test),
     executable ('locales.@0@'.format(test), 'locales/@0@.c'.format(test),
       c_args:       [p32_test_args],
-      link_with:    [p32_test_link_args],
+      link_args:    [p32_test_link_args],
       dependencies: [posix32_crt_test_dep],
     ),
   )
@@ -49,7 +49,7 @@ foreach test : tests
   test ('locale/setlocale/@0@'.format(test),
     executable ('setlocale.@0@'.format(test), 'setlocale/@0@.c'.format(test),
       c_args:       [p32_test_args],
-      link_with:    [p32_test_link_args],
+      link_args:    [p32_test_link_args],
       dependencies: [posix32_crt_test_dep],
     ),
   )
@@ -69,7 +69,7 @@ foreach test : tests
   test ('locale/newlocale/@0@'.format(test),
     executable ('newlocale.@0@'.format(test), 'newlocale/@0@.c'.format(test),
       c_args:       [p32_test_args],
-      link_with:    [p32_test_link_args],
+      link_args:    [p32_test_link_args],
       dependencies: [posix32_crt_test_dep],
     ),
   )
@@ -86,7 +86,7 @@ foreach test : tests
   test ('locale/uselocale/@0@'.format(test),
     executable ('uselocale.@0@'.format(test), 'uselocale/@0@.c'.format(test),
       c_args:       [p32_test_args],
-      link_with:    [p32_test_link_args],
+      link_args:    [p32_test_link_args],
       dependencies: [posix32_crt_test_dep],
     ),
   )
@@ -102,7 +102,7 @@ foreach test : tests
   test ('locale/duplocale/@0@'.format(test),
     executable ('duplocale.@0@'.format(test), 'duplocale/@0@.c'.format(test),
       c_args:       [p32_test_args],
-      link_with:    [p32_test_link_args],
+      link_args:    [p32_test_link_args],
       dependencies: [posix32_crt_test_dep],
     ),
   )
