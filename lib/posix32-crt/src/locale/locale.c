@@ -1567,8 +1567,12 @@ static bool P32LocaleCharset (locale_t locale, int flags) {
    */
   int rejectMask = 0;
 
-  if (flags & NEWLOCALE_GLOBAL) {
+  if (flags & (NEWLOCALE_GLOBAL)) {
     rejectMask |= (P32_CHARSET_REJECT_CRT | P32_CHARSET_REJECT_GLOBAL);
+  }
+
+  if (flags & (NEWLOCALE_INIT)) {
+    rejectMask |= (P32_CHARSET_REJECT_CRT);
   }
 
   if (!p32_charset_usable (codePage, rejectMask, 0)) {
