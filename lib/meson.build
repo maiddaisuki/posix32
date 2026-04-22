@@ -93,24 +93,3 @@ config_h = configure_file (
 subdir('posix32-core')
 subdir('posix32-crt')
 subdir('posix32')
-
-##
-# Declare `posix32_dep` dependency object
-#
-
-posix32_dep = declare_dependency (
-  version: meson.project_version(),
-
-  include_directories: [
-    p32_includes,
-  ],
-  compile_args: [
-    p32_args,
-  ],
-  link_with: [
-    posix32,
-  ],
-  dependencies: [
-    posix32_crt_dep,
-  ],
-)

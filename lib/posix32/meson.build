@@ -64,6 +64,27 @@ posix32 = library (
   ],
 )
 
+##
+# Declare `posix32_dep` dependency object
+#
+
+posix32_dep = declare_dependency (
+  version: meson.project_version(),
+
+  include_directories: [
+    p32_includes,
+  ],
+  compile_args: [
+    p32_args,
+  ],
+  link_with: [
+    posix32,
+  ],
+  dependencies: [
+    posix32_crt_dep,
+  ],
+)
+
 unset_variable ('posix32_def')
 unset_variable ('posix32_def_data')
 unset_variable ('posix32_def_in')
