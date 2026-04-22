@@ -2024,22 +2024,11 @@ static locale_t P32UseGlobalLocale (ThreadStorage *tls, ThreadLocaleState *threa
 #if P32_CRT >= P32_MSVCR80
   /**
    * If current thread locale state is `_ENABLE_PER_THREAD_LOCALE`,
-   * set CRT's thread locale to "C" and change thread locale state to
-   * `_DISABLE_PER_THREAD_LOCALE`.
+   * change thread locale state to `_DISABLE_PER_THREAD_LOCALE`.
    */
   if (threadLocaleState->CurrentState == _ENABLE_PER_THREAD_LOCALE) {
-    assert (P32GlobalLocale.PosixLocale != NULL);
-
-    /**
-     * TODO: this is redundant and introduces an unrecoverable error.
-     * Set thread locale to "C" locale before switching to Global Locale.
-     */
-    if (!P32SetLocale (P32GlobalLocale.PosixLocale)) {
-      goto fail;
-    }
-
     if (!P32SetThreadLocaleState (_DISABLE_PER_THREAD_LOCALE, NULL)) {
-      goto fail;
+      return NULL;
     }
   }
 #endif
@@ -2066,19 +2055,6 @@ static locale_t P32UseGlobalLocale (ThreadStorage *tls, ThreadLocaleState *threa
 
   return oldThreadLocale;
   UNREFERENCED_PARAMETER (threadLocaleState);
-
-#if P32_CRT >= P32_MSVCR80
-fail:
-  /**
-   * We need to make sure that CRT's thread locale is the same as it was
-   * before calling `uselocale`.
-   */
-  if (!P32SetLocale (tls->ThreadLocale->Locale)) {
-    p32_terminate (L"Thread Locale: failed to restore previous locale.");
-  }
-
-  return NULL;
-#endif
 }
 
 /**
