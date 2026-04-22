@@ -91,6 +91,13 @@ static DWORD CALLBACK Thread (PVOID arg) {
 int main (void) {
   p32_test_init ();
 
+  /**
+   * TODO: refactor this test to not rely on support for code page 20127.
+   */
+  if (!IsValidCodePage (P32_CODEPAGE_ASCII)) {
+    return 77;
+  }
+
   assert (setlocale (LC_ALL, LOCALE) != NULL);
 
   DoTest ();
