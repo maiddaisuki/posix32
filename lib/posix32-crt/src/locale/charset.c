@@ -43,10 +43,33 @@
  */
 #define CHARSET_SBCS_FULL (P32_CHARSET_SBCS | P32_CHARSET_FULL)
 
+#if P32_CRT >= P32_MSVCR110
 /**
  * An EBCDIC code page.
+ *
+ * We do not allow setting Global Locale with an EBCDIC code pages.
+ *
+ * Many applications use ASCII or UTF-8 strings constants in source code and
+ * with functions such as `printf`; setting Global Locale with an EBCDIC
+ * code pages will break all such applications.
  */
 #define CHARSET_EBCDIC (P32_CHARSET_SBCS | P32_CHARSET_EBCDIC | P32_CHARSET_REJECT_GLOBAL)
+#else /* CRT < msvcr110.dll */
+/**
+ * An EBCDIC code page.
+ *
+ * All CRTs prior to msvcr110.dll allow to set global/thread locale with an
+ * EBCDIC code page; however, once such locale is set it irreversibly breaks
+ * CRT's internal state making it impossible to change locale.
+ *
+ * For this reason, we disallow use of EBCDIC code pages for both
+ * Global and Thread Locales with CRTs prior to msvcr110.dll.
+ *
+ * This restriction does not apply to CRTs for which we emulate thread locales;
+ * `locale_t` objects using EBCDIC code pages can be passed to `uselocale`.
+ */
+#define CHARSET_EBCDIC (P32_CHARSET_SBCS | P32_CHARSET_EBCDIC | P32_CHARSET_REJECT_CRT)
+#endif /* CRT < msvcr110.dll */
 
 /**
  * An EBCDIC code page where all 256 bytes are valid characters.
