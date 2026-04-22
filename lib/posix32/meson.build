@@ -10,7 +10,7 @@
 posix32_def_in = files('posix32.def.in')[0]
 posix32_def_data = configuration_data (
   {
-    'posix32_crt': posix32_crt_libname,
+    'posix32_crt': posix32_crt_libname.replace('.dll', ''),
   }
 )
 posix32_def = configure_file (
