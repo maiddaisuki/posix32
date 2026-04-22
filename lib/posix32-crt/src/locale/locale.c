@@ -284,6 +284,33 @@ static bool P32RestoreThreadLocaleState (ThreadLocaleState *threadLocaleState) {
  */
 
 /**
+ * Suppress warnings about conversion between data and function pointers with
+ * picky compilers.
+ */
+#define F(ptr) (PVOID) (UINT_PTR) ptr
+
+/**
+ * Convenience wrapper for `InterlockedExchangePointer`.
+ */
+#define P32AtomicExchange(target, source) InterlockedExchangePointer ((void *volatile *) target, F (source))
+
+/**
+ * Function type corresponding to `p32_*_locale` functions which return
+ * internal `locale_t` objects.
+ */
+typedef locale_t (*FuncGetLocale) (void);
+
+/**
+ * Initialization thunk for `p32_posix_locale`.
+ */
+static locale_t P32InitGetPosixLocale (void);
+
+/**
+ * Implementation for `p32_posix_locale`.
+ */
+static locale_t P32GetPosixLocale (void);
+
+/**
  * Structure for Global Locale State.
  */
 typedef struct GlobalLocaleState {
@@ -317,6 +344,10 @@ typedef struct GlobalLocaleState {
    */
   locale_t PosixLocale;
   /**
+   * Implementation for `p32_posix_locale`.
+   */
+  FuncGetLocale PtrGetPosixLocale;
+  /**
    * `locale_t` object representing Unicode Locale
    */
   locale_t UnicodeLocale;
@@ -338,21 +369,22 @@ typedef struct GlobalLocaleState {
  * Global Locale State.
  */
 static GlobalLocaleState P32GlobalLocale = {
-  .StateInit     = PTHREAD_ONCE_INIT,
-  .PosixInit     = PTHREAD_ONCE_INIT,
-  .UnicodeInit   = PTHREAD_ONCE_INIT,
-  .AnsiInit      = PTHREAD_ONCE_INIT,
-  .OemInit       = PTHREAD_ONCE_INIT,
-  .GlobalInit    = PTHREAD_ONCE_INIT,
-  .GlobalLock    = PTHREAD_RWLOCK_INITIALIZER,
-  .Heap          = 0,
-  .AnsiCodePage  = P32_CODEPAGE_ACP,
-  .OemCodePage   = P32_CODEPAGE_OCP,
-  .PosixLocale   = NULL,
-  .UnicodeLocale = NULL,
-  .AnsiLocale    = NULL,
-  .OemLocale     = NULL,
-  .GlobalLocale  = NULL
+  .StateInit         = PTHREAD_ONCE_INIT,
+  .PosixInit         = PTHREAD_ONCE_INIT,
+  .UnicodeInit       = PTHREAD_ONCE_INIT,
+  .AnsiInit          = PTHREAD_ONCE_INIT,
+  .OemInit           = PTHREAD_ONCE_INIT,
+  .GlobalInit        = PTHREAD_ONCE_INIT,
+  .GlobalLock        = PTHREAD_RWLOCK_INITIALIZER,
+  .Heap              = 0,
+  .AnsiCodePage      = P32_CODEPAGE_ACP,
+  .OemCodePage       = P32_CODEPAGE_OCP,
+  .PosixLocale       = NULL,
+  .PtrGetPosixLocale = P32InitGetPosixLocale,
+  .UnicodeLocale     = NULL,
+  .AnsiLocale        = NULL,
+  .OemLocale         = NULL,
+  .GlobalLocale      = NULL
 };
 
 /**
@@ -448,6 +480,18 @@ static void P32InitPosixLocale (void) {
   if (P32GlobalLocale.PosixLocale == NULL) {
     p32_terminate (L"POSIX Locale: initialization has failed.");
   }
+
+  P32AtomicExchange (&P32GlobalLocale.PtrGetPosixLocale, P32GetPosixLocale);
+}
+
+static locale_t P32InitGetPosixLocale (void) {
+  pthread_once (&P32GlobalLocale.PosixInit, P32InitPosixLocale);
+  return P32GlobalLocale.PtrGetPosixLocale ();
+}
+
+static locale_t P32GetPosixLocale (void) {
+  assert (P32GlobalLocale.PosixLocale != NULL);
+  return P32GlobalLocale.PosixLocale;
 }
 
 /**
@@ -461,8 +505,7 @@ static void P32DestroyPosixLocale (void) {
 }
 
 locale_t p32_posix_locale (void) {
-  pthread_once (&P32GlobalLocale.PosixInit, P32InitPosixLocale);
-  return P32GlobalLocale.PosixLocale;
+  return P32GlobalLocale.PtrGetPosixLocale ();
 }
 
 /**
@@ -1001,7 +1044,10 @@ static bool P32InitThreadLocale (ThreadStorage *tls) {
  * Initialize Thread Locale from CRT's thread locale.
  */
 static P32_NOINLINE void P32InitThreadLocaleUnsafe (ThreadStorage *tls) {
-  pthread_once (&P32GlobalLocale.PosixInit, P32InitPosixLocale);
+  /**
+   * Make sure "POSIX" locale is initialized.
+   */
+  P32GlobalLocale.PtrGetPosixLocale ();
 
   HANDLE heapHandle = (HANDLE) tls->Heap;
 
@@ -2632,9 +2678,13 @@ locale_t p32_newlocale (int mask, const char *localeString, locale_t base) {
   }
 
   /**
-   * Make sure "POSIX" Locale is initialized.
+   * Actual `locale_t` object to use as base.
    */
-  pthread_once (&P32GlobalLocale.PosixInit, P32InitPosixLocale);
+  locale_t baseLocale = base;
+
+  if (baseLocale == NULL) {
+    baseLocale = P32GlobalLocale.PtrGetPosixLocale ();
+  }
 
   HANDLE    heapHandle = GetProcessHeap ();
   uintptr_t heap       = (uintptr_t) heapHandle;
@@ -2660,7 +2710,7 @@ locale_t p32_newlocale (int mask, const char *localeString, locale_t base) {
     return NULL;
   }
 
-  locale_t locale = P32NewLocale (mask, localeStringW, base, heap, 0);
+  locale_t locale = P32NewLocale (mask, localeStringW, baseLocale, heap, 0);
 
   /**
    * Free `base` if new locale_t object was successfully created.
