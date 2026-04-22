@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-#ifndef LIBPOSIX32_CORE_TEST_H_INCLUDED
-#define LIBPOSIX32_CORE_TEST_H_INCLUDED
+#ifndef LIBPOSIX32_CORE_CRT_H_INCLUDED
+#define LIBPOSIX32_CORE_CRT_H_INCLUDED
 
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "core-crt.h"
-#include "core-memory.h"
-#include "core-runtime.h"
-#include "core-winver.h"
+#include "posix32.h"
 
 /**
- * Initialize a test.
+ * Get CRT handle; this handle can be passed to `GetProcAddress`.
+ *
+ * This function returns `0` if library was built against static CRT.
  */
-P32_CORE_DECL void p32_test_init (void);
+P32_CORE_DECL uintptr_t p32_crt_handle (void);
 
-#endif /* LIBPOSIX32_CORE_TEST_H_INCLUDED */
+#endif /* LIBPOSIX32_CORE_CRT_H_INCLUDED */

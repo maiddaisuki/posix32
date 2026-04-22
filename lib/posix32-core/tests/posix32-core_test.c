@@ -24,7 +24,6 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <io.h>
-#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <wchar.h>
@@ -40,5 +39,4 @@
  * This file defines helper functions used by unit tests.
  */
 
-#include "common/crt_handle.c"
 #include "common/test_init.c"

@@ -14,6 +14,27 @@
  * limitations under the License.
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#else
+#include "config-internal.h"
+#endif
+
+#include <assert.h>
+#include <pthread.h>
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
+#include "core-crt.h"
+#include "core-runtime.h"
+
+/**
+ * File Summary:
+ *
+ * This file contains functions to obtain information about CRT.
+ */
+
 #if P32_CRT == P32_UCRT
 #define P32_CRT_BASENAME TEXT ("ucrtbase")
 #elif P32_CRT == P32_MSVCR120

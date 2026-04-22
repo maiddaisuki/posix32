@@ -7,6 +7,7 @@ p32_includes_private += include_directories('include')
 posix32_core_args     = ['-DP32_BUILD', '-DP32_CORE_BUILD']
 
 posix32_core_sources = files (
+  'src/crt.c',
   'src/heap.c',
   'src/runtime.c',
   'src/winver.c',
