@@ -1570,7 +1570,7 @@ static bool P32LocaleCharset (locale_t locale, int flags) {
       codePage = CP_UTF8;
 #endif
     } else if (!localeRequiresUnicode) {
-      codePage = P32_LOCALE_CODEPAGE (locale->WinLocale.LcCtype);
+      codePage = locale->WinLocale.LcCtype.CodePage.Ansi;
     } else {
       return false;
     }
