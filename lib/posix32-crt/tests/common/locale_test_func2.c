@@ -192,7 +192,8 @@ stop:
 }
 
 void p32_locale_test_func2 (LocaleCallback2 callback, int flags) {
-  bool keep_going = true;
+  bool flagSetLocale = !!(flags & P32_LOCALE_TEST_SETLOCALE);
+  bool keep_going    = true;
 
   /**
    * Test "POSIX" locale.
@@ -200,7 +201,7 @@ void p32_locale_test_func2 (LocaleCallback2 callback, int flags) {
   locale_t posix = NULL;
   assert ((posix = p32_newlocale (LC_ALL_MASK, "POSIX", NULL)) != NULL);
 
-  if (flags & P32_LOCALE_TEST_SETLOCALE) {
+  if (flagSetLocale) {
 #if P32_CRT >= P32_MSVCRT20
     assert (_wsetlocale (LC_ALL, posix->CrtLocaleStrings.W.LcAll) != NULL);
 #else
@@ -215,13 +216,17 @@ void p32_locale_test_func2 (LocaleCallback2 callback, int flags) {
     return;
   }
 
+  if (flagSetLocale && !IsValidCodePage (P32_CODEPAGE_ASCII)) {
+    goto skip_ascii;
+  }
+
   /**
    * Test ASCII locale.
    */
   locale_t ascii = NULL;
   assert ((ascii = p32_newlocale (LC_ALL_MASK, "en-US.ASCII", NULL)) != NULL);
 
-  if (flags & P32_LOCALE_TEST_SETLOCALE) {
+  if (flagSetLocale) {
 #if P32_CRT >= P32_MSVCRT20
     assert (_wsetlocale (LC_ALL, ascii->CrtLocaleStrings.W.LcAll) != NULL);
 #else
@@ -236,6 +241,7 @@ void p32_locale_test_func2 (LocaleCallback2 callback, int flags) {
     return;
   }
 
+skip_ascii:;
   LocaleTestFuncData localeTestFuncData = {0};
 
   localeTestFuncData.Flags      = flags;
