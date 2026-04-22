@@ -54,6 +54,7 @@ posix32_core_test_dep = declare_dependency (
   ],
 )
 
+subdir('crt')
 subdir('winver')
 
 unset_variable ('posix32_core_test_args')
