@@ -18,6 +18,13 @@ option (
   type: 'boolean',
   value: false
 )
+# Features
+option (
+  'emulate-utf8-locale-support',
+  description: 'Emulate UTF-8 locale support for CRTs which do not support UTF-8',
+  type: 'boolean',
+  value: false
+)
 # Dependencies
 option (
   'winpthreads',

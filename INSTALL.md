@@ -60,15 +60,16 @@ meson install [--strip]
 
 The following table lists all supported options:
 
-| Option      | Description                                               |
-| ----------- | --------------------------------------------------------- |
-| winpthreads | Use `pkgconf` to locate `winpthreads` even with mingw-w64 |
-| winnt       | Minimal Windows NT version to support                     |
-| ntddi       | Minimal `NTDDI` version to support (Windows 10 or later)  |
-| uwp         | Configure for UWP                                         |
-| lfs         | Default value of `_FILE_OFFSET_BITS`                      |
-| y2k         | Default value of `_TIME_BITS`                             |
-| tests       | Whether to compile and run tests                          |
+| Option                      | Description                                                      |
+| --------------------------- | ---------------------------------------------------------------- |
+| winpthreads                 | Use `pkgconf` to locate `winpthreads` even with mingw-w64        |
+| winnt                       | Minimal Windows NT version to support                            |
+| ntddi                       | Minimal `NTDDI` version to support (Windows 10 or later)         |
+| uwp                         | Configure for UWP                                                |
+| lfs                         | Default value of `_FILE_OFFSET_BITS`                             |
+| y2k                         | Default value of `_TIME_BITS`                                    |
+| emulate-utf8-locale-support | Emulate UTF-8 locale support for CRTs which do not support UTF-8 |
+| tests                       | Whether to compile and run tests                                 |
 
 ### Testsuite
 
@@ -159,6 +160,25 @@ Default value is `auto`.
 | Build System | Syntax                               |
 | ------------ | ------------------------------------ |
 | Meson        | -D{lfs\|y2k}={auto\|enable\|disable} |
+
+### UTF-8 Locale Support
+
+The `emulate-utf8-locale-support` option allows to build `posix32` with
+complete UTF-8 locale support even if CRT does not support UTF-8.
+
+When this option is enabled, `setlocale` and `uselocale` functions will
+be able to set UTF-8 locales.
+
+Note that it is always possible to create UTF-8 `locale_t` object using
+`newlocale` function even if this option is disabled; UTF-8 is supported even
+if the operating system does not support code page 65001 (`CP_UTF8`).
+
+This option is disabled by default to provide better compatibility with CRT.  
+This option has no effect with UCRT; it fully supports UTF-8.
+
+| Build System | Syntax                                      |
+| ------------ | ------------------------------------------- |
+| Meson        | -Demulate-utf8-locale-support={false\|true} |
 
 ### UWP
 

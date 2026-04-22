@@ -6,6 +6,10 @@
 posix32_crt_includes = [include_directories('include')]
 posix32_crt_args     = ['-DP32_BUILD', '-DP32_CRT_BUILD']
 
+if get_option ('emulate-utf8-locale-support')
+  posix32_crt_args += '-DLIBPOSIX32_UTF8'
+endif
+
 posix32_crt_sources = files (
   # gperf-generated
   'gperf/country_codes.c',

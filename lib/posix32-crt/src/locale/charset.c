@@ -94,6 +94,28 @@
 #define CHARSET_DBCS (P32_CHARSET_DBCS)
 #endif
 
+#if P32_CRT >= P32_UCRT || defined(LIBPOSIX32_UTF8)
+/**
+ * UTF-8.
+ *
+ * CRT supports UTF-8 or we emulate UTF-8 locale support.
+ *
+ * UCRT fully supports UTF-8; we emulate UTF-8 locale support for older CRTs.
+ */
+#define CHARSET_UTF8 (0)
+#else /* No UTF-8 locale support */
+/**
+ * UTF-8.
+ *
+ * CRT does not support UTF-8; ensure we do not attempt to set it as global or
+ * thread locale.
+ *
+ * We always support creating `locale_t` objects with UTF-8, even if code page
+ * 65001 (`CP_UTF8`) is not supported by the operating system.
+ */
+#define CHARSET_UTF8 (P32_CHARSET_REJECT_CRT)
+#endif /* No UTF-8 locale support */
+
 typedef struct CodePageInfo {
   uint32_t       CodePage;
   uint32_t       Flags;
@@ -709,7 +731,7 @@ static const CodePageInfo Charsets[] = {
   /**
    * UTF-8.
    */
-  {65001, 0,                                             L"UTF-8"           },
+  {65001, CHARSET_UTF8,                                  L"UTF-8"           },
 };
 
 /**

@@ -1504,10 +1504,12 @@ static bool P32LocaleCharset (locale_t locale, int flags) {
    * Caller requested locale's default ANSI code page.
    */
   if (requestedCodePage == P32_CODEPAGE_ACP) {
-    if (localeRequiresUnicode && activeCodePage == CP_UTF8) {
-      requestedCodePage = CP_UTF8;
-    } else if (!localeRequiresUnicode) {
+    if (!localeRequiresUnicode) {
       requestedCodePage = locale->WinLocale.LcCtype.CodePage.Ansi;
+#if P32_CRT >= P32_UCRT || defined(LIBPOSIX32_UTF8)
+    } else if (activeCodePage == CP_UTF8) {
+      requestedCodePage = CP_UTF8;
+#endif
     } else {
       return false;
     }
@@ -1516,10 +1518,12 @@ static bool P32LocaleCharset (locale_t locale, int flags) {
      * Caller requested locale's default OEM code page.
      */
   } else if (requestedCodePage == P32_CODEPAGE_OCP) {
-    if (localeRequiresUnicode && activeCodePage == CP_UTF8) {
-      requestedCodePage = CP_UTF8;
-    } else if (!localeRequiresUnicode) {
+    if (!localeRequiresUnicode) {
       requestedCodePage = locale->WinLocale.LcCtype.CodePage.Oem;
+#if P32_CRT >= P32_UCRT || defined(LIBPOSIX32_UTF8)
+    } else if (activeCodePage == CP_UTF8) {
+      requestedCodePage = CP_UTF8;
+#endif
     } else {
       return false;
     }
@@ -1545,8 +1549,10 @@ static bool P32LocaleCharset (locale_t locale, int flags) {
       } else {
         codePage = locale->WinLocale.LcCtype.CodePage.Ansi;
       }
+#if P32_CRT >= P32_UCRT || defined(LIBPOSIX32_UTF8)
     } else if (activeCodePage == CP_UTF8) {
       codePage = CP_UTF8;
+#endif
     } else if (!localeRequiresUnicode) {
       codePage = locale->WinLocale.LcCtype.CodePage.Ansi;
     } else {
@@ -1610,7 +1616,7 @@ static bool P32LocaleStrings (locale_t locale, uintptr_t heap) {
   locale->CrtLocaleStrings.A.CodePage = locale->WinLocale.LcCtype.CodePage.Ansi;
   locale->CrtLocaleStrings.W.CodePage = locale->Charset.CodePage;
 
-#if P32_CRT < P32_UCRT
+#if P32_CRT < P32_UCRT && defined(LIBPOSIX32_UTF8)
   /**
    * When we emulate UTF-8 locales for CRTs which do not support them,
    * we set CRT's locale to "C".
@@ -1884,7 +1890,7 @@ static bool P32SetLocale (locale_t locale) {
 #if P32_CRT >= P32_MSVCRT20
   uint32_t codePage = locale->Charset.CodePage;
 
-#if P32_CRT < P32_UCRT
+#if P32_CRT < P32_UCRT && defined(LIBPOSIX32_UTF8)
   /**
    * Since old CRTs do not support UTF-8, we can't set multibyte code page
    * to 65001; attempt to use code page 20127 (ASCII) instead.
@@ -1918,7 +1924,7 @@ static bool P32SetLocale (locale_t locale) {
       }
     }
 
-#if P32_CRT < P32_UCRT
+#if P32_CRT < P32_UCRT && defined(LIBPOSIX32_UTF8)
     /**
      * When emulating UTF-8 locales, we try to use code page 20127 (ASCII);
      * it may be not supported or installed on old Windows systems.

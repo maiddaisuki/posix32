@@ -26,6 +26,13 @@
 #include "p32_locale.h"
 
 /**
+ * Build test version of the library with UTF-8 support.
+ */
+#ifdef LIBPOSIX32_TEST
+#define LIBPOSIX32_UTF8
+#endif
+
+/**
  * If this bit is set in `P32_LOCALE_API`, then the library will be built with
  * `LCID` support.
  */
