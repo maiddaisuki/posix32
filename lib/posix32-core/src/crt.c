@@ -36,52 +36,97 @@
  */
 
 #if P32_CRT == P32_UCRT
-#define P32_CRT_BASENAME TEXT ("ucrtbase")
-#elif P32_CRT == P32_MSVCR120
-#define P32_CRT_BASENAME TEXT ("msvcr120")
-#elif P32_CRT == P32_MSVCR110
-#define P32_CRT_BASENAME TEXT ("msvcr110")
-#elif P32_CRT == P32_MSVCR100
-#define P32_CRT_BASENAME TEXT ("msvcr100")
-#elif P32_CRT == P32_MSVCR90
-#define P32_CRT_BASENAME TEXT ("msvcr90")
-#elif P32_CRT == P32_MSVCR80
-#define P32_CRT_BASENAME TEXT ("msvcr80")
-#elif P32_CRT == P32_MSVCR71
-#define P32_CRT_BASENAME TEXT ("msvcr71")
-#elif P32_CRT == P32_MSVCR70
-#define P32_CRT_BASENAME TEXT ("msvcr70")
-#elif P32_CRT >= P32_MSVCRT42
-#define P32_CRT_BASENAME TEXT ("msvcrt")
-#elif P32_CRT >= P32_MSVCRT40
-#define P32_CRT_BASENAME TEXT ("msvcrt40")
-#elif P32_CRT == P32_MSVCRT20
-#define P32_CRT_BASENAME TEXT ("msvcrt20")
-#elif P32_CRT == P32_MSVCRT10
-#define P32_CRT_BASENAME TEXT ("msvcrt10")
-#else
-#define P32_CRT_BASENAME TEXT ("crtdll")
-#endif
-
 #ifdef _DEBUG
-#define P32_CRT_SUFFIX TEXT ("d")
+#define P32_CRT_LIBNAME "ucrtbased.dll"
 #else
-#define P32_CRT_SUFFIX
+#define P32_CRT_LIBNAME "ucrtbase.dll"
 #endif
-
-#define P32_CRT_EXT TEXT (".dll")
-
-#define P32_CRT_FILENAME P32_CRT_BASENAME P32_CRT_SUFFIX P32_CRT_EXT
+#elif P32_CRT == P32_MSVCR120
+#ifdef _DEBUG
+#define P32_CRT_LIBNAME "msvcr120d.dll"
+#else
+#define P32_CRT_LIBNAME "msvcr120.dll"
+#endif
+#elif P32_CRT == P32_MSVCR110
+#ifdef _DEBUG
+#define P32_CRT_LIBNAME "msvcr110d.dll"
+#else
+#define P32_CRT_LIBNAME "msvcr110.dll"
+#endif
+#elif P32_CRT == P32_MSVCR100
+#ifdef _DEBUG
+#define P32_CRT_LIBNAME "msvcr100d.dll"
+#else
+#define P32_CRT_LIBNAME "msvcr100.dll"
+#endif
+#elif P32_CRT == P32_MSVCR90
+#ifdef _DEBUG
+#define P32_CRT_LIBNAME "msvcr90d.dll"
+#else
+#define P32_CRT_LIBNAME "msvcr90.dll"
+#endif
+#elif P32_CRT == P32_MSVCR80
+#ifdef _DEBUG
+#define P32_CRT_LIBNAME "msvcr80d.dll"
+#else
+#define P32_CRT_LIBNAME "msvcr80.dll"
+#endif
+#elif P32_CRT == P32_MSVCR71
+#ifdef _DEBUG
+#define P32_CRT_LIBNAME "msvcr71d.dll"
+#else
+#define P32_CRT_LIBNAME "msvcr71.dll"
+#endif
+#elif P32_CRT == P32_MSVCR70
+#ifdef _DEBUG
+#define P32_CRT_LIBNAME "msvcr70d.dll"
+#else
+#define P32_CRT_LIBNAME "msvcr70.dll"
+#endif
+#elif P32_CRT >= P32_MSVCRT42
+#ifdef _DEBUG
+#define P32_CRT_LIBNAME "msvcrtd.dll"
+#else
+#define P32_CRT_LIBNAME "msvcrt.dll"
+#endif
+#elif P32_CRT >= P32_MSVCRT40
+#ifdef _DEBUG
+/**
+ * NOTE: msvcr40d.dll is the correct name.
+ */
+#define P32_CRT_LIBNAME "msvcr40d.dll"
+#else
+#define P32_CRT_LIBNAME "msvcrt40.dll"
+#endif
+#elif P32_CRT == P32_MSVCRT20
+#ifdef _DEBUG
+#error _DEBUG: msvcrt20.dll does not have debug version
+#else
+#define P32_CRT_LIBNAME "msvcrt20.dll"
+#endif
+#elif P32_CRT == P32_MSVCRT10
+#ifdef _DEBUG
+#error _DEBUG: msvcrt10.dll does not have debug version
+#else
+#define P32_CRT_LIBNAME "msvcrt10.dll"
+#endif
+#else
+#ifdef _DEBUG
+#error _DEBUG: crtdll.dll does not have debug version
+#else
+#define P32_CRT_LIBNAME "crtdll.dll"
+#endif
+#endif
 
 #ifdef _DLL
 static uintptr_t      P32CrtHandle     = 0;
 static pthread_once_t P32CrtHandleOnce = PTHREAD_ONCE_INIT;
 
 static void P32InitCrtHandle (void) {
-  HANDLE crtHandle = GetModuleHandleW (P32_CRT_FILENAME);
+  HANDLE crtHandle = GetModuleHandleW (TEXT (P32_CRT_LIBNAME));
 
   if (crtHandle == NULL) {
-    p32_terminate (L"Failed to obtain handle to CRT (" P32_CRT_FILENAME L").");
+    p32_terminate (L"Failed to obtain handle to CRT (" TEXT (P32_CRT_LIBNAME) L").");
   }
 
   P32CrtHandle = (uintptr_t) crtHandle;
