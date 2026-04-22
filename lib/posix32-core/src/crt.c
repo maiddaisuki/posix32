@@ -35,6 +35,32 @@
  * This file contains functions to obtain information about CRT.
  */
 
+/**
+ * Windows 9x systems lack Unicode support; use `GetModuleHandleA` instead of
+ * `GetModuleHandleW`.
+ */
+#if P32_WIN9X
+#define P32GetModuleHandle(module) GetModuleHandleA (module)
+#else
+#define P32GetModuleHandle(module) GetModuleHandleW (TEXT (module))
+#endif
+
+/**
+ * Convenience wrapper for `GetProcAddress`.
+ */
+#define P32GetProcAddress(module, func) (Func##func) (UINT_PTR) GetProcAddress (module, #func)
+
+/**
+ * Suppress warnings about conversion between data and function pointers with
+ * picky compilers.
+ */
+#define F(ptr) (PVOID) (UINT_PTR) ptr
+
+/**
+ * Convenience wrapper for `InterlockedExchangePointer`.
+ */
+#define P32AtomicExchange(target, source) InterlockedExchangePointer ((void *volatile *) target, F (source))
+
 #if P32_CRT == P32_UCRT
 #ifdef _DEBUG
 #define P32_CRT_LIBNAME "ucrtbased.dll"
@@ -118,26 +144,72 @@
 #endif
 #endif
 
-#ifdef _DLL
-static uintptr_t      P32CrtHandle     = 0;
-static pthread_once_t P32CrtHandleOnce = PTHREAD_ONCE_INIT;
+/**
+ * Function type corresponding to `CrtHandle`;
+ * returns CRT handle.
+ */
+typedef uintptr_t (*FuncCrtHandle) (void);
 
-static void P32InitCrtHandle (void) {
-  HANDLE crtHandle = GetModuleHandleW (TEXT (P32_CRT_LIBNAME));
+/**
+ * Initialization thunk for `CrtHandle`.
+ */
+static uintptr_t P32InitCrtHandle (void);
+
+/**
+ * Get CRT handle.
+ */
+static uintptr_t P32CrtHandle (void);
+
+/**
+ * Structure to store information about CRT.
+ */
+typedef struct CrtInfo {
+  pthread_once_t Init;
+  /**
+   * CRT handle.
+   */
+  uintptr_t Handle;
+  /**
+   * Pointer to `CrtHandle` implementation.
+   */
+  FuncCrtHandle PtrCrtHandle;
+} CrtInfo;
+
+/**
+ * Information about CRT.
+ */
+static CrtInfo P32CrtInfo = {
+  .Init         = PTHREAD_ONCE_INIT,
+  .Handle       = 0,
+  .PtrCrtHandle = P32InitCrtHandle,
+};
+
+/**
+ * Initialize `P32CrtInfo`.
+ */
+static void P32InitCrtInfo (void) {
+#ifdef _DLL
+  HMODULE crtHandle = P32GetModuleHandle (P32_CRT_LIBNAME);
 
   if (crtHandle == NULL) {
     p32_terminate (L"Failed to obtain handle to CRT (" TEXT (P32_CRT_LIBNAME) L").");
   }
 
-  P32CrtHandle = (uintptr_t) crtHandle;
-}
+  P32AtomicExchange (&P32CrtInfo.Handle, crtHandle);
 #endif /* _DLL */
 
+  P32AtomicExchange (&P32CrtInfo.PtrCrtHandle, P32CrtHandle);
+}
+
+static uintptr_t P32InitCrtHandle (void) {
+  pthread_once (&P32CrtInfo.Init, P32InitCrtInfo);
+  return P32CrtInfo.PtrCrtHandle ();
+}
+
+static uintptr_t P32CrtHandle (void) {
+  return P32CrtInfo.Handle;
+}
+
 uintptr_t p32_crt_handle (void) {
-#ifdef _DLL
-  pthread_once (&P32CrtHandleOnce, P32InitCrtHandle);
-  return P32CrtHandle;
-#else
-  return 0;
-#endif
+  return P32CrtInfo.PtrCrtHandle ();
 }
