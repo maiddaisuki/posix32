@@ -1353,8 +1353,8 @@ static const FormatMap TimeFormatAmPmMap[] = {
 static const FormatMap DateFormatMap[] = {
   {L"dddd",  4, L"%A",  2},
   {L"ddd",   3, L"%a",  2},
-  {L"dd",    2, L"%e",  2},
-  {L"d",     1, L"%d",  2},
+  {L"dd",    2, L"%d",  2},
+  {L"d",     1, L"%e",  2},
   {L"MMMM",  4, L"%B",  2},
   {L"MMM",   3, L"%b",  2},
   {L"MM",    2, L"%m",  2},
