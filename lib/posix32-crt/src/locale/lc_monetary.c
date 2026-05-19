@@ -119,6 +119,10 @@ static void P32FreeLcMonetaryInfoA (LcMonetaryInfo *info, uintptr_t heap) {
   }
 }
 
+/*******************************************************************************
+ * External Functions.
+ */
+
 bool p32_localeinfo_monetary (locale_t locale, uintptr_t heap) {
   Locale         *lcMonetary     = &locale->WinLocale.LcMonetary;
   LcMonetaryInfo *lcMonetaryInfo = &locale->LocaleInfo.LcMonetary;
@@ -126,7 +130,7 @@ bool p32_localeinfo_monetary (locale_t locale, uintptr_t heap) {
   if (!P32LcMonetaryInfo (lcMonetaryInfo, heap, lcMonetary, locale)) {
 #ifdef LIBPOSIX32_TEST
     _RPTW1 (
-      _CRT_ERROR, L"%s(LC_MONETARY): failed to obtain locale information\n", locale->WindowsLocaleStrings.W.LcMonetary
+      _CRT_ERROR, L"LC_MONETARY(%s): failed to obtain locale information\n", locale->WindowsLocaleStrings.W.LcMonetary
     );
 
     if (IsDebuggerPresent ()) {

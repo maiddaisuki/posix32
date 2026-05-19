@@ -142,13 +142,17 @@ static void P32FreeLcNumericInfoA (LcNumericInfo *info, uintptr_t heap) {
   }
 }
 
+/*******************************************************************************
+ * External Functions.
+ */
+
 bool p32_localeinfo_numeric (locale_t locale, uintptr_t heap) {
   Locale        *lcNumeric     = &locale->WinLocale.LcNumeric;
   LcNumericInfo *lcNumericInfo = &locale->LocaleInfo.LcNumeric;
 
   if (!P32LcNumericInfo (lcNumericInfo, heap, lcNumeric, locale)) {
 #ifdef LIBPOSIX32_TEST
-    _RPTW1 (_CRT_ERROR, L"%s(LC_NUMERIC): failed to obtain locale information\n", lcNumeric->LocaleName);
+    _RPTW1 (_CRT_ERROR, L"LC_NUMERIC(%s): failed to obtain locale information\n", lcNumeric->LocaleName);
 
     if (IsDebuggerPresent ()) {
       DebugBreak ();

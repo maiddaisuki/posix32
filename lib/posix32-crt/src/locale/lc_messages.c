@@ -198,13 +198,17 @@ static void P32FreeLcMessagesInfoA (LcMessagesInfo *lcMessagesInfo, uintptr_t he
   }
 }
 
+/*******************************************************************************
+ * External Functions.
+ */
+
 bool p32_localeinfo_messages (locale_t locale, uintptr_t heap) {
   Locale         *lcMessages     = &locale->WinLocale.LcMessages;
   LcMessagesInfo *lcMessagesInfo = &locale->LocaleInfo.LcMessages;
 
   if (!P32LcMessagesInfo (lcMessagesInfo, heap, lcMessages)) {
 #ifdef LIBPOSIX32_TEST
-    _RPTW1 (_CRT_ERROR, L"%s(LC_MESSAGES): failed to obtain locale information\n", lcMessages->LocaleName);
+    _RPTW1 (_CRT_ERROR, L"LC_MESSAGES(%s): failed to obtain locale information\n", lcMessages->LocaleName);
 
     if (IsDebuggerPresent ()) {
       DebugBreak ();
@@ -216,7 +220,7 @@ bool p32_localeinfo_messages (locale_t locale, uintptr_t heap) {
 
   if (!P32ConvertLcMessagesInfo (lcMessagesInfo, heap, locale)) {
 #ifdef LIBPOSIX32_TEST
-    _RPTW1 (_CRT_ERROR, L"%s(LC_MESSAGES): failed to convert locale information\n", lcMessages->LocaleName);
+    _RPTW1 (_CRT_ERROR, L"LC_MESSAGES(%s): failed to convert locale information\n", lcMessages->LocaleName);
 
     if (IsDebuggerPresent ()) {
       DebugBreak ();

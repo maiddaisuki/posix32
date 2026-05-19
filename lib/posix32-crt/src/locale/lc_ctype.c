@@ -328,6 +328,10 @@ static bool P32ToUpperMap (UpperMap *upperMap, locale_t locale) {
   return true;
 }
 
+/*******************************************************************************
+ * External Functions.
+ */
+
 bool p32_localeinfo_ctype (locale_t locale, uintptr_t heap) {
   Locale      *lcCtype     = &locale->WinLocale.LcCtype;
   LcCtypeInfo *lcCtypeInfo = &locale->LocaleInfo.LcCtype;
@@ -346,7 +350,7 @@ bool p32_localeinfo_ctype (locale_t locale, uintptr_t heap) {
 
   if (!P32LcCtypeInfo (lcCtypeInfo, heap, charset)) {
 #ifdef LIBPOSIX32_TEST
-    _RPTW1 (_CRT_ERROR, L"%s(LC_CTYPE): failed to obtain locale information\n", locale->WindowsLocaleStrings.W.LcCtype);
+    _RPTW1 (_CRT_ERROR, L"LC_CTYPE(%s): failed to obtain locale information\n", locale->WindowsLocaleStrings.W.LcCtype);
 
     if (IsDebuggerPresent ()) {
       DebugBreak ();
@@ -359,7 +363,7 @@ bool p32_localeinfo_ctype (locale_t locale, uintptr_t heap) {
   if (!P32ConvertLcCtypeInfo (lcCtypeInfo, heap, charset)) {
 #ifdef LIBPOSIX32_TEST
     _RPTW1 (
-      _CRT_ERROR, L"%s(LC_CTYPE): failed to convert locale information\n", locale->WindowsLocaleStrings.W.LcCtype
+      _CRT_ERROR, L"LC_CTYPE(%s): failed to convert locale information\n", locale->WindowsLocaleStrings.W.LcCtype
     );
 
     if (IsDebuggerPresent ()) {
@@ -372,7 +376,7 @@ bool p32_localeinfo_ctype (locale_t locale, uintptr_t heap) {
 
   if (!P32AsciiMap (&lcCtypeInfo->AsciiMap, locale)) {
 #ifdef LIBPOSIX32_TEST
-    _RPTW1 (_CRT_ERROR, L"%s(LC_CTYPE): failed to create AsciiMap\n", locale->WindowsLocaleStrings.W.LcCtype);
+    _RPTW1 (_CRT_ERROR, L"LC_CTYPE(%s): failed to create AsciiMap\n", locale->WindowsLocaleStrings.W.LcCtype);
 
     if (IsDebuggerPresent ()) {
       DebugBreak ();
@@ -384,7 +388,7 @@ bool p32_localeinfo_ctype (locale_t locale, uintptr_t heap) {
 
   if (!P32CharTypeMap (&lcCtypeInfo->CharType, locale)) {
 #ifdef LIBPOSIX32_TEST
-    _RPTW1 (_CRT_ERROR, L"%s(LC_CTYPE): failed to create CharTypeMap\n", locale->WindowsLocaleStrings.W.LcCtype);
+    _RPTW1 (_CRT_ERROR, L"LC_CTYPE(%s): failed to create CharTypeMap\n", locale->WindowsLocaleStrings.W.LcCtype);
 
     if (IsDebuggerPresent ()) {
       DebugBreak ();
@@ -396,7 +400,7 @@ bool p32_localeinfo_ctype (locale_t locale, uintptr_t heap) {
 
   if (!P32ToLowerMap (&lcCtypeInfo->ToLower, locale)) {
 #ifdef LIBPOSIX32_TEST
-    _RPTW1 (_CRT_ERROR, L"%s(LC_CTYPE): failed to create LowerMap\n", locale->WindowsLocaleStrings.W.LcCtype);
+    _RPTW1 (_CRT_ERROR, L"LC_CTYPE(%s): failed to create LowerMap\n", locale->WindowsLocaleStrings.W.LcCtype);
 
     if (IsDebuggerPresent ()) {
       DebugBreak ();
@@ -408,7 +412,7 @@ bool p32_localeinfo_ctype (locale_t locale, uintptr_t heap) {
 
   if (!P32ToUpperMap (&lcCtypeInfo->ToUpper, locale)) {
 #ifdef LIBPOSIX32_TEST
-    _RPTW1 (_CRT_ERROR, L"%s(LC_CTYPE): failed to create UpperMap\n", locale->WindowsLocaleStrings.W.LcCtype);
+    _RPTW1 (_CRT_ERROR, L"LC_CTYPE(%s): failed to create UpperMap\n", locale->WindowsLocaleStrings.W.LcCtype);
 
     if (IsDebuggerPresent ()) {
       DebugBreak ();
