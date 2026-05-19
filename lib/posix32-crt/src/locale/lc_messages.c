@@ -40,17 +40,41 @@
 /**
  * Get locale information dependant on `LC_MESSAGES` locale category.
  */
-static bool P32LcMessagesInfo (LcMessagesInfo *lcMessagesInfo, uintptr_t heap, Locale *lcMessages) {
-  if (p32_private_wcsdup (&lcMessagesInfo->NoStr.W, L"no", heap) == -1) {
+static bool P32LcMessagesInfo (LcMessagesInfo *lcMessagesInfo, uintptr_t heap, Locale *lcMessages, locale_t locale) {
+  LocaleInfoRequest infoRequest = {0};
+
+  infoRequest.Flags   |= P32_LOCALE_INFO_REQUEST_CONVERT;
+  infoRequest.charset  = &locale->Charset;
+
+  infoRequest.Info    = NOSTR;
+  infoRequest.OutputA = &lcMessagesInfo->NoStr.A;
+  infoRequest.OutputW = &lcMessagesInfo->NoStr.W;
+
+  if (p32_posix_get_locale_info (&infoRequest, heap, P32_POSIX_LOCALE_INFO_NL_ITEM) != 0) {
     goto fail;
   }
-  if (p32_private_wcsdup (&lcMessagesInfo->YesStr.W, L"yes", heap) == -1) {
+
+  infoRequest.Info    = YESSTR;
+  infoRequest.OutputA = &lcMessagesInfo->YesStr.A;
+  infoRequest.OutputW = &lcMessagesInfo->YesStr.W;
+
+  if (p32_posix_get_locale_info (&infoRequest, heap, P32_POSIX_LOCALE_INFO_NL_ITEM) != 0) {
     goto fail;
   }
-  if (p32_private_wcsdup (&lcMessagesInfo->NoExpr.W, L"^[nN]", heap) == -1) {
+
+  infoRequest.Info    = NOEXPR;
+  infoRequest.OutputA = &lcMessagesInfo->NoExpr.A;
+  infoRequest.OutputW = &lcMessagesInfo->NoExpr.W;
+
+  if (p32_posix_get_locale_info (&infoRequest, heap, P32_POSIX_LOCALE_INFO_NL_ITEM) != 0) {
     goto fail;
   }
-  if (p32_private_wcsdup (&lcMessagesInfo->YesExpr.W, L"^[yY]", heap) == -1) {
+
+  infoRequest.Info    = YESEXPR;
+  infoRequest.OutputA = &lcMessagesInfo->YesExpr.A;
+  infoRequest.OutputW = &lcMessagesInfo->YesExpr.W;
+
+  if (p32_posix_get_locale_info (&infoRequest, heap, P32_POSIX_LOCALE_INFO_NL_ITEM) != 0) {
     goto fail;
   }
 
@@ -109,49 +133,6 @@ static void P32FreeLcMessagesInfoW (LcMessagesInfo *lcMessagesInfo, uintptr_t he
 }
 
 /**
- * Convert locale information in `lcMessagesInfo` to `locale->Charset.CodePage`.
- */
-static bool P32ConvertLcMessagesInfo (LcMessagesInfo *lcMessagesInfo, uintptr_t heap, locale_t locale) {
-  CharsetConversionRequest conversionRequset = {0};
-
-  conversionRequset.Flags   = (P32_CHARSET_CONVERSION_WC_TO_MB | P32_CHARSET_CONVERSION_NO_BEST_FIT);
-  conversionRequset.Charset = &locale->Charset;
-
-  conversionRequset.Input.W  = lcMessagesInfo->NoStr.W;
-  conversionRequset.Output.A = &lcMessagesInfo->NoStr.A;
-
-  if (p32_charset_convert (&conversionRequset, heap) == -1) {
-    goto fail;
-  }
-
-  conversionRequset.Input.W  = lcMessagesInfo->YesStr.W;
-  conversionRequset.Output.A = &lcMessagesInfo->YesStr.A;
-
-  if (p32_charset_convert (&conversionRequset, heap) == -1) {
-    goto fail;
-  }
-
-  conversionRequset.Input.W  = lcMessagesInfo->NoExpr.W;
-  conversionRequset.Output.A = &lcMessagesInfo->NoExpr.A;
-
-  if (p32_charset_convert (&conversionRequset, heap) == -1) {
-    goto fail;
-  }
-
-  conversionRequset.Input.W  = lcMessagesInfo->YesExpr.W;
-  conversionRequset.Output.A = &lcMessagesInfo->YesExpr.A;
-
-  if (p32_charset_convert (&conversionRequset, heap) == -1) {
-    goto fail;
-  }
-
-  return true;
-
-fail:
-  return false;
-}
-
-/**
  * Copy locale information from `src` to `dest`.
  */
 static bool P32CopyLcMessagesInfoA (LcMessagesInfo *dest, uintptr_t heap, LcMessagesInfo *src) {
@@ -206,7 +187,7 @@ bool p32_localeinfo_messages (locale_t locale, uintptr_t heap) {
   Locale         *lcMessages     = &locale->WinLocale.LcMessages;
   LcMessagesInfo *lcMessagesInfo = &locale->LocaleInfo.LcMessages;
 
-  if (!P32LcMessagesInfo (lcMessagesInfo, heap, lcMessages)) {
+  if (!P32LcMessagesInfo (lcMessagesInfo, heap, lcMessages, locale)) {
 #ifdef LIBPOSIX32_TEST
     _RPTW1 (_CRT_ERROR, L"LC_MESSAGES(%s): failed to obtain locale information\n", lcMessages->LocaleName);
 
@@ -215,26 +196,13 @@ bool p32_localeinfo_messages (locale_t locale, uintptr_t heap) {
     }
 #endif
 
-    goto fail_w;
-  }
-
-  if (!P32ConvertLcMessagesInfo (lcMessagesInfo, heap, locale)) {
-#ifdef LIBPOSIX32_TEST
-    _RPTW1 (_CRT_ERROR, L"LC_MESSAGES(%s): failed to convert locale information\n", lcMessages->LocaleName);
-
-    if (IsDebuggerPresent ()) {
-      DebugBreak ();
-    }
-#endif
-
-    goto fail_a;
+    goto fail;
   }
 
   return true;
 
-fail_a:
+fail:
   P32FreeLcMessagesInfoA (lcMessagesInfo, heap);
-fail_w:
   P32FreeLcMessagesInfoW (lcMessagesInfo, heap);
 
   return false;
