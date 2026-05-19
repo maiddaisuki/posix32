@@ -1613,7 +1613,7 @@ static bool P32DateTimeFormat (LcTimeInfo *info, CalendarInfo *calendarInfo, uin
 }
 
 /**
- * Get locale's date/time format strings.
+ * Get locale's calendar-specific date/time format strings.
  */
 static bool P32CalendarDateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, CalendarInfo *calendar, locale_t locale) {
   CharsetConversionRequest conversionRequest = {0};
@@ -1696,10 +1696,21 @@ static bool P32DateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t locale
     goto fail;
   }
 
-  /**
-   * Disallow best-fit conversion for the rest.
-   */
-  conversionRequest.Flags |= (P32_CHARSET_CONVERSION_NO_BEST_FIT);
+  return true;
+
+fail:
+  return false;
+}
+
+/**
+ * Get date/time format strings common for all locales.
+ */
+static bool P32DateTimeCommon (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t locale) {
+  CharsetConversionRequest conversionRequest = {0};
+
+  conversionRequest.Flags   |= P32_CHARSET_CONVERSION_WC_TO_MB;
+  conversionRequest.Flags   |= P32_CHARSET_CONVERSION_NO_BEST_FIT;
+  conversionRequest.Charset  = &locale->Charset;
 
   /**
    * Time format string for "%R" format specifier.
@@ -1763,6 +1774,53 @@ fail:
   return false;
 }
 
+/**
+ * Get date/time format strings for "POSIX" locale.
+ */
+static bool P32DateTimePosix (LcTimeInfo *lcTimeInfo, uintptr_t heap, CalendarInfo *calendarInfo, locale_t locale) {
+  LocaleInfoRequest infoRequest = {0};
+
+  infoRequest.Flags   |= P32_LOCALE_INFO_REQUEST_CONVERT;
+  infoRequest.charset  = &locale->Charset;
+
+  infoRequest.Info    = T_FMT;
+  infoRequest.OutputA = &lcTimeInfo->TimeFormat.Crt.A;
+  infoRequest.OutputW = &lcTimeInfo->TimeFormat.Crt.W;
+
+  if (p32_posix_get_locale_info (&infoRequest, heap, P32_POSIX_LOCALE_INFO_NL_ITEM) != 0) {
+    goto fail;
+  }
+
+  infoRequest.Info    = T_FMT_AMPM;
+  infoRequest.OutputA = &lcTimeInfo->TimeFormatAmPm.Crt.A;
+  infoRequest.OutputW = &lcTimeInfo->TimeFormatAmPm.Crt.W;
+
+  if (p32_posix_get_locale_info (&infoRequest, heap, P32_POSIX_LOCALE_INFO_NL_ITEM) != 0) {
+    goto fail;
+  }
+
+  infoRequest.Info    = D_FMT;
+  infoRequest.OutputA = &calendarInfo->DateFormat.Crt.A;
+  infoRequest.OutputW = &calendarInfo->DateFormat.Crt.W;
+
+  if (p32_posix_get_locale_info (&infoRequest, heap, P32_POSIX_LOCALE_INFO_NL_ITEM) != 0) {
+    goto fail;
+  }
+
+  infoRequest.Info    = D_T_FMT;
+  infoRequest.OutputA = &calendarInfo->DateTimeFormat.A;
+  infoRequest.OutputW = &calendarInfo->DateTimeFormat.W;
+
+  if (p32_posix_get_locale_info (&infoRequest, heap, P32_POSIX_LOCALE_INFO_NL_ITEM) != 0) {
+    goto fail;
+  }
+
+  return true;
+
+fail:
+  return false;
+}
+
 /*******************************************************************************
  * External Functions.
  */
@@ -1771,10 +1829,15 @@ bool p32_localeinfo_time (locale_t locale, uintptr_t heap) {
   Locale     *lcTime     = &locale->WinLocale.LcTime;
   LcTimeInfo *lcTimeInfo = &locale->LocaleInfo.LcTime;
 
+  bool useAlternativeCalendar = false;
+
   /**
-   * Use locale's alternative calendar if it has one.
+   * Use locale's alternative calendar if it has one, unless it is
+   * "POSIX" locale.
    */
-  bool useAlternativeCalendar = (lcTime->AlternativeCalendar != 0);
+  if (lcTime->Type != LocaleType_POSIX && lcTime->AlternativeCalendar != 0) {
+    useAlternativeCalendar = true;
+  }
 
   if (!P32LcTimeLocaleInfo (lcTimeInfo, heap, lcTime, locale)) {
 #ifdef LIBPOSIX32_TEST
@@ -1785,10 +1848,6 @@ bool p32_localeinfo_time (locale_t locale, uintptr_t heap) {
     }
 #endif
 
-    goto fail;
-  }
-
-  if (!P32DateTime (lcTimeInfo, heap, locale)) {
     goto fail;
   }
 
@@ -1804,7 +1863,21 @@ bool p32_localeinfo_time (locale_t locale, uintptr_t heap) {
     goto fail;
   }
 
-  if (!P32CalendarDateTime (lcTimeInfo, heap, &lcTimeInfo->DefaultCalendar, locale)) {
+  if (lcTime->Type == LocaleType_POSIX) {
+    if (!P32DateTimePosix (lcTimeInfo, heap, &lcTimeInfo->DefaultCalendar, locale)) {
+      goto fail;
+    }
+  } else {
+    if (!P32DateTime (lcTimeInfo, heap, locale)) {
+      goto fail;
+    }
+
+    if (!P32CalendarDateTime (lcTimeInfo, heap, &lcTimeInfo->DefaultCalendar, locale)) {
+      goto fail;
+    }
+  }
+
+  if (!P32DateTimeCommon (lcTimeInfo, heap, locale)) {
     goto fail;
   }
 
