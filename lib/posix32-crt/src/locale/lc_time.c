@@ -1224,16 +1224,10 @@ static bool P32CopyLcTimeInfoA (LcTimeInfo *dest, uintptr_t heap, LcTimeInfo *sr
     goto fail;
   }
 
-  /**
-   * `src->AltDigits.A` may be NULL if locale's alternative digits cannot be
-   * converted to SBCS/DBCS code pages.
-   */
-  // if (src->AltDigits.A != NULL) {
   if (p32_private_strdup (&dest->AltDigits.A, src->AltDigits.A, heap) == -1) {
     goto fail;
   }
   memcpy (dest->AltDigits.Map, src->AltDigits.Map, sizeof (dest->AltDigits.Map));
-  //}
 
   return true;
 
