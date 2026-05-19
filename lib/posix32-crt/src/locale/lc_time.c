@@ -1363,6 +1363,15 @@ static const FormatMap DateFormatMap[] = {
   {L"yyyy",  4, L"%Y",  2},
   {L"yy",    2, L"%y",  2},
   {L"y",     1, L"%y",  2},
+  /**
+   * TODO: we probably need to copy string stored in `Era::Name::W`.
+   *
+   *  We cannot simply use "%EC" in format string as it stands for "name of the
+   *  base year (period) in the locale's alternative representation".
+   *
+   *  With current implementation, we define "alternative representation" as
+   *  using calendar information in "LcTimeInfo::AlternativeCalendar", if any.
+   */
   {L"gg",    2, L"%EC", 0},
   {L"g",     1, L"%EC", 0},
   {L"%",     1, L"%%",  2},
