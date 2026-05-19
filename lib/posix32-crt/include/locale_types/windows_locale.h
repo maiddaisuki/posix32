@@ -244,10 +244,8 @@ P32_TEST_DECL bool p32_winlocale_equal (Locale *l1, Locale *l2);
  */
 #define P32_LOCALE_INFO_REQUEST_CONVERT_NO_BEST_FIT (1 << 9)
 /**
- * If locale information cannot be converted, fallback to some default value.
- *
- * TODO: we should fallback to locale information used for "POSIX" locale;
- *   currently, we simply store an empty string.
+ * If locale information cannot be converted, fallback to locale information
+ * used for "POSIX" locale.
  */
 #define P32_LOCALE_INFO_REQUEST_CONVERT_FALLBACK    (1 << 10)
 /**

@@ -1377,11 +1377,8 @@ static bool P32GetTextualLocaleInfoW (LocaleInfoRequest *request, uintptr_t heap
         goto fail_free;
       }
 
-      /**
-       * TODO: we should fallback to locale information used for "POSIX" locale.
-       */
       if (request->Flags & (P32_LOCALE_INFO_REQUEST_CONVERT_FALLBACK)) {
-        if (p32_private_strdup (request->OutputA, "", heap) == -1) {
+        if (p32_posix_get_locale_info (request, heap, P32_POSIX_LOCALE_INFO_FALLBACK) != 0) {
           goto fail_free;
         }
       } else if ((request->Flags & (P32_LOCALE_INFO_REQUEST_CONVERT_NO_ERROR)) == 0) {
@@ -1458,11 +1455,8 @@ static bool P32GetTextualCalendarInfoW (CalendarInfoRequest *request, uintptr_t 
         goto fail_free;
       }
 
-      /**
-       * TODO: we should fallback to locale information used for "POSIX" locale.
-       */
       if (request->Flags & (P32_LOCALE_INFO_REQUEST_CONVERT_FALLBACK)) {
-        if (p32_private_strdup (request->OutputA, "", heap) == -1) {
+        if (p32_posix_get_calendar_info (request, heap, P32_POSIX_LOCALE_INFO_FALLBACK) != 0) {
           goto fail_free;
         }
       } else if ((request->Flags & (P32_LOCALE_INFO_REQUEST_CONVERT_NO_ERROR)) == 0) {
@@ -1743,6 +1737,18 @@ bool p32_winlocale_get_country_code (wchar_t **address, uintptr_t heap, Locale *
 }
 
 bool p32_winlocale_get_locale_info (LocaleInfoRequest *request, uintptr_t heap, Locale *locale) {
+  if (locale->Type == LocaleType_POSIX) {
+    int success = p32_posix_get_locale_info (request, heap, 0);
+
+    if (success == -1) {
+      return false;
+    }
+
+    if (success == 0) {
+      return true;
+    }
+  }
+
   if (request->Flags & P32_LOCALE_INFO_REQUEST_NUMERIC) {
     return WinlocaleGetNumericLocaleInfo (request, heap, locale);
   }
@@ -1751,6 +1757,18 @@ bool p32_winlocale_get_locale_info (LocaleInfoRequest *request, uintptr_t heap, 
 }
 
 bool p32_winlocale_get_calendar_info (CalendarInfoRequest *request, uintptr_t heap, Locale *locale) {
+  if (locale->Type == LocaleType_POSIX) {
+    int success = p32_posix_get_calendar_info (request, heap, 0);
+
+    if (success == -1) {
+      return false;
+    }
+
+    if (success == 0) {
+      return true;
+    }
+  }
+
   if (request->Flags & P32_LOCALE_INFO_REQUEST_NUMERIC) {
     return WinlocaleGetNumericCalendarInfo (request, heap, locale);
   }

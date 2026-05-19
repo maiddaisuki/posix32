@@ -94,6 +94,11 @@ typedef struct Charset Charset;
 #include "locale_types/windows_locale.h"
 
 /**
+ * Locale information for "POSIX" locale.
+ */
+#include "locale_types/posix_locale.h"
+
+/**
  * Request to use locale's default ANSI code page.
  */
 #define P32_CODEPAGE_ACP        ((uint16_t) -1)
