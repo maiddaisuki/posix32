@@ -59,6 +59,11 @@ static bool P32CalendearEraString (Era *era, uintptr_t heap) {
   return ret != -1;
 }
 
+/**
+ * Get calendar-dependant locale information.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
 static bool P32LcTimeCalendarInfo (
   CalendarInfo *calendarInfo,
   uintptr_t     heap,
