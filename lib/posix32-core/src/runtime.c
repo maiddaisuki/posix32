@@ -27,6 +27,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-atomic.h"
 #include "core-runtime.h"
 
 #undef p32_terminate
@@ -63,17 +64,6 @@
  * Convenience wrapper for `GetProcAddress`.
  */
 #define P32GetProcAddress(module, func) (Func##func) (UINT_PTR) GetProcAddress (module, #func)
-
-/**
- * Suppress warnings about conversion between data and function pointers with
- * picky compilers.
- */
-#define F(ptr) (PVOID) (UINT_PTR) ptr
-
-/**
- * Convenience wrapper for `InterlockedExchangePointer`.
- */
-#define P32AtomicExchange(target, source) InterlockedExchangePointer ((void *volatile *) target, F (source))
 
 #if P32_WINNT < P32_WINNT_WIN7
 #define DYNAMIC_CHECKS
@@ -131,7 +121,7 @@ static void P32RtApiInit (void) {
   }
 
   if (ptrRaiseFailFastException != NULL) {
-    P32AtomicExchange (&P32RtApi.PtrRaiseFailFastException, ptrRaiseFailFastException);
+    p32_atomic_exchange_fpointer (&P32RtApi.PtrRaiseFailFastException, ptrRaiseFailFastException);
   }
 #endif /* P32_WINNT < Windows 7 */
 }
@@ -217,9 +207,9 @@ static void P32RuntimeApiInit (void) {
 
 #if P32_WINNT < P32_WINNT_WIN7
   if (P32RtApi.PtrRaiseFailFastException != NULL) {
-    P32AtomicExchange (&P32RuntimeApi.PtrRuntimeRaiseFatalException, P32RaiseFailFastException);
+    p32_atomic_exchange_fpointer (&P32RuntimeApi.PtrRuntimeRaiseFatalException, P32RaiseFailFastException);
   } else {
-    P32AtomicExchange (&P32RuntimeApi.PtrRuntimeRaiseFatalException, P32RaiseNonContinuableException);
+    p32_atomic_exchange_fpointer (&P32RuntimeApi.PtrRuntimeRaiseFatalException, P32RaiseNonContinuableException);
   }
 #endif /* P32_WINNT < Windows 7 */
 }
@@ -272,7 +262,7 @@ static void P32RaiseFailFastException (PCONTEXT context) {
 static TerminateHandler P32TerminateHandler = NULL;
 
 void p32_terminate_handler (TerminateHandler handler) {
-  P32AtomicExchange (&P32TerminateHandler, handler);
+  p32_atomic_exchange_fpointer (&P32TerminateHandler, handler);
 }
 #endif
 

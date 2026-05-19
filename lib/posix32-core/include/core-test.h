@@ -20,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "core-atomic.h"
 #include "core-crt.h"
 #include "core-memory.h"
 #include "core-runtime.h"

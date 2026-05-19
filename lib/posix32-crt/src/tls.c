@@ -33,6 +33,7 @@
 #include <pthread.h>
 #endif
 
+#include "core-atomic.h"
 #include "core-memory.h"
 #include "core-runtime.h"
 
@@ -43,17 +44,6 @@
  *
  * This file defines functions to manipulate TLS.
  */
-
-/**
- * Suppress warnings about conversion between data and function pointers with
- * picky compilers.
- */
-#define F(ptr) (PVOID) (UINT_PTR) ptr
-
-/**
- * Convenience wrapper for `InterlockedExchangePointer`.
- */
-#define P32AtomicExchange(target, source) InterlockedExchangePointer ((void *volatile *) target, F (source))
 
 #ifndef LIBPOSIX32_DLL
 /**
@@ -114,7 +104,7 @@ static void P32TlsInit (void) {
     p32_terminate (L"TLS: failed to allocate TLS index.");
   }
 
-  P32AtomicExchange (&P32Tls.PtrTlsIndex, P32TlsIndex);
+  p32_atomic_exchange_fpointer (&P32Tls.PtrTlsIndex, P32TlsIndex);
 }
 #endif /* Static build */
 

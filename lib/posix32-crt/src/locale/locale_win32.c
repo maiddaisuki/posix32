@@ -31,6 +31,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-atomic.h"
 #include "core-winver.h"
 
 #include "locale-internal.h"
@@ -326,17 +327,6 @@ static void P32WinlocaleRegionNameDestroy (Locale *locale, uintptr_t heap);
  */
 #define P32GetProcAddress(module, func) (Func##func) (UINT_PTR) GetProcAddress (module, #func)
 
-/**
- * Suppress warnings about conversion between data and function pointers with
- * picky compilers.
- */
-#define F(ptr) (PVOID) (UINT_PTR) ptr
-
-/**
- * Convenience wrapper for `InterlockedExchangePointer`.
- */
-#define P32AtomicExchange(target, source) InterlockedExchangePointer ((void *volatile *) target, F (source))
-
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID) && (P32_LOCALE_API & P32_LOCALE_API_LN)
 #define DYNAMIC_CHECKS
 #define DYNAMIC_IMPLEMENTATION
@@ -530,31 +520,31 @@ static void P32InitLocaleApi (void) {
   }
 
   if (ptrGetSystemDefaultLocaleName != NULL) {
-    P32AtomicExchange (&P32LocaleApi.PtrGetSystemDefaultLocaleName, ptrGetSystemDefaultLocaleName);
+    p32_atomic_exchange_fpointer (&P32LocaleApi.PtrGetSystemDefaultLocaleName, ptrGetSystemDefaultLocaleName);
   }
 
   if (ptrGetUserDefaultLocaleName != NULL) {
-    P32AtomicExchange (&P32LocaleApi.PtrGetUserDefaultLocaleName, ptrGetUserDefaultLocaleName);
+    p32_atomic_exchange_fpointer (&P32LocaleApi.PtrGetUserDefaultLocaleName, ptrGetUserDefaultLocaleName);
   }
 
   if (ptrCompareStringEx != NULL) {
-    P32AtomicExchange (&P32LocaleApi.PtrCompareStringEx, ptrCompareStringEx);
+    p32_atomic_exchange_fpointer (&P32LocaleApi.PtrCompareStringEx, ptrCompareStringEx);
   }
 
   if (ptrGetCalendarInfoEx != NULL) {
-    P32AtomicExchange (&P32LocaleApi.PtrGetCalendarInfoEx, ptrGetCalendarInfoEx);
+    p32_atomic_exchange_fpointer (&P32LocaleApi.PtrGetCalendarInfoEx, ptrGetCalendarInfoEx);
   }
 
   if (ptrGetLocaleInfoEx != NULL) {
-    P32AtomicExchange (&P32LocaleApi.PtrGetLocaleInfoEx, ptrGetLocaleInfoEx);
+    p32_atomic_exchange_fpointer (&P32LocaleApi.PtrGetLocaleInfoEx, ptrGetLocaleInfoEx);
   }
 
   if (ptrLCMapStringEx != NULL) {
-    P32AtomicExchange (&P32LocaleApi.PtrLCMapStringEx, ptrLCMapStringEx);
+    p32_atomic_exchange_fpointer (&P32LocaleApi.PtrLCMapStringEx, ptrLCMapStringEx);
   }
 
   if (ptrEnumSystemLocalesEx != NULL) {
-    P32AtomicExchange (&P32LocaleApi.PtrEnumSystemLocalesEx, ptrEnumSystemLocalesEx);
+    p32_atomic_exchange_fpointer (&P32LocaleApi.PtrEnumSystemLocalesEx, ptrEnumSystemLocalesEx);
   }
 #endif /* LCID and Locale Name APIs */
 
@@ -573,9 +563,9 @@ static void P32InitLocaleApi (void) {
   }
 
   if (ptrResolveLocaleName != NULL) {
-    P32AtomicExchange (&P32LocaleApi.PtrResolveLocaleName, ptrResolveLocaleName);
+    p32_atomic_exchange_fpointer (&P32LocaleApi.PtrResolveLocaleName, ptrResolveLocaleName);
   } else {
-    P32AtomicExchange (&P32LocaleApi.PtrResolveLocaleName, P32ResolveLocaleName);
+    p32_atomic_exchange_fpointer (&P32LocaleApi.PtrResolveLocaleName, P32ResolveLocaleName);
   }
 #endif /* Locale Name APIs */
 #endif /* P32_WINNT < Windows 7 */
@@ -593,7 +583,7 @@ static void P32InitLocaleApi (void) {
   }
 
   if (ptrGetGeoInfoEx != NULL) {
-    P32AtomicExchange (&P32LocaleApi.PtrGetGeoInfoEx, ptrGetGeoInfoEx);
+    p32_atomic_exchange_fpointer (&P32LocaleApi.PtrGetGeoInfoEx, ptrGetGeoInfoEx);
   }
 #endif /* P32_WINNT < Windows 10 1709 */
 }
@@ -1001,13 +991,13 @@ static WinlocaleApi P32WinlocaleApi = {
 #if P32_WINNT < P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI < NTDDI_WIN10_RS3)
 static void P32InitGeoApi (void) {
   if (P32LocaleApi.PtrGetGeoInfoEx != NULL) {
-    P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGeo, P32WinlocaleRegionName);
-    P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGeoCopy, P32WinlocaleRegionNameCopy);
-    P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGeoDestroy, P32WinlocaleRegionNameDestroy);
+    p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGeo, P32WinlocaleRegionName);
+    p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGeoCopy, P32WinlocaleRegionNameCopy);
+    p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGeoDestroy, P32WinlocaleRegionNameDestroy);
   } else {
-    P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGeo, P32WinlocaleGeo);
-    P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGeoCopy, P32WinlocaleGeoCopy);
-    P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGeoDestroy, P32WinlocaleGeoDestroy);
+    p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGeo, P32WinlocaleGeo);
+    p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGeoCopy, P32WinlocaleGeoCopy);
+    p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGeoDestroy, P32WinlocaleGeoDestroy);
   }
 }
 #endif /* P32_WINNT < Windows 10 1709 */
@@ -1054,23 +1044,23 @@ static bool P32InitLocaleNameApi (void) {
   }
 #endif
 
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetLocaleInfoW, P32WinlocaleLNGetLocaleInfoW);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetCalendarInfoW, P32WinlocaleLNGetCalendarInfoW);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleCompareStringW, P32WinlocaleLNCompareStringW);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleMapStringW, P32WinlocaleLNMapStringW);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleSystemDefault, P32WinlocaleLNSystemDefault);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleUserDefault, P32WinlocaleLNUserDefault);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleResolve, P32WinlocaleLNResolve);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleCopy, P32WinlocaleLNCopy);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleEqual, P32WinlocaleLNEqual);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleDestroy, P32WinlocaleLNDestroy);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetLanguageName, P32WinlocaleLNGetLanguageName);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetCountryName, P32WinlocaleLNGetCountryName);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetLanguageCode, P32WinlocaleLNGetLanguageCode);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetCountryCode, P32WinlocaleLNGetCountryCode);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetLocaleInfoW, P32WinlocaleLNGetLocaleInfoW);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetCalendarInfoW, P32WinlocaleLNGetCalendarInfoW);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleCompareStringW, P32WinlocaleLNCompareStringW);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleMapStringW, P32WinlocaleLNMapStringW);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleSystemDefault, P32WinlocaleLNSystemDefault);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleUserDefault, P32WinlocaleLNUserDefault);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleResolve, P32WinlocaleLNResolve);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleCopy, P32WinlocaleLNCopy);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleEqual, P32WinlocaleLNEqual);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleDestroy, P32WinlocaleLNDestroy);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetLanguageName, P32WinlocaleLNGetLanguageName);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetCountryName, P32WinlocaleLNGetCountryName);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetLanguageCode, P32WinlocaleLNGetLanguageCode);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetCountryCode, P32WinlocaleLNGetCountryCode);
 
 #ifdef LIBPOSIX32_TEST
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleEnumSystemLocales, P32WinlocaleLNEnumSystemLocalesW);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleEnumSystemLocales, P32WinlocaleLNEnumSystemLocalesW);
 #endif
 #endif /* LCID and Locale Name APIs */
 
@@ -1090,23 +1080,23 @@ static bool P32InitLocaleNameApi (void) {
  */
 static void P32InitLocaleApiWindowsNt (void) {
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetLocaleInfoW, P32WinlocaleLCIDGetLocaleInfoW);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetCalendarInfoW, P32WinlocaleLCIDGetCalendarInfoW);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleCompareStringW, P32WinlocaleLCIDCompareStringW);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleMapStringW, P32WinlocaleLCIDMapStringW);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleSystemDefault, P32WinlocaleLCIDSystemDefault);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleUserDefault, P32WinlocaleLCIDUserDefault);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleResolve, P32WinlocaleLCIDResolve);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleCopy, P32WinlocaleLCIDCopy);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleEqual, P32WinlocaleLCIDEqual);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleDestroy, P32WinlocaleLCIDDestroy);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetLanguageName, P32GetLanguageNameFromLocale);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetCountryName, P32GetCountryNameFromLocale);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetLanguageCode, P32GetLanguageCodeFromLocale);
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleGetCountryCode, P32GetCountryCodeFromLocale);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetLocaleInfoW, P32WinlocaleLCIDGetLocaleInfoW);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetCalendarInfoW, P32WinlocaleLCIDGetCalendarInfoW);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleCompareStringW, P32WinlocaleLCIDCompareStringW);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleMapStringW, P32WinlocaleLCIDMapStringW);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleSystemDefault, P32WinlocaleLCIDSystemDefault);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleUserDefault, P32WinlocaleLCIDUserDefault);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleResolve, P32WinlocaleLCIDResolve);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleCopy, P32WinlocaleLCIDCopy);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleEqual, P32WinlocaleLCIDEqual);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleDestroy, P32WinlocaleLCIDDestroy);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetLanguageName, P32GetLanguageNameFromLocale);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetCountryName, P32GetCountryNameFromLocale);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetLanguageCode, P32GetLanguageCodeFromLocale);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetCountryCode, P32GetCountryCodeFromLocale);
 
 #ifdef LIBPOSIX32_TEST
-  P32AtomicExchange (&P32WinlocaleApi.PtrWinlocaleEnumSystemLocales, P32WinlocaleLCIDEnumSystemLocalesW);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleEnumSystemLocales, P32WinlocaleLCIDEnumSystemLocalesW);
 #endif
 #endif /* LCID and Locale Name APIs */
 

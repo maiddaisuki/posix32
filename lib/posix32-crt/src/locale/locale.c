@@ -34,6 +34,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-atomic.h"
 #include "core-memory.h"
 #include "core-runtime.h"
 
@@ -284,17 +285,6 @@ static bool P32RestoreThreadLocaleState (ThreadLocaleState *threadLocaleState) {
  */
 
 /**
- * Suppress warnings about conversion between data and function pointers with
- * picky compilers.
- */
-#define F(ptr) (PVOID) (UINT_PTR) ptr
-
-/**
- * Convenience wrapper for `InterlockedExchangePointer`.
- */
-#define P32AtomicExchange(target, source) InterlockedExchangePointer ((void *volatile *) target, F (source))
-
-/**
  * Function type corresponding to `p32_*_locale` functions which return
  * internal `locale_t` objects.
  */
@@ -541,7 +531,7 @@ static void P32InitPosixLocale (void) {
     p32_terminate (L"POSIX Locale: initialization has failed.");
   }
 
-  P32AtomicExchange (&P32GlobalLocale.PtrGetPosixLocale, P32GetPosixLocale);
+  p32_atomic_exchange_fpointer (&P32GlobalLocale.PtrGetPosixLocale, P32GetPosixLocale);
 }
 
 static locale_t P32InitGetPosixLocale (void) {
@@ -622,7 +612,7 @@ static void P32InitUnicodeLocale (void) {
   }
 
 done:
-  P32AtomicExchange (&P32GlobalLocale.PtrGetUnicodeLocale, P32GetUnicodeLocale);
+  p32_atomic_exchange_fpointer (&P32GlobalLocale.PtrGetUnicodeLocale, P32GetUnicodeLocale);
 }
 
 static locale_t P32InitGetUnicodeLocale (void) {
@@ -729,7 +719,7 @@ static void P32InitAnsiLocale (void) {
   }
 
 done:
-  P32AtomicExchange (&P32GlobalLocale.PtrGetAnsiLocale, P32GetAnsiLocale);
+  p32_atomic_exchange_fpointer (&P32GlobalLocale.PtrGetAnsiLocale, P32GetAnsiLocale);
 }
 
 static locale_t P32InitGetAnsiLocale (void) {
@@ -857,7 +847,7 @@ static void P32InitOemLocale (void) {
   }
 
 done:
-  P32AtomicExchange (&P32GlobalLocale.PtrGetOemLocale, P32GetOemLocale);
+  p32_atomic_exchange_fpointer (&P32GlobalLocale.PtrGetOemLocale, P32GetOemLocale);
 }
 
 static locale_t P32InitGetOemLocale (void) {
@@ -1037,7 +1027,7 @@ static void P32InitGlobalLocale (void) {
   }
 #endif
 
-  P32AtomicExchange (&P32GlobalLocale.PtrGetGlobalLocale, P32GetGlobalLocale);
+  p32_atomic_exchange_fpointer (&P32GlobalLocale.PtrGetGlobalLocale, P32GetGlobalLocale);
 }
 
 static locale_t P32InitGetGlobalLocale (void) {
@@ -2709,7 +2699,7 @@ char *p32_setlocale (int category, const char *localeString) {
 #endif
 
   if (P32SetLocale (locale)) {
-    locale_t oldLocale = P32AtomicExchange (&P32GlobalLocale.GlobalLocale, locale);
+    locale_t oldLocale = p32_atomic_exchange_pointer (&P32GlobalLocale.GlobalLocale, locale);
     assert (oldLocale != NULL);
 
     /**

@@ -26,6 +26,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-atomic.h"
 #include "core-crt.h"
 #include "core-runtime.h"
 
@@ -49,17 +50,6 @@
  * Convenience wrapper for `GetProcAddress`.
  */
 #define P32GetProcAddress(module, func) (Func##func) (UINT_PTR) GetProcAddress (module, #func)
-
-/**
- * Suppress warnings about conversion between data and function pointers with
- * picky compilers.
- */
-#define F(ptr) (PVOID) (UINT_PTR) ptr
-
-/**
- * Convenience wrapper for `InterlockedExchangePointer`.
- */
-#define P32AtomicExchange(target, source) InterlockedExchangePointer ((void *volatile *) target, F (source))
 
 #if P32_CRT == P32_UCRT
 #ifdef _DEBUG
@@ -195,10 +185,10 @@ static void P32InitCrtInfo (void) {
     p32_terminate (L"Failed to obtain handle to CRT (" TEXT (P32_CRT_LIBNAME) L").");
   }
 
-  P32AtomicExchange (&P32CrtInfo.Handle, crtHandle);
+  p32_atomic_exchange_pointer (&P32CrtInfo.Handle, crtHandle);
 #endif /* _DLL */
 
-  P32AtomicExchange (&P32CrtInfo.PtrCrtHandle, P32CrtHandle);
+  p32_atomic_exchange_fpointer (&P32CrtInfo.PtrCrtHandle, P32CrtHandle);
 }
 
 static uintptr_t P32InitCrtHandle (void) {

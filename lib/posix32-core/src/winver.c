@@ -26,6 +26,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-atomic.h"
 #include "core-runtime.h"
 #include "core-winver.h"
 
@@ -39,17 +40,6 @@
  * at runtime, compared to conditional code which uses preprocessor conditions
  * involving `_WIN32_WINNT`.
  */
-
-/**
- * Suppress warnings about conversion between data and function pointers with
- * picky compilers.
- */
-#define F(ptr) (PVOID) (UINT_PTR) ptr
-
-/**
- * Convenience wrapper for `InterlockedExchangePointer`.
- */
-#define P32AtomicExchange(target, source) InterlockedExchangePointer ((void *volatile *) target, F (source))
 
 /**
  * Function type corresponding to `p32_platform`.
@@ -401,14 +391,14 @@ static void P32Init (void) {
   }
 #endif
 
-  P32AtomicExchange (&P32PlatformInfo.PtrPlatform, P32Platform);
+  p32_atomic_exchange_fpointer (&P32PlatformInfo.PtrPlatform, P32Platform);
 
   if (P32PlatformInfo.Paltform == WindowsPlatformNt) {
-    P32AtomicExchange (&P32PlatformInfo.PtrVersionNt, P32VersionNt);
-    P32AtomicExchange (&P32PlatformInfo.PtrVersion9x, P32InvalidVersion9x);
+    p32_atomic_exchange_fpointer (&P32PlatformInfo.PtrVersionNt, P32VersionNt);
+    p32_atomic_exchange_fpointer (&P32PlatformInfo.PtrVersion9x, P32InvalidVersion9x);
   } else {
-    P32AtomicExchange (&P32PlatformInfo.PtrVersionNt, P32InvalidVersionNt);
-    P32AtomicExchange (&P32PlatformInfo.PtrVersion9x, P32Version9x);
+    p32_atomic_exchange_fpointer (&P32PlatformInfo.PtrVersionNt, P32InvalidVersionNt);
+    p32_atomic_exchange_fpointer (&P32PlatformInfo.PtrVersion9x, P32Version9x);
   }
 
   return;

@@ -28,6 +28,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-atomic.h"
 #include "core-memory.h"
 #include "core-winver.h"
 
@@ -70,17 +71,6 @@
  * Convenience wrapper for `GetProcAddress`.
  */
 #define P32GetProcAddress(module, func) (Func##func) (UINT_PTR) GetProcAddress (module, #func)
-
-/**
- * Suppress warnings about conversion between data and function pointers with
- * picky compilers.
- */
-#define F(ptr) (PVOID) (UINT_PTR) ptr
-
-/**
- * Convenience wrapper for `InterlockedExchangePointer`.
- */
-#define P32AtomicExchange(target, source) InterlockedExchangePointer ((void *volatile *) target, F (source))
 
 #if P32_WINNT < P32_WINNT_NT_3_5
 #define DYNAMIC_CHECKS
@@ -245,11 +235,11 @@ static void P32InitHeapApi (void) {
   assert ((ptrHeapLock == NULL) == (ptrHeapUnlock == NULL));
 
   if (ptrHeapLock != NULL && ptrHeapUnlock != NULL) {
-    P32AtomicExchange (&P32HeapApi.PtrHeapLock, ptrHeapLock);
-    P32AtomicExchange (&P32HeapApi.PtrHeapUnlock, ptrHeapUnlock);
+    p32_atomic_exchange_fpointer (&P32HeapApi.PtrHeapLock, ptrHeapLock);
+    p32_atomic_exchange_fpointer (&P32HeapApi.PtrHeapUnlock, ptrHeapUnlock);
   } else {
-    P32AtomicExchange (&P32HeapApi.PtrHeapLock, P32HeapLock);
-    P32AtomicExchange (&P32HeapApi.PtrHeapUnlock, P32HeapUnlock);
+    p32_atomic_exchange_fpointer (&P32HeapApi.PtrHeapLock, P32HeapLock);
+    p32_atomic_exchange_fpointer (&P32HeapApi.PtrHeapUnlock, P32HeapUnlock);
   }
 #endif /* P32_WINNT < Windows NT 3.5 */
 
@@ -267,9 +257,9 @@ static void P32InitHeapApi (void) {
   }
 
   if (ptrHeapSummary != NULL) {
-    P32AtomicExchange (&P32HeapApi.PtrHeapSummary, ptrHeapSummary);
+    p32_atomic_exchange_fpointer (&P32HeapApi.PtrHeapSummary, ptrHeapSummary);
   } else {
-    P32AtomicExchange (&P32HeapApi.PtrHeapSummary, P32HeapSummary);
+    p32_atomic_exchange_fpointer (&P32HeapApi.PtrHeapSummary, P32HeapSummary);
   }
 #endif /* P32_WINNT < Windows NT 3.51 || Win9x */
 
@@ -287,9 +277,9 @@ static void P32InitHeapApi (void) {
   }
 
   if (ptrHeapSetInformation != NULL) {
-    P32AtomicExchange (&P32HeapApi.PtrHeapSetInformation, ptrHeapSetInformation);
+    p32_atomic_exchange_fpointer (&P32HeapApi.PtrHeapSetInformation, ptrHeapSetInformation);
   } else {
-    P32AtomicExchange (&P32HeapApi.PtrHeapSetInformation, P32HeapSetInformation);
+    p32_atomic_exchange_fpointer (&P32HeapApi.PtrHeapSetInformation, P32HeapSetInformation);
   }
 #endif /* P32_WINNT < Windows XP || Win9x */
 }
