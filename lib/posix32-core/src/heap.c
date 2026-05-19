@@ -414,7 +414,7 @@ void p32_heap_print_summary (uintptr_t heap) {
   heapSummary.cb = sizeof (heapSummary);
 
   if (HeapSummary (heapHandle, 0, &heapSummary)) {
-#ifdef _DEBUG_
+#ifdef _DEBUG
     _RPTW1 (_CRT_WARN, L"Summary of heap <%p>:\n", heapHandle);
     _RPTW2 (_CRT_WARN, L"  MaxReserve: " X " (" X "KiB)\n", heapSummary.cbMaxReserve, heapSummary.cbMaxReserve / 1024);
     _RPTW2 (_CRT_WARN, L"  Reserved:   " X " (" X "KiB)\n", heapSummary.cbReserved, heapSummary.cbReserved / 1024);
