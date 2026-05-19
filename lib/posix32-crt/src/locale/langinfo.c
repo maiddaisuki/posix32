@@ -276,8 +276,14 @@ static char *P32LangInfo (nl_item item, LocaleInfo *localeInfo) {
     case p32_WERA:
       return (char *) localeInfo->LcTime.EraString.W;
     case p32_ERA_T_FMT:
+      if (!(localeInfo->LcTime.AlternativeCalendar.Flags & P32_CALENDAR_INFO_CP)) {
+        return InvalidItem;
+      }
       return localeInfo->LcTime.TimeFormat.Crt.A;
     case p32_WERA_T_FMT:
+      if (!(localeInfo->LcTime.AlternativeCalendar.Flags & P32_CALENDAR_INFO_SET)) {
+        return InvalidItem;
+      }
       return (char *) localeInfo->LcTime.TimeFormat.Crt.W;
     case p32_ERA_D_FMT:
       return localeInfo->LcTime.AlternativeCalendar.DateFormat.Crt.A;
