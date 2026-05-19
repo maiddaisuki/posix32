@@ -29,6 +29,7 @@
 #include <windows.h>
 
 #include "core-atomic.h"
+#include "core-loader.h"
 #include "core-memory.h"
 #include "core-winver.h"
 
@@ -56,21 +57,6 @@
 /*******************************************************************************
  * Structures, functions and macros used to lookup functions at runtime.
  */
-
-/**
- * Windows 9x systems lack Unicode support; use `GetModuleHandleA` instead of
- * `GetModuleHandleW`.
- */
-#if P32_WIN9X
-#define P32GetModuleHandle(module) GetModuleHandleA (module)
-#else
-#define P32GetModuleHandle(module) GetModuleHandleW (TEXT (module))
-#endif
-
-/**
- * Convenience wrapper for `GetProcAddress`.
- */
-#define P32GetProcAddress(module, func) (Func##func) (UINT_PTR) GetProcAddress (module, #func)
 
 #if P32_WINNT < P32_WINNT_NT_3_5
 #define DYNAMIC_CHECKS
@@ -213,8 +199,8 @@ static HeapApi P32HeapApi = {
  * Initialize `P32HeapApi`.
  */
 static void P32InitHeapApi (void) {
-  HMODULE kernel32 = P32GetModuleHandle ("kernel32.dll");
-  assert (kernel32 != NULL);
+  uintptr_t kernel32 = p32_get_module_handle (P32_MODULE_NAME ("kernel32.dll"));
+  assert (kernel32 != 0);
 
 #if P32_WINNT < P32_WINNT_NT_3_5
   /**
@@ -223,11 +209,11 @@ static void P32InitHeapApi (void) {
   FuncHeapLock   ptrHeapLock   = NULL;
   FuncHeapUnlock ptrHeapUnlock = NULL;
 
-  if (kernel32 != NULL) {
+  if (kernel32 != 0) {
     if (P32_PLATFORM_CHECK (P32_WINNT_NT_3_5, WindowsNt3_5, P32_WIN9X_95, Windows95)) {
-      ptrHeapLock = P32GetProcAddress (kernel32, HeapLock);
+      ptrHeapLock = p32_get_proc_address (kernel32, HeapLock);
       assert (ptrHeapLock != NULL);
-      ptrHeapUnlock = P32GetProcAddress (kernel32, HeapUnlock);
+      ptrHeapUnlock = p32_get_proc_address (kernel32, HeapUnlock);
       assert (ptrHeapUnlock != NULL);
     }
   }
@@ -249,9 +235,9 @@ static void P32InitHeapApi (void) {
    */
   FuncHeapSummary ptrHeapSummary = NULL;
 
-  if (kernel32 != NULL) {
+  if (kernel32 != 0) {
     if (P32_WINNT_CHECK (P32_WINNT_NT_3_51, WindowsNt3_51)) {
-      ptrHeapSummary = P32GetProcAddress (kernel32, HeapSummary);
+      ptrHeapSummary = p32_get_proc_address (kernel32, HeapSummary);
       assert (ptrHeapSummary != NULL);
     }
   }
@@ -269,9 +255,9 @@ static void P32InitHeapApi (void) {
    */
   FuncHeapSetInformation ptrHeapSetInformation = NULL;
 
-  if (kernel32 != NULL) {
+  if (kernel32 != 0) {
     if (P32_WINNT_CHECK (P32_WINNT_XP, WindowsNtXP)) {
-      ptrHeapSetInformation = P32GetProcAddress (kernel32, HeapSetInformation);
+      ptrHeapSetInformation = p32_get_proc_address (kernel32, HeapSetInformation);
       assert (ptrHeapSetInformation != NULL);
     }
   }

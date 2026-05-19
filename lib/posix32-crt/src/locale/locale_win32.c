@@ -32,6 +32,7 @@
 #include <windows.h>
 
 #include "core-atomic.h"
+#include "core-loader.h"
 #include "core-winver.h"
 
 #include "locale-internal.h"
@@ -312,21 +313,6 @@ static void P32WinlocaleRegionNameDestroy (Locale *locale, uintptr_t heap);
  * Structures, functions and macros to lookup functions at runtime.
  */
 
-/**
- * Windows 9x systems lack Unicode support; use `GetModuleHandleA` instead of
- * `GetModuleHandleW`.
- */
-#if P32_WIN9X
-#define P32GetModuleHandle(module) GetModuleHandleA (module)
-#else
-#define P32GetModuleHandle(module) GetModuleHandleW (TEXT (module))
-#endif
-
-/**
- * Convenience wrapper for `GetProcAddress`.
- */
-#define P32GetProcAddress(module, func) (Func##func) (UINT_PTR) GetProcAddress (module, #func)
-
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID) && (P32_LOCALE_API & P32_LOCALE_API_LN)
 #define DYNAMIC_CHECKS
 #define DYNAMIC_IMPLEMENTATION
@@ -485,8 +471,8 @@ static LocaleApi P32LocaleApi = {
  * Initialize `P32LocaleApi`.
  */
 static void P32InitLocaleApi (void) {
-  HMODULE kernel32 = P32GetModuleHandle ("kernel32.dll");
-  assert (kernel32 != NULL);
+  uintptr_t kernel32 = p32_get_module_handle (P32_MODULE_NAME ("kernel32.dll"));
+  assert (kernel32 != 0);
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID) && (P32_LOCALE_API & P32_LOCALE_API_LN)
   /**
@@ -500,21 +486,21 @@ static void P32InitLocaleApi (void) {
   FuncLCMapStringEx              ptrLCMapStringEx              = NULL;
   FuncEnumSystemLocalesEx        ptrEnumSystemLocalesEx        = NULL;
 
-  if (kernel32 != NULL) {
+  if (kernel32 != 0) {
     if (P32_WINNT_CHECK (P32_WINNT_VISTA, WindowsNtVista)) {
-      ptrGetSystemDefaultLocaleName = P32GetProcAddress (kernel32, GetSystemDefaultLocaleName);
+      ptrGetSystemDefaultLocaleName = p32_get_proc_address (kernel32, GetSystemDefaultLocaleName);
       assert (ptrGetSystemDefaultLocaleName);
-      ptrGetUserDefaultLocaleName = P32GetProcAddress (kernel32, GetUserDefaultLocaleName);
+      ptrGetUserDefaultLocaleName = p32_get_proc_address (kernel32, GetUserDefaultLocaleName);
       assert (ptrGetUserDefaultLocaleName);
-      ptrCompareStringEx = P32GetProcAddress (kernel32, CompareStringEx);
+      ptrCompareStringEx = p32_get_proc_address (kernel32, CompareStringEx);
       assert (ptrCompareStringEx);
-      ptrGetCalendarInfoEx = P32GetProcAddress (kernel32, GetCalendarInfoEx);
+      ptrGetCalendarInfoEx = p32_get_proc_address (kernel32, GetCalendarInfoEx);
       assert (ptrGetCalendarInfoEx);
-      ptrGetLocaleInfoEx = P32GetProcAddress (kernel32, GetLocaleInfoEx);
+      ptrGetLocaleInfoEx = p32_get_proc_address (kernel32, GetLocaleInfoEx);
       assert (ptrGetLocaleInfoEx);
-      ptrLCMapStringEx = P32GetProcAddress (kernel32, LCMapStringEx);
+      ptrLCMapStringEx = p32_get_proc_address (kernel32, LCMapStringEx);
       assert (ptrLCMapStringEx);
-      ptrEnumSystemLocalesEx = P32GetProcAddress (kernel32, EnumSystemLocalesEx);
+      ptrEnumSystemLocalesEx = p32_get_proc_address (kernel32, EnumSystemLocalesEx);
       assert (ptrEnumSystemLocalesEx);
     }
   }
@@ -555,9 +541,9 @@ static void P32InitLocaleApi (void) {
    */
   FuncResolveLocaleName ptrResolveLocaleName = NULL;
 
-  if (kernel32 != NULL) {
+  if (kernel32 != 0) {
     if (P32_WINNT_CHECK (P32_WINNT_WIN7, WindowsNt7)) {
-      ptrResolveLocaleName = P32GetProcAddress (kernel32, ResolveLocaleName);
+      ptrResolveLocaleName = p32_get_proc_address (kernel32, ResolveLocaleName);
       assert (ptrResolveLocaleName != NULL);
     }
   }
@@ -576,9 +562,9 @@ static void P32InitLocaleApi (void) {
    */
   FuncGetGeoInfoEx ptrGetGeoInfoEx = NULL;
 
-  if (kernel32 != NULL) {
+  if (kernel32 != 0) {
     if (P32_WINNT_CHECK (P32_WINNT_WIN10, WindowsNt10)) {
-      ptrGetGeoInfoEx = P32GetProcAddress (kernel32, GetGeoInfoEx);
+      ptrGetGeoInfoEx = p32_get_proc_address (kernel32, GetGeoInfoEx);
     }
   }
 

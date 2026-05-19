@@ -28,6 +28,7 @@
 #include <windows.h>
 
 #include "core-atomic.h"
+#include "core-loader.h"
 #include "core-runtime.h"
 #include "core-winver.h"
 
@@ -51,21 +52,6 @@
 /*******************************************************************************
  * Structures, functions and macros used to lookup functions at runtime.
  */
-
-/**
- * Windows 9x systems lack Unicode support; use `GetModuleHandleA` instead of
- * `GetModuleHandleW`.
- */
-#if P32_WIN9X
-#define P32GetModuleHandle(module) GetModuleHandleA (module)
-#else
-#define P32GetModuleHandle(module) GetModuleHandleW (TEXT (module))
-#endif
-
-/**
- * Convenience wrapper for `GetProcAddress`.
- */
-#define P32GetProcAddress(module, func) (Func##func) (UINT_PTR) GetProcAddress (module, #func)
 
 #if P32_WINNT < P32_WINNT_WIN7
 #define DYNAMIC_CHECKS
@@ -106,8 +92,8 @@ static RtApi P32RtApi = {
  * Initialize `P32RtApi`.
  */
 static void P32RtApiInit (void) {
-  HMODULE kernel32 = P32GetModuleHandle ("kernel32.dll");
-  assert (kernel32 != NULL);
+  uintptr_t kernel32 = p32_get_module_handle (P32_MODULE_NAME ("kernel32.dll"));
+  assert (kernel32 != 0);
 
 #if P32_WINNT < P32_WINNT_WIN7
   /**
@@ -115,9 +101,9 @@ static void P32RtApiInit (void) {
    */
   FuncRaiseFailFastException ptrRaiseFailFastException = NULL;
 
-  if (kernel32 != NULL) {
+  if (kernel32 != 0) {
     if (P32_WINNT_CHECK (P32_WINNT_WIN7, WindowsNt7)) {
-      ptrRaiseFailFastException = P32GetProcAddress (kernel32, RaiseFailFastException);
+      ptrRaiseFailFastException = p32_get_proc_address (kernel32, RaiseFailFastException);
     }
   }
 

@@ -28,6 +28,7 @@
 
 #include "core-atomic.h"
 #include "core-crt.h"
+#include "core-loader.h"
 #include "core-runtime.h"
 
 /**
@@ -35,21 +36,6 @@
  *
  * This file contains functions to obtain information about CRT.
  */
-
-/**
- * Windows 9x systems lack Unicode support; use `GetModuleHandleA` instead of
- * `GetModuleHandleW`.
- */
-#if P32_WIN9X
-#define P32GetModuleHandle(module) GetModuleHandleA (module)
-#else
-#define P32GetModuleHandle(module) GetModuleHandleW (TEXT (module))
-#endif
-
-/**
- * Convenience wrapper for `GetProcAddress`.
- */
-#define P32GetProcAddress(module, func) (Func##func) (UINT_PTR) GetProcAddress (module, #func)
 
 #if P32_CRT == P32_UCRT
 #ifdef _DEBUG
@@ -179,9 +165,9 @@ static CrtInfo P32CrtInfo = {
  */
 static void P32InitCrtInfo (void) {
 #ifdef _DLL
-  HMODULE crtHandle = P32GetModuleHandle (P32_CRT_LIBNAME);
+  uintptr_t crtHandle = p32_get_module_handle (P32_MODULE_NAME (P32_CRT_LIBNAME));
 
-  if (crtHandle == NULL) {
+  if (crtHandle == 0) {
     p32_terminate (L"Failed to obtain handle to CRT (" TEXT (P32_CRT_LIBNAME) L").");
   }
 
