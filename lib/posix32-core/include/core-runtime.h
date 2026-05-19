@@ -49,6 +49,14 @@ P32_TEST_DECL void p32_terminate_handler (TerminateHandler handler);
 P32_CORE_DECL P32_NORETURN void p32_terminate (const wchar_t *message, void *context);
 
 /**
+ * This functions is a dead-lock-safe version of `p32_terminate`.
+ *
+ * This version must be used instead of `p32_terminate` in functions which
+ * may be called from `p32_terminate`'s initialization code.
+ */
+P32_TEST_DECL P32_NORETURN void p32_terminate_safely (const wchar_t *message, void *context);
+
+/**
  * Convenience macro to call `p32_terminate` function and supply `CONTEXT`
  * structure for it.
  */
@@ -57,6 +65,17 @@ P32_CORE_DECL P32_NORETURN void p32_terminate (const wchar_t *message, void *con
     CONTEXT context = {0};                            \
     GetThreadContext (GetCurrentThread (), &context); \
     p32_terminate (msg, &context);                    \
+  } while (0)
+
+/**
+ * Convenience macro to call `p32_terminate_safely` function and supply
+ * `CONTEXT` structure for it.
+ */
+#define p32_terminate_safely(msg)                     \
+  do {                                                \
+    CONTEXT context = {0};                            \
+    GetThreadContext (GetCurrentThread (), &context); \
+    p32_terminate_safely (msg, &context);             \
   } while (0)
 
 #endif /* LIBPOSIX32_CORE_RUNTIME_H_INCLUDED */

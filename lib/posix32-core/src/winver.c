@@ -404,13 +404,13 @@ static void P32Init (void) {
   return;
 
 fail:
-  p32_terminate (L"Failed to obtain information about Windows version.");
+  p32_terminate_safely (L"Failed to obtain information about Windows version.");
 
 unsupported_platform:
-  p32_terminate (L"Unsupported platform.");
+  p32_terminate_safely (L"Unsupported platform.");
 
 win32s:
-  p32_terminate (L"Win32s is not supported.");
+  p32_terminate_safely (L"Win32s is not supported.");
 }
 
 static WindowsPlatform P32InitPlatform (void) {

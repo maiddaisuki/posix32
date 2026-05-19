@@ -29,8 +29,10 @@
 
 #include "core-atomic.h"
 #include "core-runtime.h"
+#include "core-winver.h"
 
 #undef p32_terminate
+#undef p32_terminate_safely
 
 /**
  * File Summary:
@@ -102,9 +104,6 @@ static RtApi P32RtApi = {
 
 /**
  * Initialize `P32RtApi`.
- *
- * NOTE: we cannot call functions `p32_platform`, `p32_winnt` and `p32_win9x`;
- *   they may call `p32_terminate` on error, which will result in a dead lock.
  */
 static void P32RtApiInit (void) {
   HMODULE kernel32 = P32GetModuleHandle ("kernel32.dll");
@@ -117,7 +116,9 @@ static void P32RtApiInit (void) {
   FuncRaiseFailFastException ptrRaiseFailFastException = NULL;
 
   if (kernel32 != NULL) {
-    ptrRaiseFailFastException = P32GetProcAddress (kernel32, RaiseFailFastException);
+    if (P32_WINNT_CHECK (P32_WINNT_WIN7, WindowsNt7)) {
+      ptrRaiseFailFastException = P32GetProcAddress (kernel32, RaiseFailFastException);
+    }
   }
 
   if (ptrRaiseFailFastException != NULL) {
@@ -149,6 +150,13 @@ static void P32RtApiInit (void) {
  *
  *   Ues `RaiseFailFastException` to raise an exception which bypasses
  *   ALL exception handlers and always terminates the process.
+ *
+ * RuntimeRaiseFatalExceptionSafely:
+ *
+ *  Dead-lock-safe version of `RuntimeRaiseFatalException`.
+ *
+ *  Unlike `RuntimeRaiseFatalException`, it does hook into runtime
+ *  initialization code, which prevents possible dead lock scenarios.
  */
 
 #if P32_WINNT < P32_WINNT_WIN7
@@ -185,6 +193,10 @@ typedef struct RuntimeApi {
    * Implementation for `RuntimeRaiseFatalException`.
    */
   FuncRuntimeRaiseFatalException PtrRuntimeRaiseFatalException;
+  /**
+   * Implementation for `RuntimeRaiseFatalExceptionSafely`.
+   */
+  FuncRuntimeRaiseFatalException PtrRuntimeRaiseFatalExceptionSafely;
 #endif /* P32_WINNT < Windows 7 */
 } RuntimeApi;
 
@@ -195,7 +207,8 @@ static RuntimeApi P32RuntimeApi = {
   .Init = PTHREAD_ONCE_INIT,
 
 #if P32_WINNT < P32_WINNT_WIN7
-  .PtrRuntimeRaiseFatalException = P32RuntimeRaiseFatalExceptionInit,
+  .PtrRuntimeRaiseFatalException       = P32RuntimeRaiseFatalExceptionInit,
+  .PtrRuntimeRaiseFatalExceptionSafely = P32RaiseNonContinuableException,
 #endif /* P32_WINNT < Windows 7 */
 };
 
@@ -208,6 +221,7 @@ static void P32RuntimeApiInit (void) {
 #if P32_WINNT < P32_WINNT_WIN7
   if (P32RtApi.PtrRaiseFailFastException != NULL) {
     p32_atomic_exchange_fpointer (&P32RuntimeApi.PtrRuntimeRaiseFatalException, P32RaiseFailFastException);
+    p32_atomic_exchange_fpointer (&P32RuntimeApi.PtrRuntimeRaiseFatalExceptionSafely, P32RaiseFailFastException);
   } else {
     p32_atomic_exchange_fpointer (&P32RuntimeApi.PtrRuntimeRaiseFatalException, P32RaiseNonContinuableException);
   }
@@ -216,7 +230,8 @@ static void P32RuntimeApiInit (void) {
 #endif /* DYNAMIC_CHECKS */
 
 #if P32_WINNT < P32_WINNT_WIN7
-#define RuntimeRaiseFatalException P32RuntimeApi.PtrRuntimeRaiseFatalException
+#define RuntimeRaiseFatalExceptionSafely P32RuntimeApi.PtrRuntimeRaiseFatalExceptionSafely
+#define RuntimeRaiseFatalException       P32RuntimeApi.PtrRuntimeRaiseFatalException
 
 static void P32RaiseNonContinuableException (PCONTEXT context) {
   RaiseException (STATUS_FATAL_APP_EXIT, EXCEPTION_NONCONTINUABLE, 0, NULL);
@@ -239,7 +254,8 @@ static void P32RuntimeRaiseFatalExceptionInit (PCONTEXT context) {
   RuntimeRaiseFatalException (context);
 }
 #else /* P32_WINNT >= Windows 7 */
-#define RuntimeRaiseFatalException P32RaiseFailFastException
+#define RuntimeRaiseFatalExceptionSafely P32RaiseFailFastException
+#define RuntimeRaiseFatalException       P32RaiseFailFastException
 #endif /* P32_WINNT >= Windows 7 */
 
 static void P32RaiseFailFastException (PCONTEXT context) {
@@ -284,6 +300,31 @@ void p32_terminate (const wchar_t *message, void *context) {
    * Terminate the process.
    */
   RuntimeRaiseFatalException (context);
+
+  /**
+   * We should never ever get here.
+   */
+  _exit (STATUS_FATAL_APP_EXIT);
+}
+
+void p32_terminate_safely (const wchar_t *message, void *context) {
+  _RPTW1 (_CRT_ERROR, L"%s\n", message);
+
+#ifdef LIBPOSIX32_TEST
+  if (P32TerminateHandler != NULL) {
+    P32TerminateHandler ();
+  }
+#endif
+
+  /**
+   * Send `message` to debugger (if present) before terminating.
+   */
+  OutputDebugStringW (message);
+
+  /**
+   * Terminate the process.
+   */
+  RuntimeRaiseFatalExceptionSafely (context);
 
   /**
    * We should never ever get here.
