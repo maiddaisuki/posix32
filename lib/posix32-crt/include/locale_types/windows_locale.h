@@ -231,7 +231,8 @@ P32_TEST_DECL bool p32_winlocale_equal (Locale *l1, Locale *l2);
  * This flag can be set only when retrieving locale information using
  * `LOCALE_I*` and `CAL_I*` constants.
  */
-#define P32_LOCALE_INFO_REQUEST_NUMERIC             (1)
+#define P32_LOCALE_INFO_REQUEST_NUMERIC (1)
+
 /**
  * Convert locale information.
  */
@@ -252,6 +253,23 @@ P32_TEST_DECL bool p32_winlocale_equal (Locale *l1, Locale *l2);
  * Do not fail if locale information cannot be converted.
  */
 #define P32_LOCALE_INFO_REQUEST_CONVERT_NO_ERROR    (1 << 11)
+
+/**
+ * Normalize retrieved locale information to form C before converting.
+ */
+#define P32_LOCALE_INFO_REQUEST_NORM_C  (1 << 16)
+/**
+ * Normalize retrieved locale information to form D before converting.
+ */
+#define P32_LOCALE_INFO_REQUEST_NORM_D  (1 << 17)
+/**
+ * Normalize retrieved locale information to form KC before converting.
+ */
+#define P32_LOCALE_INFO_REQUEST_NORM_KC (1 << 18)
+/**
+ * Normalize retrieved locale information to form KD before converting.
+ */
+#define P32_LOCALE_INFO_REQUEST_NORM_KD (1 << 19)
 
 /**
  * Structure used with `p32_winlocale_get_locale_info` function.

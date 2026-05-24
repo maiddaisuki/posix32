@@ -75,12 +75,19 @@ static bool P32LcTimeCalendarInfo (
   CalendarInfoRequest textualInfoRequest = {0};
   CalendarInfoRequest numericInfoRequest = {0};
 
-  uint32_t textualInfoRequestFlags = (P32_LOCALE_INFO_REQUEST_CONVERT);
+  infoRequest.Flags = flags;
 
-  textualInfoRequest.charset = &locale->Charset;
+  numericInfoRequest.Flags  = flags;
+  numericInfoRequest.Flags |= P32_LOCALE_INFO_REQUEST_NUMERIC;
 
-  if (flags & P32_CALENDAR_INFO_REQUEST_ALTERNATIVE) {
-    textualInfoRequestFlags |= (P32_LOCALE_INFO_REQUEST_CONVERT_NO_ERROR);
+  textualInfoRequest.Flags    = flags;
+  textualInfoRequest.Flags   |= P32_LOCALE_INFO_REQUEST_CONVERT;
+  textualInfoRequest.Flags   |= P32_LOCALE_INFO_REQUEST_NORM_C;
+  textualInfoRequest.Flags   |= P32_LOCALE_INFO_REQUEST_NORM_KC;
+  textualInfoRequest.charset  = &locale->Charset;
+
+  if (textualInfoRequest.Flags & P32_CALENDAR_INFO_REQUEST_ALTERNATIVE) {
+    textualInfoRequest.Flags |= P32_LOCALE_INFO_REQUEST_CONVERT_NO_ERROR;
   }
 
   calendarInfo->Flags = (P32_CALENDAR_INFO_SET | P32_CALENDAR_INFO_CP);
@@ -89,7 +96,6 @@ static bool P32LcTimeCalendarInfo (
    * Date format string as used by `GetDateFormat[Ex]`.
    */
   infoRequest.Info    = CAL_SLONGDATE;
-  infoRequest.Flags   = (flags);
   infoRequest.OutputW = &calendarInfo->DateFormat.Format;
 
   if (!p32_winlocale_get_calendar_info (&infoRequest, heap, lcTime)) {
@@ -100,7 +106,6 @@ static bool P32LcTimeCalendarInfo (
    * Name of Era represented in `calendarInfo`.
    */
   textualInfoRequest.Info    = CAL_SERASTRING;
-  textualInfoRequest.Flags   = (flags | textualInfoRequestFlags);
   textualInfoRequest.OutputA = &calendarInfo->Era.Name.A;
   textualInfoRequest.OutputW = &calendarInfo->Era.Name.W;
 
@@ -114,7 +119,6 @@ static bool P32LcTimeCalendarInfo (
    * Offset of Era represented in `calendarInfo`.
    */
   numericInfoRequest.Info   = CAL_IYEAROFFSETRANGE;
-  numericInfoRequest.Flags  = (flags | P32_LOCALE_INFO_REQUEST_NUMERIC);
   numericInfoRequest.Output = &calendarInfo->Era.Offset;
 
   if (!p32_winlocale_get_calendar_info (&numericInfoRequest, heap, lcTime)) {
@@ -955,7 +959,13 @@ static bool P32LcTimeLocaleInfo (LcTimeInfo *lcTimeInfo, uintptr_t heap, Locale 
   LocaleInfoRequest numbericInfoRequest = {0};
   LocaleInfoRequest textualInfoRequest  = {0};
 
-  uint32_t textualInfoRequestFlags = (P32_LOCALE_INFO_REQUEST_CONVERT);
+  numbericInfoRequest.Flags |= P32_LOCALE_INFO_REQUEST_NUMERIC;
+
+  uint32_t textualInfoRequestFlags = 0;
+
+  textualInfoRequestFlags |= P32_LOCALE_INFO_REQUEST_CONVERT;
+  textualInfoRequestFlags |= P32_LOCALE_INFO_REQUEST_NORM_C;
+  textualInfoRequestFlags |= P32_LOCALE_INFO_REQUEST_NORM_KC;
 
   textualInfoRequest.charset = &locale->Charset;
 
@@ -997,7 +1007,6 @@ static bool P32LcTimeLocaleInfo (LcTimeInfo *lcTimeInfo, uintptr_t heap, Locale 
    * Position of AM/PM string.
    */
   numbericInfoRequest.Info   = LOCALE_ITIMEMARKPOSN;
-  numbericInfoRequest.Flags  = (P32_LOCALE_INFO_REQUEST_NUMERIC);
   numbericInfoRequest.Output = &lcTimeInfo->AmPm.Value;
 
   if (!p32_winlocale_get_locale_info (&numbericInfoRequest, heap, lcTime)) {
@@ -1013,7 +1022,7 @@ static bool P32LcTimeLocaleInfo (LcTimeInfo *lcTimeInfo, uintptr_t heap, Locale 
    * handle this situation gracefully, but do not allow best-fit conversion.
    */
   textualInfoRequest.Info     = LOCALE_SNATIVEDIGITS;
-  textualInfoRequest.Flags    = (textualInfoRequestFlags);
+  textualInfoRequest.Flags    = textualInfoRequestFlags;
   textualInfoRequest.Flags   |= P32_LOCALE_INFO_REQUEST_CONVERT_NO_BEST_FIT;
   textualInfoRequest.Flags   |= P32_LOCALE_INFO_REQUEST_CONVERT_FALLBACK;
   textualInfoRequest.OutputA  = &lcTimeInfo->AltDigits.A;

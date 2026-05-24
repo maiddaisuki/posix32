@@ -1371,6 +1371,22 @@ static bool P32GetTextualLocaleInfoW (LocaleInfoRequest *request, uintptr_t heap
       conversionRequest.Flags |= P32_CHARSET_CONVERSION_NO_BEST_FIT;
     }
 
+    if (request->Flags & P32_LOCALE_INFO_REQUEST_NORM_C) {
+      conversionRequest.Flags |= P32_CHARSET_CONVERSION_NORM_C;
+    }
+
+    if (request->Flags & P32_LOCALE_INFO_REQUEST_NORM_D) {
+      conversionRequest.Flags |= P32_CHARSET_CONVERSION_NORM_D;
+    }
+
+    if (request->Flags & P32_LOCALE_INFO_REQUEST_NORM_KC) {
+      conversionRequest.Flags |= P32_CHARSET_CONVERSION_NORM_KC;
+    }
+
+    if (request->Flags & P32_LOCALE_INFO_REQUEST_NORM_KD) {
+      conversionRequest.Flags |= P32_CHARSET_CONVERSION_NORM_KD;
+    }
+
     if (p32_charset_convert (&conversionRequest, heap) == -1) {
       /**
        * We may be allowed to return success if `p32_charset_convert` failed
@@ -1479,6 +1495,22 @@ static bool P32GetTextualCalendarInfoW (CalendarInfoRequest *request, uintptr_t 
 
     if (request->Flags & P32_LOCALE_INFO_REQUEST_CONVERT_NO_BEST_FIT) {
       conversionRequest.Flags |= P32_CHARSET_CONVERSION_NO_BEST_FIT;
+    }
+
+    if (request->Flags & P32_LOCALE_INFO_REQUEST_NORM_C) {
+      conversionRequest.Flags |= P32_CHARSET_CONVERSION_NORM_C;
+    }
+
+    if (request->Flags & P32_LOCALE_INFO_REQUEST_NORM_D) {
+      conversionRequest.Flags |= P32_CHARSET_CONVERSION_NORM_D;
+    }
+
+    if (request->Flags & P32_LOCALE_INFO_REQUEST_NORM_KC) {
+      conversionRequest.Flags |= P32_CHARSET_CONVERSION_NORM_KC;
+    }
+
+    if (request->Flags & P32_LOCALE_INFO_REQUEST_NORM_KD) {
+      conversionRequest.Flags |= P32_CHARSET_CONVERSION_NORM_KD;
     }
 
     if (p32_charset_convert (&conversionRequest, heap) == -1) {

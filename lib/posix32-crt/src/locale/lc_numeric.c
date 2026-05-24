@@ -41,16 +41,17 @@
  * Get locale information dependant on `LC_NUMERIC` locale category.
  */
 static bool P32LcNumericInfo (LcNumericInfo *info, uintptr_t heap, Locale *lcNumericInfo, locale_t locale) {
-  LocaleInfoRequest infoRequest      = {0};
-  uint32_t          infoRequestFlags = (P32_LOCALE_INFO_REQUEST_CONVERT);
+  LocaleInfoRequest infoRequest = {0};
 
-  infoRequest.charset = &locale->Charset;
+  infoRequest.Flags   |= P32_LOCALE_INFO_REQUEST_CONVERT;
+  infoRequest.Flags   |= P32_LOCALE_INFO_REQUEST_NORM_C;
+  infoRequest.Flags   |= P32_LOCALE_INFO_REQUEST_NORM_KC;
+  infoRequest.charset  = &locale->Charset;
 
   /**
    * Locale's decimal point.
    */
   infoRequest.Info    = LOCALE_SDECIMAL;
-  infoRequest.Flags   = infoRequestFlags;
   infoRequest.OutputA = &info->RadixChar.A;
   infoRequest.OutputW = &info->RadixChar.W;
 
@@ -62,7 +63,6 @@ static bool P32LcNumericInfo (LcNumericInfo *info, uintptr_t heap, Locale *lcNum
    * Locale's thousands separator.
    */
   infoRequest.Info    = LOCALE_STHOUSAND;
-  infoRequest.Flags   = infoRequestFlags;
   infoRequest.OutputA = &info->ThousandsSeparator.A;
   infoRequest.OutputW = &info->ThousandsSeparator.W;
 

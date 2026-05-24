@@ -41,10 +41,15 @@
  * Get locale information dependant on `LC_MONETARY` locale category.
  */
 static bool P32LcMonetaryInfo (LcMonetaryInfo *info, uintptr_t heap, Locale *lcMonetaryInfo, locale_t locale) {
-  LocaleInfoRequest infoRequest      = {0};
-  uint32_t          infoRequestFlags = (P32_LOCALE_INFO_REQUEST_CONVERT);
+  LocaleInfoRequest infoRequest = {0};
 
   infoRequest.charset = &locale->Charset;
+
+  uint32_t infoRequestFlags = 0;
+
+  infoRequestFlags |= P32_LOCALE_INFO_REQUEST_CONVERT;
+  infoRequestFlags |= P32_LOCALE_INFO_REQUEST_NORM_C;
+  infoRequestFlags |= P32_LOCALE_INFO_REQUEST_NORM_KC;
 
   /**
    * Locale's currency symbol.
@@ -52,10 +57,11 @@ static bool P32LcMonetaryInfo (LcMonetaryInfo *info, uintptr_t heap, Locale *lcM
    * Situation when currency symbol cannot be converted to ANSI/OEM code pages
    * is very common; we handle this situation gracefully.
    */
-  infoRequest.Info    = LOCALE_SCURRENCY;
-  infoRequest.Flags   = (infoRequestFlags | P32_LOCALE_INFO_REQUEST_CONVERT_FALLBACK);
-  infoRequest.OutputA = &info->CurrencyString.A;
-  infoRequest.OutputW = &info->CurrencyString.W;
+  infoRequest.Info     = LOCALE_SCURRENCY;
+  infoRequest.Flags    = infoRequestFlags;
+  infoRequest.Flags   |= P32_LOCALE_INFO_REQUEST_CONVERT_FALLBACK;
+  infoRequest.OutputA  = &info->CurrencyString.A;
+  infoRequest.OutputW  = &info->CurrencyString.W;
 
   if (!p32_winlocale_get_locale_info (&infoRequest, heap, lcMonetaryInfo)) {
     goto fail;
