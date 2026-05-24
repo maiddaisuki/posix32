@@ -33,6 +33,7 @@
 
 #include "core-atomic.h"
 #include "core-loader.h"
+#include "core-norm.h"
 #include "core-winver.h"
 
 #include "locale-internal.h"
@@ -1311,6 +1312,8 @@ static void P32InitWinlocaleGeoDestroy (Locale *locale, uintptr_t heap) {
 static bool P32GetTextualLocaleInfoW (LocaleInfoRequest *request, uintptr_t heap, Locale *locale) {
   HANDLE heapHandle = (HANDLE) heap;
 
+  bool success = false;
+
   LPWSTR buffer     = NULL;
   INT    bufferSize = 0;
 
@@ -1332,12 +1335,36 @@ static bool P32GetTextualLocaleInfoW (LocaleInfoRequest *request, uintptr_t heap
     goto fail_free;
   }
 
+  /**
+   * Normalize retrieved locale information to form C.
+   */
+  NormalizationRequest normRequest = {0};
+
+  normRequest.Form   = NormForm_C;
+  normRequest.Input  = buffer;
+  normRequest.Output = request->OutputW;
+
+  if (p32_normalize_unicode_string (&normRequest, heap) == -1) {
+    switch (normRequest.Status) {
+      case NormalizationRequestNormalized:
+      case NormalizationRequestNotSupported:
+        *request->OutputW = buffer;
+        buffer            = NULL;
+        break;
+      default:
+        goto fail_free;
+    }
+  }
+
+  /**
+   * Convert locale information if requested.
+   */
   if (request->Flags & P32_LOCALE_INFO_REQUEST_CONVERT) {
     CharsetConversionRequest conversionRequest = {0};
 
     conversionRequest.Flags    |= (P32_CHARSET_CONVERSION_WC_TO_MB);
     conversionRequest.Charset   = request->charset;
-    conversionRequest.Input.W   = buffer;
+    conversionRequest.Input.W   = (buffer != NULL ? buffer : *request->OutputW);
     conversionRequest.Output.A  = request->OutputA;
 
     if (request->Flags & P32_LOCALE_INFO_REQUEST_CONVERT_NO_BEST_FIT) {
@@ -1350,28 +1377,34 @@ static bool P32GetTextualLocaleInfoW (LocaleInfoRequest *request, uintptr_t heap
        * because it is unable to convert retrieved locale information.
        */
       if (conversionRequest.Status != CharsetConversionRequestNoConversion) {
-        goto fail_free;
+        goto fail_conv;
       }
 
       if (request->Flags & (P32_LOCALE_INFO_REQUEST_CONVERT_FALLBACK)) {
         if (p32_posix_get_locale_info (request, heap, P32_POSIX_LOCALE_INFO_FALLBACK) != 0) {
-          goto fail_free;
+          goto fail_conv;
         }
       } else if ((request->Flags & (P32_LOCALE_INFO_REQUEST_CONVERT_NO_ERROR)) == 0) {
-        goto fail_free;
+        goto fail_conv;
       }
     }
   }
 
-  *request->OutputW = buffer;
+  success = true;
 
-  return true;
+fail_conv:
+  if (!success) {
+    HeapFree (heapHandle, 0, *request->OutputW);
+    *request->OutputW = NULL;
+  }
 
 fail_free:
-  HeapFree (heapHandle, 0, buffer);
+  if (buffer != NULL) {
+    HeapFree (heapHandle, 0, buffer);
+  }
 
 fail:
-  return false;
+  return success;
 }
 
 static bool P32GetNumericLocaleInfoW (LocaleInfoRequest *request, uintptr_t heap, Locale *locale) {
@@ -1388,6 +1421,8 @@ static bool P32GetTextualCalendarInfoW (CalendarInfoRequest *request, uintptr_t 
     assert (locale->AlternativeCalendar != 0);
     calendar = locale->AlternativeCalendar;
   }
+
+  bool success = false;
 
   LPWSTR buffer     = NULL;
   INT    bufferSize = 0;
@@ -1410,12 +1445,36 @@ static bool P32GetTextualCalendarInfoW (CalendarInfoRequest *request, uintptr_t 
     goto fail_free;
   }
 
+  /**
+   * Normalize retrieved calendar information to form C.
+   */
+  NormalizationRequest normRequest = {0};
+
+  normRequest.Form   = NormForm_C;
+  normRequest.Input  = buffer;
+  normRequest.Output = request->OutputW;
+
+  if (p32_normalize_unicode_string (&normRequest, heap) == -1) {
+    switch (normRequest.Status) {
+      case NormalizationRequestNormalized:
+      case NormalizationRequestNotSupported:
+        *request->OutputW = buffer;
+        buffer            = NULL;
+        break;
+      default:
+        goto fail_free;
+    }
+  }
+
+  /**
+   * Convert calendar information if requested.
+   */
   if (request->Flags & P32_LOCALE_INFO_REQUEST_CONVERT) {
     CharsetConversionRequest conversionRequest = {0};
 
     conversionRequest.Flags    |= (P32_CHARSET_CONVERSION_WC_TO_MB);
     conversionRequest.Charset   = request->charset;
-    conversionRequest.Input.W   = buffer;
+    conversionRequest.Input.W   = (buffer != NULL ? buffer : *request->OutputW);
     conversionRequest.Output.A  = request->OutputA;
 
     if (request->Flags & P32_LOCALE_INFO_REQUEST_CONVERT_NO_BEST_FIT) {
@@ -1428,28 +1487,34 @@ static bool P32GetTextualCalendarInfoW (CalendarInfoRequest *request, uintptr_t 
        * because it is unable to convert retrieved locale information.
        */
       if (conversionRequest.Status != CharsetConversionRequestNoConversion) {
-        goto fail_free;
+        goto fail_conv;
       }
 
       if (request->Flags & (P32_LOCALE_INFO_REQUEST_CONVERT_FALLBACK)) {
         if (p32_posix_get_calendar_info (request, heap, P32_POSIX_LOCALE_INFO_FALLBACK) != 0) {
-          goto fail_free;
+          goto fail_conv;
         }
       } else if ((request->Flags & (P32_LOCALE_INFO_REQUEST_CONVERT_NO_ERROR)) == 0) {
-        goto fail_free;
+        goto fail_conv;
       }
     }
   }
 
-  *request->OutputW = buffer;
+  success = true;
 
-  return true;
+fail_conv:
+  if (!success) {
+    HeapFree (heapHandle, 0, *request->OutputW);
+    *request->OutputW = NULL;
+  }
 
 fail_free:
-  HeapFree (heapHandle, 0, buffer);
+  if (buffer != NULL) {
+    HeapFree (heapHandle, 0, buffer);
+  }
 
 fail:
-  return false;
+  return success;
 }
 
 static bool P32GetNumericCalendarInfoW (CalendarInfoRequest *request, uintptr_t heap, Locale *locale) {
