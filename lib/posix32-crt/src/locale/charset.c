@@ -827,6 +827,7 @@ bool p32_charset_info (Charset *charset) {
    */
   if (charset->CodePage == CP_UTF8) {
     charset->Flags |= P32_CHARSET_CONV_NO_BEST_FIT;
+    charset->Flags |= P32_CHARSET_NORM_C;
 
     charset->MaxLength = 4;
     memset (charset->Map, 0, MAX_LEADBYTES);
@@ -843,6 +844,11 @@ bool p32_charset_info (Charset *charset) {
       charset->Flags |= P32_CHARSET_CONV_NO_BEST_FIT;
     }
 
+    charset->Flags |= P32_CHARSET_NORM_C;
+    charset->Flags |= P32_CHARSET_NORM_D;
+    charset->Flags |= P32_CHARSET_NORM_KC;
+    charset->Flags |= P32_CHARSET_NORM_KD;
+
     charset->MaxLength = 1;
     memset (charset->Map, 0, MAX_LEADBYTES);
 
@@ -850,6 +856,8 @@ bool p32_charset_info (Charset *charset) {
     charset->ReplacementChar.Char[0] = 0x3F;
   } else if (charset->CodePage == P32_CODEPAGE_ASCII) {
     charset->Flags |= P32_CHARSET_CONV_NO_BEST_FIT;
+    charset->Flags |= P32_CHARSET_NORM_C;
+    charset->Flags |= P32_CHARSET_NORM_KC;
 
     charset->MaxLength = 1;
     memset (charset->Map, 0, MAX_LEADBYTES);
@@ -865,6 +873,11 @@ bool p32_charset_info (Charset *charset) {
     if (!GetCPInfo (charset->CodePage, &cpInfo)) {
       return false;
     }
+
+    charset->Flags |= P32_CHARSET_NORM_C;
+    charset->Flags |= P32_CHARSET_NORM_D;
+    charset->Flags |= P32_CHARSET_NORM_KC;
+    charset->Flags |= P32_CHARSET_NORM_KD;
 
     charset->MaxLength = cpInfo.MaxCharSize;
     memcpy (charset->Map, cpInfo.LeadByte, MAX_LEADBYTES);

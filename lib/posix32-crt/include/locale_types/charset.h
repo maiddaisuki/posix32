@@ -50,6 +50,26 @@
 #define P32_CHARSET_CONV_NO_BEST_FIT (1 << 8)
 
 /**
+ * Allow C normalization form when converting to this code page.
+ */
+#define P32_CHARSET_NORM_C (1 << 12)
+
+/**
+ * Allow D normalization form when converting to this code page.
+ */
+#define P32_CHARSET_NORM_D (1 << 13)
+
+/**
+ * Allow KC normalization form when converting to this code page.
+ */
+#define P32_CHARSET_NORM_KC (1 << 14)
+
+/**
+ * Allow KD normalization form when converting to this code page.
+ */
+#define P32_CHARSET_NORM_KD (1 << 15)
+
+/**
  * Code page cannot represent all ASCII characters.
  */
 #define P32_CHARSET_REJECT_ASCII (1 << 16)
