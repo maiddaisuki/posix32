@@ -130,8 +130,9 @@ static void P32FreeLcCtypeInfoW (LcCtypeInfo *lcCtypeInfo, uintptr_t heap) {
 static bool P32ConvertLcCtypeInfo (LcCtypeInfo *lcCtypeInfo, uintptr_t heap, Charset *charset) {
   CharsetConversionRequest conversionRequset = {0};
 
-  conversionRequset.Flags   = (P32_CHARSET_CONVERSION_WC_TO_MB | P32_CHARSET_CONVERSION_NO_BEST_FIT);
-  conversionRequset.Charset = charset;
+  conversionRequset.Flags   |= P32_CHARSET_CONVERSION_WC_TO_MB;
+  conversionRequset.Flags   |= P32_CHARSET_CONVERSION_NO_BEST_FIT;
+  conversionRequset.Charset  = charset;
 
   conversionRequset.Input.W  = lcCtypeInfo->CharsetName.W;
   conversionRequset.Output.A = &lcCtypeInfo->CharsetName.A;

@@ -51,21 +51,33 @@
 
 /**
  * Allow C normalization form when converting to this code page.
+ *
+ * If this flag is not set, then `p32_charset_convert` will never explicitly
+ * normalize string to form C before converting it.
  */
 #define P32_CHARSET_NORM_C (1 << 12)
 
 /**
  * Allow D normalization form when converting to this code page.
+ *
+ * If this flag is not set, then `p32_charset_convert` will never explicitly
+ * normalize string to form D before converting it.
  */
 #define P32_CHARSET_NORM_D (1 << 13)
 
 /**
  * Allow KC normalization form when converting to this code page.
+ *
+ * If this flag is not set, then `p32_charset_convert` will never explicitly
+ * normalize string to form KC before converting it.
  */
 #define P32_CHARSET_NORM_KC (1 << 14)
 
 /**
  * Allow KD normalization form when converting to this code page.
+ *
+ * If this flag is not set, then `p32_charset_convert` will never explicitly
+ * normalize string to form KD before converting it.
  */
 #define P32_CHARSET_NORM_KD (1 << 15)
 
@@ -217,6 +229,23 @@ P32_TEST_DECL bool p32_charset_name (wchar_t **address, uintptr_t heap, uint32_t
  * Otherwise, this flag is ignored.
  */
 #define P32_CHARSET_CONVERSION_NO_BEST_FIT (1 << 17)
+
+/**
+ * Normalize string to form C before converting it.
+ */
+#define P32_CHARSET_CONVERSION_NORM_C  (1 << 24)
+/**
+ * Normalize string to form D before converting it.
+ */
+#define P32_CHARSET_CONVERSION_NORM_D  (1 << 25)
+/**
+ * Normalize string to form KC before converting it.
+ */
+#define P32_CHARSET_CONVERSION_NORM_KC (1 << 26)
+/**
+ * Normalize string to form KD before converting it.
+ */
+#define P32_CHARSET_CONVERSION_NORM_KD (1 << 27)
 
 /**
  * These values are stored in `Status` field of `CharsetConversionRequest`

@@ -1058,8 +1058,10 @@ static bool P32EraString (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t local
 
   CharsetConversionRequest conversionRequest = {0};
 
-  conversionRequest.Flags   = (P32_CHARSET_CONVERSION_WC_TO_MB);
-  conversionRequest.Charset = &locale->Charset;
+  conversionRequest.Flags   |= P32_CHARSET_CONVERSION_WC_TO_MB;
+  conversionRequest.Flags   |= P32_CHARSET_CONVERSION_NORM_C;
+  conversionRequest.Flags   |= P32_CHARSET_CONVERSION_NORM_KC;
+  conversionRequest.Charset  = &locale->Charset;
 
   /**
    * We should convert alternative calendar's era description string only
@@ -1618,8 +1620,10 @@ static bool P32DateTimeFormat (LcTimeInfo *info, CalendarInfo *calendarInfo, uin
 static bool P32CalendarDateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, CalendarInfo *calendar, locale_t locale) {
   CharsetConversionRequest conversionRequest = {0};
 
-  conversionRequest.Flags   = (P32_CHARSET_CONVERSION_WC_TO_MB);
-  conversionRequest.Charset = &locale->Charset;
+  conversionRequest.Flags   |= P32_CHARSET_CONVERSION_WC_TO_MB;
+  conversionRequest.Flags   |= P32_CHARSET_CONVERSION_NORM_C;
+  conversionRequest.Flags   |= P32_CHARSET_CONVERSION_NORM_KC;
+  conversionRequest.Charset  = &locale->Charset;
 
   /**
    * Date format string for "%x"/"%Ex" format specifier.
@@ -1665,8 +1669,10 @@ fail:
 static bool P32DateTime (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t locale) {
   CharsetConversionRequest conversionRequest = {0};
 
-  conversionRequest.Flags   = (P32_CHARSET_CONVERSION_WC_TO_MB);
-  conversionRequest.Charset = &locale->Charset;
+  conversionRequest.Flags   |= P32_CHARSET_CONVERSION_WC_TO_MB;
+  conversionRequest.Flags   |= P32_CHARSET_CONVERSION_NORM_C;
+  conversionRequest.Flags   |= P32_CHARSET_CONVERSION_NORM_KC;
+  conversionRequest.Charset  = &locale->Charset;
 
   /**
    * Time format string for "%X" format specifier.

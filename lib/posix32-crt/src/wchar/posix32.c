@@ -74,6 +74,8 @@ int p32_ext_wcstombs (char **address, const wchar_t *wcs) {
   conversionRequest.Flags    |= P32_CHARSET_CONVERSION_MALLOC;
   conversionRequest.Flags    |= P32_CHARSET_CONVERSION_WC_TO_MB;
   conversionRequest.Flags    |= P32_CHARSET_CONVERSION_NO_BEST_FIT;
+  conversionRequest.Flags    |= P32_CHARSET_CONVERSION_NORM_C;
+  conversionRequest.Flags    |= P32_CHARSET_CONVERSION_NORM_KC;
   conversionRequest.Charset   = &activeLocale->Charset;
   conversionRequest.Input.W   = wcs;
   conversionRequest.Output.A  = address;
@@ -101,6 +103,8 @@ int p32_ext_wcstombs_cp (char **address, const wchar_t *wcs, unsigned codePage) 
   conversionRequest.Flags    |= P32_CHARSET_CONVERSION_MALLOC;
   conversionRequest.Flags    |= P32_CHARSET_CONVERSION_WC_TO_MB;
   conversionRequest.Flags    |= P32_CHARSET_CONVERSION_NO_BEST_FIT;
+  conversionRequest.Flags    |= P32_CHARSET_CONVERSION_NORM_C;
+  conversionRequest.Flags    |= P32_CHARSET_CONVERSION_NORM_KC;
   conversionRequest.CodePage  = codePage;
   conversionRequest.Input.W   = wcs;
   conversionRequest.Output.A  = address;
@@ -116,6 +120,8 @@ int p32_ext_wcstombs_ansi (char **address, const wchar_t *wcs) {
   conversionRequest.Flags    |= P32_CHARSET_CONVERSION_MALLOC;
   conversionRequest.Flags    |= P32_CHARSET_CONVERSION_WC_TO_MB;
   conversionRequest.Flags    |= P32_CHARSET_CONVERSION_NO_BEST_FIT;
+  conversionRequest.Flags    |= P32_CHARSET_CONVERSION_NORM_C;
+  conversionRequest.Flags    |= P32_CHARSET_CONVERSION_NORM_KC;
   conversionRequest.Charset   = &locale->Charset;
   conversionRequest.Input.W   = wcs;
   conversionRequest.Output.A  = address;
@@ -145,6 +151,8 @@ int p32_ext_wcstombs_oem (char **address, const wchar_t *wcs) {
   conversionRequest.Flags    |= P32_CHARSET_CONVERSION_MALLOC;
   conversionRequest.Flags    |= P32_CHARSET_CONVERSION_WC_TO_MB;
   conversionRequest.Flags    |= P32_CHARSET_CONVERSION_NO_BEST_FIT;
+  conversionRequest.Flags    |= P32_CHARSET_CONVERSION_NORM_C;
+  conversionRequest.Flags    |= P32_CHARSET_CONVERSION_NORM_KC;
   conversionRequest.Charset   = &locale->Charset;
   conversionRequest.Input.W   = wcs;
   conversionRequest.Output.A  = address;
@@ -174,6 +182,7 @@ int p32_ext_wcstombs_fs (char **address, const wchar_t *wcs) {
   conversionRequest.Flags    |= P32_CHARSET_CONVERSION_MALLOC;
   conversionRequest.Flags    |= P32_CHARSET_CONVERSION_WC_TO_MB;
   conversionRequest.Flags    |= P32_CHARSET_CONVERSION_NO_BEST_FIT;
+  conversionRequest.Flags    |= P32_CHARSET_CONVERSION_NORM_C;
   conversionRequest.Charset   = &locale->Charset;
   conversionRequest.Input.W   = wcs;
   conversionRequest.Output.A  = address;

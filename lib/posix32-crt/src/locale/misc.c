@@ -141,9 +141,9 @@ int p32_private_asprintf (char **address, uintptr_t heap, const wchar_t *format,
    */
   CharsetConversionRequest conversionRequest = {0};
 
-  conversionRequest.Flags    |= (P32_CHARSET_CONVERSION_CP);
-  conversionRequest.Flags    |= (P32_CHARSET_CONVERSION_WC_TO_MB);
-  conversionRequest.Flags    |= (P32_CHARSET_CONVERSION_NO_BEST_FIT);
+  conversionRequest.Flags    |= P32_CHARSET_CONVERSION_CP;
+  conversionRequest.Flags    |= P32_CHARSET_CONVERSION_WC_TO_MB;
+  conversionRequest.Flags    |= P32_CHARSET_CONVERSION_NO_BEST_FIT;
   conversionRequest.CodePage  = P32_CODEPAGE_ASCII;
   conversionRequest.Input.W   = wcs;
   conversionRequest.Output.A  = &str;
