@@ -24,6 +24,7 @@
 #include "core-crt.h"
 #include "core-loader.h"
 #include "core-memory.h"
+#include "core-norm.h"
 #include "core-runtime.h"
 #include "core-winver.h"
 

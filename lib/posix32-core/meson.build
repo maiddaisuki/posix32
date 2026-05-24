@@ -10,6 +10,7 @@ posix32_core_sources = files (
   'src/crt.c',
   'src/heap.c',
   'src/loader.c',
+  'src/norm.c',
   'src/runtime.c',
   'src/winver.c',
 )
