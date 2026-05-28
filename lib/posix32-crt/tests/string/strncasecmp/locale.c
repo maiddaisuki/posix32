@@ -49,23 +49,23 @@ static void CompareStringIncremental (
   size_t    totalLength = 0;
 
   while (1) {
-    size_t length = mbrlen_l (lower + totalLength, MB_CUR_MAX_L (locale), &state, locale);
+    size_t length = mbrlen_l (lower + totalLength, 1, &state, locale);
     assert (length != (size_t) -1);
 
     if (length == 0) {
       break;
     }
 
-    totalLength += length;
+    totalLength += 1;
 
-    int diff = 0;
-
-    assert ((diff = strncasecmp_l (lower, upper, totalLength, locale)) != _NLSCMPERROR);
+    int diff = strncasecmp_l (lower, upper, totalLength, locale);
 
     if (diff) {
       exit_code = EXIT_FAILURE;
       fwprintf (stderr, L"%-24s: %d\n", localeName, diff);
     }
+
+    assert (diff != _NLSCMPERROR);
   }
 
   assert (mbsinit (&state));
