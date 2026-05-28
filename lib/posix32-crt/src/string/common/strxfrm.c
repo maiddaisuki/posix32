@@ -68,11 +68,13 @@ size_t p32_private_strxfrm_l (char *dest, const char *src, size_t size, locale_t
   INT destSize = (INT) __min (size, INT_MAX);
 
   /**
-   * `src` converted to wide character string.
+   * Convert `src` to wide character string.
    */
   wchar_t *wcs = NULL;
 
-  if (P32MbsToWcs (&wcs, src, locale) == -1) {
+  int wcsLength = P32MbsToWcs (&wcs, src, SIZE_MAX, locale);
+
+  if (wcsLength == -1) {
     return 0;
   }
 
@@ -85,7 +87,7 @@ size_t p32_private_strxfrm_l (char *dest, const char *src, size_t size, locale_t
    * NOTE: LCMapString(LCMAP_SORTKEY) returns number of bytes, not number
    * of characters.
    */
-  INT bufferSize = p32_winlocale_map_unicode_string (&locale->WinLocale.LcCollate, flags, wcs, -1, NULL, 0);
+  INT bufferSize = p32_winlocale_map_unicode_string (&locale->WinLocale.LcCollate, flags, wcs, wcsLength, NULL, 0);
 
   if (bufferSize == 0) {
     free (wcs);
@@ -98,7 +100,7 @@ size_t p32_private_strxfrm_l (char *dest, const char *src, size_t size, locale_t
   }
 
   INT written =
-    p32_winlocale_map_unicode_string (&locale->WinLocale.LcCollate, flags, wcs, -1, (wchar_t *) dest, destSize);
+    p32_winlocale_map_unicode_string (&locale->WinLocale.LcCollate, flags, wcs, wcsLength, (wchar_t *) dest, destSize);
   assert (written == bufferSize);
 
   free (wcs);

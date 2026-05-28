@@ -62,49 +62,6 @@
 #define P32_IS_ANSI(l, c) (l->CodePage.Ansi == c->CodePage || c->CodePage == P32_CODEPAGE_ASCII)
 
 /**
- * Convert multibyte character string to wide character string.
- *
- * This function allocates buffer to store converted string using `malloc`.
- * Converted string must be freed with `free` when no longer needed.
- *
- * On success, this funtions returns length of converted string.
- * On failure, this function returns `-1`.
- */
-static int P32MbsToWcs (wchar_t **address, const char *mbs, locale_t locale) {
-  /**
-   * Conversion state for `mbs`.
-   */
-  mbstate_t state = {0};
-
-  wchar_t *buffer     = NULL;
-  size_t   bufferSize = 0;
-
-  bufferSize = p32_private_mbsrtowcs_l (buffer, &mbs, bufferSize, &state, locale);
-
-  if (bufferSize == (size_t) -1 && bufferSize >= INT_MAX) {
-    return -1;
-  }
-
-  bufferSize += 1;
-  buffer      = malloc (bufferSize * sizeof (wchar_t));
-
-  if (buffer == NULL) {
-    return -1;
-  }
-
-  size_t written = p32_private_mbsrtowcs_l (buffer, &mbs, bufferSize, &state, locale);
-
-  if (written == (size_t) -1 || mbs != NULL) {
-    free (buffer);
-    return -1;
-  }
-
-  *address = buffer;
-
-  return (int) written;
-}
-
-/**
  * Convert up to `count` bytes of multibyte character string `mbs`
  * to wide character string.
  *
@@ -114,7 +71,7 @@ static int P32MbsToWcs (wchar_t **address, const char *mbs, locale_t locale) {
  * On success, this funtions returns length of converted string.
  * On failure, this function returns `-1`.
  */
-static int P32MbsToWcsS (wchar_t **address, const char *mbs, size_t count, locale_t locale) {
+static int P32MbsToWcs (wchar_t **address, const char *mbs, size_t count, locale_t locale) {
   /**
    * Conversion state for `mbs`.
    */

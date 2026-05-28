@@ -65,13 +65,13 @@ int p32_private_strcasecmp_l (const char *str1, const char *str2, locale_t local
   int wcs1Length = 0;
   int wcs2Length = 0;
 
-  wcs1Length = P32MbsToWcs (&wcs1, str1, locale);
+  wcs1Length = P32MbsToWcs (&wcs1, str1, SIZE_MAX, locale);
 
   if (wcs1Length == -1) {
     goto fail;
   }
 
-  wcs2Length = P32MbsToWcs (&wcs2, str2, locale);
+  wcs2Length = P32MbsToWcs (&wcs2, str2, SIZE_MAX, locale);
 
   if (wcs2Length == -1) {
     goto fail;
