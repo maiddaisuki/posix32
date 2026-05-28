@@ -53,20 +53,6 @@
 
 /**
  * Functions dependant on LC_COLLATE locale category.
- *
- * While msvcr80.dll and later support thread locales, we still provide our own
- * implementation for `wcscoll` and `wcsxfrm` functions.
- *
- * If string passed to `setlocale` or `newlocale` was in Windows format and
- * specified sorting order (e.g. ja-JP_radstr) and that sorting order
- * was applied during locale resolution, this bit of information will be lost
- * when we call CRT's `[_w]setlocale` and `_[w]create_locale` functions.
- *
- * The reason for this is that the string we pass to `[_w]setlocale` and
- * `_[w]create_locale` has "Language_Country" format.
- *
- * Except for "C" locale, our implementation always calls Windows NLS functions
- * and this bit of information will be used.
  */
 #include "common/wcscoll.c"
 #include "common/wcsxfrm.c"
