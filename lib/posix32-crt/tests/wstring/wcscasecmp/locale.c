@@ -40,6 +40,8 @@
 static int exit_code = EXIT_SUCCESS;
 
 static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
+  assert (wcscasecmp_l (L"", L"", locale) == 0);
+
   /**
    * Test ASCII input.
    */

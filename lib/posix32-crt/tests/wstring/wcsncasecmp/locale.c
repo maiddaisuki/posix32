@@ -62,6 +62,8 @@ static void CompareStringIncremental (
 }
 
 static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
+  assert (wcsncasecmp_l (L"", L"", SIZE_MAX, locale) == 0);
+
   /**
    * Test ASCII input.
    */
