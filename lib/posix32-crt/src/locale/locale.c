@@ -39,11 +39,7 @@
 #include "core-runtime.h"
 
 #include "crt-internal.h"
-#include "ctype-internal.h"
 #include "locale-internal.h"
-#include "string-internal.h"
-#include "uchar-internal.h"
-#include "wchar-internal.h"
 
 /**
  * File Summary:

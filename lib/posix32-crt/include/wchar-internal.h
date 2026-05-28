@@ -98,22 +98,4 @@ P32_TEST_DECL size_t p32_private_wcrtomb_dbcs (char *, wchar_t, mbstate_t *, Cha
 P32_TEST_DECL size_t p32_private_wcsrtombs_dbcs (char *, const wchar_t **, size_t, mbstate_t *, Charset *);
 P32_TEST_DECL size_t p32_private_wcsnrtombs_dbcs (char *, const wchar_t **, size_t, size_t, mbstate_t *, Charset *);
 
-/**
- * Store locale-specific versions of wide character string functions declared
- * in wchar.h in `locale->Functions`.
- */
-void p32_wchar_functions (locale_t locale);
-
-/**
- * Store locale-specific versions of C89 conversion functions declared in
- * stdlib.h in `locale->Functions`.
- */
-void p32_wchar_c89_functions (locale_t locale);
-
-/**
- * Store locale-specific versions of C95 conversion functions declared in
- * wchar.h in `locale->Functions`.
- */
-void p32_wchar_c95_functions (locale_t locale);
-
 #endif /* LIBPOSIX32_WCHAR_INTERNAL_H_INCLUDED */

@@ -72,9 +72,4 @@ P32_TEST_DECL size_t p32_private_c16rtomb_dbcs (char *, char16_t, mbstate_t *, C
 P32_TEST_DECL size_t p32_private_mbrtoc32_dbcs (char32_t *, const char *, size_t, mbstate_t *, Charset *);
 P32_TEST_DECL size_t p32_private_c32rtomb_dbcs (char *, char32_t, mbstate_t *, Charset *);
 
-/**
- * Store locale-specific versions of uchar.h functions in `locale->Functions`.
- */
-void p32_uchar_functions (locale_t locale);
-
 #endif /* LIBPOSIX32_UCHAR_INTERNAL_H_INCLUDED */

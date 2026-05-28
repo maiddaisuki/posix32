@@ -27,7 +27,7 @@
 /**
  * Pointers to locale-specific implementations of locale-dependant functions.
  */
-typedef struct {
+typedef struct LocaleFunctions {
   /**
    * string.h
    */
@@ -91,5 +91,34 @@ typedef struct {
   size_t (*F_mbrtoc32) (uint_least32_t *, const char *, size_t, mbstate_t *, Charset *);
   size_t (*F_c32rtomb) (char *, uint_least32_t, mbstate_t *, Charset *);
 } LocaleFunctions;
+
+/**
+ * Store locale-specific versions of string.h and strings.h functions in
+ * `locale->Functions`.
+ */
+void p32_string_functions (locale_t locale);
+
+/**
+ * Store locale-specific versions of uchar.h functions in `locale->Functions`.
+ */
+void p32_uchar_functions (locale_t locale);
+
+/**
+ * Store locale-specific versions of wide character string functions declared
+ * in wchar.h in `locale->Functions`.
+ */
+void p32_wchar_functions (locale_t locale);
+
+/**
+ * Store locale-specific versions of C89 conversion functions declared in
+ * stdlib.h in `locale->Functions`.
+ */
+void p32_wchar_c89_functions (locale_t locale);
+
+/**
+ * Store locale-specific versions of C95 conversion functions declared in
+ * wchar.h in `locale->Functions`.
+ */
+void p32_wchar_c95_functions (locale_t locale);
 
 #endif /* LIBPOSIX32_LOCALE_FUNCTIONS_H_INCLUDED */

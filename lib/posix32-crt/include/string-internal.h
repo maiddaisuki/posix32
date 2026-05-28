@@ -43,10 +43,4 @@ P32_TEST_DECL char  *p32_private_strtok_r_l (char *str, const char *delim, char 
 P32_TEST_DECL int    p32_private_strcoll_l (const char *str1, const char *str2, locale_t locale);
 P32_TEST_DECL size_t p32_private_strxfrm_l (char *dest, const char *src, size_t size, locale_t locale);
 
-/**
- * Store locale-specific versions of string.h and strings.h functions in
- * `locale->Functions`.
- */
-void p32_string_functions (locale_t locale);
-
 #endif /* LIBPOSIX32_STRING_INTERNAL_H_INCLUDED */
