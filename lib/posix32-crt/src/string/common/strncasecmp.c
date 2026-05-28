@@ -40,7 +40,7 @@ static int p32_strncasecmp_posix (const char *str1, const char *str2, size_t cou
   return 0;
 }
 
-#if (P32_LOCALE_API & P32_LOCALE_API_LCID) && !(P32_LOCALE_API & P32_LOCALE_API_LN)
+#if !1
 /**
  * Implementation using `CompareStringA`.
  */
@@ -159,10 +159,6 @@ fail:
 static void P32LocaleFunction_strncasecmp (LocaleFunctions *functions, Charset *charset, Locale *locale) {
   if (P32_IS_POSIX (locale)) {
     functions->F_strncasecmp = p32_strncasecmp_posix;
-#if (P32_LOCALE_API & P32_LOCALE_API_LCID) && !(P32_LOCALE_API & P32_LOCALE_API_LN)
-  } else if (P32_IS_ANSI (locale, charset)) {
-    functions->F_strncasecmp = p32_strncasecmp_ansi;
-#endif
   } else {
     functions->F_strncasecmp = p32_private_strncasecmp_l;
   }

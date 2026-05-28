@@ -24,7 +24,7 @@ static int p32_strcoll_posix (const char *str1, const char *str2, locale_t local
   UNREFERENCED_PARAMETER (locale);
 }
 
-#if (P32_LOCALE_API & P32_LOCALE_API_LCID) && !(P32_LOCALE_API & P32_LOCALE_API_LN)
+#if !1
 /**
  * Implementation using `CompareStringA`.
  */
@@ -110,10 +110,6 @@ fail:
 static void P32LocaleFunction_strcoll (LocaleFunctions *functions, Charset *charset, Locale *locale) {
   if (P32_IS_POSIX (locale)) {
     functions->F_strcoll = p32_strcoll_posix;
-#if (P32_LOCALE_API & P32_LOCALE_API_LCID) && !(P32_LOCALE_API & P32_LOCALE_API_LN)
-  } else if (P32_IS_ANSI (locale, charset)) {
-    functions->F_strcoll = p32_strcoll_ansi;
-#endif
   } else {
     functions->F_strcoll = p32_private_strcoll_l;
   }

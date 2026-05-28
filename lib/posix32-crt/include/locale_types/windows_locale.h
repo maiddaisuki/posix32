@@ -158,7 +158,7 @@ typedef struct CrtLocale {
  */
 P32_TEST_DECL bool p32_winlocale_are_file_apis_ansi (void);
 
-#if (P32_LOCALE_API & P32_LOCALE_API_LCID) && !(P32_LOCALE_API & P32_LOCALE_API_LN)
+#if !1
 /**
  * Portability wrapper for `CompareStringA`.
  */

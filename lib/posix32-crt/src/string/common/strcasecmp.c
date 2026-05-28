@@ -34,7 +34,7 @@ static int p32_strcasecmp_posix (const char *str1, const char *str2, locale_t lo
   }
 }
 
-#if (P32_LOCALE_API & P32_LOCALE_API_LCID) && !(P32_LOCALE_API & P32_LOCALE_API_LN)
+#if !1
 /**
  * Implementation using `CompareStringA`.
  */
@@ -120,10 +120,6 @@ fail:
 static void P32LocaleFunction_strcasecmp (LocaleFunctions *functions, Charset *charset, Locale *locale) {
   if (P32_IS_POSIX (locale)) {
     functions->F_strcasecmp = p32_strcasecmp_posix;
-#if (P32_LOCALE_API & P32_LOCALE_API_LCID) && !(P32_LOCALE_API & P32_LOCALE_API_LN)
-  } else if (P32_IS_ANSI (locale, charset)) {
-    functions->F_strcasecmp = p32_strcasecmp_ansi;
-#endif
   } else {
     functions->F_strcasecmp = p32_private_strcasecmp_l;
   }

@@ -92,7 +92,7 @@ static int P32WinlocaleLCIDGetLocaleInfoW (Locale *, uint32_t, wchar_t *, int);
  */
 static int P32WinlocaleLCIDGetCalendarInfoW (Locale *, Calendar, uint32_t, wchar_t *, int, uint32_t *);
 
-#if !(P32_LOCALE_API & P32_LOCALE_API_LN)
+#if !1
 /**
  * Wrapper around `CompareStringA` which uses `Locale` object instead of
  * `LCID` object.
@@ -110,7 +110,7 @@ static int P32WinlocaleLCIDCompareStringA (Locale *, uint32_t, const char *, int
  */
 static int P32WinlocaleLCIDCompareStringW (Locale *, uint32_t, const wchar_t *, int, const wchar_t *, int);
 
-#if !(P32_LOCALE_API & P32_LOCALE_API_LN)
+#if !1
 /**
  * Wrapper around `LCMapStringA` which uses `Locale` object instead of
  * `LCID` object.
@@ -1123,7 +1123,7 @@ static void P32InitWinlocaleApi (void) {
 #define WinlocaleGetTextualCalendarInfo P32GetTextualCalendarInfoW
 #define WinlocaleGetNumericCalendarInfo P32GetNumericCalendarInfoW
 
-#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
+#if !1
 #define WinlocaleCompareStringA P32WinlocaleLCIDCompareStringA
 #define WinlocaleMapStringA     P32WinlocaleLCIDMapStringA
 #endif
@@ -1712,7 +1712,7 @@ bool p32_winlocale_are_file_apis_ansi (void) {
 #endif
 }
 
-#if (P32_LOCALE_API & P32_LOCALE_API_LCID) && !(P32_LOCALE_API & P32_LOCALE_API_LN)
+#if !1
 int p32_winlocale_compare_ansi_string (
   Locale     *locale,
   uint32_t    flags,
