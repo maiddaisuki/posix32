@@ -29,9 +29,9 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "ctype-internal.h"
 #include "locale-internal.h"
 #include "string-internal.h"
+#include "wctype-internal.h"
 
 /**
  * File Summary:
@@ -64,3 +64,23 @@
 #include "common/iswspace.c"
 #include "common/iswupper.c"
 #include "common/iswxdigit.c"
+
+/*******************************************************************************
+ * External Functions.
+ */
+
+void p32_wctype_functions (locale_t locale) {
+  P32LocaleFunction_iswctype (&locale->Functions);
+  P32LocaleFunction_iswalnum (&locale->Functions);
+  P32LocaleFunction_iswalpha (&locale->Functions);
+  P32LocaleFunction_iswblank (&locale->Functions);
+  P32LocaleFunction_iswcntrl (&locale->Functions);
+  P32LocaleFunction_iswdigit (&locale->Functions);
+  P32LocaleFunction_iswgraph (&locale->Functions);
+  P32LocaleFunction_iswlower (&locale->Functions);
+  P32LocaleFunction_iswprint (&locale->Functions);
+  P32LocaleFunction_iswpunct (&locale->Functions);
+  P32LocaleFunction_iswspace (&locale->Functions);
+  P32LocaleFunction_iswupper (&locale->Functions);
+  P32LocaleFunction_iswxdigit (&locale->Functions);
+}

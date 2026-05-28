@@ -16,7 +16,7 @@
 
 #include "p32_wctype.h"
 
-typedef struct {
+typedef struct WcType1 {
   /**
    * Character class.
    *
@@ -73,18 +73,11 @@ static const WcType1 WcType1Map[] = {
   (wctype & chartype) && (bits & map[bit].IncludeBits) && (bits & map[bit].ExcludeBits) == 0
 
 /**
- * Return subset of character classes from `wctype` which apply to single
- * wide character `wc`.
+ * Returns subset of character classes (`P32_CHARTYPE_*`) from `wctype`
+ * a Code Point described by `CT_CTYPE1` bits `charType1Bits` belongs to.
  */
-static uint16_t P32IsCharType (wchar_t wc, wctype_t wctype, locale_t locale) {
+static uint16_t P32IsCharType (uint16_t charType1Bits, wctype_t wctype) {
   uint16_t charTypeBits = 0;
-
-  /**
-   * `CT_CTYPE1` information bits for wide character `wc`.
-   */
-  uint16_t charType1Bits = 0;
-
-  p32_winlocale_get_unicode_string_type (&locale->WinLocale.LcCtype, CT_CTYPE1, &wc, 1, &charType1Bits);
 
   if (P32_IS_CHARTYPE (charType1Bits, wctype, P32_CHARTYPE_ALNUM, WcType1Map, P32_CHARTYPE_BIT_ALNUM)) {
     charTypeBits |= P32_CHARTYPE_ALNUM;
@@ -126,8 +119,40 @@ static uint16_t P32IsCharType (wchar_t wc, wctype_t wctype, locale_t locale) {
   return charTypeBits;
 }
 
+/**
+ * Implementation for Windows NT systems using `GetStringTypeW`;
+ * this function is locale-independent and always uses Unicode.
+ *
+ * One significant limitation is that this function does not return any usable
+ * information for UTF-16 surrogate pairs; this makes it usable only with
+ * Code Points which are encoded as a single UTF-16 Code Unit.
+ *
+ * Another detail to keep in mind is that older Windows version may have
+ * outdated or no information at all for some Code Points.
+ */
+static int p32_iswctype_unicode (wchar_t wc, wctype_t wctype, locale_t locale) {
+  /**
+   * `CT_CTYPE1` information bits for wide character `wc`.
+   */
+  uint16_t charType1Bits = 0;
+
+  if (!p32_winlocale_get_unicode_string_type (&locale->WinLocale.LcCtype, CT_CTYPE1, &wc, 1, &charType1Bits)) {
+    return 0;
+  }
+
+  return P32IsCharType (charType1Bits, wctype);
+}
+
+static void P32LocaleFunction_iswctype (LocaleFunctions *functions) {
+  functions->F_iswctype = p32_iswctype_unicode;
+}
+
+int p32_private_iswctype_l (wint_t wc, wctype_t wctype, locale_t locale) {
+  return locale->Functions.F_iswctype (wc, wctype, locale);
+}
+
 int p32_iswctype_l (wint_t wc, wctype_t wctype, locale_t locale) {
-  return P32IsCharType (wc, wctype, locale);
+  return p32_private_iswctype_l (wc, wctype, locale);
 }
 
 int p32_iswctype (wint_t wc, wctype_t wctype) {
@@ -139,5 +164,5 @@ int p32_iswctype (wint_t wc, wctype_t wctype) {
   }
 #endif
 
-  return p32_iswctype_l (wc, wctype, activeLocale);
+  return p32_private_iswctype_l (wc, wctype, activeLocale);
 }

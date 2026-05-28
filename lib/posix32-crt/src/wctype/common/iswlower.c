@@ -16,8 +16,20 @@
 
 #include "p32_wctype.h"
 
+static int p32_iswlower_unicode (wint_t wc, locale_t locale) {
+  return p32_iswctype_unicode (wc, P32_CHARTYPE_LOWER, locale);
+}
+
+static void P32LocaleFunction_iswlower (LocaleFunctions *functions) {
+  functions->F_iswlower = p32_iswlower_unicode;
+}
+
+int p32_private_iswlower_l (wint_t wc, locale_t locale) {
+  return locale->Functions.F_iswlower (wc, locale);
+}
+
 int p32_iswlower_l (wint_t wc, locale_t locale) {
-  return p32_iswctype_l (wc, P32_CHARTYPE_LOWER, locale);
+  return p32_private_iswlower_l (wc, locale);
 }
 
 int p32_iswlower (wint_t wc) {
@@ -33,5 +45,5 @@ int p32_iswlower (wint_t wc) {
   }
 #endif
 
-  return p32_iswlower_l (wc, activeLocale);
+  return p32_private_iswlower_l (wc, activeLocale);
 }

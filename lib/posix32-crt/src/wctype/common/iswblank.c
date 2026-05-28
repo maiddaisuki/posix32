@@ -16,8 +16,20 @@
 
 #include "p32_wctype.h"
 
+static int p32_iswblank_unicode (wint_t wc, locale_t locale) {
+  return p32_iswctype_unicode (wc, P32_CHARTYPE_BLANK, locale);
+}
+
+static void P32LocaleFunction_iswblank (LocaleFunctions *functions) {
+  functions->F_iswblank = p32_iswblank_unicode;
+}
+
+int p32_private_iswblank_l (wint_t wc, locale_t locale) {
+  return locale->Functions.F_iswblank (wc, locale);
+}
+
 int p32_iswblank_l (wint_t wc, locale_t locale) {
-  return p32_iswctype_l (wc, P32_CHARTYPE_BLANK, locale);
+  return p32_private_iswblank_l (wc, locale);
 }
 
 int p32_iswblank (wint_t wc) {
@@ -33,5 +45,5 @@ int p32_iswblank (wint_t wc) {
   }
 #endif
 
-  return p32_iswblank_l (wc, activeLocale);
+  return p32_private_iswblank_l (wc, activeLocale);
 }

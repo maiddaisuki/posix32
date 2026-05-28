@@ -16,8 +16,20 @@
 
 #include "p32_wctype.h"
 
+static int p32_iswalnum_unicode (wint_t wc, locale_t locale) {
+  return p32_iswctype_unicode (wc, P32_CHARTYPE_ALNUM, locale);
+}
+
+static void P32LocaleFunction_iswalnum (LocaleFunctions *functions) {
+  functions->F_iswalnum = p32_iswalnum_unicode;
+}
+
+int p32_private_iswalnum_l (wint_t wc, locale_t locale) {
+  return locale->Functions.F_iswalnum (wc, locale);
+}
+
 int p32_iswalnum_l (wint_t wc, locale_t locale) {
-  return p32_iswctype_l (wc, P32_CHARTYPE_ALNUM, locale);
+  return p32_private_iswalnum_l (wc, locale);
 }
 
 int p32_iswalnum (wint_t wc) {
@@ -33,5 +45,5 @@ int p32_iswalnum (wint_t wc) {
   }
 #endif
 
-  return p32_iswalnum_l (wc, activeLocale);
+  return p32_private_iswalnum_l (wc, activeLocale);
 }

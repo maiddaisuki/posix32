@@ -16,8 +16,20 @@
 
 #include "p32_wctype.h"
 
+static int p32_iswgraph_unicode (wint_t wc, locale_t locale) {
+  return p32_iswctype_unicode (wc, P32_CHARTYPE_GRAPH, locale);
+}
+
+static void P32LocaleFunction_iswgraph (LocaleFunctions *functions) {
+  functions->F_iswgraph = p32_iswgraph_unicode;
+}
+
+int p32_private_iswgraph_l (wint_t wc, locale_t locale) {
+  return locale->Functions.F_iswgraph (wc, locale);
+}
+
 int p32_iswgraph_l (wint_t wc, locale_t locale) {
-  return p32_iswctype_l (wc, P32_CHARTYPE_GRAPH, locale);
+  return p32_private_iswgraph_l (wc, locale);
 }
 
 int p32_iswgraph (wint_t wc) {
@@ -33,5 +45,5 @@ int p32_iswgraph (wint_t wc) {
   }
 #endif
 
-  return p32_iswgraph_l (wc, activeLocale);
+  return p32_private_iswgraph_l (wc, activeLocale);
 }

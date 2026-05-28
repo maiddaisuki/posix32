@@ -30,8 +30,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "ctype-internal.h"
 #include "locale-internal.h"
+#include "wctype-internal.h"
 
 /**
  * File Summary:
@@ -259,7 +259,7 @@ static bool P32CharTypeMap (CharTypeMap *charTypeMap, locale_t locale) {
       continue;
     }
 
-    charTypeMap->Map[i] = (uint16_t) p32_iswctype_l (wc, P32_CHARTYPE_ALL, locale);
+    charTypeMap->Map[i] = (uint16_t) p32_private_iswctype_l (wc, P32_CHARTYPE_ALL, locale);
   }
 
   return true;

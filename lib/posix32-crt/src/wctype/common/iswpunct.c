@@ -16,8 +16,20 @@
 
 #include "p32_wctype.h"
 
+static int p32_iswpunct_unicode (wint_t wc, locale_t locale) {
+  return p32_iswctype_unicode (wc, P32_CHARTYPE_PUNCT, locale);
+}
+
+static void P32LocaleFunction_iswpunct (LocaleFunctions *functions) {
+  functions->F_iswpunct = p32_iswpunct_unicode;
+}
+
+int p32_private_iswpunct_l (wint_t wc, locale_t locale) {
+  return locale->Functions.F_iswpunct (wc, locale);
+}
+
 int p32_iswpunct_l (wint_t wc, locale_t locale) {
-  return p32_iswctype_l (wc, P32_CHARTYPE_PUNCT, locale);
+  return p32_private_iswpunct_l (wc, locale);
 }
 
 int p32_iswpunct (wint_t wc) {
@@ -33,5 +45,5 @@ int p32_iswpunct (wint_t wc) {
   }
 #endif
 
-  return p32_iswpunct_l (wc, activeLocale);
+  return p32_private_iswpunct_l (wc, activeLocale);
 }

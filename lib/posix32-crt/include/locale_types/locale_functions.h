@@ -82,6 +82,22 @@ typedef struct LocaleFunctions {
   int    (*F_wcscasecmp) (const wchar_t *, const wchar_t *, locale_t);
   int    (*F_wcsncasecmp) (const wchar_t *, const wchar_t *, size_t, locale_t);
   /**
+   * wctype.h: Character classification
+   */
+  int (*F_iswctype) (wchar_t, wctype_t, locale_t);
+  int (*F_iswalnum) (wchar_t, locale_t);
+  int (*F_iswalpha) (wchar_t, locale_t);
+  int (*F_iswblank) (wchar_t, locale_t);
+  int (*F_iswcntrl) (wchar_t, locale_t);
+  int (*F_iswdigit) (wchar_t, locale_t);
+  int (*F_iswgraph) (wchar_t, locale_t);
+  int (*F_iswlower) (wchar_t, locale_t);
+  int (*F_iswprint) (wchar_t, locale_t);
+  int (*F_iswpunct) (wchar_t, locale_t);
+  int (*F_iswspace) (wchar_t, locale_t);
+  int (*F_iswupper) (wchar_t, locale_t);
+  int (*F_iswxdigit) (wchar_t, locale_t);
+  /**
    * uchar.h
    */
   size_t (*F_mbrtoc8) (uint_least8_t *, const char *, size_t, mbstate_t *, Charset *);
@@ -120,5 +136,11 @@ void p32_wchar_c89_functions (locale_t locale);
  * wchar.h in `locale->Functions`.
  */
 void p32_wchar_c95_functions (locale_t locale);
+
+/**
+ * Store locale-specific versions of wctype.h character classification
+ * functions in `locale->Functions`.
+ */
+void p32_wctype_functions (locale_t locale);
 
 #endif /* LIBPOSIX32_LOCALE_FUNCTIONS_H_INCLUDED */

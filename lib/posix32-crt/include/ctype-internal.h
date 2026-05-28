@@ -18,7 +18,6 @@
 #define LIBPOSIX32_CTYPE_INTERNAL_H_INCLUDED
 
 #include "p32_ctype.h"
-#include "p32_wctype.h"
 
 #define P32_CHARTYPE_BIT_ALNUM   (0)
 #define P32_CHARTYPE_BIT_ALPHA   (1)

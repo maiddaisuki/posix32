@@ -16,8 +16,20 @@
 
 #include "p32_wctype.h"
 
+static int p32_iswprint_unicode (wint_t wc, locale_t locale) {
+  return p32_iswctype_unicode (wc, P32_CHARTYPE_PRINT, locale);
+}
+
+static void P32LocaleFunction_iswprint (LocaleFunctions *functions) {
+  functions->F_iswprint = p32_iswprint_unicode;
+}
+
+int p32_private_iswprint_l (wint_t wc, locale_t locale) {
+  return locale->Functions.F_iswprint (wc, locale);
+}
+
 int p32_iswprint_l (wint_t wc, locale_t locale) {
-  return p32_iswctype_l (wc, P32_CHARTYPE_PRINT, locale);
+  return p32_private_iswprint_l (wc, locale);
 }
 
 int p32_iswprint (wint_t wc) {
@@ -33,5 +45,5 @@ int p32_iswprint (wint_t wc) {
   }
 #endif
 
-  return p32_iswprint_l (wc, activeLocale);
+  return p32_private_iswprint_l (wc, activeLocale);
 }

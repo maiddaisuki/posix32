@@ -16,8 +16,20 @@
 
 #include "p32_wctype.h"
 
+static int p32_iswupper_unicode (wint_t wc, locale_t locale) {
+  return p32_iswctype_unicode (wc, P32_CHARTYPE_UPPER, locale);
+}
+
+static void P32LocaleFunction_iswupper (LocaleFunctions *functions) {
+  functions->F_iswupper = p32_iswupper_unicode;
+}
+
+int p32_private_iswupper_l (wint_t wc, locale_t locale) {
+  return locale->Functions.F_iswupper (wc, locale);
+}
+
 int p32_iswupper_l (wint_t wc, locale_t locale) {
-  return p32_iswctype_l (wc, P32_CHARTYPE_UPPER, locale);
+  return p32_private_iswupper_l (wc, locale);
 }
 
 int p32_iswupper (wint_t wc) {
@@ -33,5 +45,5 @@ int p32_iswupper (wint_t wc) {
   }
 #endif
 
-  return p32_iswupper_l (wc, activeLocale);
+  return p32_private_iswupper_l (wc, activeLocale);
 }

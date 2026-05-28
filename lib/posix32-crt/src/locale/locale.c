@@ -1891,6 +1891,7 @@ static void P32LocaleFunctions (locale_t locale) {
   p32_wchar_functions (locale);
   p32_wchar_c89_functions (locale);
   p32_wchar_c95_functions (locale);
+  p32_wctype_functions (locale);
 }
 
 /**

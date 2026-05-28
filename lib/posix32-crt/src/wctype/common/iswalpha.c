@@ -16,8 +16,20 @@
 
 #include "p32_wctype.h"
 
+static int p32_iswalpha_unicode (wint_t wc, locale_t locale) {
+  return p32_iswctype_unicode (wc, P32_CHARTYPE_ALPHA, locale);
+}
+
+static void P32LocaleFunction_iswalpha (LocaleFunctions *functions) {
+  functions->F_iswalpha = p32_iswalpha_unicode;
+}
+
+int p32_private_iswalpha_l (wint_t wc, locale_t locale) {
+  return locale->Functions.F_iswalpha (wc, locale);
+}
+
 int p32_iswalpha_l (wint_t wc, locale_t locale) {
-  return p32_iswctype_l (wc, P32_CHARTYPE_ALPHA, locale);
+  return p32_private_iswalpha_l (wc, locale);
 }
 
 int p32_iswalpha (wint_t wc) {
@@ -33,5 +45,5 @@ int p32_iswalpha (wint_t wc) {
   }
 #endif
 
-  return p32_iswalpha_l (wc, activeLocale);
+  return p32_private_iswalpha_l (wc, activeLocale);
 }

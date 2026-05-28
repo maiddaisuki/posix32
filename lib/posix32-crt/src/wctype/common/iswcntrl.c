@@ -16,8 +16,20 @@
 
 #include "p32_wctype.h"
 
+static int p32_iswcntrl_unicode (wint_t wc, locale_t locale) {
+  return p32_iswctype_unicode (wc, P32_CHARTYPE_CONTROL, locale);
+}
+
+static void P32LocaleFunction_iswcntrl (LocaleFunctions *functions) {
+  functions->F_iswcntrl = p32_iswcntrl_unicode;
+}
+
+int p32_private_iswcntrl_l (wint_t wc, locale_t locale) {
+  return locale->Functions.F_iswcntrl (wc, locale);
+}
+
 int p32_iswcntrl_l (wint_t wc, locale_t locale) {
-  return p32_iswctype_l (wc, P32_CHARTYPE_CONTROL, locale);
+  return p32_private_iswcntrl_l (wc, locale);
 }
 
 int p32_iswcntrl (wint_t wc) {
@@ -33,5 +45,5 @@ int p32_iswcntrl (wint_t wc) {
   }
 #endif
 
-  return p32_iswcntrl_l (wc, activeLocale);
+  return p32_private_iswcntrl_l (wc, activeLocale);
 }

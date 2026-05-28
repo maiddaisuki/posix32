@@ -30,9 +30,9 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "ctype-internal.h"
 #include "locale-internal.h"
 #include "string-internal.h"
+#include "wctype-internal.h"
 
 /**
  * File Summary:

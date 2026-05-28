@@ -16,8 +16,20 @@
 
 #include "p32_wctype.h"
 
+static int p32_iswdigit_unicode (wint_t wc, locale_t locale) {
+  return p32_iswctype_unicode (wc, P32_CHARTYPE_DIGIT, locale);
+}
+
+static void P32LocaleFunction_iswdigit (LocaleFunctions *functions) {
+  functions->F_iswdigit = p32_iswdigit_unicode;
+}
+
+int p32_private_iswdigit_l (wint_t wc, locale_t locale) {
+  return locale->Functions.F_iswdigit (wc, locale);
+}
+
 int p32_iswdigit_l (wint_t wc, locale_t locale) {
-  return p32_iswctype_l (wc, P32_CHARTYPE_DIGIT, locale);
+  return p32_private_iswdigit_l (wc, locale);
 }
 
 int p32_iswdigit (wint_t wc) {
@@ -33,5 +45,5 @@ int p32_iswdigit (wint_t wc) {
   }
 #endif
 
-  return p32_iswdigit_l (wc, activeLocale);
+  return p32_private_iswdigit_l (wc, activeLocale);
 }
