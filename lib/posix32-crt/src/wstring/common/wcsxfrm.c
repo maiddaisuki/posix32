@@ -33,7 +33,7 @@ static size_t p32_wcsxfrm_posix (wchar_t *dest, const wchar_t *src, size_t size,
 /**
  * Implementation using `LCMapStringW`/`LCMapStringEx`.
  */
-static size_t p32_wcsxfrm_generic (wchar_t *dest, const wchar_t *src, size_t size, locale_t locale) {
+static size_t p32_wcsxfrm_unicode (wchar_t *dest, const wchar_t *src, size_t size, locale_t locale) {
   Locale        *lcCollate     = &locale->WinLocale.LcCtype;
   LcCollateInfo *lcCollateInfo = &locale->LocaleInfo.LcCollate;
 
@@ -77,12 +77,16 @@ static void P32LocaleFunction_wcsxfrm (LocaleFunctions *functions, Locale *local
   if (locale->Type == LocaleType_POSIX) {
     functions->F_wcsxfrm = p32_wcsxfrm_posix;
   } else {
-    functions->F_wcsxfrm = p32_wcsxfrm_generic;
+    functions->F_wcsxfrm = p32_wcsxfrm_unicode;
   }
 }
 
-size_t p32_wcsxfrm_l (wchar_t *dest, const wchar_t *src, size_t size, locale_t locale) {
+size_t p32_private_wcsxfrm_l (wchar_t *dest, const wchar_t *src, size_t size, locale_t locale) {
   return locale->Functions.F_wcsxfrm (dest, src, size, locale);
+}
+
+size_t p32_wcsxfrm_l (wchar_t *dest, const wchar_t *src, size_t size, locale_t locale) {
+  return p32_private_wcsxfrm_l (dest, src, size, locale);
 }
 
 size_t p32_wcsxfrm (wchar_t *dest, const wchar_t *src, size_t size) {
@@ -94,5 +98,5 @@ size_t p32_wcsxfrm (wchar_t *dest, const wchar_t *src, size_t size) {
   }
 #endif
 
-  return p32_wcsxfrm_l (dest, src, size, activeLocale);
+  return p32_private_wcsxfrm_l (dest, src, size, activeLocale);
 }

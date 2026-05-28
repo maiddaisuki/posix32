@@ -1888,11 +1888,11 @@ static void P32CreateLocale (locale_t locale) {
 static void P32LocaleFunctions (locale_t locale) {
   p32_string_functions (locale);
   p32_uchar_functions (locale);
-  p32_wchar_functions (locale);
   p32_wchar_c89_functions (locale);
   p32_wchar_c95_functions (locale);
   p32_wctrans_functions (locale);
   p32_wctype_functions (locale);
+  p32_wstring_functions (locale);
 }
 
 /**

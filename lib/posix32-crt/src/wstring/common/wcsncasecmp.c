@@ -43,7 +43,7 @@ static int p32_wcsncasecmp_posix (const wchar_t *wcs1, const wchar_t *wcs2, size
 /**
  * Implementation using `CompareStringW`/`CompareStringEx`.
  */
-static int p32_wcsncasecmp_generic (const wchar_t *wcs1, const wchar_t *wcs2, size_t count, locale_t locale) {
+static int p32_wcsncasecmp_unicode (const wchar_t *wcs1, const wchar_t *wcs2, size_t count, locale_t locale) {
   /**
    * Two zero-length strings are equal.
    */
@@ -90,12 +90,16 @@ static void P32LocaleFunction_wcsncasecmp (LocaleFunctions *functions, Locale *l
   if (locale->Type == LocaleType_POSIX) {
     functions->F_wcsncasecmp = p32_wcsncasecmp_posix;
   } else {
-    functions->F_wcsncasecmp = p32_wcsncasecmp_generic;
+    functions->F_wcsncasecmp = p32_wcsncasecmp_unicode;
   }
 }
 
-int p32_wcsncasecmp_l (const wchar_t *wcs1, const wchar_t *wcs2, size_t count, locale_t locale) {
+int p32_private_wcsncasecmp_l (const wchar_t *wcs1, const wchar_t *wcs2, size_t count, locale_t locale) {
   return locale->Functions.F_wcsncasecmp (wcs1, wcs2, count, locale);
+}
+
+int p32_wcsncasecmp_l (const wchar_t *wcs1, const wchar_t *wcs2, size_t count, locale_t locale) {
+  return p32_private_wcsncasecmp_l (wcs1, wcs2, count, locale);
 }
 
 int p32_wcsncasecmp (const wchar_t *wcs1, const wchar_t *wcs2, size_t count) {
@@ -107,5 +111,5 @@ int p32_wcsncasecmp (const wchar_t *wcs1, const wchar_t *wcs2, size_t count) {
   }
 #endif
 
-  return p32_wcsncasecmp_l (wcs1, wcs2, count, activeLocale);
+  return p32_private_wcsncasecmp_l (wcs1, wcs2, count, activeLocale);
 }

@@ -27,6 +27,7 @@
 #include "uchar-internal.h"
 #include "wchar-internal.h"
 #include "wctype-internal.h"
+#include "wstring-internal.h"
 
 /**
  * The following flags can be passed to `p32_locale_test_func2` and

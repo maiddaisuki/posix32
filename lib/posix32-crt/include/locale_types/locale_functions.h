@@ -126,12 +126,6 @@ void p32_string_functions (locale_t locale);
 void p32_uchar_functions (locale_t locale);
 
 /**
- * Store locale-specific versions of wide character string functions declared
- * in wchar.h in `locale->Functions`.
- */
-void p32_wchar_functions (locale_t locale);
-
-/**
  * Store locale-specific versions of C89 conversion functions declared in
  * stdlib.h in `locale->Functions`.
  */
@@ -154,5 +148,11 @@ void p32_wctrans_functions (locale_t locale);
  * functions in `locale->Functions`.
  */
 void p32_wctype_functions (locale_t locale);
+
+/**
+ * Store locale-specific versions of wide character string functions declared
+ * in wchar.h in `locale->Functions`.
+ */
+void p32_wstring_functions (locale_t locale);
 
 #endif /* LIBPOSIX32_LOCALE_FUNCTIONS_H_INCLUDED */

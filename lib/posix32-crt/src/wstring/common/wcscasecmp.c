@@ -37,7 +37,7 @@ static int p32_wcscasecmp_posix (const wchar_t *wcs1, const wchar_t *wcs2, local
 /**
  * Implementation using `CompareStringW`/`CompareStringEx`.
  */
-static int p32_wcscasecmp_generic (const wchar_t *wcs1, const wchar_t *wcs2, locale_t locale) {
+static int p32_wcscasecmp_unicode (const wchar_t *wcs1, const wchar_t *wcs2, locale_t locale) {
   Locale      *lcCtype     = &locale->WinLocale.LcCtype;
   LcCtypeInfo *lcCtypeInfo = &locale->LocaleInfo.LcCtype;
 
@@ -66,12 +66,16 @@ static void P32LocaleFunction_wcscasecmp (LocaleFunctions *functions, Locale *lo
   if (locale->Type == LocaleType_POSIX) {
     functions->F_wcscasecmp = p32_wcscasecmp_posix;
   } else {
-    functions->F_wcscasecmp = p32_wcscasecmp_generic;
+    functions->F_wcscasecmp = p32_wcscasecmp_unicode;
   }
 }
 
-int p32_wcscasecmp_l (const wchar_t *wcs1, const wchar_t *wcs2, locale_t locale) {
+int p32_private_wcscasecmp_l (const wchar_t *wcs1, const wchar_t *wcs2, locale_t locale) {
   return locale->Functions.F_wcscasecmp (wcs1, wcs2, locale);
+}
+
+int p32_wcscasecmp_l (const wchar_t *wcs1, const wchar_t *wcs2, locale_t locale) {
+  return p32_private_wcscasecmp_l (wcs1, wcs2, locale);
 }
 
 int p32_wcscasecmp (const wchar_t *wcs1, const wchar_t *wcs2) {
@@ -83,5 +87,5 @@ int p32_wcscasecmp (const wchar_t *wcs1, const wchar_t *wcs2) {
   }
 #endif
 
-  return p32_wcscasecmp_l (wcs1, wcs2, activeLocale);
+  return p32_private_wcscasecmp_l (wcs1, wcs2, activeLocale);
 }

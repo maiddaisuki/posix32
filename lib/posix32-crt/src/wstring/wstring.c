@@ -30,8 +30,8 @@
 #include <windows.h>
 
 #include "locale-internal.h"
-#include "wchar-internal.h"
 #include "wctype-internal.h"
+#include "wstring-internal.h"
 
 /**
  * File Summary:
@@ -57,11 +57,11 @@
 #include "common/wcscoll.c"
 #include "common/wcsxfrm.c"
 
-/**
- * Internal Functions
+/*******************************************************************************
+ * External Functions.
  */
 
-void p32_wchar_functions (locale_t locale) {
+void p32_wstring_functions (locale_t locale) {
   P32LocaleFunction_wcscasecmp (&locale->Functions, &locale->WinLocale.LcCtype);
   P32LocaleFunction_wcsncasecmp (&locale->Functions, &locale->WinLocale.LcCtype);
   P32LocaleFunction_wcscoll (&locale->Functions, &locale->WinLocale.LcCollate);

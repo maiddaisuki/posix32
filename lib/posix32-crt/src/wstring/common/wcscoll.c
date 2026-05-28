@@ -27,7 +27,7 @@ static int p32_wcscoll_posix (const wchar_t *wcs1, const wchar_t *wcs2, locale_t
 /**
  * Implementation using `CompareStringW`/`CompareStringEx`.
  */
-static int p32_wcscoll_generic (const wchar_t *wcs1, const wchar_t *wcs2, locale_t locale) {
+static int p32_wcscoll_unicode (const wchar_t *wcs1, const wchar_t *wcs2, locale_t locale) {
   Locale        *lcCollate     = &locale->WinLocale.LcCtype;
   LcCollateInfo *lcCollateInfo = &locale->LocaleInfo.LcCollate;
 
@@ -56,12 +56,16 @@ static void P32LocaleFunction_wcscoll (LocaleFunctions *functions, Locale *local
   if (locale->Type == LocaleType_POSIX) {
     functions->F_wcscoll = p32_wcscoll_posix;
   } else {
-    functions->F_wcscoll = p32_wcscoll_generic;
+    functions->F_wcscoll = p32_wcscoll_unicode;
   }
 }
 
-int p32_wcscoll_l (const wchar_t *wcs1, const wchar_t *wcs2, locale_t locale) {
+int p32_private_wcscoll_l (const wchar_t *wcs1, const wchar_t *wcs2, locale_t locale) {
   return locale->Functions.F_wcscoll (wcs1, wcs2, locale);
+}
+
+int p32_wcscoll_l (const wchar_t *wcs1, const wchar_t *wcs2, locale_t locale) {
+  return p32_private_wcscoll_l (wcs1, wcs2, locale);
 }
 
 int p32_wcscoll (const wchar_t *wcs1, const wchar_t *wcs2) {
@@ -73,5 +77,5 @@ int p32_wcscoll (const wchar_t *wcs1, const wchar_t *wcs2) {
   }
 #endif
 
-  return p32_wcscoll_l (wcs1, wcs2, activeLocale);
+  return p32_private_wcscoll_l (wcs1, wcs2, activeLocale);
 }

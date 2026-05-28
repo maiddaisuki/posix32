@@ -1,0 +1,32 @@
+/**
+ * Copyright 2026 Kirill Makurin
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef LIBPOSIX32_WSTRING_INTERNAL_H_INCLUDED
+#define LIBPOSIX32_WSTRING_INTERNAL_H_INCLUDED
+
+#include "p32_wchar.h"
+
+/**
+ * Internal versions of locale-dependent `wchar.h` functions.
+ *
+ * Code inside the library should use these versions instead of public ones.
+ */
+int    p32_private_wcscasecmp_l (const wchar_t *, const wchar_t *, locale_t);
+int    p32_private_wcsncasecmp_l (const wchar_t *, const wchar_t *, size_t, locale_t);
+int    p32_private_wcscoll_l (const wchar_t *, const wchar_t *, locale_t);
+size_t p32_private_wcsxfrm_l (wchar_t *, const wchar_t *, size_t, locale_t);
+
+#endif /* LIBPOSIX32_WSTRING_INTERNAL_H_INCLUDED */
