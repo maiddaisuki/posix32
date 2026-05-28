@@ -57,7 +57,7 @@ static int p32_strcoll_ansi (const char *str1, const char *str2, locale_t locale
 /**
  * Implementation using `CompareStringW`/`CompareStringEx`.
  */
-int p32_private_strcoll_l (const char *str1, const char *str2, locale_t locale) {
+static int p32_strcoll_unicode (const char *str1, const char *str2, locale_t locale) {
   Locale        *lcCollate     = &locale->WinLocale.LcCollate;
   LcCollateInfo *lcCollateInfo = &locale->LocaleInfo.LcCollate;
 
@@ -111,15 +111,19 @@ static void P32LocaleFunction_strcoll (LocaleFunctions *functions, Charset *char
   if (P32_IS_POSIX (locale)) {
     functions->F_strcoll = p32_strcoll_posix;
   } else {
-    functions->F_strcoll = p32_private_strcoll_l;
+    functions->F_strcoll = p32_strcoll_unicode;
   }
 
   return;
   UNREFERENCED_PARAMETER (charset);
 }
 
-int p32_strcoll_l (const char *str1, const char *str2, locale_t locale) {
+int p32_private_strcoll_l (const char *str1, const char *str2, locale_t locale) {
   return locale->Functions.F_strcoll (str1, str2, locale);
+}
+
+int p32_strcoll_l (const char *str1, const char *str2, locale_t locale) {
+  return p32_private_strcoll_l (str1, str2, locale);
 }
 
 int p32_strcoll (const char *str1, const char *str2) {
@@ -131,5 +135,5 @@ int p32_strcoll (const char *str1, const char *str2) {
   }
 #endif
 
-  return p32_strcoll_l (str1, str2, activeLocale);
+  return p32_private_strcoll_l (str1, str2, activeLocale);
 }

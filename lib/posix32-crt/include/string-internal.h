@@ -30,8 +30,6 @@ P32_TEST_DECL char  *p32_private_strdup_l (const char *str, locale_t locale);
 P32_TEST_DECL char  *p32_private_strndup_l (const char *str, size_t count, locale_t locale);
 P32_TEST_DECL int    p32_private_strcmp_l (const char *s1, const char *s2, locale_t locale);
 P32_TEST_DECL int    p32_private_strncmp_l (const char *s1, const char *s2, size_t count, locale_t locale);
-P32_TEST_DECL int    p32_private_strcasecmp_l (const char *s1, const char *s2, locale_t locale);
-P32_TEST_DECL int    p32_private_strncasecmp_l (const char *s1, const char *s2, size_t count, locale_t locale);
 P32_TEST_DECL char  *p32_private_strchr_l (const char *str, int c, locale_t locale);
 P32_TEST_DECL char  *p32_private_strrchr_l (const char *str, int c, locale_t locale);
 P32_TEST_DECL char  *p32_private_strstr_l (const char *str, const char *substr, locale_t locale);
@@ -40,7 +38,15 @@ P32_TEST_DECL size_t p32_private_strspn_l (const char *string, const char *set, 
 P32_TEST_DECL size_t p32_private_strcspn_l (const char *string, const char *set, locale_t locale);
 P32_TEST_DECL char  *p32_private_strtok_l (char *str, const char *delim, locale_t locale);
 P32_TEST_DECL char  *p32_private_strtok_r_l (char *str, const char *delim, char **context, locale_t locale);
-P32_TEST_DECL int    p32_private_strcoll_l (const char *str1, const char *str2, locale_t locale);
-P32_TEST_DECL size_t p32_private_strxfrm_l (char *dest, const char *src, size_t size, locale_t locale);
+
+/**
+ * Internal version of locale-dependent string.h and strings.h functions.
+ *
+ * Code inside the library should use these versions instead of public ones.
+ */
+int    p32_private_strcasecmp_l (const char *, const char *, locale_t);
+int    p32_private_strncasecmp_l (const char *, const char *, size_t, locale_t);
+int    p32_private_strcoll_l (const char *, const char *, locale_t);
+size_t p32_private_strxfrm_l (char *, const char *, size_t, locale_t);
 
 #endif /* LIBPOSIX32_STRING_INTERNAL_H_INCLUDED */

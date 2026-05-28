@@ -159,6 +159,10 @@ static int P32MbsToWcs (wchar_t **address, const char *mbs, size_t count, locale
 #include "common/strcoll.c"
 #include "common/strxfrm.c"
 
+/*******************************************************************************
+ * External Functions.
+ */
+
 void p32_string_functions (locale_t locale) {
   /**
    * Following functions depend on character set in use (LC_CTYPE).

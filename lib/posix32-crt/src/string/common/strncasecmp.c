@@ -99,7 +99,7 @@ static int p32_strncasecmp_ansi (const char *str1, const char *str2, size_t coun
 /**
  * Implementation using `CompareStringW`/`CompareStringEx`.
  */
-int p32_private_strncasecmp_l (const char *str1, const char *str2, size_t count, locale_t locale) {
+static int p32_strncasecmp_unicode (const char *str1, const char *str2, size_t count, locale_t locale) {
   Locale      *lcCtype     = &locale->WinLocale.LcCtype;
   LcCtypeInfo *lcCtypeInfo = &locale->LocaleInfo.LcCtype;
 
@@ -160,15 +160,19 @@ static void P32LocaleFunction_strncasecmp (LocaleFunctions *functions, Charset *
   if (P32_IS_POSIX (locale)) {
     functions->F_strncasecmp = p32_strncasecmp_posix;
   } else {
-    functions->F_strncasecmp = p32_private_strncasecmp_l;
+    functions->F_strncasecmp = p32_strncasecmp_unicode;
   }
 
   return;
   UNREFERENCED_PARAMETER (charset);
 }
 
-int p32_strncasecmp_l (const char *str1, const char *str2, size_t count, locale_t locale) {
+int p32_private_strncasecmp_l (const char *str1, const char *str2, size_t count, locale_t locale) {
   return locale->Functions.F_strncasecmp (str1, str2, count, locale);
+}
+
+int p32_strncasecmp_l (const char *str1, const char *str2, size_t count, locale_t locale) {
+  return p32_private_strncasecmp_l (str1, str2, count, locale);
 }
 
 int p32_strncasecmp (const char *str1, const char *str2, size_t count) {
@@ -180,5 +184,5 @@ int p32_strncasecmp (const char *str1, const char *str2, size_t count) {
   }
 #endif
 
-  return p32_strncasecmp_l (str1, str2, count, activeLocale);
+  return p32_private_strncasecmp_l (str1, str2, count, activeLocale);
 }

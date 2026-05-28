@@ -73,7 +73,7 @@ einval:
 /**
  * Implementation using `LCMapStringW`/`LCMapStringEx`.
  */
-size_t p32_private_strxfrm_l (char *dest, const char *src, size_t size, locale_t locale) {
+static size_t p32_strxfrm_unicode (char *dest, const char *src, size_t size, locale_t locale) {
   Locale        *lcCollate     = &locale->WinLocale.LcCollate;
   LcCollateInfo *lcCollateInfo = &locale->LocaleInfo.LcCollate;
 
@@ -127,15 +127,19 @@ static void P32LocaleFunction_strxfrm (LocaleFunctions *functions, Charset *char
   if (P32_IS_POSIX (locale)) {
     functions->F_strxfrm = p32_strxfrm_posix;
   } else {
-    functions->F_strxfrm = p32_private_strxfrm_l;
+    functions->F_strxfrm = p32_strxfrm_unicode;
   }
 
   return;
   UNREFERENCED_PARAMETER (charset);
 }
 
-size_t p32_strxfrm_l (char *dest, const char *src, size_t size, locale_t locale) {
+size_t p32_private_strxfrm_l (char *dest, const char *src, size_t size, locale_t locale) {
   return locale->Functions.F_strxfrm (dest, src, size, locale);
+}
+
+size_t p32_strxfrm_l (char *dest, const char *src, size_t size, locale_t locale) {
+  return p32_private_strxfrm_l (dest, src, size, locale);
 }
 
 size_t p32_strxfrm (char *dest, const char *src, size_t count) {
@@ -147,5 +151,5 @@ size_t p32_strxfrm (char *dest, const char *src, size_t count) {
   }
 #endif
 
-  return p32_strxfrm_l (dest, src, count, activeLocale);
+  return p32_private_strxfrm_l (dest, src, count, activeLocale);
 }

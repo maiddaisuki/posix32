@@ -67,7 +67,7 @@ static int p32_strcasecmp_ansi (const char *str1, const char *str2, locale_t loc
 /**
  * Implementation using `CompareStringW`/`CompareStringEx`.
  */
-int p32_private_strcasecmp_l (const char *str1, const char *str2, locale_t locale) {
+static int p32_strcasecmp_unicode (const char *str1, const char *str2, locale_t locale) {
   Locale      *lcCtype     = &locale->WinLocale.LcCtype;
   LcCtypeInfo *lcCtypeInfo = &locale->LocaleInfo.LcCtype;
 
@@ -121,15 +121,19 @@ static void P32LocaleFunction_strcasecmp (LocaleFunctions *functions, Charset *c
   if (P32_IS_POSIX (locale)) {
     functions->F_strcasecmp = p32_strcasecmp_posix;
   } else {
-    functions->F_strcasecmp = p32_private_strcasecmp_l;
+    functions->F_strcasecmp = p32_strcasecmp_unicode;
   }
 
   return;
   UNREFERENCED_PARAMETER (charset);
 }
 
-int p32_strcasecmp_l (const char *str1, const char *str2, locale_t locale) {
+int p32_private_strcasecmp_l (const char *str1, const char *str2, locale_t locale) {
   return locale->Functions.F_strcasecmp (str1, str2, locale);
+}
+
+int p32_strcasecmp_l (const char *str1, const char *str2, locale_t locale) {
+  return p32_private_strcasecmp_l (str1, str2, locale);
 }
 
 int p32_strcasecmp (const char *str1, const char *str2) {
@@ -141,5 +145,5 @@ int p32_strcasecmp (const char *str1, const char *str2) {
   }
 #endif
 
-  return p32_strcasecmp_l (str1, str2, activeLocale);
+  return p32_private_strcasecmp_l (str1, str2, activeLocale);
 }
