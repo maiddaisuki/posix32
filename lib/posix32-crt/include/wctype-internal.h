@@ -48,4 +48,17 @@ int p32_private_iswspace_l (wint_t, locale_t);
 int p32_private_iswupper_l (wint_t, locale_t);
 int p32_private_iswxdigit_l (wint_t, locale_t);
 
+/**
+ * Internal version of `towctrans_l`.
+ *
+ * Argument `wctrans` can be any `P32_WCTRANS_*` mapping.
+ */
+wint_t p32_private_towctrans_l (wint_t wc, wctrans_t wctrans, locale_t locale);
+
+/**
+ * Internal versions of mapping-specific `wctype.h` functions.
+ */
+wint_t p32_private_towlower_l (wint_t, locale_t);
+wint_t p32_private_towupper_l (wint_t, locale_t);
+
 #endif /* LIBPOSIX32_WCTYPE_INTERNAL_H_INCLUDED */

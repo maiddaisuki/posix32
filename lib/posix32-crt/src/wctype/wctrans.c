@@ -55,3 +55,13 @@
  */
 #include "common/towlower.c"
 #include "common/towupper.c"
+
+/*******************************************************************************
+ * External Functions.
+ */
+
+void p32_wctrans_functions (locale_t locale) {
+  P32LocaleFunction_towctrans (&locale->Functions);
+  P32LocaleFunction_towlower (&locale->Functions);
+  P32LocaleFunction_towupper (&locale->Functions);
+}

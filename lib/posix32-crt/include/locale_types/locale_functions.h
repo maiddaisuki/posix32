@@ -98,6 +98,12 @@ typedef struct LocaleFunctions {
   int (*F_iswupper) (wchar_t, locale_t);
   int (*F_iswxdigit) (wchar_t, locale_t);
   /**
+   * wctype.h: Character mapping
+   */
+  wint_t (*F_towctrans) (wchar_t, wctrans_t, locale_t);
+  wint_t (*F_towlower) (wchar_t, locale_t);
+  wint_t (*F_towupper) (wchar_t, locale_t);
+  /**
    * uchar.h
    */
   size_t (*F_mbrtoc8) (uint_least8_t *, const char *, size_t, mbstate_t *, Charset *);
@@ -136,6 +142,12 @@ void p32_wchar_c89_functions (locale_t locale);
  * wchar.h in `locale->Functions`.
  */
 void p32_wchar_c95_functions (locale_t locale);
+
+/**
+ * Store locale-specific versions of wctype.h character mapping
+ * functions in `locale->Functions`.
+ */
+void p32_wctrans_functions (locale_t locale);
 
 /**
  * Store locale-specific versions of wctype.h character classification

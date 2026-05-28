@@ -16,8 +16,20 @@
 
 #include "p32_wctype.h"
 
+static wint_t p32_towupper_unicode (wint_t wc, locale_t locale) {
+  return p32_towctrans_unicode (wc, P32_WCTRANS_POSIX_UPPER, locale);
+}
+
+static void P32LocaleFunction_towupper (LocaleFunctions *functions) {
+  functions->F_towupper = p32_towupper_unicode;
+}
+
+wint_t p32_private_towupper_l (wint_t wc, locale_t locale) {
+  return locale->Functions.F_towupper (wc, locale);
+}
+
 wint_t p32_towupper_l (wint_t wc, locale_t locale) {
-  return p32_towctrans_l (wc, P32_WCTRANS_POSIX_UPPER, locale);
+  return p32_private_towupper_l (wc, locale);
 }
 
 wint_t p32_towupper (wint_t wc) {
@@ -29,5 +41,5 @@ wint_t p32_towupper (wint_t wc) {
   }
 #endif
 
-  return p32_towupper_l (wc, activeLocale);
+  return p32_private_towupper_l (wc, activeLocale);
 }

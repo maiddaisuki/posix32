@@ -29,8 +29,8 @@ static int p32_wcsncasecmp_posix (const wchar_t *wcs1, const wchar_t *wcs2, size
   }
 
   for (size_t i = 0; i < count; ++i) {
-    wchar_t wc1 = p32_towlower_l (wcs1[i], locale);
-    wchar_t wc2 = p32_towlower_l (wcs2[i], locale);
+    wchar_t wc1 = p32_private_towlower_l (wcs1[i], locale);
+    wchar_t wc2 = p32_private_towlower_l (wcs2[i], locale);
 
     if (wc1 == L'\0' || wc1 != wc2) {
       return wc1 - wc2;

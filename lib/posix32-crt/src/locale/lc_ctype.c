@@ -277,7 +277,7 @@ static bool P32ToLowerMap (LowerMap *lowerMap, locale_t locale) {
       continue;
     }
 
-    wchar_t wcLower = p32_towlower_l (wc, locale);
+    wchar_t wcLower = p32_private_towlower_l (wc, locale);
 
     if (wc == wcLower) {
       lowerMap->Map[i] = (uint8_t) i;
@@ -309,7 +309,7 @@ static bool P32ToUpperMap (UpperMap *upperMap, locale_t locale) {
       continue;
     }
 
-    wchar_t wcUpper = p32_towupper_l (wc, locale);
+    wchar_t wcUpper = p32_private_towupper_l (wc, locale);
 
     if (wc == wcUpper) {
       upperMap->Map[i] = (uint8_t) i;

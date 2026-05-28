@@ -22,8 +22,8 @@
  */
 static int p32_wcscasecmp_posix (const wchar_t *wcs1, const wchar_t *wcs2, locale_t locale) {
   while (1) {
-    wchar_t wc1 = p32_towlower_l (*wcs1, locale);
-    wchar_t wc2 = p32_towlower_l (*wcs2, locale);
+    wchar_t wc1 = p32_private_towlower_l (*wcs1, locale);
+    wchar_t wc2 = p32_private_towlower_l (*wcs2, locale);
 
     if (wc1 == L'\0' || wc1 != wc2) {
       return wc1 - wc2;

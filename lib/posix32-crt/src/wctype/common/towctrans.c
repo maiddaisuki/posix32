@@ -67,7 +67,14 @@ static uint32_t P32WcTransFlags (wctrans_t wctrans, locale_t locale) {
   return flags;
 }
 
-wint_t p32_towctrans_l (wint_t wc, wctrans_t wctrans, locale_t locale) {
+/**
+ * Implementation for Windows NT systems using `LCMapStringW`/`LCMapStringEx`.
+ *
+ * Notably, these functions are capable of handling UTF-16 Surrogate Pairs.
+ * However, since `wchar_t` is UTF-16, `towctrans` is only capable of operating
+ * on Code Points encoded as a singe UTF-16 Code Unit.
+ */
+static wint_t p32_towctrans_unicode (wint_t wc, wctrans_t wctrans, locale_t locale) {
   /**
    * POSIX requires that if `wctrans` is zero, `wc` is returned unchanged.
    */
@@ -97,6 +104,18 @@ wint_t p32_towctrans_l (wint_t wc, wctrans_t wctrans, locale_t locale) {
   return wcTranslated;
 }
 
+static void P32LocaleFunction_towctrans (LocaleFunctions *functions) {
+  functions->F_towctrans = p32_towctrans_unicode;
+}
+
+wint_t p32_private_towctrans_l (wint_t wc, wctrans_t wctrans, locale_t locale) {
+  return locale->Functions.F_towctrans (wc, wctrans, locale);
+}
+
+wint_t p32_towctrans_l (wint_t wc, wctrans_t wctrans, locale_t locale) {
+  return p32_private_towctrans_l (wc, wctrans, locale);
+}
+
 wint_t p32_towctrans (wint_t wc, wctrans_t trans) {
   locale_t activeLocale = p32_active_locale ();
 
@@ -106,5 +125,5 @@ wint_t p32_towctrans (wint_t wc, wctrans_t trans) {
   }
 #endif
 
-  return p32_towctrans_l (wc, trans, activeLocale);
+  return p32_private_towctrans_l (wc, trans, activeLocale);
 }
