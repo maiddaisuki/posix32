@@ -35,13 +35,24 @@ static int p32_strcasecmp_posix (const char *str1, const char *str2, locale_t lo
 }
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID) && !(P32_LOCALE_API & P32_LOCALE_API_LN)
+/**
+ * Implementation using `CompareStringA`.
+ */
 static int p32_strcasecmp_ansi (const char *str1, const char *str2, locale_t locale) {
-  /**
-   * Locale-specific flags for `StringCompare[Ex]`.
-   */
-  DWORD flags = locale->LocaleInfo.LcCtype.CaseCmpFlags;
+  Locale      *lcCtype     = &locale->WinLocale.LcCtype;
+  LcCtypeInfo *lcCtypeInfo = &locale->LocaleInfo.LcCtype;
 
-  INT diff = p32_winlocale_compare_ansi_string (&locale->WinLocale.LcCtype, flags, str1, -1, str2, -1);
+  /**
+   * Return value.
+   */
+  int diff = _NLSCMPERROR;
+
+  /**
+   * Locale-specific flags for `StringCompareA`.
+   */
+  uint32_t flags = lcCtypeInfo->CaseCmpFlags;
+
+  diff = p32_winlocale_compare_ansi_string (lcCtype, flags, str1, -1, str2, -1);
 
   if (diff == 0) {
     diff = _NLSCMPERROR;
@@ -53,12 +64,21 @@ static int p32_strcasecmp_ansi (const char *str1, const char *str2, locale_t loc
 }
 #endif
 
+/**
+ * Implementation using `CompareStringW`/`CompareStringEx`.
+ */
 int p32_private_strcasecmp_l (const char *str1, const char *str2, locale_t locale) {
+  Locale      *lcCtype     = &locale->WinLocale.LcCtype;
+  LcCtypeInfo *lcCtypeInfo = &locale->LocaleInfo.LcCtype;
+
   /**
    * Return value.
    */
   int diff = _NLSCMPERROR;
 
+  /**
+   * Convert `str1` and `str2` to wide character strings.
+   */
   wchar_t *wcs1 = NULL;
   wchar_t *wcs2 = NULL;
 
@@ -78,11 +98,11 @@ int p32_private_strcasecmp_l (const char *str1, const char *str2, locale_t local
   }
 
   /**
-   * Locale-specific flags for `StringCompare[Ex]`.
+   * Locale-specific flags for `CompareStringW`/`CompareStringEx`.
    */
-  DWORD flags = locale->LocaleInfo.LcCtype.CaseCmpFlags;
+  uint32_t flags = lcCtypeInfo->CaseCmpFlags;
 
-  diff = p32_winlocale_compare_unicode_string (&locale->WinLocale.LcCtype, flags, wcs1, wcs1Length, wcs2, wcs2Length);
+  diff = p32_winlocale_compare_unicode_string (lcCtype, flags, wcs1, wcs1Length, wcs2, wcs2Length);
 
   if (diff == 0) {
     diff = _NLSCMPERROR;

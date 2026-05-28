@@ -41,6 +41,9 @@ static int p32_strncasecmp_posix (const char *str1, const char *str2, size_t cou
 }
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID) && !(P32_LOCALE_API & P32_LOCALE_API_LN)
+/**
+ * Implementation using `CompareStringA`.
+ */
 static int p32_strncasecmp_ansi (const char *str1, const char *str2, size_t count, locale_t locale) {
   /**
    * Two zero-length strings are equal.
@@ -49,6 +52,17 @@ static int p32_strncasecmp_ansi (const char *str1, const char *str2, size_t coun
     return 0;
   }
 
+  Locale      *lcCtype     = &locale->WinLocale.LcCtype;
+  LcCtypeInfo *lcCtypeInfo = &locale->LocaleInfo.LcCtype;
+
+  /**
+   * Return value.
+   */
+  int diff = _NLSCMPERROR;
+
+  /**
+   * Validate and get lengths of `str1` and `str2`.
+   */
   size_t str1Length = p32_private_strnlen_l (str1, __min (count, INT_MAX), locale);
 
   if (str1Length == (size_t) -1) {
@@ -66,13 +80,11 @@ static int p32_strncasecmp_ansi (const char *str1, const char *str2, size_t coun
   assert (str2Length <= INT_MAX);
 
   /**
-   * Locale-specific flags for `StringCompare[Ex]`.
+   * Locale-specific flags for `StringCompareA`.
    */
-  DWORD flags = locale->LocaleInfo.LcCtype.CaseCmpFlags;
+  uint32_t flags = lcCtypeInfo->CaseCmpFlags;
 
-  INT diff = p32_winlocale_compare_ansi_string (
-    &locale->WinLocale.LcCtype, flags, str1, (INT) str1Length, str2, (INT) str2Length
-  );
+  diff = p32_winlocale_compare_ansi_string (lcCtype, flags, str1, (INT) str1Length, str2, (INT) str2Length);
 
   if (diff == 0) {
     diff = _NLSCMPERROR;
@@ -84,7 +96,13 @@ static int p32_strncasecmp_ansi (const char *str1, const char *str2, size_t coun
 }
 #endif
 
+/**
+ * Implementation using `CompareStringW`/`CompareStringEx`.
+ */
 int p32_private_strncasecmp_l (const char *str1, const char *str2, size_t count, locale_t locale) {
+  Locale      *lcCtype     = &locale->WinLocale.LcCtype;
+  LcCtypeInfo *lcCtypeInfo = &locale->LocaleInfo.LcCtype;
+
   /**
    * Two zero-length string are equal.
    */
@@ -97,6 +115,9 @@ int p32_private_strncasecmp_l (const char *str1, const char *str2, size_t count,
    */
   int diff = _NLSCMPERROR;
 
+  /**
+   * Convert `str1` and `str2` to wide character strings.
+   */
   wchar_t *wcs1 = NULL;
   wchar_t *wcs2 = NULL;
 
@@ -116,11 +137,11 @@ int p32_private_strncasecmp_l (const char *str1, const char *str2, size_t count,
   }
 
   /**
-   * Locale-specific flags for `StringCompare[Ex]`.
+   * Locale-specific flags for `CompareStringW`/`CompareStringEx`.
    */
-  DWORD flags = locale->LocaleInfo.LcCtype.CaseCmpFlags;
+  uint32_t flags = lcCtypeInfo->CaseCmpFlags;
 
-  diff = p32_winlocale_compare_unicode_string (&locale->WinLocale.LcCtype, flags, wcs1, wcs1Length, wcs2, wcs2Length);
+  diff = p32_winlocale_compare_unicode_string (lcCtype, flags, wcs1, wcs1Length, wcs2, wcs2Length);
 
   if (diff == 0) {
     diff = _NLSCMPERROR;

@@ -25,13 +25,24 @@ static int p32_strcoll_posix (const char *str1, const char *str2, locale_t local
 }
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID) && !(P32_LOCALE_API & P32_LOCALE_API_LN)
+/**
+ * Implementation using `CompareStringA`.
+ */
 static int p32_strcoll_ansi (const char *str1, const char *str2, locale_t locale) {
-  /**
-   * Locale-specific flags for `StringCompare[Ex]`.
-   */
-  DWORD flags = locale->LocaleInfo.LcCollate.StringCompareFlags;
+  Locale        *lcCollate     = &locale->WinLocale.LcCollate;
+  LcCollateInfo *lcCollateInfo = &locale->LocaleInfo.LcCollate;
 
-  INT diff = p32_winlocale_compare_ansi_string (&locale->WinLocale.LcCollate, flags, str1, -1, str2, -1);
+  /**
+   * Return value.
+   */
+  int diff = _NLSCMPERROR;
+
+  /**
+   * Locale-specific flags for `CompareStringA`.
+   */
+  uint32_t flags = lcCollateInfo->StringCompareFlags;
+
+  diff = p32_winlocale_compare_ansi_string (lcCollate, flags, str1, -1, str2, -1);
 
   if (diff == 0) {
     diff = _NLSCMPERROR;
@@ -43,12 +54,21 @@ static int p32_strcoll_ansi (const char *str1, const char *str2, locale_t locale
 }
 #endif
 
+/**
+ * Implementation using `CompareStringW`/`CompareStringEx`.
+ */
 int p32_private_strcoll_l (const char *str1, const char *str2, locale_t locale) {
+  Locale        *lcCollate     = &locale->WinLocale.LcCollate;
+  LcCollateInfo *lcCollateInfo = &locale->LocaleInfo.LcCollate;
+
   /**
    * Return value.
    */
   int diff = _NLSCMPERROR;
 
+  /**
+   * Convert `str1` and `str2` to wide character strings.
+   */
   wchar_t *wcs1 = NULL;
   wchar_t *wcs2 = NULL;
 
@@ -68,11 +88,11 @@ int p32_private_strcoll_l (const char *str1, const char *str2, locale_t locale) 
   }
 
   /**
-   * Locale-specific flags for `StringCompare[Ex]`.
+   * Locale-specific flags for `CompareStringW`/`CompareStringEx`.
    */
-  DWORD flags = locale->LocaleInfo.LcCollate.StringCompareFlags;
+  uint32_t flags = lcCollateInfo->StringCompareFlags;
 
-  diff = p32_winlocale_compare_unicode_string (&locale->WinLocale.LcCollate, flags, wcs1, wcs1Length, wcs2, wcs2Length);
+  diff = p32_winlocale_compare_unicode_string (lcCollate, flags, wcs1, wcs1Length, wcs2, wcs2Length);
 
   if (diff == 0) {
     diff = _NLSCMPERROR;
