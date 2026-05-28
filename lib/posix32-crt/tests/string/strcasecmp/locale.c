@@ -106,7 +106,7 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
 
   if (p32_private_strcmp_l (nl_langinfo_l (CODESET, locale), "UTF-8", locale) == 0) {
     assert ((unicode1Diff = strcasecmp_l (Unicode1Lower.A, Unicode1Upper.A, locale)) != _NLSCMPERROR);
-    assert ((unicode2Diff = strcasecmp_l (Unicode2Lower.A, Unicode2Lower.A, locale)) != _NLSCMPERROR);
+    assert ((unicode2Diff = strcasecmp_l (Unicode2Lower.A, Unicode2Upper.A, locale)) != _NLSCMPERROR);
   }
 
   if (asciiDiff || localeDiff || unicode1Diff || unicode2Diff) {
