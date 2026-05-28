@@ -82,12 +82,25 @@ static int P32MbsToWcs (wchar_t **address, const char *mbs, size_t count, locale
 
   bufferSize = p32_private_mbsnrtowcs_l (buffer, &mbs, count, bufferSize, &state, locale);
 
-  if (bufferSize == (size_t) -1 && bufferSize >= INT_MAX) {
+  if (bufferSize == (size_t) -1) {
     return -1;
   }
 
-  bufferSize += 1;
-  buffer      = malloc (bufferSize * sizeof (wchar_t));
+#define MAX_ALLOC_SIZE             (__min (PTRDIFF_MAX, _HEAP_MAXREQ))
+#define MAX_ALLOC_ELEMS(max, type) (__min (max, MAX_ALLOC_SIZE / sizeof (type)))
+
+  /**
+   * String lengths passed to `CompareString[Ex]` functions are limited to
+   * range of `int`.
+   *
+   * If converted string would exceed `INT_MAX` code units (`wchar_t`),
+   * then convert up to `INT_MAX` code units; we want to allocate buffer
+   * to hold up to `INT_MAX + 1` code units and make `mbsnrtowcs` write at
+   * most `INT_MAX` code units to `buffer`.
+   */
+  bufferSize  = __min (bufferSize + 1, MAX_ALLOC_ELEMS ((size_t) INT_MAX + 1, wchar_t));
+  buffer      = calloc (bufferSize, sizeof (wchar_t));
+  bufferSize -= 1;
 
   if (buffer == NULL) {
     return -1;
@@ -95,7 +108,10 @@ static int P32MbsToWcs (wchar_t **address, const char *mbs, size_t count, locale
 
   size_t written = p32_private_mbsnrtowcs_l (buffer, &mbs, count, bufferSize, &state, locale);
 
-  if (written == (size_t) -1 || written >= bufferSize) {
+  assert (written <= INT_MAX);
+  assert (buffer[written] == '\0');
+
+  if (written == (size_t) -1) {
     free (buffer);
     return -1;
   }
