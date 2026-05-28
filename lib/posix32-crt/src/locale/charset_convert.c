@@ -30,6 +30,7 @@
 
 #include "core-norm.h"
 
+#include "locale-internal.h"
 #include "wchar-internal.h"
 
 /**

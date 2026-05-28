@@ -20,7 +20,7 @@
 #include "p32_stdlib.h"
 #include "p32_wchar.h"
 
-#include "locale-internal.h"
+#include "locale_types/charset.h"
 
 /**
  * Internal versions which use `locale_t` objects.
