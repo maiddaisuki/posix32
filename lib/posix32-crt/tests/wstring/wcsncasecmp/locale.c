@@ -109,7 +109,7 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
   /**
    * Test Unicode input.
    */
-  const wchar_t *unicode       = Unicode1String.W;
+  const wchar_t *unicode       = Unicode2String.W;
   const size_t   unicodeLength = wcslen (unicode);
 
   wchar_t *unicodeLower = NULL;
@@ -124,6 +124,7 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
   }
 
   CompareStringIncremental (unicodeLower, unicodeUpper, locale, localeName);
+  CompareStringIncremental (Unicode1Lower.W, Unicode1Upper.W, locale, localeName);
   CompareStringIncremental (Unicode2Lower.W, Unicode2Upper.W, locale, localeName);
 
   free (unicodeLower);
