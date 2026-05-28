@@ -35,15 +35,23 @@ static int p32_wcscasecmp_posix (const wchar_t *wcs1, const wchar_t *wcs2, local
 }
 
 /**
- * Generic implementation using `CompareString[Ex]` functions.
+ * Implementation using `CompareStringW`/`CompareStringEx`.
  */
 static int p32_wcscasecmp_generic (const wchar_t *wcs1, const wchar_t *wcs2, locale_t locale) {
-  /**
-   * Locale-specific flags for `StringCompare[Ex]`.
-   */
-  DWORD flags = locale->LocaleInfo.LcCtype.CaseCmpFlags;
+  Locale      *lcCtype     = &locale->WinLocale.LcCtype;
+  LcCtypeInfo *lcCtypeInfo = &locale->LocaleInfo.LcCtype;
 
-  INT diff = p32_winlocale_compare_unicode_string (&locale->WinLocale.LcCtype, flags, wcs1, -1, wcs2, -1);
+  /**
+   * Return value.
+   */
+  int diff = _NLSCMPERROR;
+
+  /**
+   * Locale-specific flags for `CompareStringW`/`CompareStringEx`.
+   */
+  uint32_t flags = lcCtypeInfo->CaseCmpFlags;
+
+  diff = p32_winlocale_compare_unicode_string (lcCtype, flags, wcs1, -1, wcs2, -1);
 
   if (diff == 0) {
     diff = _NLSCMPERROR;

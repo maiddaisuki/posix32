@@ -31,34 +31,37 @@ static size_t p32_wcsxfrm_posix (wchar_t *dest, const wchar_t *src, size_t size,
 }
 
 /**
- * Generic implementation using `P32LCMapString[Ex]` functions.
+ * Implementation using `LCMapStringW`/`LCMapStringEx`.
  */
 static size_t p32_wcsxfrm_generic (wchar_t *dest, const wchar_t *src, size_t size, locale_t locale) {
-  INT destSize = (INT) __min (size, INT_MAX);
+  Locale        *lcCollate     = &locale->WinLocale.LcCtype;
+  LcCollateInfo *lcCollateInfo = &locale->LocaleInfo.LcCollate;
 
   /**
    * Locale specific flags for `LcMapString[Ex]`.
    */
-  DWORD flags = LCMAP_SORTKEY | locale->LocaleInfo.LcCollate.StringTransformationFlags;
+  uint32_t flags = (LCMAP_SORTKEY | lcCollateInfo->StringTransformationFlags);
 
   /**
    * NOTE: `LCMapString(LCMAP_SORTKEY)` returns number of bytes, not number of
    * characters.
    */
-  INT bufferSize = p32_winlocale_map_unicode_string (&locale->WinLocale.LcCollate, flags, src, -1, NULL, 0);
+  int bufferSize = p32_winlocale_map_unicode_string (lcCollate, flags, src, -1, NULL, 0);
 
   if (bufferSize == 0) {
     goto einval;
   }
 
+  int destSize = (int) __min (size, INT_MAX);
+
   if (bufferSize > destSize) {
     return bufferSize - 1;
   }
 
-  INT written = p32_winlocale_map_unicode_string (&locale->WinLocale.LcCollate, flags, src, -1, dest, destSize);
+  int written = p32_winlocale_map_unicode_string (lcCollate, flags, src, -1, dest, destSize);
   assert (written == bufferSize);
 
-  for (INT i = written - 1; i >= 0; --i) {
+  for (int i = written - 1; i >= 0; --i) {
     ((uint8_t *) dest)[(i * 2) + 1] = 0;
     ((uint8_t *) dest)[i * 2]       = ((uint8_t *) dest)[i];
   }

@@ -41,7 +41,7 @@ static int p32_wcsncasecmp_posix (const wchar_t *wcs1, const wchar_t *wcs2, size
 }
 
 /**
- * Generic implementation using `CompareString[Ex]` functions.
+ * Implementation using `CompareStringW`/`CompareStringEx`.
  */
 static int p32_wcsncasecmp_generic (const wchar_t *wcs1, const wchar_t *wcs2, size_t count, locale_t locale) {
   /**
@@ -50,6 +50,14 @@ static int p32_wcsncasecmp_generic (const wchar_t *wcs1, const wchar_t *wcs2, si
   if (count == 0) {
     return 0;
   }
+
+  Locale      *lcCtype     = &locale->WinLocale.LcCtype;
+  LcCtypeInfo *lcCtypeInfo = &locale->LocaleInfo.LcCtype;
+
+  /**
+   * Return value.
+   */
+  int diff = _NLSCMPERROR;
 
   int wcs1Length = (int) wcsnlen (wcs1, __min (count, INT_MAX));
   int wcs2Length = (int) wcsnlen (wcs2, __min (count, INT_MAX));
@@ -63,12 +71,11 @@ static int p32_wcsncasecmp_generic (const wchar_t *wcs1, const wchar_t *wcs2, si
   }
 
   /**
-   * Locale-specific flags for `StringCompare[Ex]`.
+   * Locale-specific flags for `CompareStringW`/`CompareStringEx`.
    */
-  DWORD flags = locale->LocaleInfo.LcCtype.CaseCmpFlags;
+  uint32_t flags = lcCtypeInfo->CaseCmpFlags;
 
-  INT diff =
-    p32_winlocale_compare_unicode_string (&locale->WinLocale.LcCtype, flags, wcs1, wcs1Length, wcs2, wcs2Length);
+  diff = p32_winlocale_compare_unicode_string (lcCtype, flags, wcs1, wcs1Length, wcs2, wcs2Length);
 
   if (diff == 0) {
     diff = _NLSCMPERROR;

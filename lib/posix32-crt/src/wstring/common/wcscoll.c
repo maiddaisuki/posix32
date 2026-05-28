@@ -25,15 +25,23 @@ static int p32_wcscoll_posix (const wchar_t *wcs1, const wchar_t *wcs2, locale_t
 }
 
 /**
- * Generic implementation using `CompareString[Ex]` functions.
+ * Implementation using `CompareStringW`/`CompareStringEx`.
  */
 static int p32_wcscoll_generic (const wchar_t *wcs1, const wchar_t *wcs2, locale_t locale) {
-  /**
-   * Locale-specific flags for `StringCompare[Ex]`.
-   */
-  DWORD flags = locale->LocaleInfo.LcCollate.StringCompareFlags;
+  Locale        *lcCollate     = &locale->WinLocale.LcCtype;
+  LcCollateInfo *lcCollateInfo = &locale->LocaleInfo.LcCollate;
 
-  INT diff = p32_winlocale_compare_unicode_string (&locale->WinLocale.LcCollate, flags, wcs1, -1, wcs2, -1);
+  /**
+   * Return value.
+   */
+  int diff = _NLSCMPERROR;
+
+  /**
+   * Locale-specific flags for `CompareStringW`/`CompareStringEx`.
+   */
+  uint32_t flags = lcCollateInfo->StringCompareFlags;
+
+  diff = p32_winlocale_compare_unicode_string (lcCollate, flags, wcs1, -1, wcs2, -1);
 
   if (diff == 0) {
     diff = _NLSCMPERROR;
