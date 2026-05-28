@@ -49,7 +49,7 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
       exit_code = EXIT_SUCCESS;
 
 #if P32_CRT >= P32_MSVCR80
-      fwprintf (stdout, L"%-24s: %0.4X (%c) -> %.4X (%c) | %.4X (%c)\n", localeName, wc, wc, crt, crt, p32, p32);
+      fwprintf (stderr, L"%-24s: %0.4X (%c) -> %.4X (%c) | %.4X (%c)\n", localeName, wc, wc, crt, crt, p32, p32);
 #else
       HANDLE    heapHandle = GetProcessHeap ();
       uintptr_t heap       = (uintptr_t) heapHandle;
