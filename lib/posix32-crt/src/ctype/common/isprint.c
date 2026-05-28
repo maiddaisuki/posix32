@@ -16,12 +16,16 @@
 
 #include "ctype-internal.h"
 
-int p32_isprint_l (int c, locale_t locale) {
+int p32_private_isprint_l (int c, locale_t locale) {
   if (c == EOF) {
     return 0;
   }
 
   return locale->LocaleInfo.LcCtype.CharType.Map[(uint8_t) c] & P32_CHARTYPE_PRINT;
+}
+
+int p32_isprint_l (int c, locale_t locale) {
+  return p32_private_isprint_l (c, locale);
 }
 
 int p32_isprint (int c) {
@@ -37,5 +41,5 @@ int p32_isprint (int c) {
   }
 #endif
 
-  return p32_isprint_l (c, activeLocale);
+  return p32_private_isprint_l (c, activeLocale);
 }

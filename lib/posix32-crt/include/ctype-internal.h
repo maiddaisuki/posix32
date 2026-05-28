@@ -72,4 +72,24 @@
 #define P32_WCTRANS_ZH_TRADITIONAL (1 << 5)
 #define P32_WCTRANS_ZH_ALL         (P32_WCTRANS_ZH_SIMPLIFIED | P32_WCTRANS_ZH_TRADITIONAL)
 
+/**
+ * Internal versions of `ctype.h` functions.
+ *
+ * Code inside the library should use these versions instead of public ones.
+ */
+int p32_private_isalnum_l (int, locale_t);
+int p32_private_isalpha_l (int, locale_t);
+int p32_private_isblank_l (int, locale_t);
+int p32_private_iscntrl_l (int, locale_t);
+int p32_private_isdigit_l (int, locale_t);
+int p32_private_isgraph_l (int, locale_t);
+int p32_private_islower_l (int, locale_t);
+int p32_private_isprint_l (int, locale_t);
+int p32_private_ispunct_l (int, locale_t);
+int p32_private_isspace_l (int, locale_t);
+int p32_private_isupper_l (int, locale_t);
+int p32_private_isxdigit_l (int, locale_t);
+int p32_private_tolower_l (int, locale_t);
+int p32_private_toupper_l (int, locale_t);
+
 #endif /* LIBPOSIX32_CTYPE_INTERNAL_H_INCLUDED */

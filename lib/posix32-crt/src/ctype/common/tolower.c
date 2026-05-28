@@ -16,12 +16,16 @@
 
 #include "ctype-internal.h"
 
-int p32_tolower_l (int c, locale_t locale) {
+int p32_private_tolower_l (int c, locale_t locale) {
   if (c == EOF) {
     return EOF;
   }
 
   return (uint8_t) locale->LocaleInfo.LcCtype.ToLower.Map[(uint8_t) c];
+}
+
+int p32_tolower_l (int c, locale_t locale) {
+  return p32_private_tolower_l (c, locale);
 }
 
 int p32_tolower (int c) {
@@ -33,5 +37,5 @@ int p32_tolower (int c) {
   }
 #endif
 
-  return p32_tolower_l (c, activeLocale);
+  return p32_private_tolower_l (c, activeLocale);
 }

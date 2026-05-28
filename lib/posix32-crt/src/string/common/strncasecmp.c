@@ -29,8 +29,8 @@ static int p32_strncasecmp_posix (const char *str1, const char *str2, size_t cou
   }
 
   for (size_t i = 0; i < count; ++i) {
-    int c1 = p32_tolower_l ((uint8_t) str1[i], locale);
-    int c2 = p32_tolower_l ((uint8_t) str2[i], locale);
+    int c1 = p32_private_tolower_l ((uint8_t) str1[i], locale);
+    int c2 = p32_private_tolower_l ((uint8_t) str2[i], locale);
 
     if (c1 == '\0' || c1 != c2) {
       return c1 - c2;

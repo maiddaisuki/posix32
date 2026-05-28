@@ -16,12 +16,16 @@
 
 #include "ctype-internal.h"
 
-int p32_iscntrl_l (int c, locale_t locale) {
+int p32_private_iscntrl_l (int c, locale_t locale) {
   if (c == EOF) {
     return 0;
   }
 
   return locale->LocaleInfo.LcCtype.CharType.Map[(uint8_t) c] & P32_CHARTYPE_CONTROL;
+}
+
+int p32_iscntrl_l (int c, locale_t locale) {
+  return p32_private_iscntrl_l (c, locale);
 }
 
 int p32_iscntrl (int c) {
@@ -37,5 +41,5 @@ int p32_iscntrl (int c) {
   }
 #endif
 
-  return p32_iscntrl_l (c, activeLocale);
+  return p32_private_iscntrl_l (c, activeLocale);
 }

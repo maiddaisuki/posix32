@@ -22,8 +22,8 @@
  */
 static int p32_strcasecmp_posix (const char *str1, const char *str2, locale_t locale) {
   while (1) {
-    int c1 = p32_tolower_l ((uint8_t) *str1, locale);
-    int c2 = p32_tolower_l ((uint8_t) *str2, locale);
+    int c1 = p32_private_tolower_l ((uint8_t) *str1, locale);
+    int c2 = p32_private_tolower_l ((uint8_t) *str2, locale);
 
     if (c1 == '\0' || c1 != c2) {
       return c1 - c2;

@@ -16,12 +16,16 @@
 
 #include "ctype-internal.h"
 
-int p32_isalpha_l (int c, locale_t locale) {
+int p32_private_isalpha_l (int c, locale_t locale) {
   if (c == EOF) {
     return 0;
   }
 
   return locale->LocaleInfo.LcCtype.CharType.Map[(uint8_t) c] & P32_CHARTYPE_ALPHA;
+}
+
+int p32_isalpha_l (int c, locale_t locale) {
+  return p32_private_isalpha_l (c, locale);
 }
 
 int p32_isalpha (int c) {
@@ -37,5 +41,5 @@ int p32_isalpha (int c) {
   }
 #endif
 
-  return p32_isalpha_l (c, activeLocale);
+  return p32_private_isalpha_l (c, activeLocale);
 }
