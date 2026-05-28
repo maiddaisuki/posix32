@@ -72,6 +72,8 @@ static void CompareStringIncremental (
 }
 
 static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
+  assert (strncasecmp_l ("", "", SIZE_MAX, locale) == 0);
+
   mbstate_t state = {0};
 
   /**
