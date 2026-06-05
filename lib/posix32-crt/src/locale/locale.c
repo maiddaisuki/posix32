@@ -35,7 +35,7 @@
 #include <windows.h>
 
 #include "core-atomic.h"
-#include "core-memory.h"
+#include "core-heap.h"
 #include "core-runtime.h"
 
 #include "crt-internal.h"

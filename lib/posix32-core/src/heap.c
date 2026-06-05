@@ -29,8 +29,8 @@
 #include <windows.h>
 
 #include "core-atomic.h"
+#include "core-heap.h"
 #include "core-loader.h"
-#include "core-memory.h"
 #include "core-winver.h"
 
 /**

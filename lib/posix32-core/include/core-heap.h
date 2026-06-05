@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef LIBPOSIX32_CORE_MEMORY_H_INCLUDED
-#define LIBPOSIX32_CORE_MEMORY_H_INCLUDED
+#ifndef LIBPOSIX32_CORE_HEAP_H_INCLUDED
+#define LIBPOSIX32_CORE_HEAP_H_INCLUDED
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -62,4 +62,4 @@ P32_CORE_DECL bool p32_heap_terminate_on_corruption (uintptr_t heap);
 P32_CORE_DECL void p32_heap_print_summary (uintptr_t heap);
 #endif
 
-#endif /* LIBPOSIX32_CORE_MEMORY_H_INCLUDED */
+#endif /* LIBPOSIX32_CORE_HEAP_H_INCLUDED */

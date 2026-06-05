@@ -22,8 +22,8 @@
 
 #include "core-atomic.h"
 #include "core-crt.h"
+#include "core-heap.h"
 #include "core-loader.h"
-#include "core-memory.h"
 #include "core-norm.h"
 #include "core-runtime.h"
 #include "core-winver.h"
