@@ -14,6 +14,36 @@
  * limitations under the License.
  */
 
+#if P32_CRT >= P32_MSVCR80
+/**
+ * Invalid parameter handler.
+ *
+ * Write a `_CRT_ERROR` debug message and terminate the process.
+ */
+static void __cdecl P32InvalidParameterHandler (
+  const wchar_t *expression,
+  const wchar_t *function,
+  const wchar_t *filename,
+  unsigned int   line,
+  uintptr_t      reserved
+) {
+  /**
+   * The arguments are only valid when using debug version of CRT.
+   */
+#ifdef _DEBUG
+  _RPTW4 (_CRT_ERROR, L"%s:%u: invalid parameter has been passed to %s: %s\n", filename, line, function, expression);
+#endif
+
+  p32_terminate (L"The invalid parameter handler has been invoked.");
+
+  UNREFERENCED_PARAMETER (expression);
+  UNREFERENCED_PARAMETER (function);
+  UNREFERENCED_PARAMETER (filename);
+  UNREFERENCED_PARAMETER (line);
+  UNREFERENCED_PARAMETER (reserved);
+}
+#endif
+
 static int P32TestFini (void) {
 #ifdef _DEBUG
   _CrtCheckMemory ();
@@ -33,6 +63,14 @@ void p32_test_init (void) {
 #endif
 
   SetErrorMode (errorMode);
+
+#if P32_CRT >= P32_MSVCR80
+  /**
+   * Set invalid parameter handler which prints a debug message and then
+   * terminates the process.
+   */
+  _set_invalid_parameter_handler (P32InvalidParameterHandler);
+#endif
 
   /**
    * msvcr80.dll and later attempt to set multibyte code page to active
