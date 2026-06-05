@@ -1345,8 +1345,9 @@ static bool P32UTF16ToDBCS (DBCSConversionState *dbcs, UTF16ConversionState *utf
  * Convert DBCS character to UTF-16 Code Unit Sequence.
  */
 static bool P32DBCSToUTF16 (UTF16ConversionState *utf16, DBCSConversionState *dbcs, Charset *charset) {
-  int length =
-    MultiByteToWideChar (charset->CodePage, charset->ToWideChar, dbcs->Buffer, dbcs->Info.Bytes, utf16->Buffer, 2);
+  int length = MultiByteToWideChar (
+    charset->CodePage, charset->ToWideChar, dbcs->Buffer, dbcs->Info.Bytes, utf16->Buffer, 2
+  );
 
   assert (length <= (int) charset->MaxLength);
 

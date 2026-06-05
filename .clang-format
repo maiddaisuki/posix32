@@ -218,8 +218,8 @@ NamespaceIndentation: None
 #NamespaceMacros:
 #  -
 PackConstructorInitializers: CurrentLine
-PenaltyBreakAssignment: 2
-PenaltyBreakBeforeFirstCallParameter: 19
+PenaltyBreakAssignment: 100
+PenaltyBreakBeforeFirstCallParameter: 0
 PenaltyBreakBeforeMemberAccess: 150
 PenaltyBreakComment: 300
 PenaltyBreakFirstLessLess: 120

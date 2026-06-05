@@ -1845,36 +1845,41 @@ static _locale_t P32CreateLocaleObject (int category, const wchar_t *localeStrin
  * Create `_locale_t` object for each locale category supported by CRT.
  */
 static void P32CreateLocale (locale_t locale) {
-  locale->CrtLocale.LcCollate =
-    P32CreateLocaleObject (LC_COLLATE, locale->CrtLocaleStrings.W.LcCollate, locale->CrtLocaleStrings.A.LcCollate);
+  locale->CrtLocale.LcCollate = P32CreateLocaleObject (
+    LC_COLLATE, locale->CrtLocaleStrings.W.LcCollate, locale->CrtLocaleStrings.A.LcCollate
+  );
 
   if (locale->CrtLocale.LcCollate == NULL) {
     _RPTW1 (_CRT_WARN, L"LC_COLLATE(%s): failed to create _locale_t object.\n", locale->CrtLocaleStrings.W.LcCollate);
   }
 
-  locale->CrtLocale.LcCtype =
-    P32CreateLocaleObject (LC_CTYPE, locale->CrtLocaleStrings.W.LcCtype, locale->CrtLocaleStrings.A.LcCtype);
+  locale->CrtLocale.LcCtype = P32CreateLocaleObject (
+    LC_CTYPE, locale->CrtLocaleStrings.W.LcCtype, locale->CrtLocaleStrings.A.LcCtype
+  );
 
   if (locale->CrtLocale.LcCtype == NULL) {
     _RPTW1 (_CRT_WARN, L"LC_CTYPE(%s): failed to create _locale_t object.\n", locale->CrtLocaleStrings.W.LcCtype);
   }
 
-  locale->CrtLocale.LcMonetary =
-    P32CreateLocaleObject (LC_MONETARY, locale->CrtLocaleStrings.W.LcMonetary, locale->CrtLocaleStrings.A.LcMonetary);
+  locale->CrtLocale.LcMonetary = P32CreateLocaleObject (
+    LC_MONETARY, locale->CrtLocaleStrings.W.LcMonetary, locale->CrtLocaleStrings.A.LcMonetary
+  );
 
   if (locale->CrtLocale.LcMonetary == NULL) {
     _RPTW1 (_CRT_WARN, L"LC_MONETARY(%s): failed to create _locale_t object.\n", locale->CrtLocaleStrings.W.LcMonetary);
   }
 
-  locale->CrtLocale.LcNumeric =
-    P32CreateLocaleObject (LC_NUMERIC, locale->CrtLocaleStrings.W.LcNumeric, locale->CrtLocaleStrings.A.LcNumeric);
+  locale->CrtLocale.LcNumeric = P32CreateLocaleObject (
+    LC_NUMERIC, locale->CrtLocaleStrings.W.LcNumeric, locale->CrtLocaleStrings.A.LcNumeric
+  );
 
   if (locale->CrtLocale.LcNumeric == NULL) {
     _RPTW1 (_CRT_WARN, L"LC_NUMERIC(%s): failed to create _locale_t object.\n", locale->CrtLocaleStrings.W.LcNumeric);
   }
 
-  locale->CrtLocale.LcTime =
-    P32CreateLocaleObject (LC_TIME, locale->CrtLocaleStrings.W.LcTime, locale->CrtLocaleStrings.A.LcTime);
+  locale->CrtLocale.LcTime = P32CreateLocaleObject (
+    LC_TIME, locale->CrtLocaleStrings.W.LcTime, locale->CrtLocaleStrings.A.LcTime
+  );
 
   if (locale->CrtLocale.LcTime == NULL) {
     _RPTW1 (_CRT_WARN, L"LC_TIME(%s): failed to create _locale_t object.\n", locale->CrtLocaleStrings.W.LcTime);
