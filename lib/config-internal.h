@@ -261,29 +261,31 @@
 #define P32_DEFN
 #endif
 
-#ifdef P32_CORE_BUILD
-#define P32_CORE_DECL P32_DEFN
-#endif
-
-#ifdef P32_CRT_BUILD
-#define P32_CRT_DECL(...) P32_DEFN
-#endif
-
 /**
  * This attribute macro is used to declare inline functions whose external
  * definiton is provided by the library.
  */
 #if defined(__GNUC__) && !defined(__clang__)
-#define P32_INLINE_DECL P32_INLINE
+#define P32_EXTERN_INLINE_DECL P32_INLINE
 #elif defined(_MSC_VER) || defined(__clang__)
-#define P32_INLINE_DECL P32_DEFN P32_INLINE
+#define P32_EXTERN_INLINE_DECL P32_DEFN P32_INLINE
 #endif
 
 /**
  * This attribute macro is used to provide external definition for inline
  * functions which are exported from the DLL.
  */
-#define P32_INLINE_DEFN extern P32_DEFN P32_INLINE
+#define P32_EXTERN_INLINE_DEFN extern P32_DEFN P32_INLINE
+
+#ifdef P32_CORE_BUILD
+#define P32_CORE_DECL        P32_DEFN
+#define P32_CORE_INLINE_DECL P32_EXTERN_INLINE_DECL
+#endif
+
+#ifdef P32_CRT_BUILD
+#define P32_CRT_DECL(...)   P32_DEFN
+#define P32_CRT_INLINE_DECL P32_EXTERN_INLINE_DECL
+#endif
 
 #ifdef LIBPOSIX32_TEST
 #define P32_TEST_DECL P32_DEFN
@@ -324,7 +326,8 @@
  * APIs. We do not define `P32_CORE_DECL` in posix32-decl.h, so define it here.
  */
 #ifndef P32_CORE_DECL
-#define P32_CORE_DECL P32_DECL
+#define P32_CORE_DECL        P32_DECL
+#define P32_CORE_INLINE_DECL P32_INLINE_DECL
 #endif
 
 /**

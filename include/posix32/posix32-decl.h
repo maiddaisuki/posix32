@@ -70,6 +70,14 @@
 #endif
 #endif
 
+#ifndef P32_INLINE_DECL
+#if defined(__GNUC__) || defined(__clang__)
+#define P32_INLINE_DECL extern P32_INLINE __attribute__ ((__gnu_inline__))
+#elif defined(_MSC_VER)
+#define P32_INLINE_DECL P32_DECL P32_INLINE
+#endif
+#endif
+
 #if defined(LIBPOSIX32_STATIC) || defined(__cplusplus)
 #define P32_FUNC_DECL(...) P32_DECL
 #else
@@ -77,15 +85,8 @@
 #endif
 
 #ifndef P32_CRT_DECL
-#define P32_CRT_DECL(...) P32_FUNC_DECL (__VA_ARGS__)
-#endif
-
-#ifndef P32_INLINE_DECL
-#if defined(__GNUC__) || defined(__clang__)
-#define P32_INLINE_DECL extern P32_INLINE __attribute__ ((__gnu_inline__))
-#elif defined(_MSC_VER)
-#define P32_INLINE_DECL P32_DECL P32_INLINE
-#endif
+#define P32_CRT_DECL(...)   P32_FUNC_DECL (__VA_ARGS__)
+#define P32_CRT_INLINE_DECL P32_INLINE_DECL
 #endif
 
 #ifndef P32_DEPRECATED

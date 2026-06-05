@@ -68,7 +68,7 @@
 /**
  * Provide external definition.
  */
-P32_INLINE_DEFN int __cdecl p32_mbsinit (const mbstate_t *state);
+P32_EXTERN_INLINE_DEFN int __cdecl p32_mbsinit (const mbstate_t *state);
 
 /**
  * Internal Functions

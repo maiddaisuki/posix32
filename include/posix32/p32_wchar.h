@@ -83,7 +83,7 @@ P32_CRT_DECL (_CRTIMP) int __cdecl    P32_FUNCNAME_STD (wctob) (wint_t);
 typedef int mbstate_t;
 #endif
 
-P32_INLINE_DECL int __cdecl p32_mbsinit (const mbstate_t *state) {
+P32_CRT_INLINE_DECL int __cdecl p32_mbsinit (const mbstate_t *state) {
 #if P32_CRT >= P32_UCRT
   return state == NULL || (state->_Wchar == 0 && state->_Byte == 0 && state->_State == 0);
 #else
