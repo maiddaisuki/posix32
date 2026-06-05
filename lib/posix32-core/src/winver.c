@@ -193,7 +193,7 @@ static void P32Init (void) {
    * However, `GetVersion` is not available to UWP Application;
    * for this reason we use `GetVersionEx` in UWP builds.
    */
-#ifdef LIBPOSIX32_UWP
+#if WINAPI_FAMILY == WINAPI_FAMILY_PC_APP
   /**
    * There is no extra information in `OSVERSIONINFOEXW` that we need,
    * so simply use `OSVERSIONINFOW` which is slightly smaller.

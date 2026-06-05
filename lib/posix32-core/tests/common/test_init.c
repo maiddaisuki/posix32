@@ -50,7 +50,7 @@ void p32_test_init (void) {
 #endif
 
 #if P32_CRT >= P32_MSVCRT40
-#ifndef LIBPOSIX32_UWP
+#if WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP
   /**
    * We don't want failed assertions to pop-up a message box.
    */

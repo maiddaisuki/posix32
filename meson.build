@@ -266,7 +266,7 @@ if opt_winnt in ['win10']
 endif
 
 if opt_uwp
-  p32_args_private += ['-DWINAPI_FAMILY=WINAPI_FAMILY_PC_APP', '-DLIBPOSIX32_UWP']
+  p32_args_private += ['-DWINAPI_FAMILY=WINAPI_FAMILY_PC_APP']
 else
   p32_args_private += ['-DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP']
 endif

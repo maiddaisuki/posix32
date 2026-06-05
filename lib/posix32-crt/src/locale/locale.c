@@ -471,7 +471,7 @@ static void P32InitGlobalLocaleState (void) {
   /**
    * `GetOEMCP` is not available to UWP applications.
    */
-#ifdef LIBPOSIX32_UWP
+#if WINAPI_FAMILY == WINAPI_FAMILY_PC_APP
   /**
    * If active ANSI code page is 65001 (UTF-8), then active OEM code page
    * is also 65001.
