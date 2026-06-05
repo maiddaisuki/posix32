@@ -24,6 +24,16 @@ static int P32TestFini (void) {
 }
 
 void p32_test_init (void) {
+  UINT errorMode = 0;
+
+#if WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP
+  errorMode |= SEM_FAILCRITICALERRORS;
+  errorMode |= SEM_NOGPFAULTERRORBOX;
+  errorMode |= SEM_NOOPENFILEERRORBOX;
+#endif
+
+  SetErrorMode (errorMode);
+
   /**
    * msvcr80.dll and later attempt to set multibyte code page to active
    * ANSI code page during initialization.
