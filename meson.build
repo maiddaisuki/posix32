@@ -229,18 +229,32 @@ if opt_uwp
 
   # With mingw-w64, we must link with libucrtapp.a instead of libucrt.a
   if is_mingw
-    # gcc uses -mcrtdll= to link against specific CRT
-    if cc.has_link_argument ('-mcrtdll=ucrtapp')
-      ucrtapp_link_arg = '-mcrtdll=ucrtapp'
-    # clang handles -l{crtdll|msvcr*|ucrt*} the same way as gcc's -mcrtdll=
-    elif cc.has_link_argument ('-lucrtapp')
-      ucrtapp_link_arg = '-lucrtapp'
-    else
+    found_ucrtapp = false
+
+    # Find libucrtapp.a
+    if cc.get_id () == 'gcc'
+      # gcc uses -mcrtdll= to link against specific CRT
+      if cc.has_link_argument ('-mcrtdll=ucrtapp')
+        found_ucrtapp = true
+        p32_link_args_private += '-mcrtdll=ucrtapp'
+      endif
+    else # assume clang
+      # clang's -lucrtapp is equivalent to gcc's -mcrtdll=ucrtapp
+      ucrtapp = cc.find_library ('ucrtapp')
+
+      if ucrtapp.found ()
+        found_ucrtapp = true
+        p32_deps += ucrtapp
+      endif
+
+      unset_variable ('ucrtapp')
+    endif
+
+    if not found_ucrtapp
       error ('UWP: cannot link against libucrtapp.a')
     endif
 
-    add_global_link_arguments (ucrtapp_link_arg, language: ['c'], native: false)
-    unset_variable ('ucrtapp_link_arg')
+    unset_variable ('found_ucrtapp')
   endif
 endif
 
