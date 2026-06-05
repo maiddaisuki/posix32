@@ -223,8 +223,12 @@ static void P32Init (void) {
 
   if (osVersionInfo.dwPlatformId == VER_PLATFORM_WIN32_NT) {
     P32PlatformInfo.Paltform = WindowsPlatformNt;
-  } else {
+  } else if (osVersionInfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS) {
     goto unsupported_platform;
+  } else if (osVersionInfo.dwPlatformId == VER_PLATFORM_WIN32s) {
+    goto win32s;
+  } else {
+    goto fail;
   }
 
   if (osVersionInfo.dwMajorVersion > 10) {
