@@ -281,6 +281,22 @@ static bool P32RestoreThreadLocaleState (ThreadLocaleState *threadLocaleState) {
  */
 
 /**
+ * Function type corresponding to `GetGlobalHeap`;
+ * returns private heap used by `newlocale`, `duplocale` and `freelocale`.
+ */
+typedef uintptr_t (*FuncGetGlobalHeap) (void);
+
+/**
+ * Initialization thunk for `GetGlobalHeap`.
+ */
+static uintptr_t P32InitGetGlobalHeap (void);
+
+/**
+ * Implemenation for `GetGlobalHeap`.
+ */
+static uintptr_t P32GetGlobalHeap (void);
+
+/**
  * Function type corresponding to `p32_*_locale` functions which return
  * internal `locale_t` objects.
  */
@@ -341,6 +357,7 @@ static locale_t P32GetGlobalLocale (void);
  */
 typedef struct GlobalLocaleState {
   pthread_once_t StateInit;
+  pthread_once_t GlobalHeapInit;
   pthread_once_t PosixInit;
   pthread_once_t UnicodeInit;
   pthread_once_t AnsiInit;
@@ -354,9 +371,22 @@ typedef struct GlobalLocaleState {
    */
   pthread_rwlock_t GlobalLock;
   /**
-   * Private heap.
+   * Private heap for internal use.
+   *
+   * This heap is created with `HEAP_GENERATE_EXCEPTIONS` flag, which means it
+   * will throw `STATUS_NO_MEMORY` exception if we ran out of memory.
    */
   uintptr_t Heap;
+  /**
+   * Private heap used by `newlocale`, `duplocale` and `freelocale`.
+   *
+   * Unlike `Heap`, this heap is created without `HEAP_GENERATE_EXCEPTIONS`.
+   */
+  uintptr_t GlobalHeap;
+  /**
+   * Implementation for `GetGlobalHeap`.
+   */
+  FuncGetGlobalHeap PtrGetGlobalHeap;
   /**
    * Active ANSI code page.
    */
@@ -412,6 +442,7 @@ typedef struct GlobalLocaleState {
  */
 static GlobalLocaleState P32GlobalLocale = {
   .StateInit           = PTHREAD_ONCE_INIT,
+  .GlobalHeapInit      = PTHREAD_ONCE_INIT,
   .PosixInit           = PTHREAD_ONCE_INIT,
   .UnicodeInit         = PTHREAD_ONCE_INIT,
   .AnsiInit            = PTHREAD_ONCE_INIT,
@@ -419,6 +450,7 @@ static GlobalLocaleState P32GlobalLocale = {
   .GlobalInit          = PTHREAD_ONCE_INIT,
   .GlobalLock          = PTHREAD_RWLOCK_INITIALIZER,
   .Heap                = 0,
+  .PtrGetGlobalHeap    = P32InitGetGlobalHeap,
   .AnsiCodePage        = P32_CODEPAGE_ACP,
   .OemCodePage         = P32_CODEPAGE_OCP,
   .PosixLocale         = NULL,
@@ -503,6 +535,28 @@ static void P32InitGlobalLocaleState (void) {
     p32_terminate (L"Global Locale State: failed to register cleanup function.");
   }
 #endif
+}
+
+/**
+ * Create private heap for `newlocale`, `duplocale` and `freelocale`.
+ */
+static void P32InitGlobalHeap (void) {
+  P32GlobalLocale.GlobalHeap = p32_heap_create (P32_HEAP_CREATE_LFH | P32_HEAP_CREATE_TERMINATE_ON_CORRUPTION, 0, 0, 0);
+
+  if (P32GlobalLocale.GlobalHeap == 0) {
+    p32_terminate (L"Global Locale State: failed to create private heap.");
+  }
+
+  p32_atomic_exchange_fpointer (&P32GlobalLocale.PtrGetGlobalHeap, P32GetGlobalHeap);
+}
+
+static uintptr_t P32InitGetGlobalHeap (void) {
+  pthread_once (&P32GlobalLocale.GlobalHeapInit, P32InitGlobalHeap);
+  return P32GlobalLocale.PtrGetGlobalHeap ();
+}
+
+static uintptr_t P32GetGlobalHeap (void) {
+  return P32GlobalLocale.GlobalHeap;
 }
 
 /**
@@ -2764,8 +2818,10 @@ locale_t p32_newlocale (int mask, const char *localeString, locale_t base) {
     baseLocale = P32GlobalLocale.PtrGetPosixLocale ();
   }
 
-  HANDLE    heapHandle = GetProcessHeap ();
-  uintptr_t heap       = (uintptr_t) heapHandle;
+  /**
+   * Get private heap.
+   */
+  uintptr_t heap = P32GlobalLocale.PtrGetGlobalHeap ();
 
   /**
    * We expect `localeString` to use active ANSI code page.
@@ -2830,8 +2886,10 @@ locale_t p32_duplocale (locale_t locale) {
     assert (baseLocale != NULL);
   }
 
-  HANDLE    heapHandle = GetProcessHeap ();
-  uintptr_t heap       = (uintptr_t) heapHandle;
+  /**
+   * Get private heap.
+   */
+  uintptr_t heap = P32GlobalLocale.PtrGetGlobalHeap ();
 
   /**
    * Copied `locale_t` object.
@@ -2852,8 +2910,10 @@ void p32_freelocale (locale_t locale) {
     return;
   }
 
-  HANDLE    heapHandle = GetProcessHeap ();
-  uintptr_t heap       = (uintptr_t) heapHandle;
+  /**
+   * Get private heap.
+   */
+  uintptr_t heap = P32GlobalLocale.PtrGetGlobalHeap ();
 
   P32FreeLocale (locale, heap);
 }
