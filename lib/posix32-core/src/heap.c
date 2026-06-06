@@ -337,6 +337,32 @@ static BOOL WINAPI P32HeapSetInformation (HANDLE heap, HEAP_INFORMATION_CLASS in
  * External Functions.
  */
 
+/**
+ * All CRTs prior to UCRT do not support %zu.
+ */
+#ifdef _WIN64
+#define ZU L"%I64u"
+#else /* _WIN32 */
+#define ZU L"%lu"
+#endif /* _WIN32 */
+
+#ifdef LIBPOSIX32_TEST
+
+#ifdef _DEBUG
+#define P32HeapDbgMsg(format, ...) _CrtDbgReportW (_CRT_WARN, NULL, 0, NULL, format __VA_OPT__ (, ) __VA_ARGS__)
+#define P32HeapDbgErr(format, ...) _CrtDbgReportW (_CRT_ERROR, NULL, 0, NULL, format __VA_OPT__ (, ) __VA_ARGS__)
+#else
+#define P32HeapDbgMsg(format, ...) fwprintf (stdout, format __VA_OPT__ (, ) __VA_ARGS__)
+#define P32HeapDbgErr(format, ...) fwprintf (stderr, format __VA_OPT__ (, ) __VA_ARGS__)
+#endif
+
+#else
+
+#define P32HeapDbgMsg(...) (void) 0
+#define P32HeapDbgErr(...) (void) 0
+
+#endif
+
 bool p32_heap_lock (uintptr_t heap) {
   HANDLE heapHandle = (HANDLE) heap;
   return HeapLock (heapHandle);
@@ -374,15 +400,6 @@ bool p32_heap_terminate_on_corruption (uintptr_t heap) {
 }
 
 #ifdef LIBPOSIX32_TEST
-/**
- * All CRTs prior to UCRT do not support %zu.
- */
-#ifdef _WIN64
-#define X L"%I64u"
-#else /* _WIN32 */
-#define X L"%lu"
-#endif /* _WIN32 */
-
 void p32_heap_print_summary (uintptr_t heap) {
   HANDLE       heapHandle  = (HANDLE) heap;
   HEAP_SUMMARY heapSummary = {0};
@@ -390,19 +407,11 @@ void p32_heap_print_summary (uintptr_t heap) {
   heapSummary.cb = sizeof (heapSummary);
 
   if (HeapSummary (heapHandle, 0, &heapSummary)) {
-#ifdef _DEBUG
-    _RPTW1 (_CRT_WARN, L"Summary of heap <%p>:\n", heapHandle);
-    _RPTW2 (_CRT_WARN, L"  MaxReserve: " X " (" X "KiB)\n", heapSummary.cbMaxReserve, heapSummary.cbMaxReserve / 1024);
-    _RPTW2 (_CRT_WARN, L"  Reserved:   " X " (" X "KiB)\n", heapSummary.cbReserved, heapSummary.cbReserved / 1024);
-    _RPTW2 (_CRT_WARN, L"  Committed:  " X " (" X "KiB)\n", heapSummary.cbCommitted, heapSummary.cbCommitted / 1024);
-    _RPTW2 (_CRT_WARN, L"  Allocated:  " X " (" X "KiB)\n", heapSummary.cbAllocated, heapSummary.cbAllocated / 1024);
-#else
-    fwprintf (stderr, L"Summary of heap <%p>:\n", heapHandle);
-    fwprintf (stderr, L"  MaxReserve: " X " (" X "KiB)\n", heapSummary.cbMaxReserve, heapSummary.cbMaxReserve / 1024);
-    fwprintf (stderr, L"  Reserved:   " X " (" X "KiB)\n", heapSummary.cbReserved, heapSummary.cbReserved / 1024);
-    fwprintf (stderr, L"  Committed:  " X " (" X "KiB)\n", heapSummary.cbCommitted, heapSummary.cbCommitted / 1024);
-    fwprintf (stderr, L"  Allocated:  " X " (" X "KiB)\n", heapSummary.cbAllocated, heapSummary.cbAllocated / 1024);
-#endif
+    P32HeapDbgMsg (L"Summary of heap <%p>:\n", heapHandle);
+    P32HeapDbgMsg (L"  MaxReserve: " ZU " (" ZU "KiB)\n", heapSummary.cbMaxReserve, heapSummary.cbMaxReserve / 1024);
+    P32HeapDbgMsg (L"  Reserved:   " ZU " (" ZU "KiB)\n", heapSummary.cbReserved, heapSummary.cbReserved / 1024);
+    P32HeapDbgMsg (L"  Committed:  " ZU " (" ZU "KiB)\n", heapSummary.cbCommitted, heapSummary.cbCommitted / 1024);
+    P32HeapDbgMsg (L"  Allocated:  " ZU " (" ZU "KiB)\n", heapSummary.cbAllocated, heapSummary.cbAllocated / 1024);
   }
 }
 #endif
