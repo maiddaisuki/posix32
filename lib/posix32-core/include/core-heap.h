@@ -73,9 +73,4 @@ P32_CORE_DECL bool p32_heap_summary (uintptr_t heap, uint32_t flags, void *data)
  */
 P32_CORE_DECL bool p32_heap_set_information (uintptr_t heap, uint32_t infoClass, void *data, size_t dataSize);
 
-/**
- * Enable termination if heap corruption occured on `heap`.
- */
-P32_CORE_DECL bool p32_heap_terminate_on_corruption (uintptr_t heap);
-
 #endif /* LIBPOSIX32_CORE_HEAP_H_INCLUDED */

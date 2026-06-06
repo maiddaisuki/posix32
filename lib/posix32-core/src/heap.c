@@ -372,6 +372,14 @@ static bool P32HeapLowFragmentation (uintptr_t heap) {
   return HeapSetInformation (heapHandle, HeapCompatibilityInformation, &lfh, sizeof (lfh));
 }
 
+/**
+ * Enable Terminate on Corruption feature on `heap`.
+ */
+static bool P32HeapTerminateOnCorruption (uintptr_t heap) {
+  HANDLE heapHandle = (HANDLE) heap;
+  return HeapSetInformation (heapHandle, HeapEnableTerminationOnCorruption, NULL, 0);
+}
+
 #ifdef LIBPOSIX32_TEST
 /**
  * Print heap summary for `heap`.
@@ -428,7 +436,7 @@ uintptr_t p32_heap_create (uint32_t createFlags, uint32_t flags, size_t initialS
    * Enable Terminate on Corruption feature if requested.
    */
   if (createFlags & P32_HEAP_CREATE_TERMINATE_ON_CORRUPTION) {
-    p32_heap_terminate_on_corruption (heap);
+    P32HeapTerminateOnCorruption (heap);
   }
 
   return heap;
@@ -467,9 +475,4 @@ bool p32_heap_summary (uintptr_t heap, uint32_t flags, void *data) {
 bool p32_heap_set_information (uintptr_t heap, uint32_t infoClass, void *data, size_t dataSize) {
   HANDLE heapHandle = (HANDLE) heap;
   return HeapSetInformation (heapHandle, infoClass, data, dataSize);
-}
-
-bool p32_heap_terminate_on_corruption (uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-  return HeapSetInformation (heapHandle, HeapEnableTerminationOnCorruption, NULL, 0);
 }
