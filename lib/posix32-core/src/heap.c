@@ -363,6 +363,15 @@ static BOOL WINAPI P32HeapSetInformation (HANDLE heap, HEAP_INFORMATION_CLASS in
 
 #endif
 
+/**
+ * Enable Low Fragmentation Heap on `heap`.
+ */
+static bool P32HeapLowFragmentation (uintptr_t heap) {
+  HANDLE heapHandle = (HANDLE) heap;
+  ULONG  lfh        = 2;
+  return HeapSetInformation (heapHandle, HeapCompatibilityInformation, &lfh, sizeof (lfh));
+}
+
 #ifdef LIBPOSIX32_TEST
 /**
  * Print heap summary for `heap`.
@@ -412,7 +421,7 @@ uintptr_t p32_heap_create (uint32_t createFlags, uint32_t flags, size_t initialS
    * Enable Low Fragmentation Heap if requested.
    */
   if (createFlags & P32_HEAP_CREATE_LFH) {
-    p32_heap_low_fragmentation (heap);
+    P32HeapLowFragmentation (heap);
   }
 
   /**
@@ -458,12 +467,6 @@ bool p32_heap_summary (uintptr_t heap, uint32_t flags, void *data) {
 bool p32_heap_set_information (uintptr_t heap, uint32_t infoClass, void *data, size_t dataSize) {
   HANDLE heapHandle = (HANDLE) heap;
   return HeapSetInformation (heapHandle, infoClass, data, dataSize);
-}
-
-bool p32_heap_low_fragmentation (uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-  ULONG  lfh        = 2;
-  return HeapSetInformation (heapHandle, HeapCompatibilityInformation, &lfh, sizeof (lfh));
 }
 
 bool p32_heap_terminate_on_corruption (uintptr_t heap) {
