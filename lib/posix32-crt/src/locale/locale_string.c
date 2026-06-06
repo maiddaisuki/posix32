@@ -43,25 +43,25 @@
  * Copy locale string from `src` to `dest`.
  */
 static bool P32CopyLocaleStringsA (LocaleStringsA *dest, uintptr_t heap, LocaleStringsA *src) {
-  if (p32_private_strdup (&dest->LcAll, src->LcAll, heap) == -1) {
+  if (p32_heap_strdup (&dest->LcAll, heap, src->LcAll) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->LcCollate, src->LcCollate, heap) == -1) {
+  if (p32_heap_strdup (&dest->LcCollate, heap, src->LcCollate) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->LcCtype, src->LcCtype, heap) == -1) {
+  if (p32_heap_strdup (&dest->LcCtype, heap, src->LcCtype) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->LcMessages, src->LcMessages, heap) == -1) {
+  if (p32_heap_strdup (&dest->LcMessages, heap, src->LcMessages) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->LcMonetary, src->LcMonetary, heap) == -1) {
+  if (p32_heap_strdup (&dest->LcMonetary, heap, src->LcMonetary) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->LcNumeric, src->LcNumeric, heap) == -1) {
+  if (p32_heap_strdup (&dest->LcNumeric, heap, src->LcNumeric) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->LcTime, src->LcTime, heap) == -1) {
+  if (p32_heap_strdup (&dest->LcTime, heap, src->LcTime) == -1) {
     goto fail;
   }
 
@@ -98,25 +98,25 @@ static void P32FreeLocaleStringsA (LocaleStringsA *localeStrings, uintptr_t heap
  * Copy locale string from `src` to `dest`.
  */
 static bool P32CopyLocaleStringsW (LocaleStringsW *dest, uintptr_t heap, LocaleStringsW *src) {
-  if (p32_private_wcsdup (&dest->LcAll, src->LcAll, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->LcAll, heap, src->LcAll) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->LcCollate, src->LcCollate, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->LcCollate, heap, src->LcCollate) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->LcCtype, src->LcCtype, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->LcCtype, heap, src->LcCtype) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->LcMessages, src->LcMessages, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->LcMessages, heap, src->LcMessages) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->LcMonetary, src->LcMonetary, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->LcMonetary, heap, src->LcMonetary) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->LcNumeric, src->LcNumeric, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->LcNumeric, heap, src->LcNumeric) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->LcTime, src->LcTime, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->LcTime, heap, src->LcTime) == -1) {
     goto fail;
   }
 
@@ -185,7 +185,7 @@ bool p32_localestr_split (LocaleStrings *localeStrings, uintptr_t heap, const wc
    * No separator, which means that `string` contains single locale string.
    */
   if (separator == NULL) {
-    if (p32_private_wcsdup (&localeStrings->W.LcAll, string, heap) == -1) {
+    if (p32_heap_wcsdup (&localeStrings->W.LcAll, heap, string) == -1) {
       return false;
     }
 
@@ -398,7 +398,7 @@ static bool P32UserDefaultLocale (LocaleStrings *localeStrings, uintptr_t heap, 
    * in `localeStrings->LcAll`.
    */
   if (localeStrings->Mask == 0) {
-    if (p32_private_wcsdup (&localeStrings->W.LcAll, defaultLocale.LocaleName, heap) == -1) {
+    if (p32_heap_wcsdup (&localeStrings->W.LcAll, heap, defaultLocale.LocaleName) == -1) {
       goto fail;
     }
 
@@ -410,42 +410,42 @@ static bool P32UserDefaultLocale (LocaleStrings *localeStrings, uintptr_t heap, 
      */
   } else {
     if ((mask & LC_COLLATE_MASK) && (localeStrings->Mask & LC_COLLATE_MASK) == 0) {
-      if (p32_private_wcsdup (&localeStrings->W.LcCollate, defaultLocale.LocaleName, heap) == -1) {
+      if (p32_heap_wcsdup (&localeStrings->W.LcCollate, heap, defaultLocale.LocaleName) == -1) {
         goto fail;
       }
       localeStrings->Mask |= LC_COLLATE_MASK;
     }
 
     if ((mask & LC_CTYPE_MASK) && (localeStrings->Mask & LC_CTYPE_MASK) == 0) {
-      if (p32_private_wcsdup (&localeStrings->W.LcCtype, defaultLocale.LocaleName, heap) == -1) {
+      if (p32_heap_wcsdup (&localeStrings->W.LcCtype, heap, defaultLocale.LocaleName) == -1) {
         goto fail;
       }
       localeStrings->Mask |= LC_CTYPE_MASK;
     }
 
     if ((mask & LC_MESSAGES_MASK) && (localeStrings->Mask & LC_MESSAGES_MASK) == 0) {
-      if (p32_private_wcsdup (&localeStrings->W.LcMessages, defaultLocale.LocaleName, heap) == -1) {
+      if (p32_heap_wcsdup (&localeStrings->W.LcMessages, heap, defaultLocale.LocaleName) == -1) {
         goto fail;
       }
       localeStrings->Mask |= LC_MESSAGES_MASK;
     }
 
     if ((mask & LC_MONETARY_MASK) && (localeStrings->Mask & LC_MONETARY_MASK) == 0) {
-      if (p32_private_wcsdup (&localeStrings->W.LcMonetary, defaultLocale.LocaleName, heap) == -1) {
+      if (p32_heap_wcsdup (&localeStrings->W.LcMonetary, heap, defaultLocale.LocaleName) == -1) {
         goto fail;
       }
       localeStrings->Mask |= LC_MONETARY_MASK;
     }
 
     if ((mask & LC_NUMERIC_MASK) && (localeStrings->Mask & LC_NUMERIC_MASK) == 0) {
-      if (p32_private_wcsdup (&localeStrings->W.LcNumeric, defaultLocale.LocaleName, heap) == -1) {
+      if (p32_heap_wcsdup (&localeStrings->W.LcNumeric, heap, defaultLocale.LocaleName) == -1) {
         goto fail;
       }
       localeStrings->Mask |= LC_NUMERIC_MASK;
     }
 
     if ((mask & LC_TIME_MASK) && (localeStrings->Mask & LC_TIME_MASK) == 0) {
-      if (p32_private_wcsdup (&localeStrings->W.LcTime, defaultLocale.LocaleName, heap) == -1) {
+      if (p32_heap_wcsdup (&localeStrings->W.LcTime, heap, defaultLocale.LocaleName) == -1) {
         goto fail;
       }
       localeStrings->Mask |= LC_TIME_MASK;
@@ -617,7 +617,7 @@ fail:
  * Returns `true` on success, and `false` otherwise.
  */
 static bool P32FormatCLocaleString (wchar_t **address, uintptr_t heap) {
-  return p32_private_wcsdup (address, L"C", heap) != -1;
+  return p32_heap_wcsdup (address, heap, L"C") != -1;
 }
 
 /**
@@ -660,7 +660,7 @@ static bool P32FormatPseudoLocaleString (wchar_t **address, uintptr_t heap, Loca
   }
 #endif
 
-  return p32_private_wcsdup (address, locale->LocaleName, heap) != -1;
+  return p32_heap_wcsdup (address, heap, locale->LocaleName) != -1;
 }
 
 /**
@@ -703,7 +703,7 @@ static bool P32FormatCrtLocaleString (wchar_t **address, uintptr_t heap, Locale 
      * simply copy `locale->LocaleName` to `*address`.
      */
     if (locale->CodePage.Ansi == codePage) {
-      return p32_private_wcsdup (address, locale->LocaleName, heap) != -1;
+      return p32_heap_wcsdup (address, heap, locale->LocaleName) != -1;
     }
   }
 
@@ -723,7 +723,7 @@ static bool P32FormatCrtLocaleString (wchar_t **address, uintptr_t heap, Locale 
 
     if (languageString != NULL) {
       assert (languageString->LocaleString != NULL);
-      return p32_private_wcsdup (address, languageString->LocaleString, heap) != -1;
+      return p32_heap_wcsdup (address, heap, languageString->LocaleString) != -1;
     }
   }
 #endif /* Language strings */

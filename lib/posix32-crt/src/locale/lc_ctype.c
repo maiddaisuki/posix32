@@ -104,7 +104,7 @@ fail:
  * Copy locale information from `src` to `dest`.
  */
 static bool P32CopyLcCtypeInfoW (LcCtypeInfo *dest, uintptr_t heap, LcCtypeInfo *src) {
-  if (p32_private_wcsdup (&dest->CharsetName.W, src->CharsetName.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->CharsetName.W, heap, src->CharsetName.W) == -1) {
     goto fail;
   }
 
@@ -171,12 +171,12 @@ fail:
  * Copy locale information from `src` to `dest`.
  */
 static bool P32CopyLcCtypeInfoA (LcCtypeInfo *dest, uintptr_t heap, LcCtypeInfo *src) {
-  if (p32_private_strdup (&dest->CharsetName.A, src->CharsetName.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->CharsetName.A, heap, src->CharsetName.A) == -1) {
     goto fail;
   }
 
   for (size_t i = 0; i < _countof (src->CharTypes); ++i) {
-    if (p32_private_strdup (&dest->CharTypes[i].Name, src->CharTypes[i].Name, heap) == -1) {
+    if (p32_heap_strdup (&dest->CharTypes[i].Name, heap, src->CharTypes[i].Name) == -1) {
       goto fail;
     }
 
@@ -184,7 +184,7 @@ static bool P32CopyLcCtypeInfoA (LcCtypeInfo *dest, uintptr_t heap, LcCtypeInfo 
   }
 
   for (size_t i = 0; i < _countof (src->CharMappings); ++i) {
-    if (p32_private_strdup (&dest->CharMappings[i].Name, src->CharMappings[i].Name, heap) == -1) {
+    if (p32_heap_strdup (&dest->CharMappings[i].Name, heap, src->CharMappings[i].Name) == -1) {
       goto fail;
     }
 

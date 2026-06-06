@@ -28,6 +28,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-heap.h"
 #include "core-winver.h"
 
 #include "locale-internal.h"
@@ -931,7 +932,7 @@ bool p32_charset_name (wchar_t **address, uintptr_t heap, uint32_t codePage) {
       return false;
     }
   } else {
-    if (p32_private_wcsdup (address, info->CharsetName, heap) == -1) {
+    if (p32_heap_wcsdup (address, heap, info->CharsetName) == -1) {
       return false;
     }
   }

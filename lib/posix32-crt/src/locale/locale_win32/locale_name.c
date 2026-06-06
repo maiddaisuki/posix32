@@ -259,7 +259,7 @@ static bool P32LNTryResolve (LocaleNameMap *locale, uintptr_t heap, LanguageInde
       return false;
     }
   } else {
-    if (p32_private_wcsdup (&localeName, language.Code, heap) == -1) {
+    if (p32_heap_wcsdup (&localeName, heap, language.Code) == -1) {
       return false;
     }
   }
@@ -579,7 +579,7 @@ static bool P32WinlocaleLNResolve (Locale *locale, uintptr_t heap, LocaleMap *lo
       return false;
     }
 
-    if (p32_private_wcsdup (&locale->LocaleName, localeName, heap) == -1) {
+    if (p32_heap_wcsdup (&locale->LocaleName, heap, localeName) == -1) {
       return false;
     }
 
@@ -703,7 +703,7 @@ fail:
 }
 
 static bool P32WinlocaleLNCopy (Locale *destLocale, uintptr_t heap, Locale *srcLocale) {
-  if (p32_private_wcsdup (&destLocale->LocaleName, srcLocale->LocaleName, heap) == -1) {
+  if (p32_heap_wcsdup (&destLocale->LocaleName, heap, srcLocale->LocaleName) == -1) {
     goto fail;
   }
 
@@ -821,7 +821,7 @@ static BOOL WINAPI P32LNEnumSystemLocalesW (LPWSTR localeString, DWORD flags, LP
   locale.Type        = LocaleType_WindowsLocale;
   locale.KnownLocale = KnownLocaleIndex_Invalid;
 
-  if (p32_private_wcsdup (&locale.LocaleName, localeString, data->Heap) == -1) {
+  if (p32_heap_wcsdup (&locale.LocaleName, data->Heap, localeString) == -1) {
     return TRUE;
   }
 

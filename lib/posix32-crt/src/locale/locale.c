@@ -914,7 +914,7 @@ static void P32InitGlobalLocale (void) {
    * thread locale to global locale.
    */
   if (state.CurrentState == _ENABLE_PER_THREAD_LOCALE) {
-    if (p32_private_wcsdup (&threadLocale, _wsetlocale (LC_ALL, NULL), P32GlobalLocale.Heap) == -1) {
+    if (p32_heap_wcsdup (&threadLocale, P32GlobalLocale.Heap, _wsetlocale (LC_ALL, NULL)) == -1) {
       p32_terminate (L"Out of memory.");
     }
 
@@ -932,7 +932,7 @@ static void P32InitGlobalLocale (void) {
 #if P32_CRT >= P32_MSVCRT20
   const wchar_t *crtGlobalLocale = _wsetlocale (LC_ALL, NULL);
 
-  if (p32_private_wcsdup (&globalLocale, crtGlobalLocale, P32GlobalLocale.Heap) == -1) {
+  if (p32_heap_wcsdup (&globalLocale, P32GlobalLocale.Heap, crtGlobalLocale) == -1) {
     p32_terminate (L"Out of memory.");
   }
 #else

@@ -31,7 +31,7 @@ static bool P32WinlocaleRegionName (Locale *locale, uintptr_t heap) {
 }
 
 static bool P32WinlocaleRegionNameCopy (Locale *destLocale, uintptr_t heap, Locale *srcLocale) {
-  return p32_private_wcsdup (&destLocale->GeoName, srcLocale->GeoName, heap) != -1;
+  return p32_heap_wcsdup (&destLocale->GeoName, heap, srcLocale->GeoName) != -1;
 }
 
 static void P32WinlocaleRegionNameDestroy (Locale *locale, uintptr_t heap) {

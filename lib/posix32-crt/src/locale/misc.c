@@ -36,12 +36,6 @@
  * This file defines some internal functions.
  */
 
-/**
- * Provide external definitions.
- */
-extern inline int p32_private_strdup (char **address, const char *str, uintptr_t heap);
-extern inline int p32_private_wcsdup (wchar_t **address, const wchar_t *wcs, uintptr_t heap);
-
 /*******************************************************************************
  * Internal functions `p32_private_asprintf` and `p32_private_aswprintf`.
  */

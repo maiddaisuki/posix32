@@ -404,6 +404,9 @@ static void P32HeapPrintSummary (uintptr_t heap) {
  * External Functions.
  */
 
+P32_EXTERN_INLINE_DEFN int p32_heap_strdup (char **, uintptr_t, const char *);
+P32_EXTERN_INLINE_DEFN int p32_heap_wcsdup (wchar_t **, uintptr_t, const wchar_t *);
+
 uintptr_t p32_heap_create (uint32_t createFlags, uint32_t flags, size_t initialSize, size_t maxSize) {
   /**
    * Low Fragmentation Heap and `HEAP_NO_SERIALIZE` are not compatible.

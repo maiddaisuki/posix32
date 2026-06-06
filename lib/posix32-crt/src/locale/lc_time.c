@@ -273,146 +273,146 @@ fail:
  * Copy calendar information from `src` to `dest`.
  */
 static bool P32CopyCalendarInfoW (CalendarInfo *dest, uintptr_t heap, CalendarInfo *src) {
-  if (p32_private_wcsdup (&dest->DateFormat.Format, src->DateFormat.Format, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->DateFormat.Format, heap, src->DateFormat.Format) == -1) {
     goto fail;
   }
 
-  if (p32_private_wcsdup (&dest->DateFormat.Crt.W, src->DateFormat.Crt.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->DateFormat.Crt.W, heap, src->DateFormat.Crt.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->DateTimeFormat.W, src->DateTimeFormat.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->DateTimeFormat.W, heap, src->DateTimeFormat.W) == -1) {
     goto fail;
   }
 
   dest->Era.Offset = src->Era.Offset;
-  if (p32_private_wcsdup (&dest->Era.Name.W, src->Era.Name.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->Era.Name.W, heap, src->Era.Name.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->Era.String, src->Era.String, heap) == -1) {
-    goto fail;
-  }
-
-  if (p32_private_wcsdup (&dest->DayNames.Full.Day1.W, src->DayNames.Full.Day1.W, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcsdup (&dest->DayNames.Full.Day2.W, src->DayNames.Full.Day2.W, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcsdup (&dest->DayNames.Full.Day3.W, src->DayNames.Full.Day3.W, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcsdup (&dest->DayNames.Full.Day4.W, src->DayNames.Full.Day4.W, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcsdup (&dest->DayNames.Full.Day5.W, src->DayNames.Full.Day5.W, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcsdup (&dest->DayNames.Full.Day6.W, src->DayNames.Full.Day6.W, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcsdup (&dest->DayNames.Full.Day7.W, src->DayNames.Full.Day7.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->Era.String, heap, src->Era.String) == -1) {
     goto fail;
   }
 
-  if (p32_private_wcsdup (&dest->DayNames.Abbr.Day1.W, src->DayNames.Abbr.Day1.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->DayNames.Full.Day1.W, heap, src->DayNames.Full.Day1.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->DayNames.Abbr.Day2.W, src->DayNames.Abbr.Day2.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->DayNames.Full.Day2.W, heap, src->DayNames.Full.Day2.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->DayNames.Abbr.Day3.W, src->DayNames.Abbr.Day3.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->DayNames.Full.Day3.W, heap, src->DayNames.Full.Day3.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->DayNames.Abbr.Day4.W, src->DayNames.Abbr.Day4.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->DayNames.Full.Day4.W, heap, src->DayNames.Full.Day4.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->DayNames.Abbr.Day5.W, src->DayNames.Abbr.Day5.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->DayNames.Full.Day5.W, heap, src->DayNames.Full.Day5.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->DayNames.Abbr.Day6.W, src->DayNames.Abbr.Day6.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->DayNames.Full.Day6.W, heap, src->DayNames.Full.Day6.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->DayNames.Abbr.Day7.W, src->DayNames.Abbr.Day7.W, heap) == -1) {
-    goto fail;
-  }
-
-  if (p32_private_wcsdup (&dest->MonthNames.Full.Mon1.W, src->MonthNames.Full.Mon1.W, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcsdup (&dest->MonthNames.Full.Mon2.W, src->MonthNames.Full.Mon2.W, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcsdup (&dest->MonthNames.Full.Mon3.W, src->MonthNames.Full.Mon3.W, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcsdup (&dest->MonthNames.Full.Mon4.W, src->MonthNames.Full.Mon4.W, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcsdup (&dest->MonthNames.Full.Mon5.W, src->MonthNames.Full.Mon5.W, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcsdup (&dest->MonthNames.Full.Mon6.W, src->MonthNames.Full.Mon6.W, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcsdup (&dest->MonthNames.Full.Mon7.W, src->MonthNames.Full.Mon7.W, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcsdup (&dest->MonthNames.Full.Mon8.W, src->MonthNames.Full.Mon8.W, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcsdup (&dest->MonthNames.Full.Mon9.W, src->MonthNames.Full.Mon9.W, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcsdup (&dest->MonthNames.Full.Mon10.W, src->MonthNames.Full.Mon10.W, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcsdup (&dest->MonthNames.Full.Mon11.W, src->MonthNames.Full.Mon11.W, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcsdup (&dest->MonthNames.Full.Mon12.W, src->MonthNames.Full.Mon12.W, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_wcsdup (&dest->MonthNames.Full.Mon13.W, src->MonthNames.Full.Mon13.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->DayNames.Full.Day7.W, heap, src->DayNames.Full.Day7.W) == -1) {
     goto fail;
   }
 
-  if (p32_private_wcsdup (&dest->MonthNames.Abbr.Mon1.W, src->MonthNames.Abbr.Mon1.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->DayNames.Abbr.Day1.W, heap, src->DayNames.Abbr.Day1.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->MonthNames.Abbr.Mon2.W, src->MonthNames.Abbr.Mon2.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->DayNames.Abbr.Day2.W, heap, src->DayNames.Abbr.Day2.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->MonthNames.Abbr.Mon3.W, src->MonthNames.Abbr.Mon3.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->DayNames.Abbr.Day3.W, heap, src->DayNames.Abbr.Day3.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->MonthNames.Abbr.Mon4.W, src->MonthNames.Abbr.Mon4.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->DayNames.Abbr.Day4.W, heap, src->DayNames.Abbr.Day4.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->MonthNames.Abbr.Mon5.W, src->MonthNames.Abbr.Mon5.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->DayNames.Abbr.Day5.W, heap, src->DayNames.Abbr.Day5.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->MonthNames.Abbr.Mon6.W, src->MonthNames.Abbr.Mon6.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->DayNames.Abbr.Day6.W, heap, src->DayNames.Abbr.Day6.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->MonthNames.Abbr.Mon7.W, src->MonthNames.Abbr.Mon7.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->DayNames.Abbr.Day7.W, heap, src->DayNames.Abbr.Day7.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->MonthNames.Abbr.Mon8.W, src->MonthNames.Abbr.Mon8.W, heap) == -1) {
+
+  if (p32_heap_wcsdup (&dest->MonthNames.Full.Mon1.W, heap, src->MonthNames.Full.Mon1.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->MonthNames.Abbr.Mon9.W, src->MonthNames.Abbr.Mon9.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->MonthNames.Full.Mon2.W, heap, src->MonthNames.Full.Mon2.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->MonthNames.Abbr.Mon10.W, src->MonthNames.Abbr.Mon10.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->MonthNames.Full.Mon3.W, heap, src->MonthNames.Full.Mon3.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->MonthNames.Abbr.Mon11.W, src->MonthNames.Abbr.Mon11.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->MonthNames.Full.Mon4.W, heap, src->MonthNames.Full.Mon4.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->MonthNames.Abbr.Mon12.W, src->MonthNames.Abbr.Mon12.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->MonthNames.Full.Mon5.W, heap, src->MonthNames.Full.Mon5.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->MonthNames.Abbr.Mon13.W, src->MonthNames.Abbr.Mon13.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->MonthNames.Full.Mon6.W, heap, src->MonthNames.Full.Mon6.W) == -1) {
+    goto fail;
+  }
+  if (p32_heap_wcsdup (&dest->MonthNames.Full.Mon7.W, heap, src->MonthNames.Full.Mon7.W) == -1) {
+    goto fail;
+  }
+  if (p32_heap_wcsdup (&dest->MonthNames.Full.Mon8.W, heap, src->MonthNames.Full.Mon8.W) == -1) {
+    goto fail;
+  }
+  if (p32_heap_wcsdup (&dest->MonthNames.Full.Mon9.W, heap, src->MonthNames.Full.Mon9.W) == -1) {
+    goto fail;
+  }
+  if (p32_heap_wcsdup (&dest->MonthNames.Full.Mon10.W, heap, src->MonthNames.Full.Mon10.W) == -1) {
+    goto fail;
+  }
+  if (p32_heap_wcsdup (&dest->MonthNames.Full.Mon11.W, heap, src->MonthNames.Full.Mon11.W) == -1) {
+    goto fail;
+  }
+  if (p32_heap_wcsdup (&dest->MonthNames.Full.Mon12.W, heap, src->MonthNames.Full.Mon12.W) == -1) {
+    goto fail;
+  }
+  if (p32_heap_wcsdup (&dest->MonthNames.Full.Mon13.W, heap, src->MonthNames.Full.Mon13.W) == -1) {
+    goto fail;
+  }
+
+  if (p32_heap_wcsdup (&dest->MonthNames.Abbr.Mon1.W, heap, src->MonthNames.Abbr.Mon1.W) == -1) {
+    goto fail;
+  }
+  if (p32_heap_wcsdup (&dest->MonthNames.Abbr.Mon2.W, heap, src->MonthNames.Abbr.Mon2.W) == -1) {
+    goto fail;
+  }
+  if (p32_heap_wcsdup (&dest->MonthNames.Abbr.Mon3.W, heap, src->MonthNames.Abbr.Mon3.W) == -1) {
+    goto fail;
+  }
+  if (p32_heap_wcsdup (&dest->MonthNames.Abbr.Mon4.W, heap, src->MonthNames.Abbr.Mon4.W) == -1) {
+    goto fail;
+  }
+  if (p32_heap_wcsdup (&dest->MonthNames.Abbr.Mon5.W, heap, src->MonthNames.Abbr.Mon5.W) == -1) {
+    goto fail;
+  }
+  if (p32_heap_wcsdup (&dest->MonthNames.Abbr.Mon6.W, heap, src->MonthNames.Abbr.Mon6.W) == -1) {
+    goto fail;
+  }
+  if (p32_heap_wcsdup (&dest->MonthNames.Abbr.Mon7.W, heap, src->MonthNames.Abbr.Mon7.W) == -1) {
+    goto fail;
+  }
+  if (p32_heap_wcsdup (&dest->MonthNames.Abbr.Mon8.W, heap, src->MonthNames.Abbr.Mon8.W) == -1) {
+    goto fail;
+  }
+  if (p32_heap_wcsdup (&dest->MonthNames.Abbr.Mon9.W, heap, src->MonthNames.Abbr.Mon9.W) == -1) {
+    goto fail;
+  }
+  if (p32_heap_wcsdup (&dest->MonthNames.Abbr.Mon10.W, heap, src->MonthNames.Abbr.Mon10.W) == -1) {
+    goto fail;
+  }
+  if (p32_heap_wcsdup (&dest->MonthNames.Abbr.Mon11.W, heap, src->MonthNames.Abbr.Mon11.W) == -1) {
+    goto fail;
+  }
+  if (p32_heap_wcsdup (&dest->MonthNames.Abbr.Mon12.W, heap, src->MonthNames.Abbr.Mon12.W) == -1) {
+    goto fail;
+  }
+  if (p32_heap_wcsdup (&dest->MonthNames.Abbr.Mon13.W, heap, src->MonthNames.Abbr.Mon13.W) == -1) {
     goto fail;
   }
 
@@ -528,138 +528,138 @@ static void P32FreeCalendarInfoW (CalendarInfo *info, uintptr_t heap) {
  * Copy calendar information from `src` to `dest`.
  */
 static bool P32CopyCalendarInfoA (CalendarInfo *dest, uintptr_t heap, CalendarInfo *src) {
-  if (p32_private_strdup (&dest->DateFormat.Crt.A, src->DateFormat.Crt.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->DateFormat.Crt.A, heap, src->DateFormat.Crt.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->DateTimeFormat.A, src->DateTimeFormat.A, heap) == -1) {
-    goto fail;
-  }
-
-  if (p32_private_strdup (&dest->Era.Name.A, src->Era.Name.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->DateTimeFormat.A, heap, src->DateTimeFormat.A) == -1) {
     goto fail;
   }
 
-  if (p32_private_strdup (&dest->DayNames.Full.Day1.A, src->DayNames.Full.Day1.A, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_strdup (&dest->DayNames.Full.Day2.A, src->DayNames.Full.Day2.A, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_strdup (&dest->DayNames.Full.Day3.A, src->DayNames.Full.Day3.A, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_strdup (&dest->DayNames.Full.Day4.A, src->DayNames.Full.Day4.A, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_strdup (&dest->DayNames.Full.Day5.A, src->DayNames.Full.Day5.A, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_strdup (&dest->DayNames.Full.Day6.A, src->DayNames.Full.Day6.A, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_strdup (&dest->DayNames.Full.Day7.A, src->DayNames.Full.Day7.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->Era.Name.A, heap, src->Era.Name.A) == -1) {
     goto fail;
   }
 
-  if (p32_private_strdup (&dest->DayNames.Abbr.Day1.A, src->DayNames.Abbr.Day1.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->DayNames.Full.Day1.A, heap, src->DayNames.Full.Day1.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->DayNames.Abbr.Day2.A, src->DayNames.Abbr.Day2.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->DayNames.Full.Day2.A, heap, src->DayNames.Full.Day2.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->DayNames.Abbr.Day3.A, src->DayNames.Abbr.Day3.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->DayNames.Full.Day3.A, heap, src->DayNames.Full.Day3.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->DayNames.Abbr.Day4.A, src->DayNames.Abbr.Day4.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->DayNames.Full.Day4.A, heap, src->DayNames.Full.Day4.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->DayNames.Abbr.Day5.A, src->DayNames.Abbr.Day5.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->DayNames.Full.Day5.A, heap, src->DayNames.Full.Day5.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->DayNames.Abbr.Day6.A, src->DayNames.Abbr.Day6.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->DayNames.Full.Day6.A, heap, src->DayNames.Full.Day6.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->DayNames.Abbr.Day7.A, src->DayNames.Abbr.Day7.A, heap) == -1) {
-    goto fail;
-  }
-
-  if (p32_private_strdup (&dest->MonthNames.Full.Mon1.A, src->MonthNames.Full.Mon1.A, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_strdup (&dest->MonthNames.Full.Mon2.A, src->MonthNames.Full.Mon2.A, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_strdup (&dest->MonthNames.Full.Mon3.A, src->MonthNames.Full.Mon3.A, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_strdup (&dest->MonthNames.Full.Mon4.A, src->MonthNames.Full.Mon4.A, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_strdup (&dest->MonthNames.Full.Mon5.A, src->MonthNames.Full.Mon5.A, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_strdup (&dest->MonthNames.Full.Mon6.A, src->MonthNames.Full.Mon6.A, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_strdup (&dest->MonthNames.Full.Mon7.A, src->MonthNames.Full.Mon7.A, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_strdup (&dest->MonthNames.Full.Mon8.A, src->MonthNames.Full.Mon8.A, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_strdup (&dest->MonthNames.Full.Mon9.A, src->MonthNames.Full.Mon9.A, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_strdup (&dest->MonthNames.Full.Mon10.A, src->MonthNames.Full.Mon10.A, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_strdup (&dest->MonthNames.Full.Mon11.A, src->MonthNames.Full.Mon11.A, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_strdup (&dest->MonthNames.Full.Mon12.A, src->MonthNames.Full.Mon12.A, heap) == -1) {
-    goto fail;
-  }
-  if (p32_private_strdup (&dest->MonthNames.Full.Mon13.A, src->MonthNames.Full.Mon13.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->DayNames.Full.Day7.A, heap, src->DayNames.Full.Day7.A) == -1) {
     goto fail;
   }
 
-  if (p32_private_strdup (&dest->MonthNames.Abbr.Mon1.A, src->MonthNames.Abbr.Mon1.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->DayNames.Abbr.Day1.A, heap, src->DayNames.Abbr.Day1.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->MonthNames.Abbr.Mon2.A, src->MonthNames.Abbr.Mon2.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->DayNames.Abbr.Day2.A, heap, src->DayNames.Abbr.Day2.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->MonthNames.Abbr.Mon3.A, src->MonthNames.Abbr.Mon3.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->DayNames.Abbr.Day3.A, heap, src->DayNames.Abbr.Day3.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->MonthNames.Abbr.Mon4.A, src->MonthNames.Abbr.Mon4.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->DayNames.Abbr.Day4.A, heap, src->DayNames.Abbr.Day4.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->MonthNames.Abbr.Mon5.A, src->MonthNames.Abbr.Mon5.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->DayNames.Abbr.Day5.A, heap, src->DayNames.Abbr.Day5.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->MonthNames.Abbr.Mon6.A, src->MonthNames.Abbr.Mon6.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->DayNames.Abbr.Day6.A, heap, src->DayNames.Abbr.Day6.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->MonthNames.Abbr.Mon7.A, src->MonthNames.Abbr.Mon7.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->DayNames.Abbr.Day7.A, heap, src->DayNames.Abbr.Day7.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->MonthNames.Abbr.Mon8.A, src->MonthNames.Abbr.Mon8.A, heap) == -1) {
+
+  if (p32_heap_strdup (&dest->MonthNames.Full.Mon1.A, heap, src->MonthNames.Full.Mon1.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->MonthNames.Abbr.Mon9.A, src->MonthNames.Abbr.Mon9.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->MonthNames.Full.Mon2.A, heap, src->MonthNames.Full.Mon2.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->MonthNames.Abbr.Mon10.A, src->MonthNames.Abbr.Mon10.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->MonthNames.Full.Mon3.A, heap, src->MonthNames.Full.Mon3.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->MonthNames.Abbr.Mon11.A, src->MonthNames.Abbr.Mon11.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->MonthNames.Full.Mon4.A, heap, src->MonthNames.Full.Mon4.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->MonthNames.Abbr.Mon12.A, src->MonthNames.Abbr.Mon12.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->MonthNames.Full.Mon5.A, heap, src->MonthNames.Full.Mon5.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->MonthNames.Abbr.Mon13.A, src->MonthNames.Abbr.Mon13.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->MonthNames.Full.Mon6.A, heap, src->MonthNames.Full.Mon6.A) == -1) {
+    goto fail;
+  }
+  if (p32_heap_strdup (&dest->MonthNames.Full.Mon7.A, heap, src->MonthNames.Full.Mon7.A) == -1) {
+    goto fail;
+  }
+  if (p32_heap_strdup (&dest->MonthNames.Full.Mon8.A, heap, src->MonthNames.Full.Mon8.A) == -1) {
+    goto fail;
+  }
+  if (p32_heap_strdup (&dest->MonthNames.Full.Mon9.A, heap, src->MonthNames.Full.Mon9.A) == -1) {
+    goto fail;
+  }
+  if (p32_heap_strdup (&dest->MonthNames.Full.Mon10.A, heap, src->MonthNames.Full.Mon10.A) == -1) {
+    goto fail;
+  }
+  if (p32_heap_strdup (&dest->MonthNames.Full.Mon11.A, heap, src->MonthNames.Full.Mon11.A) == -1) {
+    goto fail;
+  }
+  if (p32_heap_strdup (&dest->MonthNames.Full.Mon12.A, heap, src->MonthNames.Full.Mon12.A) == -1) {
+    goto fail;
+  }
+  if (p32_heap_strdup (&dest->MonthNames.Full.Mon13.A, heap, src->MonthNames.Full.Mon13.A) == -1) {
+    goto fail;
+  }
+
+  if (p32_heap_strdup (&dest->MonthNames.Abbr.Mon1.A, heap, src->MonthNames.Abbr.Mon1.A) == -1) {
+    goto fail;
+  }
+  if (p32_heap_strdup (&dest->MonthNames.Abbr.Mon2.A, heap, src->MonthNames.Abbr.Mon2.A) == -1) {
+    goto fail;
+  }
+  if (p32_heap_strdup (&dest->MonthNames.Abbr.Mon3.A, heap, src->MonthNames.Abbr.Mon3.A) == -1) {
+    goto fail;
+  }
+  if (p32_heap_strdup (&dest->MonthNames.Abbr.Mon4.A, heap, src->MonthNames.Abbr.Mon4.A) == -1) {
+    goto fail;
+  }
+  if (p32_heap_strdup (&dest->MonthNames.Abbr.Mon5.A, heap, src->MonthNames.Abbr.Mon5.A) == -1) {
+    goto fail;
+  }
+  if (p32_heap_strdup (&dest->MonthNames.Abbr.Mon6.A, heap, src->MonthNames.Abbr.Mon6.A) == -1) {
+    goto fail;
+  }
+  if (p32_heap_strdup (&dest->MonthNames.Abbr.Mon7.A, heap, src->MonthNames.Abbr.Mon7.A) == -1) {
+    goto fail;
+  }
+  if (p32_heap_strdup (&dest->MonthNames.Abbr.Mon8.A, heap, src->MonthNames.Abbr.Mon8.A) == -1) {
+    goto fail;
+  }
+  if (p32_heap_strdup (&dest->MonthNames.Abbr.Mon9.A, heap, src->MonthNames.Abbr.Mon9.A) == -1) {
+    goto fail;
+  }
+  if (p32_heap_strdup (&dest->MonthNames.Abbr.Mon10.A, heap, src->MonthNames.Abbr.Mon10.A) == -1) {
+    goto fail;
+  }
+  if (p32_heap_strdup (&dest->MonthNames.Abbr.Mon11.A, heap, src->MonthNames.Abbr.Mon11.A) == -1) {
+    goto fail;
+  }
+  if (p32_heap_strdup (&dest->MonthNames.Abbr.Mon12.A, heap, src->MonthNames.Abbr.Mon12.A) == -1) {
+    goto fail;
+  }
+  if (p32_heap_strdup (&dest->MonthNames.Abbr.Mon13.A, heap, src->MonthNames.Abbr.Mon13.A) == -1) {
     goto fail;
   }
 
@@ -879,7 +879,7 @@ static bool P32EraString (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t local
       &lcTimeInfo->EraString.W, heap, L"%s;%s", defaultCalendar->Era.String, alternativeCalendar->Era.String
     );
   } else {
-    ret = p32_private_wcsdup (&lcTimeInfo->EraString.W, defaultCalendar->Era.String, heap);
+    ret = p32_heap_wcsdup (&lcTimeInfo->EraString.W, heap, defaultCalendar->Era.String);
   }
 
   if (ret == -1) {
@@ -919,44 +919,44 @@ fail:
  * Copy locale information from `src` to `dest`.
  */
 static bool P32CopyLcTimeInfoW (LcTimeInfo *dest, uintptr_t heap, LcTimeInfo *src) {
-  if (p32_private_wcsdup (&dest->EraString.W, src->EraString.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->EraString.W, heap, src->EraString.W) == -1) {
     goto fail;
   }
 
-  if (p32_private_wcsdup (&dest->TimeFormat.Format, src->TimeFormat.Format, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->TimeFormat.Format, heap, src->TimeFormat.Format) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->TimeFormat.Crt.W, src->TimeFormat.Crt.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->TimeFormat.Crt.W, heap, src->TimeFormat.Crt.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->TimeFormatAmPm.Format, src->TimeFormatAmPm.Format, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->TimeFormatAmPm.Format, heap, src->TimeFormatAmPm.Format) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->TimeFormatAmPm.Crt.W, src->TimeFormatAmPm.Crt.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->TimeFormatAmPm.Crt.W, heap, src->TimeFormatAmPm.Crt.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->TimeFormat24.W, src->TimeFormat24.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->TimeFormat24.W, heap, src->TimeFormat24.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->TimeFormatT.W, src->TimeFormatT.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->TimeFormatT.W, heap, src->TimeFormatT.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->DateFormatD.W, src->DateFormatD.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->DateFormatD.W, heap, src->DateFormatD.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->DateFormatF.W, src->DateFormatF.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->DateFormatF.W, heap, src->DateFormatF.W) == -1) {
     goto fail;
   }
 
   dest->AmPm.Value = src->AmPm.Value;
-  if (p32_private_wcsdup (&dest->AmPm.Am.W, src->AmPm.Am.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->AmPm.Am.W, heap, src->AmPm.Am.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->AmPm.Pm.W, src->AmPm.Pm.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->AmPm.Pm.W, heap, src->AmPm.Pm.W) == -1) {
     goto fail;
   }
 
-  if (p32_private_wcsdup (&dest->AltDigits.W, src->AltDigits.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->AltDigits.W, heap, src->AltDigits.W) == -1) {
     goto fail;
   }
 
@@ -1004,38 +1004,38 @@ static void P32FreeLcTimeInfoW (LcTimeInfo *lcTimeInfo, uintptr_t heap) {
  * Copy locale information from `src` to `dest`.
  */
 static bool P32CopyLcTimeInfoA (LcTimeInfo *dest, uintptr_t heap, LcTimeInfo *src) {
-  if (p32_private_strdup (&dest->EraString.A, src->EraString.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->EraString.A, heap, src->EraString.A) == -1) {
     goto fail;
   }
 
-  if (p32_private_strdup (&dest->TimeFormat.Crt.A, src->TimeFormat.Crt.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->TimeFormat.Crt.A, heap, src->TimeFormat.Crt.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->TimeFormatAmPm.Crt.A, src->TimeFormatAmPm.Crt.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->TimeFormatAmPm.Crt.A, heap, src->TimeFormatAmPm.Crt.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->TimeFormat24.A, src->TimeFormat24.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->TimeFormat24.A, heap, src->TimeFormat24.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->TimeFormatT.A, src->TimeFormatT.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->TimeFormatT.A, heap, src->TimeFormatT.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->DateFormatD.A, src->DateFormatD.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->DateFormatD.A, heap, src->DateFormatD.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->DateFormatF.A, src->DateFormatF.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->DateFormatF.A, heap, src->DateFormatF.A) == -1) {
     goto fail;
   }
 
   dest->AmPm.Value = src->AmPm.Value;
-  if (p32_private_strdup (&dest->AmPm.Am.A, src->AmPm.Am.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->AmPm.Am.A, heap, src->AmPm.Am.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->AmPm.Pm.A, src->AmPm.Pm.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->AmPm.Pm.A, heap, src->AmPm.Pm.A) == -1) {
     goto fail;
   }
 
-  if (p32_private_strdup (&dest->AltDigits.A, src->AltDigits.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->AltDigits.A, heap, src->AltDigits.A) == -1) {
     goto fail;
   }
   memcpy (dest->AltDigits.Map, src->AltDigits.Map, sizeof (dest->AltDigits.Map));
@@ -1346,7 +1346,7 @@ static bool P32TimeAmPmFormat (LcTimeInfo *info, uintptr_t heap) {
    * 2. locale does not have AM/PM string, in which case 24-hour format string
    *    will be used.
    */
-  if (p32_private_wcsdup (&info->TimeFormatAmPm.Format, info->TimeFormat.Format, heap) == -1) {
+  if (p32_heap_wcsdup (&info->TimeFormatAmPm.Format, heap, info->TimeFormat.Format) == -1) {
     return false;
   }
 
@@ -1497,7 +1497,7 @@ static bool P32DateTimeCommon (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t 
   /**
    * Time format string for "%R" format specifier.
    */
-  if (p32_private_wcsdup (&lcTimeInfo->TimeFormat24.W, L"%H:%M", heap) == -1) {
+  if (p32_heap_wcsdup (&lcTimeInfo->TimeFormat24.W, heap, L"%H:%M") == -1) {
     return false;
   }
 
@@ -1511,7 +1511,7 @@ static bool P32DateTimeCommon (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t 
   /**
    * Time format string for "%T" format specifier.
    */
-  if (p32_private_wcsdup (&lcTimeInfo->TimeFormatT.W, L"%H:%M:%S", heap) == -1) {
+  if (p32_heap_wcsdup (&lcTimeInfo->TimeFormatT.W, heap, L"%H:%M:%S") == -1) {
     return false;
   }
 
@@ -1525,7 +1525,7 @@ static bool P32DateTimeCommon (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t 
   /**
    * Date format string for "%D" format specifier.
    */
-  if (p32_private_wcsdup (&lcTimeInfo->DateFormatD.W, L"%m/%d/%y", heap) == -1) {
+  if (p32_heap_wcsdup (&lcTimeInfo->DateFormatD.W, heap, L"%m/%d/%y") == -1) {
     return false;
   }
 
@@ -1539,7 +1539,7 @@ static bool P32DateTimeCommon (LcTimeInfo *lcTimeInfo, uintptr_t heap, locale_t 
   /**
    * Date format string for "%F" format specifier.
    */
-  if (p32_private_wcsdup (&lcTimeInfo->DateFormatF.W, L"%Y-%m-%d", heap) == -1) {
+  if (p32_heap_wcsdup (&lcTimeInfo->DateFormatF.W, heap, L"%Y-%m-%d") == -1) {
     return false;
   }
 

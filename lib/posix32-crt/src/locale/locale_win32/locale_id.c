@@ -553,7 +553,7 @@ static bool P32LCIDLocaleName (Locale *locale, uintptr_t heap, LocaleIdMap *reso
     p32_known_locale (localeMap->KnownLocale, &knownLocale);
 
     if (knownLocale.Type == LocaleType_PseudoLocale) {
-      return p32_private_wcsdup (&locale->LocaleName, knownLocale.LocaleString, heap) != -1;
+      return p32_heap_wcsdup (&locale->LocaleName, heap, knownLocale.LocaleString) != -1;
     }
   }
 
@@ -770,7 +770,7 @@ fail:
 }
 
 static bool P32WinlocaleLCIDCopy (Locale *destLocale, uintptr_t heap, Locale *srcLocale) {
-  if (p32_private_wcsdup (&destLocale->LocaleName, srcLocale->LocaleName, heap) == -1) {
+  if (p32_heap_wcsdup (&destLocale->LocaleName, heap, srcLocale->LocaleName) == -1) {
     goto fail;
   }
 

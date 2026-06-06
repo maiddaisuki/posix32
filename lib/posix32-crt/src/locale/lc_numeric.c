@@ -82,10 +82,10 @@ fail:
  * Copy locale information from `src` to `dest`.
  */
 static bool P32CopyLcNumericInfoW (LcNumericInfo *dest, uintptr_t heap, LcNumericInfo *src) {
-  if (p32_private_wcsdup (&dest->RadixChar.W, src->RadixChar.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->RadixChar.W, heap, src->RadixChar.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->ThousandsSeparator.W, src->ThousandsSeparator.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->ThousandsSeparator.W, heap, src->ThousandsSeparator.W) == -1) {
     goto fail;
   }
 
@@ -109,10 +109,10 @@ static void P32FreeLcNumericInfoW (LcNumericInfo *info, uintptr_t heap) {
  * Copy locale information from `src` to `dest`.
  */
 static bool P32CopyLcNumericInfoA (LcNumericInfo *dest, uintptr_t heap, LcNumericInfo *src) {
-  if (p32_private_strdup (&dest->RadixChar.A, src->RadixChar.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->RadixChar.A, heap, src->RadixChar.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->ThousandsSeparator.A, src->ThousandsSeparator.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->ThousandsSeparator.A, heap, src->ThousandsSeparator.A) == -1) {
     goto fail;
   }
 

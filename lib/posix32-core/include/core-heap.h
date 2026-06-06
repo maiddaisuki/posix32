@@ -19,6 +19,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <wchar.h>
 
 #include "posix32.h"
 
@@ -85,6 +86,50 @@ P32_CORE_DECL size_t p32_heap_size (uintptr_t heap, uint32_t flags, void *memory
  * in this case the process heap (`GetProcessHeap`) is used.
  */
 P32_CORE_DECL bool p32_heap_free (uintptr_t heap, uint32_t flags, void *memory);
+
+/**
+ * A version of `strdup` which allocates memory from `heap`.
+ *
+ * On success, stores copied string in `*address` and returns length of
+ * the copied string.
+ *
+ * On failure, returns `-1`.
+ */
+P32_CORE_INLINE_DECL int p32_heap_strdup (char **address, uintptr_t heap, const char *str) {
+  size_t bufferSize = strlen (str);
+
+  bufferSize += 1;
+  *address    = p32_heap_alloc (heap, 0, bufferSize * sizeof (char));
+
+  if (*address == NULL) {
+    return -1;
+  }
+
+  memcpy (*address, str, bufferSize);
+  return (int) (bufferSize - 1);
+}
+
+/**
+ * A version of `wcsdup` which allocates memory from `heap`.
+ *
+ * On success, stores copied string in `*address` and returns length of
+ * the copied string.
+ *
+ * On failure, returns `-1`.
+ */
+P32_CORE_INLINE_DECL int p32_heap_wcsdup (wchar_t **address, uintptr_t heap, const wchar_t *wcs) {
+  size_t bufferSize = wcslen (wcs);
+
+  bufferSize += 1;
+  *address    = p32_heap_alloc (heap, 0, bufferSize * sizeof (wchar_t));
+
+  if (*address == NULL) {
+    return -1;
+  }
+
+  wmemcpy (*address, wcs, bufferSize);
+  return (int) (bufferSize - 1);
+}
 
 /**
  * Portability wrapper for `HeapLock`.

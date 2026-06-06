@@ -434,7 +434,7 @@ int p32_posix_get_locale_info (LocaleInfoRequest *request, uintptr_t heap, int f
   wchar_t *data = NULL;
 
   if ((flags & P32_POSIX_LOCALE_INFO_FALLBACK) == 0) {
-    if (p32_private_wcsdup (&data, entry->Data, heap) == -1) {
+    if (p32_heap_wcsdup (&data, heap, entry->Data) == -1) {
       goto fail;
     }
   }
@@ -483,7 +483,7 @@ int p32_posix_get_calendar_info (CalendarInfoRequest *request, uintptr_t heap, i
   wchar_t *data = NULL;
 
   if ((flags & P32_POSIX_LOCALE_INFO_FALLBACK) == 0) {
-    if (p32_private_wcsdup (&data, entry->Data, heap) == -1) {
+    if (p32_heap_wcsdup (&data, heap, entry->Data) == -1) {
       goto fail;
     }
   }

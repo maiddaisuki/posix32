@@ -214,40 +214,4 @@ P32_TEST_DECL int p32_private_asprintf (char **address, uintptr_t heap, const wc
  */
 P32_TEST_DECL int p32_private_aswprintf (wchar_t **address, uintptr_t heap, const wchar_t *format, ...);
 
-/**
- * Internal version of strdup which allocates memory using `HeapAlloc`
- * instead of `malloc`.
- */
-inline int p32_private_strdup (char **address, const char *str, uintptr_t heap) {
-  size_t bufferSize = strlen (str);
-
-  bufferSize += 1;
-  *address    = HeapAlloc ((HANDLE) heap, 0, bufferSize);
-
-  if (*address == NULL) {
-    return -1;
-  }
-
-  memcpy (*address, str, bufferSize);
-  return (int) (bufferSize - 1);
-}
-
-/**
- * Internal version of wcsdup which allocates memory using `HeapAlloc`
- * instead of `malloc`.
- */
-inline int p32_private_wcsdup (wchar_t **address, const wchar_t *wcs, uintptr_t heap) {
-  size_t bufferSize = wcslen (wcs);
-
-  bufferSize += 1;
-  *address    = HeapAlloc ((HANDLE) heap, 0, bufferSize * sizeof (wchar_t));
-
-  if (*address == NULL) {
-    return -1;
-  }
-
-  wmemcpy (*address, wcs, bufferSize);
-  return (int) (bufferSize - 1);
-}
-
 #endif /* LIBPOSIX32_LOCALE_INTERNAL_H_INCLUDED */

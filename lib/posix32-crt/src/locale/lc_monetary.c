@@ -79,7 +79,7 @@ fail:
  * Copy locale information from `src` to `dest`.
  */
 static bool P32CopyLcMonetaryInfoW (LcMonetaryInfo *dest, uintptr_t heap, LcMonetaryInfo *src) {
-  if (p32_private_wcsdup (&dest->CurrencyString.W, src->CurrencyString.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->CurrencyString.W, heap, src->CurrencyString.W) == -1) {
     goto fail;
   }
 
@@ -101,7 +101,7 @@ static void P32FreeLcMonetaryInfoW (LcMonetaryInfo *info, uintptr_t heap) {
  * Copy locale information from `src` to `dest`.
  */
 static bool P32CopyLcMonetaryInfoA (LcMonetaryInfo *dest, uintptr_t heap, LcMonetaryInfo *src) {
-  if (p32_private_strdup (&dest->CurrencyString.A, src->CurrencyString.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->CurrencyString.A, heap, src->CurrencyString.A) == -1) {
     goto fail;
   }
 

@@ -91,16 +91,16 @@ fail:
  * Copy locale information from `src` to `dest`.
  */
 static bool P32CopyLcMessagesInfoW (LcMessagesInfo *dest, uintptr_t heap, LcMessagesInfo *src) {
-  if (p32_private_wcsdup (&dest->NoStr.W, src->NoStr.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->NoStr.W, heap, src->NoStr.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->YesStr.W, src->YesStr.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->YesStr.W, heap, src->YesStr.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->NoExpr.W, src->NoExpr.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->NoExpr.W, heap, src->NoExpr.W) == -1) {
     goto fail;
   }
-  if (p32_private_wcsdup (&dest->YesExpr.W, src->YesExpr.W, heap) == -1) {
+  if (p32_heap_wcsdup (&dest->YesExpr.W, heap, src->YesExpr.W) == -1) {
     goto fail;
   }
 
@@ -128,16 +128,16 @@ static void P32FreeLcMessagesInfoW (LcMessagesInfo *lcMessagesInfo, uintptr_t he
  * Copy locale information from `src` to `dest`.
  */
 static bool P32CopyLcMessagesInfoA (LcMessagesInfo *dest, uintptr_t heap, LcMessagesInfo *src) {
-  if (p32_private_strdup (&dest->NoStr.A, src->NoStr.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->NoStr.A, heap, src->NoStr.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->YesStr.A, src->YesStr.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->YesStr.A, heap, src->YesStr.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->NoExpr.A, src->NoExpr.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->NoExpr.A, heap, src->NoExpr.A) == -1) {
     goto fail;
   }
-  if (p32_private_strdup (&dest->YesExpr.A, src->YesExpr.A, heap) == -1) {
+  if (p32_heap_strdup (&dest->YesExpr.A, heap, src->YesExpr.A) == -1) {
     goto fail;
   }
 
