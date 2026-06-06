@@ -73,6 +73,11 @@ typedef BOOL (WINAPI *FuncHeapLock) (HANDLE);
 typedef BOOL (WINAPI *FuncHeapUnlock) (HANDLE);
 
 /**
+ * Function type corresponding to `HeapValidate`.
+ */
+typedef BOOL (WINAPI *FuncHeapValidate) (HANDLE, DWORD, LPCVOID);
+
+/**
  * Initialization thunk for `HeapLock`.
  */
 static BOOL WINAPI P32InitHeapLock (HANDLE);
@@ -83,6 +88,11 @@ static BOOL WINAPI P32InitHeapLock (HANDLE);
 static BOOL WINAPI P32InitHeapUnlock (HANDLE);
 
 /**
+ * Initialization thunk for `HeapValidate`.
+ */
+static BOOL WINAPI P32InitHeapValidate (HANDLE, DWORD, LPCVOID);
+
+/**
  * Stub to use if `HeapLock` is not available.
  */
 static BOOL WINAPI P32HeapLock (HANDLE);
@@ -91,6 +101,11 @@ static BOOL WINAPI P32HeapLock (HANDLE);
  * Stub to use if `HeapUnlock` is not available.
  */
 static BOOL WINAPI P32HeapUnlock (HANDLE);
+
+/**
+ * Stub to use if `HeapValidate` is not available.
+ */
+static BOOL WINAPI P32HeapValidate (HANDLE, DWORD, LPCVOID);
 #endif /* P32_WINNT < Windows NT 3.5 */
 
 #if P32_WINNT < P32_WINNT_NT_3_51 || P32_WIN9X
@@ -139,8 +154,8 @@ typedef struct HeapApi {
   pthread_once_t Init;
 
   /**
-   * Functions `HeapLock` and `HeapUnlock` are available since Windows NT 3.5.
-   * These functions are always available on Windows 9x systems.
+   * Functions `HeapLock`, `HeapUnlock` and `HeapValidate are available since
+   * Windows NT 3.5. These functions are always available on Windows 9x systems.
    */
 #if P32_WINNT < P32_WINNT_NT_3_5
   /**
@@ -151,6 +166,10 @@ typedef struct HeapApi {
    * Address of `HeapUnlock`.
    */
   FuncHeapUnlock PtrHeapUnlock;
+  /**
+   * Address of `HeapValidate`.
+   */
+  FuncHeapValidate PtrHeapValidate;
 #endif /* P32_WINNT < Windows NT 3.5 */
 
 /**
@@ -183,8 +202,9 @@ static HeapApi P32HeapApi = {
   .Init = PTHREAD_ONCE_INIT,
 
 #if P32_WINNT < P32_WINNT_NT_3_5
-  .PtrHeapLock   = P32InitHeapLock,
-  .PtrHeapUnlock = P32InitHeapUnlock,
+  .PtrHeapLock     = P32InitHeapLock,
+  .PtrHeapUnlock   = P32InitHeapUnlock,
+  .PtrHeapValidate = P32InitHeapValidate,
 #endif /* P32_WINNT < Windows NT 3.5 */
 
 #if P32_WINNT < P32_WINNT_NT_3_51 || P32_WIN9X
@@ -205,10 +225,11 @@ static void P32InitHeapApi (void) {
 
 #if P32_WINNT < P32_WINNT_NT_3_5
   /**
-   * Lookup `HeapLock` and `HeapUnlock`.
+   * Lookup `HeapLock`, `HeapUnlock` and `HeapValidate`.
    */
-  FuncHeapLock   ptrHeapLock   = NULL;
-  FuncHeapUnlock ptrHeapUnlock = NULL;
+  FuncHeapLock     ptrHeapLock     = NULL;
+  FuncHeapUnlock   ptrHeapUnlock   = NULL;
+  FuncHeapValidate ptrHeapValidate = NULL;
 
   if (kernel32 != 0) {
     if (P32_PLATFORM_CHECK (P32_WINNT_NT_3_5, WindowsNt3_5, P32_WIN9X_95, Windows95)) {
@@ -216,6 +237,8 @@ static void P32InitHeapApi (void) {
       assert (ptrHeapLock != NULL);
       ptrHeapUnlock = p32_get_proc_address (kernel32, HeapUnlock);
       assert (ptrHeapUnlock != NULL);
+      ptrHeapValidate = p32_get_proc_address (kernel32, HeapValidate);
+      assert (ptrHeapValidate != NULL);
     }
   }
 
@@ -227,6 +250,12 @@ static void P32InitHeapApi (void) {
   } else {
     p32_atomic_exchange_fpointer (&P32HeapApi.PtrHeapLock, P32HeapLock);
     p32_atomic_exchange_fpointer (&P32HeapApi.PtrHeapUnlock, P32HeapUnlock);
+  }
+
+  if (ptrHeapValidate != NULL) {
+    p32_atomic_exchange_fpointer (&P32HeapApi.PtrHeapValidate, ptrHeapValidate);
+  } else {
+    p32_atomic_exchange_fpointer (&P32HeapApi.PtrHeapValidate, P32HeapValidate);
   }
 #endif /* P32_WINNT < Windows NT 3.5 */
 
@@ -273,8 +302,9 @@ static void P32InitHeapApi (void) {
 #endif /* DYNAMIC_CHECKS */
 
 #if P32_WINNT < P32_WINNT_NT_3_5
-#define HeapLock   P32HeapApi.PtrHeapLock
-#define HeapUnlock P32HeapApi.PtrHeapUnlock
+#define HeapLock     P32HeapApi.PtrHeapLock
+#define HeapUnlock   P32HeapApi.PtrHeapUnlock
+#define HeapValidate P32HeapApi.PtrHeapValidate
 
 static BOOL WINAPI P32InitHeapLock (HANDLE heapHandle) {
   pthread_once (&P32HeapApi.Init, P32InitHeapApi);
@@ -296,6 +326,30 @@ static BOOL WINAPI P32HeapUnlock (HANDLE heapHandle) {
   SetLastError (ERROR_CALL_NOT_IMPLEMENTED);
   return FALSE;
   UNREFERENCED_PARAMETER (heapHandle);
+}
+
+static BOOL WINAPI P32InitHeapValidate (HANDLE heapHandle, DWORD flags, LPCVOID memory) {
+  pthread_once (&P32HeapApi.Init, P32InitHeapApi);
+  return HeapValidate (heapHandle, flags, memory);
+}
+
+static BOOL WINAPI P32HeapValidate (HANDLE heapHandle, DWORD flags, LPCVOID memory) {
+  /**
+   * If `memory` is `NULL`, call `HeapFree` with `NULL` for memory block;
+   * it is most likely a no-op, but it may fail in case if `HeapFree` actually
+   * validates its `heapHandle` parameter.
+   */
+  if (memory == NULL) {
+    return HeapFree (heapHandle, flags & HEAP_NO_SERIALIZE, NULL);
+  }
+
+  /**
+   * Obtain size of `memory`, which must have been allocated from `heapHandle`.
+   *
+   * If it fails, then either `heapHandle` is not a valid heap handle or
+   * `memory` was not allocated from `heapHandle`.
+   */
+  return (SIZE_T) -1 != HeapSize (heapHandle, flags & HEAP_NO_SERIALIZE, memory);
 }
 #endif /* P32_WINNT < Windows NT 3.5 */
 
@@ -681,6 +735,21 @@ bool p32_heap_lock (uintptr_t heap) {
 bool p32_heap_unlock (uintptr_t heap) {
   HANDLE heapHandle = (HANDLE) heap;
   return HeapUnlock (heapHandle);
+}
+
+bool p32_heap_validate (uintptr_t heap, uint32_t flags, void *memory) {
+  /**
+   * Function `HeapValidate` is not available to UWP Applications.
+   */
+#if WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP
+  HANDLE heapHandle = (HANDLE) heap;
+  return HeapValidate (heapHandle, flags, memory);
+#else
+  return true;
+  UNREFERENCED_PARAMETER (heap);
+  UNREFERENCED_PARAMETER (flags);
+  UNREFERENCED_PARAMETER (memory);
+#endif
 }
 
 bool p32_heap_summary (uintptr_t heap, uint32_t flags, void *data) {

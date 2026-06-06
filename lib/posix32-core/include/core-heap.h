@@ -252,6 +252,14 @@ P32_CORE_DECL bool p32_heap_lock (uintptr_t heap);
 P32_CORE_DECL bool p32_heap_unlock (uintptr_t heap);
 
 /**
+ * Portability wrapper for `HeapValidate`.
+ *
+ * UWP: this function always returns `true`;
+ *  `HeapValidate` is not available to UWP Applications.
+ */
+P32_CORE_DECL bool p32_heap_validate (uintptr_t heap, uint32_t flags, void *memory);
+
+/**
  * Portability wrapper for `HeapSummary`.
  *
  * The `data` argument must point to properly initialized `HEAP_SUMMARY`
