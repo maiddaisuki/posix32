@@ -557,6 +557,13 @@ bool p32_heap_destroy (
   HANDLE heapHandle = (HANDLE) heap;
 
 #ifdef LIBPOSIX32_TEST
+#if WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP
+  if (!HeapValidate (heapHandle, 0, NULL)) {
+    P32HeapDbgErr (L"%s:%u: p32_heap_destroy: heap <%p>: heap validation has failed.\n", filename, line, heapHandle);
+    p32_terminate (L"Heap validation has failed.");
+  }
+#endif
+
   P32HeapPrintSummary (heap);
 #endif
 
@@ -641,6 +648,18 @@ void *p32_heap_realloc (
 
     buffer = HeapAlloc (heapHandle, flags, size);
   } else {
+#ifdef LIBPOSIX32_TEST
+#if WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP
+    if (!HeapValidate (heapHandle, flags & HEAP_NO_SERIALIZE, memory)) {
+      P32HeapDbgErr (
+        L"%s:%u: p32_heap_realloc: heap <%p>: failed to validate memory block <%p>.\n", filename, line, heapHandle,
+        memory
+      );
+      p32_terminate (L"Heap validation has failed.");
+    }
+#endif
+#endif
+
     buffer = HeapReAlloc (heapHandle, flags, memory, size);
 
 #ifdef LIBPOSIX32_TEST
@@ -675,6 +694,15 @@ size_t p32_heap_size (
   if (heapHandle == NULL) {
     heapHandle = GetProcessHeap ();
   }
+
+#if WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP
+  if (!HeapValidate (heapHandle, flags & HEAP_NO_SERIALIZE, memory)) {
+    P32HeapDbgErr (
+      L"%s:%u: p32_heap_size: heap <%p>: failed to validate memory block <%p>.\n", filename, line, heapHandle, memory
+    );
+    p32_terminate (L"Heap validation has failed.");
+  }
+#endif
 #endif
 
   size_t memorySize = HeapSize (heapHandle, flags, memory);
@@ -707,6 +735,15 @@ bool p32_heap_free (
   if (heapHandle == NULL) {
     heapHandle = GetProcessHeap ();
   }
+
+#if WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP
+  if (memory != NULL && !HeapValidate (heapHandle, flags & HEAP_NO_SERIALIZE, memory)) {
+    P32HeapDbgErr (
+      L"%s:%u: p32_heap_free: heap <%p>: failed to validate memory block <%p>.\n", filename, line, heapHandle, memory
+    );
+    p32_terminate (L"Heap validation has failed.");
+  }
+#endif
 #endif
 
   bool success = HeapFree (heapHandle, flags, memory);
