@@ -445,23 +445,13 @@ static void P32InitGlobalLocaleState (void) {
   /**
    * Create private heap used by Global Locale State.
    */
-  HANDLE heapHandle = HeapCreate (HEAP_GENERATE_EXCEPTIONS, 4096, 0);
+  P32GlobalLocale.Heap = p32_heap_create (
+    P32_HEAP_CREATE_LFH | P32_HEAP_CREATE_TERMINATE_ON_CORRUPTION, HEAP_GENERATE_EXCEPTIONS, 4096, 0
+  );
 
-  if (heapHandle == NULL) {
+  if (P32GlobalLocale.Heap == 0) {
     p32_terminate (L"Global Locale State: failed to create private heap.");
   }
-
-  P32GlobalLocale.Heap = (uintptr_t) heapHandle;
-
-  /**
-   * Request Low-Fragmentation Heap.
-   */
-  p32_heap_low_fragmentation (P32GlobalLocale.Heap);
-
-  /**
-   * Request termination if heap corruption has occured.
-   */
-  p32_heap_terminate_on_corruption (P32GlobalLocale.Heap);
 
   /**
    * Cache active ANSI and OEM code pages.
@@ -1052,24 +1042,21 @@ static void P32DestroyGlobalLocale (void) {
 
 static int P32DestroyGlobalLocaleState (void) {
   if (P32GlobalLocale.Heap != 0) {
-    uintptr_t heap       = P32GlobalLocale.Heap;
-    HANDLE    heapHandle = (HANDLE) heap;
-
     P32DestroyGlobalLocale ();
     P32DestroyOemLocale ();
     P32DestroyAnsiLocale ();
     P32DestroyUnicodeLocale ();
     P32DestroyPosixLocale ();
 
-    P32GlobalLocale.Heap = 0;
-
 #if defined(LIBPOSIX32_TEST)
-    p32_heap_print_summary (heap);
+    p32_heap_print_summary (P32GlobalLocale.Heap);
 #endif
 
-    if (!HeapDestroy (heapHandle)) {
+    if (!p32_heap_destroy (P32GlobalLocale.Heap)) {
       p32_terminate (L"Global Locale State: failed destroy private heap.");
     }
+
+    P32GlobalLocale.Heap = 0;
   }
 
   return 0;

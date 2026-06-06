@@ -23,6 +23,31 @@
 #include "posix32.h"
 
 /**
+ * Create low fragmentation heap.
+ */
+#define P32_HEAP_CREATE_LFH (1)
+
+/**
+ * Create heap with terminate on corruption feature enabled.
+ */
+#define P32_HEAP_CREATE_TERMINATE_ON_CORRUPTION (1 << 1)
+
+/**
+ * Wrapper for `HeapCreate`.
+ *
+ * The first argument may contain any valid combination of `P32_HEAP_CREATE_*`
+ * flags.
+ *
+ * The remaining arguments are equivalent to those of `HeapCreate`.
+ */
+P32_CORE_DECL uintptr_t p32_heap_create (uint32_t createFlags, uint32_t flags, size_t initialSize, size_t maxSize);
+
+/**
+ * Wrapper for `HeapDestroy`.
+ */
+P32_CORE_DECL bool p32_heap_destroy (uintptr_t heap);
+
+/**
  * Portability wrapper for `HeapLock`.
  */
 P32_CORE_DECL bool p32_heap_lock (uintptr_t heap);

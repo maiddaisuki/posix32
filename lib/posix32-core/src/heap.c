@@ -363,6 +363,49 @@ static BOOL WINAPI P32HeapSetInformation (HANDLE heap, HEAP_INFORMATION_CLASS in
 
 #endif
 
+uintptr_t p32_heap_create (uint32_t createFlags, uint32_t flags, size_t initialSize, size_t maxSize) {
+  /**
+   * Low Fragmentation Heap and `HEAP_NO_SERIALIZE` are not compatible.
+   *
+   * Normally, if you create a heap with `HEAP_NO_SERIALIZE` flag,
+   * you would just be unable to enable Low Fragmentation Heap afterwards.
+   *
+   * However, we fail completely to signal an inconsistency.
+   */
+  if ((createFlags & P32_HEAP_CREATE_LFH) && (flags & HEAP_NO_SERIALIZE)) {
+    return 0;
+  }
+
+  HANDLE heapHandle = HeapCreate (flags, initialSize, maxSize);
+
+  if (heapHandle == NULL) {
+    return 0;
+  }
+
+  uintptr_t heap = (uintptr_t) heapHandle;
+
+  /**
+   * Enable Low Fragmentation Heap if requested.
+   */
+  if (createFlags & P32_HEAP_CREATE_LFH) {
+    p32_heap_low_fragmentation (heap);
+  }
+
+  /**
+   * Enable Terminate on Corruption feature if requested.
+   */
+  if (createFlags & P32_HEAP_CREATE_TERMINATE_ON_CORRUPTION) {
+    p32_heap_terminate_on_corruption (heap);
+  }
+
+  return heap;
+}
+
+bool p32_heap_destroy (uintptr_t heap) {
+  HANDLE heapHandle = (HANDLE) heap;
+  return HeapDestroy (heapHandle);
+}
+
 bool p32_heap_lock (uintptr_t heap) {
   HANDLE heapHandle = (HANDLE) heap;
   return HeapLock (heapHandle);

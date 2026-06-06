@@ -127,24 +127,18 @@ static uint32_t P32TlsIndex (void) {
  * Initialize current thread's TLS.
  */
 static ThreadStorage *P32InitTls (uint32_t tlsIndex) {
-  HANDLE heapHandle = HeapCreate (HEAP_GENERATE_EXCEPTIONS, 4096, 0);
+  /**
+   * Create thread's private heap.
+   */
+  uintptr_t heap = p32_heap_create (
+    P32_HEAP_CREATE_LFH | P32_HEAP_CREATE_TERMINATE_ON_CORRUPTION, HEAP_GENERATE_EXCEPTIONS, 4096, 0
+  );
 
-  if (heapHandle == NULL) {
-    _RPTW0 (_CRT_ERROR, L"TLS: failed to create private heap.\n");
+  if (heap == 0) {
     return NULL;
   }
 
-  uintptr_t heap = (uintptr_t) heapHandle;
-
-  /**
-   * Request Low-Fragmentation Heap.
-   */
-  p32_heap_low_fragmentation (heap);
-
-  /**
-   * Request termination if heap corruption has occured.
-   */
-  p32_heap_terminate_on_corruption (heap);
+  HANDLE heapHandle = (HANDLE) heap;
 
   /**
    * TODO: is there any performance gain from calling `HeapLock`?
@@ -194,7 +188,7 @@ static void P32FreeTls (ThreadStorage *tls, uint32_t tlsIndex) {
    */
   p32_heap_unlock (heap);
 
-  if (!HeapDestroy (heapHandle)) {
+  if (!p32_heap_destroy (heap)) {
     p32_terminate (L"TLS: failed to destroy private heap.");
   }
 
