@@ -550,8 +550,6 @@ locale_t p32_posix_locale (void) {
 static void P32InitUnicodeLocale (void) {
   pthread_once (&P32GlobalLocale.StateInit, P32InitGlobalLocaleState);
 
-  HANDLE heapHandle = (HANDLE) P32GlobalLocale.Heap;
-
   Locale   locale       = {0};
   wchar_t *localeString = NULL;
 
@@ -567,7 +565,7 @@ static void P32InitUnicodeLocale (void) {
 
     P32GlobalLocale.UnicodeLocale = P32NewLocale (LC_ALL_MASK, localeString, NULL, P32GlobalLocale.Heap, 0);
 
-    HeapFree (heapHandle, 0, localeString);
+    p32_heap_free (P32GlobalLocale.Heap, 0, localeString);
 
     if (P32GlobalLocale.UnicodeLocale != NULL) {
       goto done;
@@ -586,7 +584,7 @@ static void P32InitUnicodeLocale (void) {
 
     P32GlobalLocale.UnicodeLocale = P32NewLocale (LC_ALL_MASK, localeString, NULL, P32GlobalLocale.Heap, 0);
 
-    HeapFree (heapHandle, 0, localeString);
+    p32_heap_free (P32GlobalLocale.Heap, 0, localeString);
 
     if (P32GlobalLocale.UnicodeLocale != NULL) {
       goto done;
@@ -644,8 +642,6 @@ static void P32InitAnsiLocale (void) {
     goto done;
   }
 
-  HANDLE heapHandle = (HANDLE) P32GlobalLocale.Heap;
-
   Locale   locale       = {0};
   wchar_t *localeString = NULL;
 
@@ -661,7 +657,7 @@ static void P32InitAnsiLocale (void) {
 
     P32GlobalLocale.AnsiLocale = P32NewLocale (LC_ALL_MASK, localeString, NULL, P32GlobalLocale.Heap, 0);
 
-    HeapFree (heapHandle, 0, localeString);
+    p32_heap_free (P32GlobalLocale.Heap, 0, localeString);
 
     if (P32GlobalLocale.AnsiLocale != NULL) {
       goto done;
@@ -680,7 +676,7 @@ static void P32InitAnsiLocale (void) {
 
     P32GlobalLocale.AnsiLocale = P32NewLocale (LC_ALL_MASK, localeString, NULL, P32GlobalLocale.Heap, 0);
 
-    HeapFree (heapHandle, 0, localeString);
+    p32_heap_free (P32GlobalLocale.Heap, 0, localeString);
 
     if (P32GlobalLocale.AnsiLocale != NULL) {
       goto done;
@@ -698,7 +694,7 @@ static void P32InitAnsiLocale (void) {
 
   P32GlobalLocale.AnsiLocale = P32NewLocale (LC_ALL_MASK, localeString, NULL, P32GlobalLocale.Heap, 0);
 
-  HeapFree (heapHandle, 0, localeString);
+  p32_heap_free (P32GlobalLocale.Heap, 0, localeString);
 
   if (P32GlobalLocale.AnsiLocale == NULL) {
     p32_terminate (L"ANSI Locale: initialization has failed.");
@@ -772,8 +768,6 @@ static void P32InitOemLocale (void) {
     goto done;
   }
 
-  HANDLE heapHandle = (HANDLE) P32GlobalLocale.Heap;
-
   Locale   locale       = {0};
   wchar_t *localeString = NULL;
 
@@ -789,7 +783,7 @@ static void P32InitOemLocale (void) {
 
     P32GlobalLocale.OemLocale = P32NewLocale (LC_ALL_MASK, localeString, NULL, P32GlobalLocale.Heap, 0);
 
-    HeapFree (heapHandle, 0, localeString);
+    p32_heap_free (P32GlobalLocale.Heap, 0, localeString);
 
     if (P32GlobalLocale.OemLocale != NULL) {
       goto done;
@@ -808,7 +802,7 @@ static void P32InitOemLocale (void) {
 
     P32GlobalLocale.OemLocale = P32NewLocale (LC_ALL_MASK, localeString, NULL, P32GlobalLocale.Heap, 0);
 
-    HeapFree (heapHandle, 0, localeString);
+    p32_heap_free (P32GlobalLocale.Heap, 0, localeString);
 
     if (P32GlobalLocale.OemLocale != NULL) {
       goto done;
@@ -826,7 +820,7 @@ static void P32InitOemLocale (void) {
 
   P32GlobalLocale.OemLocale = P32NewLocale (LC_ALL_MASK, localeString, NULL, P32GlobalLocale.Heap, 0);
 
-  HeapFree (heapHandle, 0, localeString);
+  p32_heap_free (P32GlobalLocale.Heap, 0, localeString);
 
   if (P32GlobalLocale.OemLocale == NULL) {
     p32_terminate (L"OEM Locale: initialization has failed.");
@@ -892,9 +886,6 @@ locale_t p32_fileapi_locale (void) {
  */
 static void P32InitGlobalLocale (void) {
   pthread_once (&P32GlobalLocale.PosixInit, P32InitPosixLocale);
-
-  assert (P32GlobalLocale.Heap != 0);
-  HANDLE heapHandle = (HANDLE) P32GlobalLocale.Heap;
 
   if (pthread_rwlock_init (&P32GlobalLocale.GlobalLock, NULL) != 0) {
     p32_terminate (L"Global Locale: failed to initialize pthread_rwlock_t object.");
@@ -991,7 +982,7 @@ static void P32InitGlobalLocale (void) {
     p32_terminate (L"Global Locale: initialization has failed.");
   }
 
-  HeapFree (heapHandle, 0, globalLocale);
+  p32_heap_free (P32GlobalLocale.Heap, 0, globalLocale);
 
 #if P32_CRT >= P32_MSVCR80
   if (!P32RestoreThreadLocaleState (&state)) {
@@ -1009,7 +1000,7 @@ static void P32InitGlobalLocale (void) {
       p32_terminate (L"Thread Locale: failed to restore previous locale.");
     }
 
-    HeapFree (heapHandle, 0, threadLocale);
+    p32_heap_free (P32GlobalLocale.Heap, 0, threadLocale);
   }
 #endif
 
@@ -1109,12 +1100,10 @@ struct ThreadLocale {
  * Initialize Thread Locale structure in TLS.
  */
 static bool P32InitThreadLocale (ThreadStorage *tls) {
-  HANDLE heapHandle = (HANDLE) tls->Heap;
-
   /**
    * Allocate structure for Thread Locale.
    */
-  ThreadLocale *threadLocale = (ThreadLocale *) HeapAlloc (heapHandle, 0, sizeof (ThreadLocale));
+  ThreadLocale *threadLocale = p32_heap_alloc (tls->Heap, 0, sizeof (ThreadLocale));
 
   if (threadLocale == NULL) {
     _set_errno (ENOMEM);
@@ -1139,12 +1128,10 @@ static P32_NOINLINE void P32InitThreadLocaleUnsafe (ThreadStorage *tls) {
    */
   P32GlobalLocale.PtrGetPosixLocale ();
 
-  HANDLE heapHandle = (HANDLE) tls->Heap;
-
   /**
    * Allocate structure for Thread Locale.
    */
-  ThreadLocale *threadLocale = (ThreadLocale *) HeapAlloc (heapHandle, 0, sizeof (ThreadLocale));
+  ThreadLocale *threadLocale = p32_heap_alloc (tls->Heap, 0, sizeof (ThreadLocale));
 
   if (threadLocale == NULL) {
     p32_terminate (L"TLS: failed to allocate storage for thread locale.");
@@ -1184,8 +1171,6 @@ static P32_NOINLINE void P32InitThreadLocaleUnsafe (ThreadStorage *tls) {
  * Destroy Thread Locale stored in `tls`.
  */
 static void P32DestroyThreadLocale (ThreadStorage *tls) {
-  HANDLE heapHandle = (HANDLE) tls->Heap;
-
   /**
    * No need to free Thread Locale.
    */
@@ -1198,7 +1183,7 @@ static void P32DestroyThreadLocale (ThreadStorage *tls) {
     P32FreeLocale (tls->ThreadLocale->Locale, tls->Heap);
   }
 
-  if (!HeapFree (heapHandle, 0, tls->ThreadLocale)) {
+  if (!p32_heap_free (tls->Heap, 0, tls->ThreadLocale)) {
     p32_terminate (L"TLS: failed to deallocate storage for thread locale.");
   }
 
@@ -2204,8 +2189,6 @@ static locale_t P32UseGlobalLocale (ThreadStorage *tls, ThreadLocaleState *threa
  * Free `locale_t` object `locale`.
  */
 static void P32FreeLocale (locale_t locale, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   /**
    * Invalidate locale_t object.
    */
@@ -2241,16 +2224,17 @@ static void P32FreeLocale (locale_t locale, uintptr_t heap) {
   p32_localeinfo_numeric_free (&locale->LocaleInfo.LcNumeric, heap);
   p32_localeinfo_time_free (&locale->LocaleInfo.LcTime, heap);
 
-  HeapFree (heapHandle, 0, locale);
+  p32_heap_free (heap, 0, locale);
 }
 
 /**
  * Create copy of `locale_t` object `locale`.
  */
 static locale_t P32DupLocale (locale_t locale, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
-  locale_t newLocale = (locale_t) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, sizeof (p32_locale_t));
+  /**
+   * Allocate memory for new `locale_t` object.
+   */
+  locale_t newLocale = p32_heap_alloc (heap, HEAP_ZERO_MEMORY, sizeof (p32_locale_t));
 
   if (newLocale == NULL) {
     _set_errno (ENOMEM);
@@ -2327,12 +2311,10 @@ fail:
  * Create new `locale_t` object.
  */
 static locale_t P32NewLocale (int mask, const wchar_t *localeString, locale_t base, uintptr_t heap, int flags) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   /**
    * Allocate memory for new `locale_t` object.
    */
-  locale_t locale = (locale_t) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, sizeof (p32_locale_t));
+  locale_t locale = p32_heap_alloc (heap, HEAP_ZERO_MEMORY, sizeof (p32_locale_t));
 
   if (locale == NULL) {
     _set_errno (ENOMEM);
@@ -2531,7 +2513,7 @@ fail_free_locale_strings:
   p32_localestr_free (&localeStrings, heap);
 
 fail:
-  HeapFree (heapHandle, 0, locale);
+  p32_heap_free (heap, 0, locale);
 
   return NULL;
 }
@@ -2590,8 +2572,7 @@ char *p32_setlocale (int category, const char *localeString) {
     p32_terminate (L"Global Locale: failed to obtain write lock.");
   }
 
-  uintptr_t heap       = P32GlobalLocale.Heap;
-  HANDLE    heapHandle = (HANDLE) heap;
+  uintptr_t heap = P32GlobalLocale.Heap;
 
   /**
    * Return value.
@@ -2646,7 +2627,7 @@ char *p32_setlocale (int category, const char *localeString) {
 
     locale = P32NewLocale (mask, localeStringW, P32GlobalLocale.GlobalLocale, heap, NEWLOCALE_GLOBAL);
 
-    HeapFree (heapHandle, 0, localeStringW);
+    p32_heap_free (heap, 0, localeStringW);
   }
 
   if (locale == NULL) {
@@ -2816,7 +2797,7 @@ locale_t p32_newlocale (int mask, const char *localeString, locale_t base) {
     P32FreeLocale (base, heap);
   }
 
-  HeapFree (heapHandle, 0, localeStringW);
+  p32_heap_free (heap, 0, localeStringW);
 
   return locale;
 }

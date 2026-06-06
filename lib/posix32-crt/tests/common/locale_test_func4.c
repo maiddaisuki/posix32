@@ -81,8 +81,8 @@ static bool P32LocaleTestFunc4 (uint32_t codePage, void *localeTestFuncData) {
     p32_freelocale (locale);
   }
 
-  assert (HeapFree (data->HeapHandle, 0, localeStringA));
-  assert (HeapFree (data->HeapHandle, 0, localeStringW));
+  assert (p32_heap_free (data->Heap, 0, localeStringA));
+  assert (p32_heap_free (data->Heap, 0, localeStringW));
 
   return keep_going;
 }

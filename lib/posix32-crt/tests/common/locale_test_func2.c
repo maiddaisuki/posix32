@@ -106,7 +106,7 @@ static bool P32LocaleTestFunc2 (Locale *locale, void *localeTestFuncData) {
       p32_freelocale (testLocale);
     }
 
-    assert (HeapFree (data->HeapHandle, 0, testLocaleString));
+    assert (p32_heap_free (data->Heap, 0, testLocaleString));
   }
 
   if (!keep_going || (flagOnce && tested)) {
@@ -143,7 +143,7 @@ static bool P32LocaleTestFunc2 (Locale *locale, void *localeTestFuncData) {
       p32_freelocale (testLocale);
     }
 
-    assert (HeapFree (data->HeapHandle, 0, testLocaleString));
+    assert (p32_heap_free (data->Heap, 0, testLocaleString));
   }
 
   if (!keep_going || (flagOnce && tested)) {
@@ -180,7 +180,7 @@ static bool P32LocaleTestFunc2 (Locale *locale, void *localeTestFuncData) {
       p32_freelocale (testLocale);
     }
 
-    assert (HeapFree (data->HeapHandle, 0, testLocaleString));
+    assert (p32_heap_free (data->Heap, 0, testLocaleString));
   }
 
   if (!keep_going || (flagOnce && tested)) {

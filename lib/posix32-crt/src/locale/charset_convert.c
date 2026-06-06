@@ -28,6 +28,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-heap.h"
 #include "core-norm.h"
 
 #include "locale-internal.h"
@@ -149,8 +150,6 @@ static INT P32MultiByteToWideChar (LPWSTR buffer, INT bufferSize, LPCSTR mbs, Ch
  * information about the cause.
  */
 static int P32MbsToWcsFallback (CharsetConversionRequest *request, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   int      bufferSize = 0;
   wchar_t *buffer     = NULL;
 
@@ -164,7 +163,7 @@ static int P32MbsToWcsFallback (CharsetConversionRequest *request, uintptr_t hea
   if (request->Flags & P32_CHARSET_CONVERSION_MALLOC) {
     buffer = malloc (bufferSize * sizeof (wchar_t));
   } else {
-    buffer = HeapAlloc (heapHandle, 0, bufferSize * sizeof (wchar_t));
+    buffer = p32_heap_alloc (heap, 0, bufferSize * sizeof (wchar_t));
   }
 
   if (buffer == NULL) {
@@ -189,7 +188,7 @@ fail_free:
   if (request->Flags & P32_CHARSET_CONVERSION_MALLOC) {
     free (buffer);
   } else {
-    HeapFree (heapHandle, 0, buffer);
+    p32_heap_free (heap, 0, buffer);
   }
 
 fail:
@@ -206,8 +205,6 @@ fail:
  * information about the cause.
  */
 static int P32MbsToWcs (CharsetConversionRequest *request, uintptr_t heap, MbsToWcsFunc func) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   /**
    * Since `func` may set `errno` on failure, save current `errno` value
    * and restore it on failure.
@@ -246,7 +243,7 @@ static int P32MbsToWcs (CharsetConversionRequest *request, uintptr_t heap, MbsTo
   if (request->Flags & P32_CHARSET_CONVERSION_MALLOC) {
     buffer = malloc (bufferSize * sizeof (wchar_t));
   } else {
-    buffer = HeapAlloc (heapHandle, 0, bufferSize * sizeof (wchar_t));
+    buffer = p32_heap_alloc (heap, 0, bufferSize * sizeof (wchar_t));
   }
 
   if (buffer == NULL) {
@@ -271,7 +268,7 @@ fail_free:
   if (request->Flags & P32_CHARSET_CONVERSION_MALLOC) {
     free (buffer);
   } else {
-    HeapFree (heapHandle, 0, buffer);
+    p32_heap_free (heap, 0, buffer);
   }
 
 fail:
@@ -290,8 +287,6 @@ fail:
  * information about the cause.
  */
 static int P32MbsToWcsMain (CharsetConversionRequest *request, uintptr_t heap, Charset *charset) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   /**
    * If we implement conversion function for `charset->CodePage`, this is the
    * pointer to that function.
@@ -386,7 +381,7 @@ fail_free:
     if (request->Flags & P32_CHARSET_CONVERSION_MALLOC) {
       free (convState.Buffer);
     } else {
-      HeapFree (heapHandle, 0, convState.Buffer);
+      p32_heap_free (heap, 0, convState.Buffer);
     }
   }
 
@@ -461,8 +456,6 @@ static INT P32WideCharToMultiByte (LPSTR buffer, INT bufferSize, LPCWSTR wcs, Ch
  * information about the cause.
  */
 static int P32WcsToMbsFallback (CharsetConversionRequest *request, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   char *buffer     = NULL;
   int   bufferSize = 0;
 
@@ -476,7 +469,7 @@ static int P32WcsToMbsFallback (CharsetConversionRequest *request, uintptr_t hea
   if (request->Flags & P32_CHARSET_CONVERSION_MALLOC) {
     buffer = malloc (bufferSize * sizeof (char));
   } else {
-    buffer = HeapAlloc (heapHandle, 0, bufferSize * sizeof (char));
+    buffer = p32_heap_alloc (heap, 0, bufferSize * sizeof (char));
   }
 
   if (buffer == NULL) {
@@ -501,7 +494,7 @@ fail_free:
   if (request->Flags & P32_CHARSET_CONVERSION_MALLOC) {
     free (buffer);
   } else {
-    HeapFree (heapHandle, 0, buffer);
+    p32_heap_free (heap, 0, buffer);
   }
 
 fail:
@@ -518,8 +511,6 @@ fail:
  * information about the cause.
  */
 static int P32WcsToMbs (CharsetConversionRequest *request, uintptr_t heap, WcsToMbsFunc func) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   /**
    * Since `func` may set `errno` on failure, save current `errno` value
    * and restore it on failure.
@@ -558,7 +549,7 @@ static int P32WcsToMbs (CharsetConversionRequest *request, uintptr_t heap, WcsTo
   if (request->Flags & P32_CHARSET_CONVERSION_MALLOC) {
     buffer = malloc (bufferSize * sizeof (char));
   } else {
-    buffer = HeapAlloc (heapHandle, 0, bufferSize * sizeof (char));
+    buffer = p32_heap_alloc (heap, 0, bufferSize * sizeof (char));
   }
 
   if (buffer == NULL) {
@@ -583,7 +574,7 @@ fail_free:
   if (request->Flags & P32_CHARSET_CONVERSION_MALLOC) {
     free (buffer);
   } else {
-    HeapFree (heapHandle, 0, buffer);
+    p32_heap_free (heap, 0, buffer);
   }
 
 fail:
@@ -627,8 +618,6 @@ cleanup:
  * Convert wide character string with normalization.
  */
 static void P32WcsToMbsNorm (ConversionState *convState, uintptr_t heap, WcsToMbsFunc func) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   /**
    * Prepare `convState->NormRequest`.
    */
@@ -705,7 +694,7 @@ cleanup_conv:
     if (convState->NormRequest.Flags & P32_NORMALIZATION_REQUEST_MALLOC) {
       free (convState->Buffer);
     } else {
-      HeapFree (heapHandle, 0, convState->Buffer);
+      p32_heap_free (heap, 0, convState->Buffer);
     }
 
     convState->Buffer = NULL;

@@ -26,6 +26,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-heap.h"
+
 #include "locale-internal.h"
 
 /**
@@ -87,8 +89,6 @@ static int P32AswprintfFormatString (wchar_t *buffer, size_t bufferSize, const w
  * Internal implementation of `p32_private_aswprintf`.
  */
 static int P32Aswprintf (wchar_t **address, uintptr_t heap, const wchar_t *format, va_list list) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   wchar_t *buffer     = NULL;
   int      bufferSize = 0;
 
@@ -99,7 +99,7 @@ static int P32Aswprintf (wchar_t **address, uintptr_t heap, const wchar_t *forma
   }
 
   bufferSize += 1;
-  buffer      = (wchar_t *) HeapAlloc (heapHandle, 0, bufferSize * sizeof (wchar_t));
+  buffer      = p32_heap_alloc (heap, 0, bufferSize * sizeof (wchar_t));
 
   if (buffer == NULL) {
     goto fail;
@@ -116,15 +116,13 @@ static int P32Aswprintf (wchar_t **address, uintptr_t heap, const wchar_t *forma
   return written;
 
 fail_free:
-  HeapFree (heapHandle, 0, buffer);
+  p32_heap_free (heap, 0, buffer);
 
 fail:
   return -1;
 }
 
 int p32_private_asprintf (char **address, uintptr_t heap, const wchar_t *format, ...) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   va_list va;
   va_start (va, format);
 
@@ -157,7 +155,7 @@ int p32_private_asprintf (char **address, uintptr_t heap, const wchar_t *format,
   *address = str;
 
 fail_free:
-  HeapFree (heapHandle, 0, wcs);
+  p32_heap_free (heap, 0, wcs);
 
 fail:
   va_end (va);

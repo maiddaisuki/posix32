@@ -452,6 +452,73 @@ bool p32_heap_destroy (uintptr_t heap) {
   return HeapDestroy (heapHandle);
 }
 
+void *p32_heap_alloc (uintptr_t heap, uint32_t flags, size_t size) {
+  HANDLE heapHandle = (HANDLE) heap;
+
+#ifdef LIBPOSIX32_TEST
+  if (heapHandle == NULL) {
+    heapHandle = GetProcessHeap ();
+  }
+#endif
+
+  return HeapAlloc (heapHandle, flags, size);
+}
+
+void *p32_heap_realloc (uintptr_t heap, uint32_t flags, void *memory, size_t size) {
+  HANDLE heapHandle = (HANDLE) heap;
+
+#ifdef LIBPOSIX32_TEST
+  if (heapHandle == NULL) {
+    heapHandle = GetProcessHeap ();
+  }
+#endif
+
+  void *buffer = NULL;
+
+  /**
+   * Microsoft documentation does not mention whether `HeapReAlloc` supports
+   * supplying `NULL` for memory block to reallocate.
+   *
+   * In order to provide interface similar to `realloc`, call `HeapAlloc`
+   * to allocate memory when `memory` is `NULL`.
+   */
+  if (memory == NULL) {
+    if (flags & (HEAP_REALLOC_IN_PLACE_ONLY)) {
+      return NULL;
+    }
+
+    buffer = HeapAlloc (heapHandle, flags, size);
+  } else {
+    buffer = HeapReAlloc (heapHandle, flags, memory, size);
+  }
+
+  return buffer;
+}
+
+size_t p32_heap_size (uintptr_t heap, uint32_t flags, void *memory) {
+  HANDLE heapHandle = (HANDLE) heap;
+
+#ifdef LIBPOSIX32_TEST
+  if (heapHandle == NULL) {
+    heapHandle = GetProcessHeap ();
+  }
+#endif
+
+  return HeapSize (heapHandle, flags, memory);
+}
+
+bool p32_heap_free (uintptr_t heap, uint32_t flags, void *memory) {
+  HANDLE heapHandle = (HANDLE) heap;
+
+#ifdef LIBPOSIX32_TEST
+  if (heapHandle == NULL) {
+    heapHandle = GetProcessHeap ();
+  }
+#endif
+
+  return HeapFree (heapHandle, flags, memory);
+}
+
 bool p32_heap_lock (uintptr_t heap) {
   HANDLE heapHandle = (HANDLE) heap;
   return HeapLock (heapHandle);

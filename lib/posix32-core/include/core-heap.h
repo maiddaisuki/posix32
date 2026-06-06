@@ -51,6 +51,42 @@ P32_CORE_DECL uintptr_t p32_heap_create (uint32_t createFlags, uint32_t flags, s
 P32_CORE_DECL bool p32_heap_destroy (uintptr_t heap);
 
 /**
+ * Wrapper for `HeapAlloc`.
+ *
+ * In the test version of the library, `heap` can be zero;
+ * in this case the process heap (`GetProcessHeap`) is used.
+ */
+P32_CORE_DECL void *p32_heap_alloc (uintptr_t heap, uint32_t flags, size_t size);
+
+/**
+ * Wrapper for `HeapReAlloc`.
+ *
+ * In the test version of the library, `heap` can be zero;
+ * in this case the process heap (`GetProcessHeap`) is used.
+ *
+ * If `memory` is `NULL` and `flags` does not contain
+ * `HEAP_REALLOC_IN_PLACE_ONLY`, this function calls `HeapAlloc` to allocate
+ * `size` bytes of memory from `heap`.
+ */
+P32_CORE_DECL void *p32_heap_realloc (uintptr_t heap, uint32_t flags, void *memory, size_t size);
+
+/**
+ * Wrapper for `HeapSize`.
+ *
+ * In the test version of the library, `heap` can be zero;
+ * in this case the process heap (`GetProcessHeap`) is used.
+ */
+P32_CORE_DECL size_t p32_heap_size (uintptr_t heap, uint32_t flags, void *memory);
+
+/**
+ * Wrapper for `HeapFree`.
+ *
+ * In the test version of the library, `heap` can be zero;
+ * in this case the process heap (`GetProcessHeap`) is used.
+ */
+P32_CORE_DECL bool p32_heap_free (uintptr_t heap, uint32_t flags, void *memory);
+
+/**
  * Portability wrapper for `HeapLock`.
  */
 P32_CORE_DECL bool p32_heap_lock (uintptr_t heap);

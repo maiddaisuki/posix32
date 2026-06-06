@@ -31,6 +31,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-heap.h"
+
 #include "locale-internal.h"
 #include "time-internal.h"
 
@@ -424,195 +426,102 @@ fail:
  * Free calendar information stored in `info`.
  */
 static void P32FreeCalendarInfoW (CalendarInfo *info, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
-  if (info->DateFormat.Format != NULL) {
-    HeapFree (heapHandle, 0, info->DateFormat.Format);
-    info->DateFormat.Format = NULL;
-  }
-
-  if (info->DateFormat.Crt.W != NULL) {
-    HeapFree (heapHandle, 0, info->DateFormat.Crt.W);
-    info->DateFormat.Crt.W = NULL;
-  }
-  if (info->DateTimeFormat.W != NULL) {
-    HeapFree (heapHandle, 0, info->DateTimeFormat.W);
-    info->DateTimeFormat.W = NULL;
-  }
+  p32_heap_free (heap, 0, info->DateFormat.Format);
+  info->DateFormat.Format = NULL;
+  p32_heap_free (heap, 0, info->DateFormat.Crt.W);
+  info->DateFormat.Crt.W = NULL;
+  p32_heap_free (heap, 0, info->DateTimeFormat.W);
+  info->DateTimeFormat.W = NULL;
 
   info->Era.Offset = 0;
-  if (info->Era.Name.W != NULL) {
-    HeapFree (heapHandle, 0, info->Era.Name.W);
-    info->Era.Name.W = NULL;
-  }
-  if (info->Era.String != NULL) {
-    HeapFree (heapHandle, 0, info->Era.String);
-    info->Era.String = NULL;
-  }
+  p32_heap_free (heap, 0, info->Era.Name.W);
+  info->Era.Name.W = NULL;
+  p32_heap_free (heap, 0, info->Era.String);
+  info->Era.String = NULL;
 
-  if (info->DayNames.Full.Day1.W != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Full.Day1.W);
-    info->DayNames.Full.Day1.W = NULL;
-  }
-  if (info->DayNames.Full.Day2.W != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Full.Day2.W);
-    info->DayNames.Full.Day2.W = NULL;
-  }
-  if (info->DayNames.Full.Day3.W != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Full.Day3.W);
-    info->DayNames.Full.Day3.W = NULL;
-  }
-  if (info->DayNames.Full.Day4.W != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Full.Day4.W);
-    info->DayNames.Full.Day4.W = NULL;
-  }
-  if (info->DayNames.Full.Day5.W != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Full.Day5.W);
-    info->DayNames.Full.Day5.W = NULL;
-  }
-  if (info->DayNames.Full.Day6.W != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Full.Day6.W);
-    info->DayNames.Full.Day6.W = NULL;
-  }
-  if (info->DayNames.Full.Day7.W != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Full.Day7.W);
-    info->DayNames.Full.Day7.W = NULL;
-  }
+  p32_heap_free (heap, 0, info->DayNames.Full.Day1.W);
+  info->DayNames.Full.Day1.W = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Full.Day2.W);
+  info->DayNames.Full.Day2.W = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Full.Day3.W);
+  info->DayNames.Full.Day3.W = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Full.Day4.W);
+  info->DayNames.Full.Day4.W = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Full.Day5.W);
+  info->DayNames.Full.Day5.W = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Full.Day6.W);
+  info->DayNames.Full.Day6.W = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Full.Day7.W);
+  info->DayNames.Full.Day7.W = NULL;
 
-  if (info->DayNames.Abbr.Day1.W != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Abbr.Day1.W);
-    info->DayNames.Abbr.Day1.W = NULL;
-  }
-  if (info->DayNames.Abbr.Day2.W != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Abbr.Day2.W);
-    info->DayNames.Abbr.Day2.W = NULL;
-  }
-  if (info->DayNames.Abbr.Day3.W != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Abbr.Day3.W);
-    info->DayNames.Abbr.Day3.W = NULL;
-  }
-  if (info->DayNames.Abbr.Day4.W != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Abbr.Day4.W);
-    info->DayNames.Abbr.Day4.W = NULL;
-  }
-  if (info->DayNames.Abbr.Day5.W != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Abbr.Day5.W);
-    info->DayNames.Abbr.Day5.W = NULL;
-  }
-  if (info->DayNames.Abbr.Day6.W != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Abbr.Day6.W);
-    info->DayNames.Abbr.Day6.W = NULL;
-  }
-  if (info->DayNames.Abbr.Day7.W != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Abbr.Day7.W);
-    info->DayNames.Abbr.Day7.W = NULL;
-  }
+  p32_heap_free (heap, 0, info->DayNames.Abbr.Day1.W);
+  info->DayNames.Abbr.Day1.W = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Abbr.Day2.W);
+  info->DayNames.Abbr.Day2.W = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Abbr.Day3.W);
+  info->DayNames.Abbr.Day3.W = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Abbr.Day4.W);
+  info->DayNames.Abbr.Day4.W = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Abbr.Day5.W);
+  info->DayNames.Abbr.Day5.W = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Abbr.Day6.W);
+  info->DayNames.Abbr.Day6.W = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Abbr.Day7.W);
+  info->DayNames.Abbr.Day7.W = NULL;
 
-  if (info->MonthNames.Full.Mon1.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon1.W);
-    info->MonthNames.Full.Mon1.W = NULL;
-  }
-  if (info->MonthNames.Full.Mon2.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon2.W);
-    info->MonthNames.Full.Mon2.W = NULL;
-  }
-  if (info->MonthNames.Full.Mon3.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon3.W);
-    info->MonthNames.Full.Mon3.W = NULL;
-  }
-  if (info->MonthNames.Full.Mon4.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon4.W);
-    info->MonthNames.Full.Mon4.W = NULL;
-  }
-  if (info->MonthNames.Full.Mon5.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon5.W);
-    info->MonthNames.Full.Mon5.W = NULL;
-  }
-  if (info->MonthNames.Full.Mon6.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon6.W);
-    info->MonthNames.Full.Mon6.W = NULL;
-  }
-  if (info->MonthNames.Full.Mon7.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon7.W);
-    info->MonthNames.Full.Mon7.W = NULL;
-  }
-  if (info->MonthNames.Full.Mon8.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon8.W);
-    info->MonthNames.Full.Mon8.W = NULL;
-  }
-  if (info->MonthNames.Full.Mon9.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon9.W);
-    info->MonthNames.Full.Mon9.W = NULL;
-  }
-  if (info->MonthNames.Full.Mon10.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon10.W);
-    info->MonthNames.Full.Mon10.W = NULL;
-  }
-  if (info->MonthNames.Full.Mon11.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon11.W);
-    info->MonthNames.Full.Mon11.W = NULL;
-  }
-  if (info->MonthNames.Full.Mon12.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon12.W);
-    info->MonthNames.Full.Mon12.W = NULL;
-  }
-  if (info->MonthNames.Full.Mon13.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon13.W);
-    info->MonthNames.Full.Mon13.W = NULL;
-  }
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon1.W);
+  info->MonthNames.Full.Mon1.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon2.W);
+  info->MonthNames.Full.Mon2.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon3.W);
+  info->MonthNames.Full.Mon3.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon4.W);
+  info->MonthNames.Full.Mon4.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon5.W);
+  info->MonthNames.Full.Mon5.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon6.W);
+  info->MonthNames.Full.Mon6.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon7.W);
+  info->MonthNames.Full.Mon7.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon8.W);
+  info->MonthNames.Full.Mon8.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon9.W);
+  info->MonthNames.Full.Mon9.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon10.W);
+  info->MonthNames.Full.Mon10.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon11.W);
+  info->MonthNames.Full.Mon11.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon12.W);
+  info->MonthNames.Full.Mon12.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon13.W);
+  info->MonthNames.Full.Mon13.W = NULL;
 
-  if (info->MonthNames.Abbr.Mon1.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon1.W);
-    info->MonthNames.Abbr.Mon1.W = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon2.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon2.W);
-    info->MonthNames.Abbr.Mon2.W = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon3.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon3.W);
-    info->MonthNames.Abbr.Mon3.W = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon4.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon4.W);
-    info->MonthNames.Abbr.Mon4.W = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon5.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon5.W);
-    info->MonthNames.Abbr.Mon5.W = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon6.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon6.W);
-    info->MonthNames.Abbr.Mon6.W = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon7.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon7.W);
-    info->MonthNames.Abbr.Mon7.W = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon8.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon8.W);
-    info->MonthNames.Abbr.Mon8.W = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon9.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon9.W);
-    info->MonthNames.Abbr.Mon9.W = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon10.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon10.W);
-    info->MonthNames.Abbr.Mon10.W = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon11.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon11.W);
-    info->MonthNames.Abbr.Mon11.W = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon12.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon12.W);
-    info->MonthNames.Abbr.Mon12.W = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon13.W != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon13.W);
-    info->MonthNames.Abbr.Mon13.W = NULL;
-  }
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon1.W);
+  info->MonthNames.Abbr.Mon1.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon2.W);
+  info->MonthNames.Abbr.Mon2.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon3.W);
+  info->MonthNames.Abbr.Mon3.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon4.W);
+  info->MonthNames.Abbr.Mon4.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon5.W);
+  info->MonthNames.Abbr.Mon5.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon6.W);
+  info->MonthNames.Abbr.Mon6.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon7.W);
+  info->MonthNames.Abbr.Mon7.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon8.W);
+  info->MonthNames.Abbr.Mon8.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon9.W);
+  info->MonthNames.Abbr.Mon9.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon10.W);
+  info->MonthNames.Abbr.Mon10.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon11.W);
+  info->MonthNames.Abbr.Mon11.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon12.W);
+  info->MonthNames.Abbr.Mon12.W = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon13.W);
+  info->MonthNames.Abbr.Mon13.W = NULL;
 }
 
 /**
@@ -764,185 +673,97 @@ fail:
  * Free calendar information stored in `info`.
  */
 static void P32FreeCalendarInfoA (CalendarInfo *info, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
+  p32_heap_free (heap, 0, info->DateFormat.Crt.A);
+  info->DateFormat.Crt.A = NULL;
+  p32_heap_free (heap, 0, info->DateTimeFormat.A);
+  info->DateTimeFormat.A = NULL;
 
-  if (info->DateFormat.Crt.A != NULL) {
-    HeapFree (heapHandle, 0, info->DateFormat.Crt.A);
-    info->DateFormat.Crt.A = NULL;
-  }
-  if (info->DateTimeFormat.A != NULL) {
-    HeapFree (heapHandle, 0, info->DateTimeFormat.A);
-    info->DateTimeFormat.A = NULL;
-  }
+  p32_heap_free (heap, 0, info->Era.Name.A);
+  info->Era.Name.A = NULL;
 
-  if (info->Era.Name.A != NULL) {
-    HeapFree (heapHandle, 0, info->Era.Name.A);
-    info->Era.Name.A = NULL;
-  }
+  p32_heap_free (heap, 0, info->DayNames.Full.Day1.A);
+  info->DayNames.Full.Day1.A = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Full.Day2.A);
+  info->DayNames.Full.Day2.A = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Full.Day3.A);
+  info->DayNames.Full.Day3.A = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Full.Day4.A);
+  info->DayNames.Full.Day4.A = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Full.Day5.A);
+  info->DayNames.Full.Day5.A = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Full.Day6.A);
+  info->DayNames.Full.Day6.A = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Full.Day7.A);
+  info->DayNames.Full.Day7.A = NULL;
 
-  if (info->DayNames.Full.Day1.A != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Full.Day1.A);
-    info->DayNames.Full.Day1.A = NULL;
-  }
-  if (info->DayNames.Full.Day2.A != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Full.Day2.A);
-    info->DayNames.Full.Day2.A = NULL;
-  }
-  if (info->DayNames.Full.Day3.A != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Full.Day3.A);
-    info->DayNames.Full.Day3.A = NULL;
-  }
-  if (info->DayNames.Full.Day4.A != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Full.Day4.A);
-    info->DayNames.Full.Day4.A = NULL;
-  }
-  if (info->DayNames.Full.Day5.A != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Full.Day5.A);
-    info->DayNames.Full.Day5.A = NULL;
-  }
-  if (info->DayNames.Full.Day6.A != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Full.Day6.A);
-    info->DayNames.Full.Day6.A = NULL;
-  }
-  if (info->DayNames.Full.Day7.A != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Full.Day7.A);
-    info->DayNames.Full.Day7.A = NULL;
-  }
+  p32_heap_free (heap, 0, info->DayNames.Abbr.Day1.A);
+  info->DayNames.Abbr.Day1.A = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Abbr.Day2.A);
+  info->DayNames.Abbr.Day2.A = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Abbr.Day3.A);
+  info->DayNames.Abbr.Day3.A = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Abbr.Day4.A);
+  info->DayNames.Abbr.Day4.A = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Abbr.Day5.A);
+  info->DayNames.Abbr.Day5.A = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Abbr.Day6.A);
+  info->DayNames.Abbr.Day6.A = NULL;
+  p32_heap_free (heap, 0, info->DayNames.Abbr.Day7.A);
+  info->DayNames.Abbr.Day7.A = NULL;
 
-  if (info->DayNames.Abbr.Day1.A != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Abbr.Day1.A);
-    info->DayNames.Abbr.Day1.A = NULL;
-  }
-  if (info->DayNames.Abbr.Day2.A != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Abbr.Day2.A);
-    info->DayNames.Abbr.Day2.A = NULL;
-  }
-  if (info->DayNames.Abbr.Day3.A != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Abbr.Day3.A);
-    info->DayNames.Abbr.Day3.A = NULL;
-  }
-  if (info->DayNames.Abbr.Day4.A != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Abbr.Day4.A);
-    info->DayNames.Abbr.Day4.A = NULL;
-  }
-  if (info->DayNames.Abbr.Day5.A != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Abbr.Day5.A);
-    info->DayNames.Abbr.Day5.A = NULL;
-  }
-  if (info->DayNames.Abbr.Day6.A != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Abbr.Day6.A);
-    info->DayNames.Abbr.Day6.A = NULL;
-  }
-  if (info->DayNames.Abbr.Day7.A != NULL) {
-    HeapFree (heapHandle, 0, info->DayNames.Abbr.Day7.A);
-    info->DayNames.Abbr.Day7.A = NULL;
-  }
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon1.A);
+  info->MonthNames.Full.Mon1.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon2.A);
+  info->MonthNames.Full.Mon2.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon3.A);
+  info->MonthNames.Full.Mon3.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon4.A);
+  info->MonthNames.Full.Mon4.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon5.A);
+  info->MonthNames.Full.Mon5.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon6.A);
+  info->MonthNames.Full.Mon6.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon7.A);
+  info->MonthNames.Full.Mon7.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon8.A);
+  info->MonthNames.Full.Mon8.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon9.A);
+  info->MonthNames.Full.Mon9.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon10.A);
+  info->MonthNames.Full.Mon10.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon11.A);
+  info->MonthNames.Full.Mon11.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon12.A);
+  info->MonthNames.Full.Mon12.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Full.Mon13.A);
+  info->MonthNames.Full.Mon13.A = NULL;
 
-  if (info->MonthNames.Full.Mon1.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon1.A);
-    info->MonthNames.Full.Mon1.A = NULL;
-  }
-  if (info->MonthNames.Full.Mon2.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon2.A);
-    info->MonthNames.Full.Mon2.A = NULL;
-  }
-  if (info->MonthNames.Full.Mon3.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon3.A);
-    info->MonthNames.Full.Mon3.A = NULL;
-  }
-  if (info->MonthNames.Full.Mon4.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon4.A);
-    info->MonthNames.Full.Mon4.A = NULL;
-  }
-  if (info->MonthNames.Full.Mon5.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon5.A);
-    info->MonthNames.Full.Mon5.A = NULL;
-  }
-  if (info->MonthNames.Full.Mon6.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon6.A);
-    info->MonthNames.Full.Mon6.A = NULL;
-  }
-  if (info->MonthNames.Full.Mon7.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon7.A);
-    info->MonthNames.Full.Mon7.A = NULL;
-  }
-  if (info->MonthNames.Full.Mon8.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon8.A);
-    info->MonthNames.Full.Mon8.A = NULL;
-  }
-  if (info->MonthNames.Full.Mon9.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon9.A);
-    info->MonthNames.Full.Mon9.A = NULL;
-  }
-  if (info->MonthNames.Full.Mon10.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon10.A);
-    info->MonthNames.Full.Mon10.A = NULL;
-  }
-  if (info->MonthNames.Full.Mon11.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon11.A);
-    info->MonthNames.Full.Mon11.A = NULL;
-  }
-  if (info->MonthNames.Full.Mon12.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon12.A);
-    info->MonthNames.Full.Mon12.A = NULL;
-  }
-  if (info->MonthNames.Full.Mon13.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Full.Mon13.A);
-    info->MonthNames.Full.Mon13.A = NULL;
-  }
-
-  if (info->MonthNames.Abbr.Mon1.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon1.A);
-    info->MonthNames.Abbr.Mon1.A = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon2.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon2.A);
-    info->MonthNames.Abbr.Mon2.A = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon3.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon3.A);
-    info->MonthNames.Abbr.Mon3.A = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon4.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon4.A);
-    info->MonthNames.Abbr.Mon4.A = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon5.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon5.A);
-    info->MonthNames.Abbr.Mon5.A = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon6.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon6.A);
-    info->MonthNames.Abbr.Mon6.A = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon7.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon7.A);
-    info->MonthNames.Abbr.Mon7.A = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon8.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon8.A);
-    info->MonthNames.Abbr.Mon8.A = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon9.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon9.A);
-    info->MonthNames.Abbr.Mon9.A = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon10.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon10.A);
-    info->MonthNames.Abbr.Mon10.A = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon11.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon11.A);
-    info->MonthNames.Abbr.Mon11.A = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon12.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon12.A);
-    info->MonthNames.Abbr.Mon12.A = NULL;
-  }
-  if (info->MonthNames.Abbr.Mon13.A != NULL) {
-    HeapFree (heapHandle, 0, info->MonthNames.Abbr.Mon13.A);
-    info->MonthNames.Abbr.Mon13.A = NULL;
-  }
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon1.A);
+  info->MonthNames.Abbr.Mon1.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon2.A);
+  info->MonthNames.Abbr.Mon2.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon3.A);
+  info->MonthNames.Abbr.Mon3.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon4.A);
+  info->MonthNames.Abbr.Mon4.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon5.A);
+  info->MonthNames.Abbr.Mon5.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon6.A);
+  info->MonthNames.Abbr.Mon6.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon7.A);
+  info->MonthNames.Abbr.Mon7.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon8.A);
+  info->MonthNames.Abbr.Mon8.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon9.A);
+  info->MonthNames.Abbr.Mon9.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon10.A);
+  info->MonthNames.Abbr.Mon10.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon11.A);
+  info->MonthNames.Abbr.Mon11.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon12.A);
+  info->MonthNames.Abbr.Mon12.A = NULL;
+  p32_heap_free (heap, 0, info->MonthNames.Abbr.Mon13.A);
+  info->MonthNames.Abbr.Mon13.A = NULL;
 }
 
 /*******************************************************************************
@@ -1149,60 +970,34 @@ fail:
  * Free locale information stored in `lcTimeInfo`.
  */
 static void P32FreeLcTimeInfoW (LcTimeInfo *lcTimeInfo, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
+  p32_heap_free (heap, 0, lcTimeInfo->EraString.W);
+  lcTimeInfo->EraString.W = NULL;
 
-  if (lcTimeInfo->EraString.W != NULL) {
-    HeapFree (heapHandle, 0, lcTimeInfo->EraString.W);
-    lcTimeInfo->EraString.W = NULL;
-  }
-
-  if (lcTimeInfo->TimeFormat.Format != NULL) {
-    HeapFree (heapHandle, 0, lcTimeInfo->TimeFormat.Format);
-    lcTimeInfo->TimeFormat.Format = NULL;
-  }
-  if (lcTimeInfo->TimeFormat.Crt.W != NULL) {
-    HeapFree (heapHandle, 0, lcTimeInfo->TimeFormat.Crt.W);
-    lcTimeInfo->TimeFormat.Crt.W = NULL;
-  }
-  if (lcTimeInfo->TimeFormatAmPm.Format != NULL) {
-    HeapFree (heapHandle, 0, lcTimeInfo->TimeFormatAmPm.Format);
-    lcTimeInfo->TimeFormatAmPm.Format = NULL;
-  }
-  if (lcTimeInfo->TimeFormatAmPm.Crt.W != NULL) {
-    HeapFree (heapHandle, 0, lcTimeInfo->TimeFormatAmPm.Crt.W);
-    lcTimeInfo->TimeFormatAmPm.Crt.W = NULL;
-  }
-  if (lcTimeInfo->TimeFormat24.W != NULL) {
-    HeapFree (heapHandle, 0, lcTimeInfo->TimeFormat24.W);
-    lcTimeInfo->TimeFormat24.W = NULL;
-  }
-  if (lcTimeInfo->TimeFormatT.W != NULL) {
-    HeapFree (heapHandle, 0, lcTimeInfo->TimeFormatT.W);
-    lcTimeInfo->TimeFormatT.W = NULL;
-  }
-  if (lcTimeInfo->DateFormatD.W != NULL) {
-    HeapFree (heapHandle, 0, lcTimeInfo->DateFormatD.W);
-    lcTimeInfo->DateFormatD.W = NULL;
-  }
-  if (lcTimeInfo->DateFormatF.W != NULL) {
-    HeapFree (heapHandle, 0, lcTimeInfo->DateFormatF.W);
-    lcTimeInfo->DateFormatF.W = NULL;
-  }
+  p32_heap_free (heap, 0, lcTimeInfo->TimeFormat.Format);
+  lcTimeInfo->TimeFormat.Format = NULL;
+  p32_heap_free (heap, 0, lcTimeInfo->TimeFormat.Crt.W);
+  lcTimeInfo->TimeFormat.Crt.W = NULL;
+  p32_heap_free (heap, 0, lcTimeInfo->TimeFormatAmPm.Format);
+  lcTimeInfo->TimeFormatAmPm.Format = NULL;
+  p32_heap_free (heap, 0, lcTimeInfo->TimeFormatAmPm.Crt.W);
+  lcTimeInfo->TimeFormatAmPm.Crt.W = NULL;
+  p32_heap_free (heap, 0, lcTimeInfo->TimeFormat24.W);
+  lcTimeInfo->TimeFormat24.W = NULL;
+  p32_heap_free (heap, 0, lcTimeInfo->TimeFormatT.W);
+  lcTimeInfo->TimeFormatT.W = NULL;
+  p32_heap_free (heap, 0, lcTimeInfo->DateFormatD.W);
+  lcTimeInfo->DateFormatD.W = NULL;
+  p32_heap_free (heap, 0, lcTimeInfo->DateFormatF.W);
+  lcTimeInfo->DateFormatF.W = NULL;
 
   lcTimeInfo->AmPm.Value = 0;
-  if (lcTimeInfo->AmPm.Am.W != NULL) {
-    HeapFree (heapHandle, 0, lcTimeInfo->AmPm.Am.W);
-    lcTimeInfo->AmPm.Am.W = NULL;
-  }
-  if (lcTimeInfo->AmPm.Pm.W != NULL) {
-    HeapFree (heapHandle, 0, lcTimeInfo->AmPm.Pm.W);
-    lcTimeInfo->AmPm.Pm.W = NULL;
-  }
+  p32_heap_free (heap, 0, lcTimeInfo->AmPm.Am.W);
+  lcTimeInfo->AmPm.Am.W = NULL;
+  p32_heap_free (heap, 0, lcTimeInfo->AmPm.Pm.W);
+  lcTimeInfo->AmPm.Pm.W = NULL;
 
-  if (lcTimeInfo->AltDigits.W != NULL) {
-    HeapFree (heapHandle, 0, lcTimeInfo->AltDigits.W);
-    lcTimeInfo->AltDigits.W = NULL;
-  }
+  p32_heap_free (heap, 0, lcTimeInfo->AltDigits.W);
+  lcTimeInfo->AltDigits.W = NULL;
 }
 
 /**
@@ -1255,51 +1050,29 @@ fail:
  * Free locale information stored in `lcTimeInfo`.
  */
 static void P32FreeLcTimeInfoA (LcTimeInfo *lcTimeInfo, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
+  p32_heap_free (heap, 0, lcTimeInfo->EraString.A);
+  lcTimeInfo->EraString.A = NULL;
 
-  if (lcTimeInfo->EraString.A != NULL) {
-    HeapFree (heapHandle, 0, lcTimeInfo->EraString.A);
-    lcTimeInfo->EraString.A = NULL;
-  }
+  p32_heap_free (heap, 0, lcTimeInfo->TimeFormat.Crt.A);
+  lcTimeInfo->TimeFormat.Crt.A = NULL;
+  p32_heap_free (heap, 0, lcTimeInfo->TimeFormatAmPm.Crt.A);
+  lcTimeInfo->TimeFormatAmPm.Crt.A = NULL;
+  p32_heap_free (heap, 0, lcTimeInfo->TimeFormat24.A);
+  lcTimeInfo->TimeFormat24.A = NULL;
+  p32_heap_free (heap, 0, lcTimeInfo->TimeFormatT.A);
+  lcTimeInfo->TimeFormatT.A = NULL;
+  p32_heap_free (heap, 0, lcTimeInfo->DateFormatD.A);
+  lcTimeInfo->DateFormatD.A = NULL;
+  p32_heap_free (heap, 0, lcTimeInfo->DateFormatF.A);
+  lcTimeInfo->DateFormatF.A = NULL;
 
-  if (lcTimeInfo->TimeFormat.Crt.A != NULL) {
-    HeapFree (heapHandle, 0, lcTimeInfo->TimeFormat.Crt.A);
-    lcTimeInfo->TimeFormat.Crt.A = NULL;
-  }
-  if (lcTimeInfo->TimeFormatAmPm.Crt.A != NULL) {
-    HeapFree (heapHandle, 0, lcTimeInfo->TimeFormatAmPm.Crt.A);
-    lcTimeInfo->TimeFormatAmPm.Crt.A = NULL;
-  }
-  if (lcTimeInfo->TimeFormat24.A != NULL) {
-    HeapFree (heapHandle, 0, lcTimeInfo->TimeFormat24.A);
-    lcTimeInfo->TimeFormat24.A = NULL;
-  }
-  if (lcTimeInfo->TimeFormatT.A != NULL) {
-    HeapFree (heapHandle, 0, lcTimeInfo->TimeFormatT.A);
-    lcTimeInfo->TimeFormatT.A = NULL;
-  }
-  if (lcTimeInfo->DateFormatD.A != NULL) {
-    HeapFree (heapHandle, 0, lcTimeInfo->DateFormatD.A);
-    lcTimeInfo->DateFormatD.A = NULL;
-  }
-  if (lcTimeInfo->DateFormatF.A != NULL) {
-    HeapFree (heapHandle, 0, lcTimeInfo->DateFormatF.A);
-    lcTimeInfo->DateFormatF.A = NULL;
-  }
+  p32_heap_free (heap, 0, lcTimeInfo->AmPm.Am.A);
+  lcTimeInfo->AmPm.Am.A = NULL;
+  p32_heap_free (heap, 0, lcTimeInfo->AmPm.Pm.A);
+  lcTimeInfo->AmPm.Pm.A = NULL;
 
-  if (lcTimeInfo->AmPm.Am.A != NULL) {
-    HeapFree (heapHandle, 0, lcTimeInfo->AmPm.Am.A);
-    lcTimeInfo->AmPm.Am.A = NULL;
-  }
-  if (lcTimeInfo->AmPm.Pm.A != NULL) {
-    HeapFree (heapHandle, 0, lcTimeInfo->AmPm.Pm.A);
-    lcTimeInfo->AmPm.Pm.A = NULL;
-  }
-
-  if (lcTimeInfo->AltDigits.A != NULL) {
-    HeapFree (heapHandle, 0, lcTimeInfo->AltDigits.A);
-    lcTimeInfo->AltDigits.A = NULL;
-  }
+  p32_heap_free (heap, 0, lcTimeInfo->AltDigits.A);
+  lcTimeInfo->AltDigits.A = NULL;
   memset (lcTimeInfo->AltDigits.Map, 0, sizeof (lcTimeInfo->AltDigits.Map));
 }
 
@@ -1395,8 +1168,6 @@ static const FormatMap DateFormatMap[] = {
  * Returns `true` on success, and `false` otherwise.
  */
 static bool P32MapFormatString (DateTimeFormat *format, uintptr_t heap, const FormatMap *map, const size_t mapSize) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   /**
    * Size of buffer to hold mapped format string.
    */
@@ -1405,7 +1176,7 @@ static bool P32MapFormatString (DateTimeFormat *format, uintptr_t heap, const Fo
   /**
    * Buffer to hold mapped format string.
    */
-  wchar_t *buffer = HeapAlloc (heapHandle, 0, bufferSize * sizeof (wchar_t));
+  wchar_t *buffer = p32_heap_alloc (heap, 0, bufferSize * sizeof (wchar_t));
 
   if (buffer == NULL) {
     return false;
@@ -1498,7 +1269,7 @@ static bool P32MapFormatString (DateTimeFormat *format, uintptr_t heap, const Fo
 
   assert (written <= bufferSize);
 
-  wchar_t *address = HeapReAlloc (heapHandle, 0, buffer, written * sizeof (wchar_t));
+  wchar_t *address = p32_heap_realloc (heap, 0, buffer, written * sizeof (wchar_t));
 
   if (address == NULL) {
     goto fail_free;
@@ -1509,7 +1280,7 @@ static bool P32MapFormatString (DateTimeFormat *format, uintptr_t heap, const Fo
   return true;
 
 fail_free:
-  HeapFree (heapHandle, 0, buffer);
+  p32_heap_free (heap, 0, buffer);
 
   return false;
 }
@@ -1520,8 +1291,6 @@ fail_free:
  * Returns `true` on success, and `false` otherwise.
  */
 static bool P32TimeAmPmFormat (LcTimeInfo *info, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   /**
    * Whether locale has AM/PM strings.
    */
@@ -1547,7 +1316,7 @@ static bool P32TimeAmPmFormat (LcTimeInfo *info, uintptr_t heap) {
     size_t formatLength = wcslen (info->TimeFormat.Format);
 
     size_t   bufferSize = formatLength + 4;
-    wchar_t *buffer     = (wchar_t *) HeapAlloc (heapHandle, 0, bufferSize * sizeof (wchar_t));
+    wchar_t *buffer     = p32_heap_alloc (heap, 0, bufferSize * sizeof (wchar_t));
 
     if (buffer == NULL) {
       return false;
@@ -1593,13 +1362,11 @@ static bool P32TimeAmPmFormat (LcTimeInfo *info, uintptr_t heap) {
  * Returns `true` on success, and `false` otherwise.
  */
 static bool P32DateTimeFormat (LcTimeInfo *info, CalendarInfo *calendarInfo, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   size_t dateFormatLength = wcslen (calendarInfo->DateFormat.Crt.W);
   size_t timeFormatLength = wcslen (info->TimeFormat.Crt.W);
 
   size_t   bufferSize = dateFormatLength + timeFormatLength + 2;
-  wchar_t *buffer     = HeapAlloc (heapHandle, 0, bufferSize * sizeof (wchar_t));
+  wchar_t *buffer     = p32_heap_alloc (heap, 0, bufferSize * sizeof (wchar_t));
 
   if (buffer == NULL) {
     return false;

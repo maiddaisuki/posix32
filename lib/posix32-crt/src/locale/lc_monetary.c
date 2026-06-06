@@ -28,6 +28,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-heap.h"
+
 #include "locale-internal.h"
 
 /**
@@ -91,12 +93,8 @@ fail:
  * Free locale information stored in `info`.
  */
 static void P32FreeLcMonetaryInfoW (LcMonetaryInfo *info, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
-  if (info->CurrencyString.W != NULL) {
-    HeapFree (heapHandle, 0, info->CurrencyString.W);
-    info->CurrencyString.W = NULL;
-  }
+  p32_heap_free (heap, 0, info->CurrencyString.W);
+  info->CurrencyString.W = NULL;
 }
 
 /**
@@ -117,12 +115,8 @@ fail:
  * Free locale information stored in `info`.
  */
 static void P32FreeLcMonetaryInfoA (LcMonetaryInfo *info, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
-  if (info->CurrencyString.A != NULL) {
-    HeapFree (heapHandle, 0, info->CurrencyString.A);
-    info->CurrencyString.A = NULL;
-  }
+  p32_heap_free (heap, 0, info->CurrencyString.A);
+  info->CurrencyString.A = NULL;
 }
 
 /*******************************************************************************

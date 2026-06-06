@@ -529,7 +529,7 @@ static bool __cdecl Test (Locale *locale) {
     assert (p32_private_asprintf (&localeString, heap, L"%s.%u", locale->LocaleName, codePage) != -1);
     TestLocale (locale, localeString);
 
-    assert (HeapFree (heapHandle, 0, localeString));
+    assert (p32_heap_free (heap, 0, localeString));
   } else if (!usableCharset && doTest) {
     _RPTW2 (_CRT_WARN, L"UNSUPPORTED: %s.%u\n", locale->LocaleName, codePage);
   } else {

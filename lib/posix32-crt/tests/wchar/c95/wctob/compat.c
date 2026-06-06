@@ -85,7 +85,7 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
 
       fprintf (stderr, "%s\n", u8Str);
 
-      assert (HeapFree (heapHandle, 0, wStr));
+      assert (p32_heap_free (heap, 0, wStr));
       free (u8Str);
 #endif
 
@@ -121,7 +121,7 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
 
       fprintf (stderr, "%s\n", u8Str);
 
-      assert (HeapFree (heapHandle, 0, wStr));
+      assert (p32_heap_free (heap, 0, wStr));
       free (u8Str);
 #endif
 

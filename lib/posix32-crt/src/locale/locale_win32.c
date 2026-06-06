@@ -32,6 +32,7 @@
 #include <windows.h>
 
 #include "core-atomic.h"
+#include "core-heap.h"
 #include "core-loader.h"
 #include "core-norm.h"
 #include "core-winver.h"
@@ -1310,8 +1311,6 @@ static void P32InitWinlocaleGeoDestroy (Locale *locale, uintptr_t heap) {
  */
 
 static bool P32GetTextualLocaleInfoW (LocaleInfoRequest *request, uintptr_t heap, Locale *locale) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   bool success = false;
 
   LPWSTR buffer     = NULL;
@@ -1323,7 +1322,7 @@ static bool P32GetTextualLocaleInfoW (LocaleInfoRequest *request, uintptr_t heap
     goto fail;
   }
 
-  buffer = HeapAlloc (heapHandle, 0, bufferSize * sizeof (WCHAR));
+  buffer = p32_heap_alloc (heap, 0, bufferSize * sizeof (WCHAR));
 
   if (buffer == NULL) {
     goto fail;
@@ -1410,13 +1409,13 @@ static bool P32GetTextualLocaleInfoW (LocaleInfoRequest *request, uintptr_t heap
 
 fail_conv:
   if (!success) {
-    HeapFree (heapHandle, 0, *request->OutputW);
+    p32_heap_free (heap, 0, *request->OutputW);
     *request->OutputW = NULL;
   }
 
 fail_free:
   if (buffer != NULL) {
-    HeapFree (heapHandle, 0, buffer);
+    p32_heap_free (heap, 0, buffer);
   }
 
 fail:
@@ -1429,8 +1428,6 @@ static bool P32GetNumericLocaleInfoW (LocaleInfoRequest *request, uintptr_t heap
 }
 
 static bool P32GetTextualCalendarInfoW (CalendarInfoRequest *request, uintptr_t heap, Locale *locale) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   Calendar calendar = locale->Calendar;
 
   if (request->Flags & P32_CALENDAR_INFO_REQUEST_ALTERNATIVE) {
@@ -1449,7 +1446,7 @@ static bool P32GetTextualCalendarInfoW (CalendarInfoRequest *request, uintptr_t 
     goto fail;
   }
 
-  buffer = HeapAlloc (heapHandle, 0, bufferSize * sizeof (WCHAR));
+  buffer = p32_heap_alloc (heap, 0, bufferSize * sizeof (WCHAR));
 
   if (buffer == NULL) {
     goto fail;
@@ -1536,13 +1533,13 @@ static bool P32GetTextualCalendarInfoW (CalendarInfoRequest *request, uintptr_t 
 
 fail_conv:
   if (!success) {
-    HeapFree (heapHandle, 0, *request->OutputW);
+    p32_heap_free (heap, 0, *request->OutputW);
     *request->OutputW = NULL;
   }
 
 fail_free:
   if (buffer != NULL) {
-    HeapFree (heapHandle, 0, buffer);
+    p32_heap_free (heap, 0, buffer);
   }
 
 fail:

@@ -127,8 +127,6 @@ static int P32WinlocaleLCIDMapStringW (
  * set `locale->Locale` to `0` and check it afterwards.
  */
 static bool P32LCIDTryResolve (LocaleIdMap *locale, uintptr_t heap, LanguageIndex ll, ScriptIndex ss, CountryIndex cc) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   Language language = {0};
 
   p32_language (ll, &language);
@@ -184,7 +182,7 @@ static bool P32LCIDTryResolve (LocaleIdMap *locale, uintptr_t heap, LanguageInde
     }
   }
 
-  HeapFree (heapHandle, 0, string);
+  p32_heap_free (heap, 0, string);
 
   return true;
 }
@@ -199,8 +197,6 @@ static bool P32LCIDTryResolve (LocaleIdMap *locale, uintptr_t heap, LanguageInde
  * Failure to apply `ss` is not considered an error.
  */
 static bool P32LCIDTrySortOrder (LocaleIdMap *locale, uintptr_t heap, LanguageIndex ll, SortingIndex ss) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   Language language = {0};
 
   p32_language (ll, &language);
@@ -236,7 +232,7 @@ static bool P32LCIDTrySortOrder (LocaleIdMap *locale, uintptr_t heap, LanguageIn
     }
   }
 
-  HeapFree (heapHandle, 0, string);
+  p32_heap_free (heap, 0, string);
 
   return true;
 }
@@ -247,8 +243,6 @@ static bool P32LCIDTrySortOrder (LocaleIdMap *locale, uintptr_t heap, LanguageIn
  * Returns `true` on success, and `false` otherwise.
  */
 static bool P32LocaleIdMapFromLCID (LocaleIdMap *map, uintptr_t heap, Locale *locale) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   /**
    * We have to take both primary language ID (`LANG_*`) and ISO-639 language
    * code into account when looking up `LanguageIndex` for `locale->LocaleId`.
@@ -304,7 +298,7 @@ static bool P32LocaleIdMapFromLCID (LocaleIdMap *map, uintptr_t heap, Locale *lo
   success = true;
 
 fail:
-  HeapFree (heapHandle, 0, ll);
+  p32_heap_free (heap, 0, ll);
 
   return success;
 }
@@ -802,8 +796,6 @@ fail:
 }
 
 static void P32WinlocaleLCIDDestroy (Locale *locale, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   WinlocaleGeoDestroy (locale, heap);
 
   locale->Type                = LocaleType_Invalid;
@@ -818,10 +810,8 @@ static void P32WinlocaleLCIDDestroy (Locale *locale, uintptr_t heap) {
   locale->Map.Country         = CountryIndex_invalid;
   locale->Map.Modifier        = ModifierIndex_invalid;
 
-  if (locale->LocaleName != NULL) {
-    HeapFree (heapHandle, 0, locale->LocaleName);
-    locale->LocaleName = NULL;
-  }
+  p32_heap_free (heap, 0, locale->LocaleName);
+  locale->LocaleName = NULL;
 }
 
 static bool P32WinlocaleLCIDEqual (Locale *l1, Locale *l2) {

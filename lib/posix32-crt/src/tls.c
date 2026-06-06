@@ -138,8 +138,6 @@ static ThreadStorage *P32InitTls (uint32_t tlsIndex) {
     return NULL;
   }
 
-  HANDLE heapHandle = (HANDLE) heap;
-
   /**
    * TODO: is there any performance gain from calling `HeapLock`?
    */
@@ -148,7 +146,7 @@ static ThreadStorage *P32InitTls (uint32_t tlsIndex) {
   /**
    * Allocate TLS structure.
    */
-  ThreadStorage *tls = HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, sizeof (ThreadStorage));
+  ThreadStorage *tls = p32_heap_alloc (heap, HEAP_ZERO_MEMORY, sizeof (ThreadStorage));
 
   if (tls == NULL) {
     p32_terminate (L"TLS: failed to allocate storage.");
@@ -170,12 +168,10 @@ static ThreadStorage *P32InitTls (uint32_t tlsIndex) {
  * When this function is called, all data stored in the TLS must be freed.
  */
 static void P32FreeTls (ThreadStorage *tls, uint32_t tlsIndex) {
-  uintptr_t heap       = tls->Heap;
-  HANDLE    heapHandle = (HANDLE) heap;
+  uintptr_t heap = tls->Heap;
+  tls->Heap      = 0;
 
-  tls->Heap = 0;
-
-  if (!HeapFree (heapHandle, 0, tls)) {
+  if (!p32_heap_free (heap, 0, tls)) {
     p32_terminate (L"TLS: failed to deallocate storage.");
   }
 

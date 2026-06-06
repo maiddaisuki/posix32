@@ -150,8 +150,6 @@
 #endif
 
 static int FuncName (LocaleMap *localeMap, const wchar_t *localeString, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
 #if P32_LOCALE_PARSER == P32_LOCALE_PARSER_WINDOWS
   ptrdiff_t scriptSeparatorPosition = 0;
 #endif
@@ -320,7 +318,7 @@ static int FuncName (LocaleMap *localeMap, const wchar_t *localeString, uintptr_
   int returnCode = 0;
 
   LocaleStringMap stringMap = {0};
-  stringMap.Language        = HeapAlloc (heapHandle, 0, stringLength + 1);
+  stringMap.Language        = p32_heap_alloc (heap, 0, stringLength + 1);
 
   if (stringMap.Language == NULL) {
     return -1;
@@ -377,7 +375,7 @@ static int FuncName (LocaleMap *localeMap, const wchar_t *localeString, uintptr_
 #endif
 
 fail:
-  HeapFree (heapHandle, 0, stringMap.Language);
+  p32_heap_free (heap, 0, stringMap.Language);
 
   return returnCode;
 }

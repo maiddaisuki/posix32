@@ -271,8 +271,8 @@ en_US:
     freelocale (locale);
   }
 
-  assert (HeapFree (heapHandle, 0, localeStringA));
-  assert (HeapFree (heapHandle, 0, localeStringW));
+  assert (p32_heap_free (heap, 0, localeStringA));
+  assert (p32_heap_free (heap, 0, localeStringW));
 
   return TRUE;
 }

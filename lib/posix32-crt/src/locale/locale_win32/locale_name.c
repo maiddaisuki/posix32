@@ -135,8 +135,9 @@ static int P32WinlocaleLNMapStringW (
  *  `-1`: an error has occured
  */
 static int P32IsValidLocaleName (LPWSTR localeName, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
+  /**
+   * Return value.
+   */
   int success = 1;
 
   /**
@@ -170,12 +171,8 @@ static int P32IsValidLocaleName (LPWSTR localeName, uintptr_t heap) {
   success = 0;
 
 fail:
-  if (language != NULL) {
-    HeapFree (heapHandle, 0, language);
-  }
-  if (country != NULL) {
-    HeapFree (heapHandle, 0, country);
-  }
+  p32_heap_free (heap, 0, language);
+  p32_heap_free (heap, 0, country);
 
   return success;
 }
@@ -187,8 +184,6 @@ fail:
  * `CountryIndex_invalid`.
  */
 static CountryIndex P32GetCountryIndex (LPCWSTR localeName, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   /**
    * Partial `Locale` object for use with `p32_winlocale_get_locale_info`.
    */
@@ -207,7 +202,7 @@ static CountryIndex P32GetCountryIndex (LPCWSTR localeName, uintptr_t heap) {
 
   CountryIndex cc = p32_country_by_cc (countryCode);
 
-  HeapFree (heapHandle, 0, countryCode);
+  p32_heap_free (heap, 0, countryCode);
 
   return cc;
 }
@@ -224,8 +219,6 @@ static CountryIndex P32GetCountryIndex (LPCWSTR localeName, uintptr_t heap) {
  * Failure to resolve locale is not considered an error.
  */
 static bool P32LNTryResolve (LocaleNameMap *locale, uintptr_t heap, LanguageIndex ll, ScriptIndex ss, CountryIndex cc) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   Language language = {0};
 
   p32_language (ll, &language);
@@ -293,7 +286,7 @@ static bool P32LNTryResolve (LocaleNameMap *locale, uintptr_t heap, LanguageInde
       goto fail_free;
     }
 
-    HeapFree (heapHandle, 0, localeName);
+    p32_heap_free (heap, 0, localeName);
 
     p32_country (cc, &country);
 
@@ -328,7 +321,7 @@ static bool P32LNTryResolve (LocaleNameMap *locale, uintptr_t heap, LanguageInde
 
 fail_free:
   if (isValidLocale != 0 || !success) {
-    HeapFree (heapHandle, 0, localeName);
+    p32_heap_free (heap, 0, localeName);
   }
 
 fail:
@@ -345,8 +338,6 @@ fail:
  * Failure to apply sorting order is not considered an error.
  */
 static bool P32LNTrySortOrder (LocaleNameMap *locale, uintptr_t heap, SortingIndex xx) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   Sorting sorting = {0};
 
   p32_sorting (xx, &sorting);
@@ -363,10 +354,10 @@ static bool P32LNTrySortOrder (LocaleNameMap *locale, uintptr_t heap, SortingInd
   int isValidLocale = P32IsValidLocaleName (localeName, heap);
 
   if (isValidLocale == 0) {
-    HeapFree (heapHandle, 0, locale->Locale);
+    p32_heap_free (heap, 0, locale->Locale);
     locale->Locale = localeName;
   } else {
-    HeapFree (heapHandle, 0, localeName);
+    p32_heap_free (heap, 0, localeName);
   }
 
   return isValidLocale != -1;
@@ -516,9 +507,7 @@ static bool P32LNLlSsCc (LocaleNameMap *locale, uintptr_t heap, LocaleMap *map) 
  * Returns `true` on success, and `false` otherwise.
  */
 static bool P32DefaultLocaleName (Locale *locale, uintptr_t heap, DefaultLocaleType defaultLocaleType) {
-  HANDLE heapHandle = (HANDLE) heap;
-
-  locale->LocaleName = HeapAlloc (heapHandle, 0, LOCALE_NAME_MAX_LENGTH * sizeof (WCHAR));
+  locale->LocaleName = p32_heap_alloc (heap, 0, LOCALE_NAME_MAX_LENGTH * sizeof (WCHAR));
 
   if (locale->LocaleName == NULL) {
     goto fail;
@@ -536,7 +525,7 @@ static bool P32DefaultLocaleName (Locale *locale, uintptr_t heap, DefaultLocaleT
     goto fail_free;
   }
 
-  PVOID address = HeapReAlloc (heapHandle, 0, locale->LocaleName, written * sizeof (WCHAR));
+  PVOID address = p32_heap_realloc (heap, 0, locale->LocaleName, written * sizeof (WCHAR));
 
   if (address == NULL) {
     goto fail_free;
@@ -566,8 +555,6 @@ static bool P32WinlocaleLNUserDefault (Locale *locale, uintptr_t heap) {
 }
 
 static bool P32WinlocaleLNResolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   /**
    * We do not need to resolve Known Locales.
    */
@@ -597,7 +584,7 @@ static bool P32WinlocaleLNResolve (Locale *locale, uintptr_t heap, LocaleMap *lo
     }
 
     if (!P32WinlocaleInfo (locale, heap)) {
-      HeapFree (heapHandle, 0, locale->LocaleName);
+      p32_heap_free (heap, 0, locale->LocaleName);
       locale->LocaleName = NULL;
 
       return false;
@@ -669,7 +656,7 @@ static bool P32WinlocaleLNResolve (Locale *locale, uintptr_t heap, LocaleMap *lo
     resolvedLocale       = defaultLocale;
     defaultLocale.Locale = NULL;
   } else {
-    HeapFree (heapHandle, 0, defaultLocale.Locale);
+    p32_heap_free (heap, 0, defaultLocale.Locale);
     defaultLocale.Locale = NULL;
   }
 
@@ -709,13 +696,8 @@ fail_destroy:
   P32WinlocaleLNDestroy (locale, heap);
 
 fail:
-  if (resolvedLocale.Locale != NULL) {
-    HeapFree (heapHandle, 0, resolvedLocale.Locale);
-  }
-
-  if (defaultLocale.Locale != NULL) {
-    HeapFree (heapHandle, 0, defaultLocale.Locale);
-  }
+  p32_heap_free (heap, 0, resolvedLocale.Locale);
+  p32_heap_free (heap, 0, defaultLocale.Locale);
 
   return false;
 }
@@ -759,10 +741,8 @@ static void P32WinlocaleLNDestroy (Locale *locale, uintptr_t heap) {
   locale->Map.Country         = CountryIndex_invalid;
   locale->Map.Modifier        = ModifierIndex_invalid;
 
-  if (locale->LocaleName != NULL) {
-    HeapFree ((HANDLE) heap, 0, locale->LocaleName);
-    locale->LocaleName = NULL;
-  }
+  p32_heap_free (heap, 0, locale->LocaleName);
+  locale->LocaleName = NULL;
 }
 
 static bool P32WinlocaleLNEqual (Locale *l1, Locale *l2) {

@@ -35,8 +35,6 @@ static bool P32WinlocaleRegionNameCopy (Locale *destLocale, uintptr_t heap, Loca
 }
 
 static void P32WinlocaleRegionNameDestroy (Locale *locale, uintptr_t heap) {
-  if (locale->GeoName != NULL) {
-    HeapFree ((HANDLE) heap, 0, locale->GeoName);
-    locale->GeoName = NULL;
-  }
+  p32_heap_free (heap, 0, locale->GeoName);
+  locale->GeoName = NULL;
 }

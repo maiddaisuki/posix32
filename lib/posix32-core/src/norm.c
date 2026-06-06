@@ -28,6 +28,7 @@
 #include <windows.h>
 
 #include "core-atomic.h"
+#include "core-heap.h"
 #include "core-loader.h"
 #include "core-norm.h"
 #include "core-runtime.h"
@@ -265,8 +266,6 @@ static int P32InitNormalizeUnicodeString (NormalizationRequest *request, uintptr
 }
 
 static int P32FoldString (NormalizationRequest *request, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   /**
    * Flags for `FoldStringW` corresponding to `request->Form`.
    */
@@ -323,7 +322,7 @@ static int P32FoldString (NormalizationRequest *request, uintptr_t heap) {
   if (request->Flags & P32_NORMALIZATION_REQUEST_MALLOC) {
     buffer = malloc (bufferSize * sizeof (wchar_t));
   } else {
-    buffer = HeapAlloc (heapHandle, 0, bufferSize * sizeof (wchar_t));
+    buffer = p32_heap_alloc (heap, 0, bufferSize * sizeof (wchar_t));
   }
 
   if (buffer == NULL) {
@@ -360,7 +359,7 @@ fail:
   if (request->Flags & P32_NORMALIZATION_REQUEST_MALLOC) {
     free (buffer);
   } else {
-    HeapFree (heapHandle, 0, buffer);
+    p32_heap_free (heap, 0, buffer);
   }
 
   return -1;
@@ -371,8 +370,6 @@ fail:
 #endif /* P32_WINNT >= Windows Vista */
 
 static int P32NormalizeString (NormalizationRequest *request, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   /**
    * `NORM_FORM` value corresponding to `request->Form`.
    */
@@ -438,7 +435,7 @@ static int P32NormalizeString (NormalizationRequest *request, uintptr_t heap) {
   if (request->Flags & P32_NORMALIZATION_REQUEST_MALLOC) {
     buffer = malloc (bufferSize * sizeof (wchar_t));
   } else {
-    buffer = HeapAlloc (heapHandle, 0, bufferSize * sizeof (wchar_t));
+    buffer = p32_heap_alloc (heap, 0, bufferSize * sizeof (wchar_t));
   }
 
   if (buffer == NULL) {
@@ -461,7 +458,7 @@ static int P32NormalizeString (NormalizationRequest *request, uintptr_t heap) {
     if (request->Flags & P32_NORMALIZATION_REQUEST_MALLOC) {
       *request->Output = realloc (buffer, written * sizeof (wchar_t));
     } else {
-      *request->Output = HeapReAlloc (heapHandle, 0, buffer, written * sizeof (wchar_t));
+      *request->Output = p32_heap_realloc (heap, 0, buffer, written * sizeof (wchar_t));
     }
 
     if (*request->Output == NULL) {
@@ -478,7 +475,7 @@ fail:
   if (request->Flags & P32_NORMALIZATION_REQUEST_MALLOC) {
     free (buffer);
   } else {
-    HeapFree (heapHandle, 0, buffer);
+    p32_heap_free (heap, 0, buffer);
   }
 
   request->Status = NormalizationRequestFailure;

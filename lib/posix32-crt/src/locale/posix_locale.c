@@ -29,6 +29,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-heap.h"
+
 #include "locale-internal.h"
 
 /**
@@ -408,8 +410,6 @@ static bool P32ConvertEntryData (char **address, uintptr_t heap, const LocaleInf
  */
 
 int p32_posix_get_locale_info (LocaleInfoRequest *request, uintptr_t heap, int flags) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   const LocaleInfoEntry *entry = NULL;
 
   if (flags & P32_POSIX_LOCALE_INFO_NL_ITEM) {
@@ -452,17 +452,13 @@ int p32_posix_get_locale_info (LocaleInfoRequest *request, uintptr_t heap, int f
   return 0;
 
 fail_free:
-  if (data != NULL) {
-    HeapFree (heapHandle, 0, data);
-  }
+  p32_heap_free (heap, 0, data);
 
 fail:
   return -1;
 }
 
 int p32_posix_get_calendar_info (CalendarInfoRequest *request, uintptr_t heap, int flags) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   const LocaleInfoEntry *entry = NULL;
 
   if (flags & P32_POSIX_LOCALE_INFO_NL_ITEM) {
@@ -505,9 +501,7 @@ int p32_posix_get_calendar_info (CalendarInfoRequest *request, uintptr_t heap, i
   return 0;
 
 fail_free:
-  if (data != NULL) {
-    HeapFree (heapHandle, 0, data);
-  }
+  p32_heap_free (heap, 0, data);
 
 fail:
   return -1;

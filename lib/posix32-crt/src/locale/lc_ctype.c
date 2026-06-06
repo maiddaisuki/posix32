@@ -30,6 +30,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-heap.h"
+
 #include "locale-internal.h"
 #include "wctype-internal.h"
 
@@ -116,12 +118,8 @@ fail:
  * Free locale information stored in `lcCtypeInfo`.
  */
 static void P32FreeLcCtypeInfoW (LcCtypeInfo *lcCtypeInfo, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
-  if (lcCtypeInfo->CharsetName.W != NULL) {
-    HeapFree (heapHandle, 0, lcCtypeInfo->CharsetName.W);
-    lcCtypeInfo->CharsetName.W = NULL;
-  }
+  p32_heap_free (heap, 0, lcCtypeInfo->CharsetName.W);
+  lcCtypeInfo->CharsetName.W = NULL;
 }
 
 /**
@@ -203,28 +201,18 @@ fail:
  * Free locale information stored in `lcCtypeInfo`.
  */
 static void P32FreeLcCtypeInfoA (LcCtypeInfo *lcCtypeInfo, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
-  if (lcCtypeInfo->CharsetName.A != NULL) {
-    HeapFree (heapHandle, 0, lcCtypeInfo->CharsetName.A);
-    lcCtypeInfo->CharsetName.A = NULL;
-  }
+  p32_heap_free (heap, 0, lcCtypeInfo->CharsetName.A);
+  lcCtypeInfo->CharsetName.A = NULL;
 
   for (size_t i = 0; i < _countof (lcCtypeInfo->CharTypes); ++i) {
-    if (lcCtypeInfo->CharTypes[i].Name != NULL) {
-      HeapFree (heapHandle, 0, lcCtypeInfo->CharTypes[i].Name);
-      lcCtypeInfo->CharTypes[i].Name = NULL;
-    }
-
+    p32_heap_free (heap, 0, lcCtypeInfo->CharTypes[i].Name);
+    lcCtypeInfo->CharTypes[i].Name     = NULL;
     lcCtypeInfo->CharTypes[i].CharType = 0;
   }
 
   for (size_t i = 0; i < _countof (lcCtypeInfo->CharMappings); ++i) {
-    if (lcCtypeInfo->CharMappings[i].Name != NULL) {
-      HeapFree (heapHandle, 0, lcCtypeInfo->CharMappings[i].Name);
-      lcCtypeInfo->CharMappings[i].Name = NULL;
-    }
-
+    p32_heap_free (heap, 0, lcCtypeInfo->CharMappings[i].Name);
+    lcCtypeInfo->CharMappings[i].Name        = NULL;
     lcCtypeInfo->CharMappings[i].CharMapping = 0;
   }
 }

@@ -28,6 +28,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-heap.h"
+
 #include "locale-internal.h"
 
 /**
@@ -97,16 +99,10 @@ fail:
  * Free locale infromation stored in `info`.
  */
 static void P32FreeLcNumericInfoW (LcNumericInfo *info, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
-  if (info->RadixChar.W != NULL) {
-    HeapFree (heapHandle, 0, info->RadixChar.W);
-    info->RadixChar.W = NULL;
-  }
-  if (info->ThousandsSeparator.W != NULL) {
-    HeapFree (heapHandle, 0, info->ThousandsSeparator.W);
-    info->ThousandsSeparator.W = NULL;
-  }
+  p32_heap_free (heap, 0, info->RadixChar.W);
+  info->RadixChar.W = NULL;
+  p32_heap_free (heap, 0, info->ThousandsSeparator.W);
+  info->ThousandsSeparator.W = NULL;
 }
 
 /**
@@ -130,16 +126,10 @@ fail:
  * Free locale infromation stored in `info`.
  */
 static void P32FreeLcNumericInfoA (LcNumericInfo *info, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
-  if (info->RadixChar.A != NULL) {
-    HeapFree (heapHandle, 0, info->RadixChar.A);
-    info->RadixChar.A = NULL;
-  }
-  if (info->ThousandsSeparator.A != NULL) {
-    HeapFree (heapHandle, 0, info->ThousandsSeparator.A);
-    info->ThousandsSeparator.A = NULL;
-  }
+  p32_heap_free (heap, 0, info->RadixChar.A);
+  info->RadixChar.A = NULL;
+  p32_heap_free (heap, 0, info->ThousandsSeparator.A);
+  info->ThousandsSeparator.A = NULL;
 }
 
 /*******************************************************************************

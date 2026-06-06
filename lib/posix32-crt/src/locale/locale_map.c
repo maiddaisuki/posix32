@@ -30,6 +30,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-heap.h"
+
 #include "locale-internal.h"
 
 /**
@@ -204,8 +206,6 @@ static bool P32NormalizeLocaleString (wchar_t **address, uintptr_t heap, const w
     return true;
   }
 
-  HANDLE heapHandle = (HANDLE) heap;
-
   /**
    * Difference, in characters, between language/country name in
    * the input string and in the replacement string
@@ -222,7 +222,7 @@ static bool P32NormalizeLocaleString (wchar_t **address, uintptr_t heap, const w
   }
 
   map.O.Length = map.I.Length + languageLengthAdjustment + countryLengthAdjustment;
-  map.O.String = (wchar_t *) HeapAlloc (heapHandle, 0, (map.O.Length + 1) * sizeof (wchar_t));
+  map.O.String = p32_heap_alloc (heap, 0, (map.O.Length + 1) * sizeof (wchar_t));
 
   if (map.O.String == NULL) {
     return false;
@@ -715,8 +715,6 @@ static int P32ParseKnownLocaleName (LocaleMap *localeMap, const wchar_t *localeS
  */
 
 bool p32_locale_map (LocaleMap *localeMap, const wchar_t *localeString, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   /**
    * Check if `localeString` needs to be normalized.
    */
@@ -765,7 +763,7 @@ bool p32_locale_map (LocaleMap *localeMap, const wchar_t *localeString, uintptr_
 
 free:
   if (normalizedLocaleString != NULL) {
-    HeapFree (heapHandle, 0, normalizedLocaleString);
+    p32_heap_free (heap, 0, normalizedLocaleString);
   }
 
   return success;

@@ -301,7 +301,7 @@ static void DoTest (Locale *originaLocale, LPCWSTR ll, LPCWSTR cc) {
     fwprintf (stderr, L"ERROR: %s (%s)\n", originaLocale->LocaleName, LocaleString);
   }
 
-  assert (HeapFree (heapHandle, 0, LocaleString));
+  assert (p32_heap_free (heap, 0, LocaleString));
 }
 
 /**
@@ -402,14 +402,14 @@ static bool __cdecl Test (Locale *locale) {
     // DoTest (locale, Lll, Cc);
   }
 
-  assert (HeapFree (heapHandle, 0, LanguageName));
-  assert (HeapFree (heapHandle, 0, CountryName));
-  assert (HeapFree (heapHandle, 0, Ll));
-  assert (HeapFree (heapHandle, 0, Cc));
+  assert (p32_heap_free (heap, 0, LanguageName));
+  assert (p32_heap_free (heap, 0, CountryName));
+  assert (p32_heap_free (heap, 0, Ll));
+  assert (p32_heap_free (heap, 0, Cc));
 
   if (P32_WINNT_CHECK (P32_WINNT_VISTA, WindowsNtVista)) {
-    assert (HeapFree (heapHandle, 0, Lll));
-    assert (HeapFree (heapHandle, 0, Ccc));
+    assert (p32_heap_free (heap, 0, Lll));
+    assert (p32_heap_free (heap, 0, Ccc));
   }
 
   return true;

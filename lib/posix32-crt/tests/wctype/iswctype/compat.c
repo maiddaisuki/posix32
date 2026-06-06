@@ -162,7 +162,7 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
       fprintf (stderr, "%s\n", mbs);
 
       free (mbs);
-      assert (HeapFree (heapHandle, 0, wcs));
+      assert (p32_heap_free (heap, 0, wcs));
 #endif
     }
 

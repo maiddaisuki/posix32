@@ -28,6 +28,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-heap.h"
 #include "core-winver.h"
 
 #include "locale-internal.h"
@@ -76,44 +77,21 @@ fail:
  * Free `LocaleStringsA` structure.
  */
 static void P32FreeLocaleStringsA (LocaleStringsA *localeStrings, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   localeStrings->CodePage = 0;
-
-  if (localeStrings->LcAll != NULL) {
-    HeapFree (heapHandle, 0, localeStrings->LcAll);
-    localeStrings->LcAll = NULL;
-  }
-
-  if (localeStrings->LcCollate != NULL) {
-    HeapFree (heapHandle, 0, localeStrings->LcCollate);
-    localeStrings->LcCollate = NULL;
-  }
-
-  if (localeStrings->LcCtype != NULL) {
-    HeapFree (heapHandle, 0, localeStrings->LcCtype);
-    localeStrings->LcCtype = NULL;
-  }
-
-  if (localeStrings->LcMessages != NULL) {
-    HeapFree (heapHandle, 0, localeStrings->LcMessages);
-    localeStrings->LcMessages = NULL;
-  }
-
-  if (localeStrings->LcMonetary != NULL) {
-    HeapFree (heapHandle, 0, localeStrings->LcMonetary);
-    localeStrings->LcMonetary = NULL;
-  }
-
-  if (localeStrings->LcNumeric != NULL) {
-    HeapFree (heapHandle, 0, localeStrings->LcNumeric);
-    localeStrings->LcNumeric = NULL;
-  }
-
-  if (localeStrings->LcTime != NULL) {
-    HeapFree (heapHandle, 0, localeStrings->LcTime);
-    localeStrings->LcTime = NULL;
-  }
+  p32_heap_free (heap, 0, localeStrings->LcAll);
+  localeStrings->LcAll = NULL;
+  p32_heap_free (heap, 0, localeStrings->LcCollate);
+  localeStrings->LcCollate = NULL;
+  p32_heap_free (heap, 0, localeStrings->LcCtype);
+  localeStrings->LcCtype = NULL;
+  p32_heap_free (heap, 0, localeStrings->LcMessages);
+  localeStrings->LcMessages = NULL;
+  p32_heap_free (heap, 0, localeStrings->LcMonetary);
+  localeStrings->LcMonetary = NULL;
+  p32_heap_free (heap, 0, localeStrings->LcNumeric);
+  localeStrings->LcNumeric = NULL;
+  p32_heap_free (heap, 0, localeStrings->LcTime);
+  localeStrings->LcTime = NULL;
 }
 
 /**
@@ -154,44 +132,21 @@ fail:
  * Free `LocaleStringsW` structure.
  */
 static void P32FreeLocaleStringsW (LocaleStringsW *localeStrings, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   localeStrings->CodePage = 0;
-
-  if (localeStrings->LcAll != NULL) {
-    HeapFree (heapHandle, 0, localeStrings->LcAll);
-    localeStrings->LcAll = NULL;
-  }
-
-  if (localeStrings->LcCollate != NULL) {
-    HeapFree (heapHandle, 0, localeStrings->LcCollate);
-    localeStrings->LcCollate = NULL;
-  }
-
-  if (localeStrings->LcCtype != NULL) {
-    HeapFree (heapHandle, 0, localeStrings->LcCtype);
-    localeStrings->LcCtype = NULL;
-  }
-
-  if (localeStrings->LcMessages != NULL) {
-    HeapFree (heapHandle, 0, localeStrings->LcMessages);
-    localeStrings->LcMessages = NULL;
-  }
-
-  if (localeStrings->LcMonetary != NULL) {
-    HeapFree (heapHandle, 0, localeStrings->LcMonetary);
-    localeStrings->LcMonetary = NULL;
-  }
-
-  if (localeStrings->LcNumeric != NULL) {
-    HeapFree (heapHandle, 0, localeStrings->LcNumeric);
-    localeStrings->LcNumeric = NULL;
-  }
-
-  if (localeStrings->LcTime != NULL) {
-    HeapFree (heapHandle, 0, localeStrings->LcTime);
-    localeStrings->LcTime = NULL;
-  }
+  p32_heap_free (heap, 0, localeStrings->LcAll);
+  localeStrings->LcAll = NULL;
+  p32_heap_free (heap, 0, localeStrings->LcCollate);
+  localeStrings->LcCollate = NULL;
+  p32_heap_free (heap, 0, localeStrings->LcCtype);
+  localeStrings->LcCtype = NULL;
+  p32_heap_free (heap, 0, localeStrings->LcMessages);
+  localeStrings->LcMessages = NULL;
+  p32_heap_free (heap, 0, localeStrings->LcMonetary);
+  localeStrings->LcMonetary = NULL;
+  p32_heap_free (heap, 0, localeStrings->LcNumeric);
+  localeStrings->LcNumeric = NULL;
+  p32_heap_free (heap, 0, localeStrings->LcTime);
+  localeStrings->LcTime = NULL;
 }
 
 bool p32_localestr_copy (LocaleStrings *dest, uintptr_t heap, LocaleStrings *src) {
@@ -224,8 +179,6 @@ void p32_localestr_free (LocaleStrings *localeStrings, uintptr_t heap) {
 }
 
 bool p32_localestr_split (LocaleStrings *localeStrings, uintptr_t heap, const wchar_t *string) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   wchar_t *separator = wcschr (string, L';');
 
   /**
@@ -311,7 +264,7 @@ bool p32_localestr_split (LocaleStrings *localeStrings, uintptr_t heap, const wc
       goto fail;
     }
 
-    *buffer = HeapAlloc (heapHandle, 0, (length + 1) * sizeof (wchar_t));
+    *buffer = p32_heap_alloc (heap, 0, (length + 1) * sizeof (wchar_t));
 
     if (*buffer == NULL) {
       goto fail;
@@ -374,8 +327,6 @@ fail:
  *   `1`: environment variable does not exists, or its value is an empty string
  */
 static int P32GetEnvVar (wchar_t **address, uintptr_t heap, const wchar_t *varname, const wchar_t *fallbackVarname) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   LPWSTR buffer     = NULL;
   DWORD  bufferSize = 0;
 
@@ -388,7 +339,7 @@ static int P32GetEnvVar (wchar_t **address, uintptr_t heap, const wchar_t *varna
     goto fallback;
   }
 
-  buffer = (LPWSTR) HeapAlloc (heapHandle, 0, bufferSize * sizeof (wchar_t));
+  buffer = p32_heap_alloc (heap, 0, bufferSize * sizeof (wchar_t));
 
   if (buffer == NULL) {
     goto fail;
@@ -412,7 +363,7 @@ fallback:
   return 1;
 
 fail_free:
-  HeapFree (heapHandle, 0, buffer);
+  p32_heap_free (heap, 0, buffer);
 
 fail:
   return -1;
@@ -739,8 +690,6 @@ static bool P32FormatWindowsLocaleString (wchar_t **address, uintptr_t heap, Loc
  * Returns `true` on success, and `false` otherwise.
  */
 static bool P32FormatCrtLocaleString (wchar_t **address, uintptr_t heap, Locale *locale, uint32_t codePage) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   if (locale->Type == LocaleType_POSIX) {
     return P32FormatCLocaleString (address, heap);
   }
@@ -834,12 +783,8 @@ done:
   success = true;
 
 fail:
-  if (ll != NULL) {
-    HeapFree (heapHandle, 0, ll);
-  }
-  if (cc != NULL) {
-    HeapFree (heapHandle, 0, cc);
-  }
+  p32_heap_free (heap, 0, cc);
+  p32_heap_free (heap, 0, ll);
 
   return success;
 }
@@ -853,8 +798,6 @@ fail:
  * Returns `true` on success, and `false` otherwise.
  */
 static bool P32FormatIsoLocaleString (wchar_t **address, uintptr_t heap, Locale *locale, uint32_t codePage) {
-  HANDLE heapHandle = (HANDLE) heap;
-
   if (locale->Type == LocaleType_POSIX) {
     return P32FormatCLocaleString (address, heap);
   }
@@ -905,15 +848,9 @@ static bool P32FormatIsoLocaleString (wchar_t **address, uintptr_t heap, Locale 
   success = true;
 
 fail:
-  if (charsetName != NULL) {
-    HeapFree (heapHandle, 0, charsetName);
-  }
-  if (cc != NULL) {
-    HeapFree (heapHandle, 0, cc);
-  }
-  if (ll != NULL) {
-    HeapFree (heapHandle, 0, ll);
-  }
+  p32_heap_free (heap, 0, charsetName);
+  p32_heap_free (heap, 0, cc);
+  p32_heap_free (heap, 0, ll);
 
   return success;
 }

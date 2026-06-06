@@ -28,6 +28,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-heap.h"
+
 #include "locale-internal.h"
 
 /**
@@ -112,24 +114,14 @@ fail:
  * Free locale infromation stored in `lcMessagesInfo`.
  */
 static void P32FreeLcMessagesInfoW (LcMessagesInfo *lcMessagesInfo, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
-  if (lcMessagesInfo->NoStr.W != NULL) {
-    HeapFree (heapHandle, 0, lcMessagesInfo->NoStr.W);
-    lcMessagesInfo->NoStr.W = NULL;
-  }
-  if (lcMessagesInfo->YesStr.W != NULL) {
-    HeapFree (heapHandle, 0, lcMessagesInfo->YesStr.W);
-    lcMessagesInfo->YesStr.W = NULL;
-  }
-  if (lcMessagesInfo->NoExpr.W != NULL) {
-    HeapFree (heapHandle, 0, lcMessagesInfo->NoExpr.W);
-    lcMessagesInfo->NoExpr.W = NULL;
-  }
-  if (lcMessagesInfo->YesExpr.W != NULL) {
-    HeapFree (heapHandle, 0, lcMessagesInfo->YesExpr.W);
-    lcMessagesInfo->YesExpr.W = NULL;
-  }
+  p32_heap_free (heap, 0, lcMessagesInfo->NoStr.W);
+  lcMessagesInfo->NoStr.W = NULL;
+  p32_heap_free (heap, 0, lcMessagesInfo->YesStr.W);
+  lcMessagesInfo->YesStr.W = NULL;
+  p32_heap_free (heap, 0, lcMessagesInfo->NoExpr.W);
+  lcMessagesInfo->NoExpr.W = NULL;
+  p32_heap_free (heap, 0, lcMessagesInfo->YesExpr.W);
+  lcMessagesInfo->YesExpr.W = NULL;
 }
 
 /**
@@ -159,24 +151,14 @@ fail:
  * Free locale infromation stored in `lcMessagesInfo`.
  */
 static void P32FreeLcMessagesInfoA (LcMessagesInfo *lcMessagesInfo, uintptr_t heap) {
-  HANDLE heapHandle = (HANDLE) heap;
-
-  if (lcMessagesInfo->NoStr.A != NULL) {
-    HeapFree (heapHandle, 0, lcMessagesInfo->NoStr.A);
-    lcMessagesInfo->NoStr.A = NULL;
-  }
-  if (lcMessagesInfo->YesStr.A != NULL) {
-    HeapFree (heapHandle, 0, lcMessagesInfo->YesStr.A);
-    lcMessagesInfo->YesStr.A = NULL;
-  }
-  if (lcMessagesInfo->NoExpr.A != NULL) {
-    HeapFree (heapHandle, 0, lcMessagesInfo->NoExpr.A);
-    lcMessagesInfo->NoExpr.A = NULL;
-  }
-  if (lcMessagesInfo->YesExpr.A != NULL) {
-    HeapFree (heapHandle, 0, lcMessagesInfo->YesExpr.A);
-    lcMessagesInfo->YesExpr.A = NULL;
-  }
+  p32_heap_free (heap, 0, lcMessagesInfo->NoStr.A);
+  lcMessagesInfo->NoStr.A = NULL;
+  p32_heap_free (heap, 0, lcMessagesInfo->YesStr.A);
+  lcMessagesInfo->YesStr.A = NULL;
+  p32_heap_free (heap, 0, lcMessagesInfo->NoExpr.A);
+  lcMessagesInfo->NoExpr.A = NULL;
+  p32_heap_free (heap, 0, lcMessagesInfo->YesExpr.A);
+  lcMessagesInfo->YesExpr.A = NULL;
 }
 
 /*******************************************************************************
