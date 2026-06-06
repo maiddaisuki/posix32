@@ -31,6 +31,7 @@
 #include "core-atomic.h"
 #include "core-heap.h"
 #include "core-loader.h"
+#include "core-runtime.h"
 #include "core-winver.h"
 
 /**
@@ -404,10 +405,38 @@ static void P32HeapPrintSummary (uintptr_t heap) {
  * External Functions.
  */
 
+#undef p32_heap_create
+#undef p32_heap_destroy
+#undef p32_heap_alloc
+#undef p32_heap_realloc
+#undef p32_heap_size
+#undef p32_heap_free
+#undef p32_heap_strdup
+#undef p32_heap_wcsdup
+
+#ifdef LIBPOSIX32_TEST
+P32_EXTERN_INLINE_DEFN int p32_heap_strdup (const wchar_t *, unsigned, char **, uintptr_t, const char *);
+P32_EXTERN_INLINE_DEFN int p32_heap_wcsdup (const wchar_t *, unsigned, wchar_t **, uintptr_t, const wchar_t *);
+#else
 P32_EXTERN_INLINE_DEFN int p32_heap_strdup (char **, uintptr_t, const char *);
 P32_EXTERN_INLINE_DEFN int p32_heap_wcsdup (wchar_t **, uintptr_t, const wchar_t *);
+#endif
 
-uintptr_t p32_heap_create (uint32_t createFlags, uint32_t flags, size_t initialSize, size_t maxSize) {
+#ifdef _MSC_VER
+P32_PRAGMA (warning (push));
+P32_PRAGMA (warning (disable : 4702)); // unreachable code
+#endif
+
+uintptr_t p32_heap_create (
+#ifdef LIBPOSIX32_TEST
+  const wchar_t *filename,
+  unsigned       line,
+#endif
+  uint32_t createFlags,
+  uint32_t flags,
+  size_t   initialSize,
+  size_t   maxSize
+) {
   /**
    * Low Fragmentation Heap and `HEAP_NO_SERIALIZE` are not compatible.
    *
@@ -417,12 +446,23 @@ uintptr_t p32_heap_create (uint32_t createFlags, uint32_t flags, size_t initialS
    * However, we fail completely to signal an inconsistency.
    */
   if ((createFlags & P32_HEAP_CREATE_LFH) && (flags & HEAP_NO_SERIALIZE)) {
+#ifdef LIBPOSIX32_TEST
+    P32HeapDbgErr (
+      L"%s:%u: p32_heap_create: attempt to create LFH heap with HEAP_NO_SERIALIZE flag.\n", filename, line
+    );
+    p32_terminate (L"Invalid heap usage has been detected.");
+#endif
+
     return 0;
   }
 
   HANDLE heapHandle = HeapCreate (flags, initialSize, maxSize);
 
   if (heapHandle == NULL) {
+    P32HeapDbgErr (
+      L"%s:%u: p32_heap_create: failed to create heap; Flags=%X, InitialSize=L" ZU L", MaxSize=" ZU L".\n", filename,
+      line, flags, initialSize, maxSize
+    );
     return 0;
   }
 
@@ -432,30 +472,57 @@ uintptr_t p32_heap_create (uint32_t createFlags, uint32_t flags, size_t initialS
    * Enable Low Fragmentation Heap if requested.
    */
   if (createFlags & P32_HEAP_CREATE_LFH) {
-    P32HeapLowFragmentation (heap);
+    if (!P32HeapLowFragmentation (heap)) {
+      P32HeapDbgMsg (
+        L"%s:%u: p32_heap_create: heap <%p>: failed to enable Low Fragmentation Heap.\n", filename, line, heapHandle
+      );
+    }
   }
 
   /**
    * Enable Terminate on Corruption feature if requested.
    */
   if (createFlags & P32_HEAP_CREATE_TERMINATE_ON_CORRUPTION) {
-    P32HeapTerminateOnCorruption (heap);
+    if (!P32HeapTerminateOnCorruption (heap)) {
+      P32HeapDbgMsg (
+        L"%s:%u: p32_heap_create: heap <%p>: failed to enable Terminate on Corruption.\n", filename, line, heapHandle
+      );
+    }
   }
 
   return heap;
 }
 
-bool p32_heap_destroy (uintptr_t heap) {
+bool p32_heap_destroy (
+#ifdef LIBPOSIX32_TEST
+  const wchar_t *filename,
+  unsigned       line,
+#endif
+  uintptr_t heap
+) {
   HANDLE heapHandle = (HANDLE) heap;
 
 #ifdef LIBPOSIX32_TEST
   P32HeapPrintSummary (heap);
 #endif
 
-  return HeapDestroy (heapHandle);
+  if (!HeapDestroy (heapHandle)) {
+    P32HeapDbgErr (L"%s:%u: p32_heap_destroy: heap <%p>: failed to destroy.\n", filename, line, heapHandle);
+    return false;
+  }
+
+  return true;
 }
 
-void *p32_heap_alloc (uintptr_t heap, uint32_t flags, size_t size) {
+void *p32_heap_alloc (
+#ifdef LIBPOSIX32_TEST
+  const wchar_t *filename,
+  unsigned       line,
+#endif
+  uintptr_t heap,
+  uint32_t  flags,
+  size_t    size
+) {
   HANDLE heapHandle = (HANDLE) heap;
 
 #ifdef LIBPOSIX32_TEST
@@ -464,10 +531,30 @@ void *p32_heap_alloc (uintptr_t heap, uint32_t flags, size_t size) {
   }
 #endif
 
-  return HeapAlloc (heapHandle, flags, size);
+  void *buffer = HeapAlloc (heapHandle, flags, size);
+
+#ifdef LIBPOSIX32_TEST
+  if (buffer == NULL) {
+    P32HeapDbgErr (
+      L"%s:%u: p32_heap_alloc: heap <%p>: request to allocate " ZU L" bytes has failed.\n", filename, line, heapHandle,
+      size
+    );
+  }
+#endif
+
+  return buffer;
 }
 
-void *p32_heap_realloc (uintptr_t heap, uint32_t flags, void *memory, size_t size) {
+void *p32_heap_realloc (
+#ifdef LIBPOSIX32_TEST
+  const wchar_t *filename,
+  unsigned       line,
+#endif
+  uintptr_t heap,
+  uint32_t  flags,
+  void     *memory,
+  size_t    size
+) {
   HANDLE heapHandle = (HANDLE) heap;
 
 #ifdef LIBPOSIX32_TEST
@@ -487,18 +574,47 @@ void *p32_heap_realloc (uintptr_t heap, uint32_t flags, void *memory, size_t siz
    */
   if (memory == NULL) {
     if (flags & (HEAP_REALLOC_IN_PLACE_ONLY)) {
+#ifdef LIBPOSIX32_TEST
+      P32HeapDbgErr (
+        L"%s:%u: p32_heap_realloc: heap <%p>: `NULL` memory block passed with HEAP_REALLOC_IN_PLACE_ONLY flag.\n",
+        filename, line, heapHandle
+      );
+      p32_terminate (L"Invalid heap usage has been detected.");
+#endif
+
       return NULL;
     }
 
     buffer = HeapAlloc (heapHandle, flags, size);
   } else {
     buffer = HeapReAlloc (heapHandle, flags, memory, size);
+
+#ifdef LIBPOSIX32_TEST
+    if (buffer == NULL) {
+      size_t memorySize = HeapSize (heapHandle, flags & HEAP_NO_SERIALIZE, memory);
+      assert (memorySize != (size_t) -1);
+
+      P32HeapDbgErr (
+        L"%s:%u: p32_heap_realloc: heap <%p>: failed to reallocate memory block <%p> "
+        L"(" ZU L" bytes) to " ZU L" bytes.\n",
+        filename, line, heapHandle, memory, memorySize, size
+      );
+    }
+#endif
   }
 
   return buffer;
 }
 
-size_t p32_heap_size (uintptr_t heap, uint32_t flags, void *memory) {
+size_t p32_heap_size (
+#ifdef LIBPOSIX32_TEST
+  const wchar_t *filename,
+  unsigned       line,
+#endif
+  uintptr_t heap,
+  uint32_t  flags,
+  void     *memory
+) {
   HANDLE heapHandle = (HANDLE) heap;
 
 #ifdef LIBPOSIX32_TEST
@@ -507,10 +623,30 @@ size_t p32_heap_size (uintptr_t heap, uint32_t flags, void *memory) {
   }
 #endif
 
-  return HeapSize (heapHandle, flags, memory);
+  size_t memorySize = HeapSize (heapHandle, flags, memory);
+
+#ifdef LIBPOSIX32_TEST
+  if (memorySize == (size_t) -1) {
+    P32HeapDbgErr (
+      L"%s:%u: p32_heap_size: heap <%p>: failed to obtain size of memory block <%p>.\n", filename, line, heapHandle,
+      memory
+    );
+    p32_terminate (L"Potential heap corruption has been detected.");
+  }
+#endif
+
+  return memorySize;
 }
 
-bool p32_heap_free (uintptr_t heap, uint32_t flags, void *memory) {
+bool p32_heap_free (
+#ifdef LIBPOSIX32_TEST
+  const wchar_t *filename,
+  unsigned       line,
+#endif
+  uintptr_t heap,
+  uint32_t  flags,
+  void     *memory
+) {
   HANDLE heapHandle = (HANDLE) heap;
 
 #ifdef LIBPOSIX32_TEST
@@ -519,8 +655,23 @@ bool p32_heap_free (uintptr_t heap, uint32_t flags, void *memory) {
   }
 #endif
 
-  return HeapFree (heapHandle, flags, memory);
+  bool success = HeapFree (heapHandle, flags, memory);
+
+#ifdef LIBPOSIX32_TEST
+  if (!success) {
+    P32HeapDbgErr (
+      L"%s:%u: p32_heap_free: heap <%p>: failed to free memory block <%p>.\n", filename, line, heapHandle, memory
+    );
+    p32_terminate (L"Potential heap corruption has been detected");
+  }
+#endif
+
+  return success;
 }
+
+#ifdef _MSC_VER
+P32_PRAGMA (warning (pop));
+#endif
 
 bool p32_heap_lock (uintptr_t heap) {
   HANDLE heapHandle = (HANDLE) heap;
