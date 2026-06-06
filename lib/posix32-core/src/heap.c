@@ -334,7 +334,7 @@ static BOOL WINAPI P32HeapSetInformation (HANDLE heap, HEAP_INFORMATION_CLASS in
 #endif /* P32_WINNT < Windows XP || Win9x */
 
 /*******************************************************************************
- * External Functions.
+ * Internal Functions.
  */
 
 /**
@@ -362,6 +362,30 @@ static BOOL WINAPI P32HeapSetInformation (HANDLE heap, HEAP_INFORMATION_CLASS in
 #define P32HeapDbgErr(...) (void) 0
 
 #endif
+
+#ifdef LIBPOSIX32_TEST
+/**
+ * Print heap summary for `heap`.
+ */
+static void P32HeapPrintSummary (uintptr_t heap) {
+  HANDLE       heapHandle  = (HANDLE) heap;
+  HEAP_SUMMARY heapSummary = {0};
+
+  heapSummary.cb = sizeof (heapSummary);
+
+  if (HeapSummary (heapHandle, 0, &heapSummary)) {
+    P32HeapDbgMsg (L"Summary of heap <%p>:\n", heapHandle);
+    P32HeapDbgMsg (L"  MaxReserve: " ZU " (" ZU "KiB)\n", heapSummary.cbMaxReserve, heapSummary.cbMaxReserve / 1024);
+    P32HeapDbgMsg (L"  Reserved:   " ZU " (" ZU "KiB)\n", heapSummary.cbReserved, heapSummary.cbReserved / 1024);
+    P32HeapDbgMsg (L"  Committed:  " ZU " (" ZU "KiB)\n", heapSummary.cbCommitted, heapSummary.cbCommitted / 1024);
+    P32HeapDbgMsg (L"  Allocated:  " ZU " (" ZU "KiB)\n", heapSummary.cbAllocated, heapSummary.cbAllocated / 1024);
+  }
+}
+#endif
+
+/*******************************************************************************
+ * External Functions.
+ */
 
 uintptr_t p32_heap_create (uint32_t createFlags, uint32_t flags, size_t initialSize, size_t maxSize) {
   /**
@@ -403,6 +427,11 @@ uintptr_t p32_heap_create (uint32_t createFlags, uint32_t flags, size_t initialS
 
 bool p32_heap_destroy (uintptr_t heap) {
   HANDLE heapHandle = (HANDLE) heap;
+
+#ifdef LIBPOSIX32_TEST
+  P32HeapPrintSummary (heap);
+#endif
+
   return HeapDestroy (heapHandle);
 }
 
@@ -441,20 +470,3 @@ bool p32_heap_terminate_on_corruption (uintptr_t heap) {
   HANDLE heapHandle = (HANDLE) heap;
   return HeapSetInformation (heapHandle, HeapEnableTerminationOnCorruption, NULL, 0);
 }
-
-#ifdef LIBPOSIX32_TEST
-void p32_heap_print_summary (uintptr_t heap) {
-  HANDLE       heapHandle  = (HANDLE) heap;
-  HEAP_SUMMARY heapSummary = {0};
-
-  heapSummary.cb = sizeof (heapSummary);
-
-  if (HeapSummary (heapHandle, 0, &heapSummary)) {
-    P32HeapDbgMsg (L"Summary of heap <%p>:\n", heapHandle);
-    P32HeapDbgMsg (L"  MaxReserve: " ZU " (" ZU "KiB)\n", heapSummary.cbMaxReserve, heapSummary.cbMaxReserve / 1024);
-    P32HeapDbgMsg (L"  Reserved:   " ZU " (" ZU "KiB)\n", heapSummary.cbReserved, heapSummary.cbReserved / 1024);
-    P32HeapDbgMsg (L"  Committed:  " ZU " (" ZU "KiB)\n", heapSummary.cbCommitted, heapSummary.cbCommitted / 1024);
-    P32HeapDbgMsg (L"  Allocated:  " ZU " (" ZU "KiB)\n", heapSummary.cbAllocated, heapSummary.cbAllocated / 1024);
-  }
-}
-#endif

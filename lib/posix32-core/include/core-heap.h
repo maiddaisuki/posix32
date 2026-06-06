@@ -44,6 +44,9 @@ P32_CORE_DECL uintptr_t p32_heap_create (uint32_t createFlags, uint32_t flags, s
 
 /**
  * Wrapper for `HeapDestroy`.
+ *
+ * In the test version of the library, it print summary for `heap` before
+ * destroying it.
  */
 P32_CORE_DECL bool p32_heap_destroy (uintptr_t heap);
 
@@ -79,12 +82,5 @@ P32_CORE_DECL bool p32_heap_low_fragmentation (uintptr_t heap);
  * Enable termination if heap corruption occured on `heap`.
  */
 P32_CORE_DECL bool p32_heap_terminate_on_corruption (uintptr_t heap);
-
-#ifdef LIBPOSIX32_TEST
-/**
- * Print heap summary for `heap`.
- */
-P32_CORE_DECL void p32_heap_print_summary (uintptr_t heap);
-#endif
 
 #endif /* LIBPOSIX32_CORE_HEAP_H_INCLUDED */

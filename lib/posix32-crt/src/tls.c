@@ -179,10 +179,6 @@ static void P32FreeTls (ThreadStorage *tls, uint32_t tlsIndex) {
     p32_terminate (L"TLS: failed to deallocate storage.");
   }
 
-#if defined(LIBPOSIX32_TEST)
-  p32_heap_print_summary (heap);
-#endif
-
   /**
    * TODO: is there any performance gain from calling `HeapLock`?
    */

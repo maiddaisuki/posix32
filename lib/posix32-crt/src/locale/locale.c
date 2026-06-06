@@ -1048,10 +1048,6 @@ static int P32DestroyGlobalLocaleState (void) {
     P32DestroyUnicodeLocale ();
     P32DestroyPosixLocale ();
 
-#if defined(LIBPOSIX32_TEST)
-    p32_heap_print_summary (P32GlobalLocale.Heap);
-#endif
-
     if (!p32_heap_destroy (P32GlobalLocale.Heap)) {
       p32_terminate (L"Global Locale State: failed destroy private heap.");
     }
