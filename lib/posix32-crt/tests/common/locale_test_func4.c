@@ -46,7 +46,7 @@ static bool P32LocaleTestFunc4 (uint32_t codePage, void *localeTestFuncData) {
   char    *localeStringA = NULL;
   wchar_t *localeStringW = NULL;
 
-  assert (p32_private_aswprintf (&localeStringW, data->Heap, L"en-US.%u", codePage) != -1);
+  assert (p32_private_aswprintf (&localeStringW, 0, L"en-US.%u", codePage) != -1);
 
   /**
    * Convert `localeStringW` to active ANSI code page.
@@ -58,7 +58,7 @@ static bool P32LocaleTestFunc4 (uint32_t codePage, void *localeTestFuncData) {
   conversionRequest.Input.W  = localeStringW;
   conversionRequest.Output.A = &localeStringA;
 
-  assert (p32_charset_convert (&conversionRequest, data->Heap) != -1);
+  assert (p32_charset_convert (&conversionRequest, 0) != -1);
 
   bool     keep_going = true;
   locale_t locale     = p32_newlocale (LC_ALL_MASK, localeStringA, NULL);
@@ -81,8 +81,8 @@ static bool P32LocaleTestFunc4 (uint32_t codePage, void *localeTestFuncData) {
     p32_freelocale (locale);
   }
 
-  assert (p32_heap_free (data->Heap, 0, localeStringA));
-  assert (p32_heap_free (data->Heap, 0, localeStringW));
+  assert (p32_heap_free (0, 0, localeStringA));
+  assert (p32_heap_free (0, 0, localeStringW));
 
   return keep_going;
 }
@@ -113,9 +113,8 @@ void p32_locale_test_func4 (LocaleCallback4 callback, int flags) {
 
   LocaleTestFuncData localetestFuncData = {0};
 
-  localetestFuncData.Flags      = flags;
-  localetestFuncData.HeapHandle = GetProcessHeap ();
-  localetestFuncData.Callback4  = callback;
+  localetestFuncData.Flags     = flags;
+  localetestFuncData.Callback4 = callback;
 
   /**
    * Test all supported code pages.

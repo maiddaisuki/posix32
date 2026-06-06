@@ -22,8 +22,7 @@ static bool P32LocaleTestFunc3 (uint32_t codePage, void *localeTestFuncData) {
 void p32_locale_test_func3 (LocaleCallback3 callback) {
   LocaleTestFuncData localeTestFuncData = {0};
 
-  localeTestFuncData.HeapHandle = GetProcessHeap ();
-  localeTestFuncData.Callback3  = callback;
+  localeTestFuncData.Callback3 = callback;
 
   p32_charset_enum_system_code_pages (P32LocaleTestFunc3, &localeTestFuncData);
 }

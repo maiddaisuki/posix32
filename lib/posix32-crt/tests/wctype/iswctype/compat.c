@@ -130,9 +130,6 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
         /* clang-format on */
       );
 #else
-      HANDLE    heapHandle = GetProcessHeap ();
-      uintptr_t heap       = (uintptr_t) heapHandle;
-
       wchar_t format[] =
         L"%-24s: %0.4X %c | (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d)";
 
@@ -140,7 +137,7 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
       wchar_t *wcs = NULL;
 
       int mbsLength = p32_private_aswprintf (
-        &wcs, heap, format, localeName, wc, wcPrint,
+        &wcs, 0, format, localeName, wc, wcPrint,
         /* clang-format off */
         !!(crtMask & P32_CHARTYPE_ALNUM), !!(p32Mask & P32_CHARTYPE_ALNUM),
         !!(crtMask & P32_CHARTYPE_ALPHA), !!(p32Mask & P32_CHARTYPE_ALPHA),
@@ -162,7 +159,7 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
       fprintf (stderr, "%s\n", mbs);
 
       free (mbs);
-      assert (p32_heap_free (heap, 0, wcs));
+      assert (p32_heap_free (0, 0, wcs));
 #endif
     }
 

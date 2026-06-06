@@ -48,11 +48,6 @@ static wctob_t crt_wctob = NULL;
 static int exit_code = EXIT_FAILURE;
 
 static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
-#if P32_CRT < P32_MSVCR80
-  HANDLE    heapHandle = GetProcessHeap ();
-  uintptr_t heap       = (uintptr_t) heapHandle;
-#endif
-
   for (wchar_t wc = 0;; ++wc) {
     int crt = crt_wctob (wc);
     int p32 = wctob_l (wc, locale);
@@ -80,12 +75,12 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
       char    *u8Str = NULL;
       wchar_t *wStr  = NULL;
 
-      assert (p32_private_aswprintf (&wStr, heap, formatString, localeName, wc, wcToPrint, p32) != -1);
+      assert (p32_private_aswprintf (&wStr, 0, formatString, localeName, wc, wcToPrint, p32) != -1);
       assert (p32_ext_wcstombs_cp (&u8Str, wStr, CP_UTF8) != -1);
 
       fprintf (stderr, "%s\n", u8Str);
 
-      assert (p32_heap_free (heap, 0, wStr));
+      assert (p32_heap_free (0, 0, wStr));
       free (u8Str);
 #endif
 
@@ -116,12 +111,12 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
       char    *u8Str = NULL;
       wchar_t *wStr  = NULL;
 
-      assert (p32_private_aswprintf (&wStr, heap, formatString, localeName, wc, wcToPrint, crt, crtAsWc) != -1);
+      assert (p32_private_aswprintf (&wStr, 0, formatString, localeName, wc, wcToPrint, crt, crtAsWc) != -1);
       assert (p32_ext_wcstombs_cp (&u8Str, wStr, CP_UTF8) != -1);
 
       fprintf (stderr, "%s\n", u8Str);
 
-      assert (p32_heap_free (heap, 0, wStr));
+      assert (p32_heap_free (0, 0, wStr));
       free (u8Str);
 #endif
 

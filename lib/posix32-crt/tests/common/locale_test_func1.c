@@ -22,8 +22,7 @@ static bool P32LocaleTestFunc1 (Locale *locale, void *localeTestFuncData) {
 void p32_locale_test_func1 (LocaleCallback1 callback) {
   LocaleTestFuncData localeTestFuncData = {0};
 
-  localeTestFuncData.HeapHandle = GetProcessHeap ();
-  localeTestFuncData.Callback1  = callback;
+  localeTestFuncData.Callback1 = callback;
 
-  p32_winlocale_enum_system_locales (P32LocaleTestFunc1, localeTestFuncData.Heap, &localeTestFuncData);
+  p32_winlocale_enum_system_locales (P32LocaleTestFunc1, 0, &localeTestFuncData);
 }

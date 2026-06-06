@@ -82,7 +82,7 @@ static bool P32LocaleTestFunc2 (Locale *locale, void *localeTestFuncData) {
   if (testAnsi) {
     LPSTR testLocaleString = NULL;
 
-    assert (p32_private_asprintf (&testLocaleString, data->Heap, L"%s.%u", locale->LocaleName, ansiCodePage) != -1);
+    assert (p32_private_asprintf (&testLocaleString, 0, L"%s.%u", locale->LocaleName, ansiCodePage) != -1);
     locale_t testLocale = p32_newlocale (LC_ALL_MASK, testLocaleString, NULL);
 
     if (testLocale != NULL) {
@@ -106,7 +106,7 @@ static bool P32LocaleTestFunc2 (Locale *locale, void *localeTestFuncData) {
       p32_freelocale (testLocale);
     }
 
-    assert (p32_heap_free (data->Heap, 0, testLocaleString));
+    assert (p32_heap_free (0, 0, testLocaleString));
   }
 
   if (!keep_going || (flagOnce && tested)) {
@@ -119,7 +119,7 @@ static bool P32LocaleTestFunc2 (Locale *locale, void *localeTestFuncData) {
   if (testOem) {
     LPSTR testLocaleString = NULL;
 
-    assert (p32_private_asprintf (&testLocaleString, data->Heap, L"%s.%u", locale->LocaleName, oemCodePage) != -1);
+    assert (p32_private_asprintf (&testLocaleString, 0, L"%s.%u", locale->LocaleName, oemCodePage) != -1);
     locale_t testLocale = p32_newlocale (LC_ALL_MASK, testLocaleString, NULL);
 
     if (testLocale != NULL) {
@@ -143,7 +143,7 @@ static bool P32LocaleTestFunc2 (Locale *locale, void *localeTestFuncData) {
       p32_freelocale (testLocale);
     }
 
-    assert (p32_heap_free (data->Heap, 0, testLocaleString));
+    assert (p32_heap_free (0, 0, testLocaleString));
   }
 
   if (!keep_going || (flagOnce && tested)) {
@@ -156,7 +156,7 @@ static bool P32LocaleTestFunc2 (Locale *locale, void *localeTestFuncData) {
   if (testUnicode) {
     LPSTR testLocaleString = NULL;
 
-    assert (p32_private_asprintf (&testLocaleString, data->Heap, L"%s.%u", locale->LocaleName, CP_UTF8) != -1);
+    assert (p32_private_asprintf (&testLocaleString, 0, L"%s.%u", locale->LocaleName, CP_UTF8) != -1);
     locale_t testLocale = p32_newlocale (LC_ALL_MASK, testLocaleString, NULL);
 
     if (testLocale != NULL) {
@@ -180,7 +180,7 @@ static bool P32LocaleTestFunc2 (Locale *locale, void *localeTestFuncData) {
       p32_freelocale (testLocale);
     }
 
-    assert (p32_heap_free (data->Heap, 0, testLocaleString));
+    assert (p32_heap_free (0, 0, testLocaleString));
   }
 
   if (!keep_going || (flagOnce && tested)) {
@@ -244,12 +244,11 @@ void p32_locale_test_func2 (LocaleCallback2 callback, int flags) {
 skip_ascii:;
   LocaleTestFuncData localeTestFuncData = {0};
 
-  localeTestFuncData.Flags      = flags;
-  localeTestFuncData.HeapHandle = GetProcessHeap ();
-  localeTestFuncData.Callback2  = callback;
+  localeTestFuncData.Flags     = flags;
+  localeTestFuncData.Callback2 = callback;
 
   /**
    * Test all supported locales.
    */
-  p32_winlocale_enum_system_locales (P32LocaleTestFunc2, localeTestFuncData.Heap, &localeTestFuncData);
+  p32_winlocale_enum_system_locales (P32LocaleTestFunc2, 0, &localeTestFuncData);
 }

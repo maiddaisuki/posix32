@@ -51,13 +51,6 @@ typedef struct LocaleTestFuncData {
    */
   int Flags;
   /**
-   * Heap to use for memory allocations from callbacks.
-   */
-  union {
-    uintptr_t Heap;
-    void     *HeapHandle;
-  };
-  /**
    * `callback` argument passed to `p32_locale_test_func*`.
    */
   union {

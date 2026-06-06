@@ -276,17 +276,14 @@ static FuncIsKnownFailure IsKnownFailure;
  * Resolved locale must be equivalent to `originalLocale`.
  */
 static void DoTest (Locale *originaLocale, LPCWSTR ll, LPCWSTR cc) {
-  HANDLE    heapHandle = GetProcessHeap ();
-  uintptr_t heap       = (uintptr_t) heapHandle;
-
   LPWSTR    LocaleString   = NULL;
   LocaleMap localeMap      = {0};
   Locale    resolvedLocale = {0};
 
-  assert (p32_private_aswprintf (&LocaleString, heap, L"%s_%s", ll, cc) != -1);
-  assert (p32_locale_map (&localeMap, LocaleString, heap));
+  assert (p32_private_aswprintf (&LocaleString, 0, L"%s_%s", ll, cc) != -1);
+  assert (p32_locale_map (&localeMap, LocaleString, 0));
 
-  if (p32_winlocale_resolve (&resolvedLocale, heap, &localeMap)) {
+  if (p32_winlocale_resolve (&resolvedLocale, 0, &localeMap)) {
     assert (resolvedLocale.Type != LocaleType_Invalid);
 
     if (!IsEqualLocale (originaLocale, &resolvedLocale) && !IsKnownFailure (originaLocale, &resolvedLocale)) {
@@ -294,14 +291,14 @@ static void DoTest (Locale *originaLocale, LPCWSTR ll, LPCWSTR cc) {
       fwprintf (stderr, L"FAIL: %s -> %s -> %s\n", originaLocale->LocaleName, LocaleString, resolvedLocale.LocaleName);
     }
 
-    p32_winlocale_destroy (&resolvedLocale, heap);
+    p32_winlocale_destroy (&resolvedLocale, 0);
     assert (resolvedLocale.Type == LocaleType_Invalid);
   } else {
     exit_code = EXIT_FAILURE;
     fwprintf (stderr, L"ERROR: %s (%s)\n", originaLocale->LocaleName, LocaleString);
   }
 
-  assert (p32_heap_free (heap, 0, LocaleString));
+  assert (p32_heap_free (0, 0, LocaleString));
 }
 
 /**
@@ -310,15 +307,12 @@ static void DoTest (Locale *originaLocale, LPCWSTR ll, LPCWSTR cc) {
  * Resolved locale must be equivalent to `originalLocale`.
  */
 static void DoTestLocaleName (Locale *originalLocale) {
-  HANDLE    heapHandle = GetProcessHeap ();
-  uintptr_t heap       = (uintptr_t) heapHandle;
-
   LocaleMap localeMap      = {0};
   Locale    resolvedLocale = {0};
 
-  assert (p32_locale_map (&localeMap, originalLocale->LocaleName, heap));
+  assert (p32_locale_map (&localeMap, originalLocale->LocaleName, 0));
 
-  if (p32_winlocale_resolve (&resolvedLocale, heap, &localeMap)) {
+  if (p32_winlocale_resolve (&resolvedLocale, 0, &localeMap)) {
     assert (resolvedLocale.Type != LocaleType_Invalid);
 
     if (!IsEqualLocale (originalLocale, &resolvedLocale) && !IsKnownFailure (originalLocale, &resolvedLocale)) {
@@ -326,7 +320,7 @@ static void DoTestLocaleName (Locale *originalLocale) {
       fwprintf (stderr, L"FAIL: %s -> %s\n", originalLocale->LocaleName, resolvedLocale.LocaleName);
     }
 
-    p32_winlocale_destroy (&resolvedLocale, heap);
+    p32_winlocale_destroy (&resolvedLocale, 0);
     assert (resolvedLocale.Type == LocaleType_Invalid);
   } else {
     exit_code = EXIT_FAILURE;
@@ -335,9 +329,6 @@ static void DoTestLocaleName (Locale *originalLocale) {
 }
 
 static bool __cdecl Test (Locale *locale) {
-  HANDLE    heapHandle = GetProcessHeap ();
-  uintptr_t heap       = (uintptr_t) heapHandle;
-
   DoTestLocaleName (locale);
 
   /**
@@ -370,10 +361,10 @@ static bool __cdecl Test (Locale *locale) {
    */
   LPWSTR Ccc = NULL;
 
-  assert (p32_winlocale_get_language_name (&LanguageName, heap, locale));
-  assert (p32_winlocale_get_country_name (&CountryName, heap, locale));
-  assert (p32_winlocale_get_language_code (&Ll, heap, locale));
-  assert (p32_winlocale_get_country_code (&Cc, heap, locale));
+  assert (p32_winlocale_get_language_name (&LanguageName, 0, locale));
+  assert (p32_winlocale_get_country_name (&CountryName, 0, locale));
+  assert (p32_winlocale_get_language_code (&Ll, 0, locale));
+  assert (p32_winlocale_get_country_code (&Cc, 0, locale));
 
   if (P32_WINNT_CHECK (P32_WINNT_VISTA, WindowsNtVista)) {
     LocaleInfoRequest infoRequest = {0};
@@ -381,12 +372,12 @@ static bool __cdecl Test (Locale *locale) {
     infoRequest.Info    = LOCALE_SISO639LANGNAME2;
     infoRequest.OutputW = &Lll;
 
-    assert (p32_winlocale_get_locale_info (&infoRequest, heap, locale));
+    assert (p32_winlocale_get_locale_info (&infoRequest, 0, locale));
 
     infoRequest.Info    = LOCALE_SISO3166CTRYNAME2;
     infoRequest.OutputW = &Ccc;
 
-    assert (p32_winlocale_get_locale_info (&infoRequest, heap, locale));
+    assert (p32_winlocale_get_locale_info (&infoRequest, 0, locale));
   }
 
   DoTest (locale, LanguageName, CountryName);
@@ -402,14 +393,14 @@ static bool __cdecl Test (Locale *locale) {
     // DoTest (locale, Lll, Cc);
   }
 
-  assert (p32_heap_free (heap, 0, LanguageName));
-  assert (p32_heap_free (heap, 0, CountryName));
-  assert (p32_heap_free (heap, 0, Ll));
-  assert (p32_heap_free (heap, 0, Cc));
+  assert (p32_heap_free (0, 0, LanguageName));
+  assert (p32_heap_free (0, 0, CountryName));
+  assert (p32_heap_free (0, 0, Ll));
+  assert (p32_heap_free (0, 0, Cc));
 
   if (P32_WINNT_CHECK (P32_WINNT_VISTA, WindowsNtVista)) {
-    assert (p32_heap_free (heap, 0, Lll));
-    assert (p32_heap_free (heap, 0, Ccc));
+    assert (p32_heap_free (0, 0, Lll));
+    assert (p32_heap_free (0, 0, Ccc));
   }
 
   return true;

@@ -455,9 +455,6 @@ static void TestLocale (Locale *locale, LPCSTR localeString) {
 }
 
 static bool __cdecl Test (Locale *locale) {
-  HANDLE    heapHandle = GetProcessHeap ();
-  uintptr_t heap       = (uintptr_t) heapHandle;
-
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
   /**
    * Skip partial locale names which do not include country/region code.
@@ -484,10 +481,10 @@ static bool __cdecl Test (Locale *locale) {
   UINT macCodePage    = 0;
   UINT ebcdicCodePage = 0;
 
-  assert (p32_winlocale_get_ansi_code_page (&ansiCodePage, heap, locale));
-  assert (p32_winlocale_get_oem_code_page (&oemCodePage, heap, locale));
-  assert (p32_winlocale_get_mac_code_page (&macCodePage, heap, locale));
-  assert (p32_winlocale_get_ebcdic_code_page (&ebcdicCodePage, heap, locale));
+  assert (p32_winlocale_get_ansi_code_page (&ansiCodePage, 0, locale));
+  assert (p32_winlocale_get_oem_code_page (&oemCodePage, 0, locale));
+  assert (p32_winlocale_get_mac_code_page (&macCodePage, 0, locale));
+  assert (p32_winlocale_get_ebcdic_code_page (&ebcdicCodePage, 0, locale));
 
   UINT codePage = 0;
 
@@ -526,10 +523,10 @@ static bool __cdecl Test (Locale *locale) {
   if (usableCharset && doTest) {
     LPSTR localeString = NULL;
 
-    assert (p32_private_asprintf (&localeString, heap, L"%s.%u", locale->LocaleName, codePage) != -1);
+    assert (p32_private_asprintf (&localeString, 0, L"%s.%u", locale->LocaleName, codePage) != -1);
     TestLocale (locale, localeString);
 
-    assert (p32_heap_free (heap, 0, localeString));
+    assert (p32_heap_free (0, 0, localeString));
   } else if (!usableCharset && doTest) {
     _RPTW2 (_CRT_WARN, L"UNSUPPORTED: %s.%u\n", locale->LocaleName, codePage);
   } else {

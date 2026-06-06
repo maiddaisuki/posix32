@@ -51,21 +51,18 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
 #if P32_CRT >= P32_MSVCR80
       fwprintf (stderr, L"%-24s: %0.4X (%c) -> %.4X (%c) | %.4X (%c)\n", localeName, wc, wc, crt, crt, p32, p32);
 #else
-      HANDLE    heapHandle = GetProcessHeap ();
-      uintptr_t heap       = (uintptr_t) heapHandle;
-
       wchar_t format[] = L"%-24s: %0.4X (%c) -> %.4X (%c) | %.4X (%c)";
 
       char    *mbs = NULL;
       wchar_t *wcs = NULL;
 
-      assert (p32_private_aswprintf (&wcs, heap, format, localeName, wc, wc, crt, crt, p32, p32) != -1);
+      assert (p32_private_aswprintf (&wcs, 0, format, localeName, wc, wc, crt, crt, p32, p32) != -1);
       assert (p32_ext_wcstombs_cp (&mbs, wcs, CP_UTF8) != -1);
 
       fprintf (stderr, "%s\n", mbs);
 
       free (mbs);
-      assert (p32_heap_free (heap, 0, wcs));
+      assert (p32_heap_free (0, 0, wcs));
 #endif
     }
 
