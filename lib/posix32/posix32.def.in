@@ -153,23 +153,6 @@ EXPORTS
 
     strdup     = @posix32_crt@.p32_strdup
     strndup    = @posix32_crt@.p32_strndup
-
-    ; strcat     = @posix32_crt@.p32_strcat
-    ; strncat    = @posix32_crt@.p32_strncat
-    ; strcmp     = @posix32_crt@.p32_strcmp
-    ; strncmp    = @posix32_crt@.p32_strncmp
-    ; strcpy     = @posix32_crt@.p32_strcpy
-    ; strncpy    = @posix32_crt@.p32_strncpy
-    ; strlen     = @posix32_crt@.p32_strlen
-    ; strnlen    = @posix32_crt@.p32_strnlen
-
-    strchr     = @posix32_crt@.p32_strchr
-    strcspn    = @posix32_crt@.p32_strcspn
-    strpbrk    = @posix32_crt@.p32_strpbrk
-    strrchr    = @posix32_crt@.p32_strrchr
-    strspn     = @posix32_crt@.p32_strspn
-    strstr     = @posix32_crt@.p32_strstr
-    strtok     = @posix32_crt@.p32_strtok
     strtok_r   = @posix32_crt@.p32_strtok_r
 
     strcoll    = @posix32_crt@.p32_strcoll

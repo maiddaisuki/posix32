@@ -16,11 +16,6 @@
 
 #include "string-internal.h"
 
-static char *p32_strcat_sbcs (char *dest, const char *src, locale_t locale) {
-  return strcat (dest, src);
-  UNREFERENCED_PARAMETER (locale);
-}
-
 char *p32_private_strcat_l (char *dest, const char *src, locale_t locale) {
   size_t destLength = p32_private_strlen_l (dest, locale);
 
@@ -43,23 +38,4 @@ char *p32_private_strcat_l (char *dest, const char *src, locale_t locale) {
   destTail[srcLength] = '\0';
 
   return dest;
-}
-
-static void P32LocaleFunction_strcat (LocaleFunctions *functions, Charset *charset, Locale *locale) {
-  functions->F_strcat = p32_strcat_sbcs;
-  return;
-  UNREFERENCED_PARAMETER (charset);
-  UNREFERENCED_PARAMETER (locale);
-}
-
-char *p32_strcat (char *dest, const char *src) {
-  locale_t activeLocale = p32_active_locale ();
-
-#ifdef LIBPOSIX32_TEST
-  if (activeLocale == NULL) {
-    activeLocale = p32_posix_locale ();
-  }
-#endif
-
-  return activeLocale->Functions.F_strcat (dest, src, activeLocale);
 }

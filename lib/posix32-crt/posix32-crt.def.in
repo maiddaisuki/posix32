@@ -127,22 +127,6 @@ EXPORTS
 
     strdup     = p32_strdup
     strndup    = p32_strndup
-
-    ; strlen     = p32_strlen
-    ; strcat     = p32_strcat
-    ; strncat    = p32_strncat
-    ; strcmp     = p32_strcmp
-    ; strncmp    = p32_strncmp
-    ; strcpy     = p32_strcpy
-    ; strncpy    = p32_strncpy
-
-    strchr     = p32_strchr
-    strcspn    = p32_strcspn
-    strpbrk    = p32_strpbrk
-    strrchr    = p32_strrchr
-    strspn     = p32_strspn
-    strstr     = p32_strstr
-    strtok     = p32_strtok
     strtok_r   = p32_strtok_r
 
     strcoll    = p32_strcoll

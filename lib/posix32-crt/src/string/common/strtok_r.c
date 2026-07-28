@@ -16,18 +16,6 @@
 
 #include "string-internal.h"
 
-/**
- * Functions strtok_s and _mbstok_s[_l] are available starting with msvcr80.dll.
- * For older CRTs we always use our implementation of strtok_r.
- */
-
-#if P32_CRT >= P32_MSVCR80
-static char *p32_strtok_r_sbcs (char *str, const char *delim, char **context, locale_t locale) {
-  return strtok_s (str, delim, context);
-  UNREFERENCED_PARAMETER (locale);
-}
-#endif
-
 char *p32_private_strtok_r_l (char *str, const char *delim, char **context, locale_t locale) {
   /**
    * Start of the next token.
@@ -153,30 +141,14 @@ stop:
   return ret;
 }
 
-static void P32LocaleFunction_strtok_r (LocaleFunctions *functions, Charset *charset, Locale *locale) {
-#if P32_CRT >= P32_MSVCR80
-  if (P32_IS_POSIX (locale) || P32_IS_SBCS (charset)) {
-    functions->F_strtok_r = p32_strtok_r_sbcs;
-  } else {
-    functions->F_strtok_r = p32_private_strtok_r_l;
-  }
-#else
-  functions->F_strtok_r = p32_private_strtok_r_l;
-#endif
-
-  return;
-  UNREFERENCED_PARAMETER (charset);
-  UNREFERENCED_PARAMETER (locale);
-}
-
 char *p32_strtok_r (char *str, const char *delim, char **context) {
-  locale_t activeLocale = p32_active_locale ();
-
-#if defined(LIBPOSIX32_TEST)
-  if (activeLocale == NULL) {
-    activeLocale = p32_posix_locale ();
-  }
+  /**
+   * Function `strtok_s` is available since msvcr80.dll.
+   */
+#if P32_CRT >= P32_MSVCR80
+  return strtok_s (str, delim, context);
+#else
+  locale_t activeLocale = p32_posix_locale ();
+  return p32_private_strtok_r_l (str, delim, context, activeLocale);
 #endif
-
-  return activeLocale->Functions.F_strtok_r (str, delim, context, activeLocale);
 }

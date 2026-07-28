@@ -16,11 +16,6 @@
 
 #include "string-internal.h"
 
-static size_t p32_strlen_sbcs (const char *str, locale_t locale) {
-  return strlen (str);
-  UNREFERENCED_PARAMETER (locale);
-}
-
 size_t p32_private_strlen_l (const char *str, locale_t locale) {
   size_t stringLength = 0;
 
@@ -52,23 +47,4 @@ size_t p32_private_strlen_l (const char *str, locale_t locale) {
   }
 
   return stringLength;
-}
-
-static void P32LocaleFunction_strlen (LocaleFunctions *functions, Charset *charset, Locale *locale) {
-  functions->F_strlen = p32_strlen_sbcs;
-  return;
-  UNREFERENCED_PARAMETER (charset);
-  UNREFERENCED_PARAMETER (locale);
-}
-
-size_t p32_strlen (const char *str) {
-  locale_t activeLocale = p32_active_locale ();
-
-#ifdef LIBPOSIX32_TEST
-  if (activeLocale == NULL) {
-    activeLocale = p32_posix_locale ();
-  }
-#endif
-
-  return activeLocale->Functions.F_strlen (str, activeLocale);
 }

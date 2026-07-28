@@ -26,24 +26,6 @@ extern "C" {
 #endif
 
 #if P32_REDIRECT
-#if 0
-#define strlen  p32_strlen
-#define strnlen p32_strnlen
-#define strcpy  p32_strcpy
-#define strncpy p32_strncpy
-#define strcat  p32_strcat
-#define strncat p32_strncat
-#define strcmp  p32_strcmp
-#define strncmp p32_strncmp
-#endif
-#define strchr  p32_strchr
-#define strrchr p32_strrchr
-#define strstr  p32_strstr
-#define strpbrk p32_strpbrk
-#define strspn  p32_strspn
-#define strcspn p32_strcspn
-#define strtok  p32_strtok
-
 #define strcoll p32_strcoll
 #define strxfrm p32_strxfrm
 
@@ -65,22 +47,6 @@ extern "C" {
 #if P32_WANT_POSIX2008
 typedef struct p32_locale *locale_t;
 #endif
-
-P32_CRT_DECL (_CRTIMP) size_t __cdecl     p32_strlen (const char *);
-P32_CRT_DECL (_CRTIMP) size_t __cdecl     p32_strnlen (const char *, size_t);
-P32_CRT_DECL (/*blank*/) char *__cdecl    p32_strcpy (char *P32_RESTRICT, const char *P32_RESTRICT);
-P32_CRT_DECL (/*blank*/) char *__cdecl    p32_strncpy (char *P32_RESTRICT, const char *P32_RESTRICT, size_t);
-P32_CRT_DECL (/*blank*/) char *__cdecl    p32_strcat (char *P32_RESTRICT, const char *P32_RESTRICT);
-P32_CRT_DECL (/*blank*/) char *__cdecl    p32_strncat (char *P32_RESTRICT, const char *P32_RESTRICT, size_t);
-P32_CRT_DECL (/*blank*/) int __cdecl      p32_strcmp (const char *, const char *);
-P32_CRT_DECL (/*blank*/) int __cdecl      p32_strncmp (const char *, const char *, size_t);
-P32_CRT_DECL (/*_VCRTIMP*/) char *__cdecl P32_FUNCNAME_STD (strchr) (const char *, int);
-P32_CRT_DECL (/*_VCRTIMP*/) char *__cdecl P32_FUNCNAME_STD (strrchr) (const char *, int);
-P32_CRT_DECL (/*_VCRTIMP*/) char *__cdecl P32_FUNCNAME_STD (strstr) (const char *, const char *);
-P32_CRT_DECL (_CRTIMP) char *__cdecl      P32_FUNCNAME_STD (strpbrk) (const char *, const char *);
-P32_CRT_DECL (_CRTIMP) size_t __cdecl     P32_FUNCNAME_STD (strspn) (const char *, const char *);
-P32_CRT_DECL (_CRTIMP) size_t __cdecl     P32_FUNCNAME_STD (strcspn) (const char *, const char *);
-P32_CRT_DECL (_CRTIMP) char *__cdecl      P32_FUNCNAME_STD (strtok) (char *P32_RESTRICT, const char *P32_RESTRICT);
 
 P32_CRT_DECL (_CRTIMP) int __cdecl    P32_FUNCNAME_STD (strcoll) (const char *, const char *);
 P32_CRT_DECL (_CRTIMP) size_t __cdecl P32_FUNCNAME_STD (strxfrm) (char *P32_RESTRICT, const char *P32_RESTRICT, size_t);

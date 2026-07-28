@@ -31,22 +31,6 @@ typedef struct LocaleFunctions {
   /**
    * string.h
    */
-  size_t (*F_strlen) (const char *, locale_t);
-  size_t (*F_strnlen) (const char *, size_t, locale_t);
-  char  *(*F_strcpy) (char *, const char *, locale_t);
-  char  *(*F_strncpy) (char *, const char *, size_t, locale_t);
-  char  *(*F_strcat) (char *, const char *, locale_t);
-  char  *(*F_strncat) (char *, const char *, size_t, locale_t);
-  int    (*F_strcmp) (const char *, const char *, locale_t);
-  int    (*F_strncmp) (const char *, const char *, size_t, locale_t);
-  char  *(*F_strchr) (const char *, int, locale_t);
-  char  *(*F_strrchr) (const char *, int, locale_t);
-  char  *(*F_strstr) (const char *, const char *, locale_t);
-  char  *(*F_strpbrk) (const char *, const char *, locale_t);
-  size_t (*F_strspn) (const char *, const char *, locale_t);
-  size_t (*F_strcspn) (const char *, const char *, locale_t);
-  char  *(*F_strtok) (char *, const char *, locale_t);
-  char  *(*F_strtok_r) (char *, const char *, char **, locale_t);
   int    (*F_strcoll) (const char *, const char *, locale_t);
   size_t (*F_strxfrm) (char *, const char *, size_t, locale_t);
   /**

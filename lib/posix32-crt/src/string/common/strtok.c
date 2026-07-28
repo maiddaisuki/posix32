@@ -16,32 +16,7 @@
 
 #include "string-internal.h"
 
-static char *p32_strtok_sbcs (char *str, const char *delim, locale_t locale) {
-  return strtok (str, delim);
-  UNREFERENCED_PARAMETER (locale);
-}
-
 char *p32_private_strtok_l (char *str, const char *delim, locale_t locale) {
   static char *context;
   return p32_private_strtok_r_l (str, delim, &context, locale);
-}
-
-static void P32LocaleFunction_strtok (LocaleFunctions *functions, Charset *charset, Locale *locale) {
-  if (P32_IS_POSIX (locale) || P32_IS_SBCS (charset)) {
-    functions->F_strtok = p32_strtok_sbcs;
-  } else {
-    functions->F_strtok = p32_private_strtok_l;
-  }
-}
-
-char *p32_strtok (char *str, const char *delim) {
-  locale_t activeLocale = p32_active_locale ();
-
-#ifdef LIBPOSIX32_TEST
-  if (activeLocale == NULL) {
-    activeLocale = p32_posix_locale ();
-  }
-#endif
-
-  return activeLocale->Functions.F_strtok (str, delim, activeLocale);
 }

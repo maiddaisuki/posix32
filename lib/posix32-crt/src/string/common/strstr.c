@@ -16,11 +16,6 @@
 
 #include "string-internal.h"
 
-static char *p32_strstr_sbcs (const char *str, const char *substr, locale_t locale) {
-  return strstr (str, substr);
-  UNREFERENCED_PARAMETER (locale);
-}
-
 char *p32_private_strstr_l (const char *str, const char *substr, locale_t locale) {
   /**
    * POSIX requires that `strstr` returns `str` if `substr` is a zero-length
@@ -112,24 +107,4 @@ char *p32_private_strstr_l (const char *str, const char *substr, locale_t locale
 
     str += strLength;
   }
-}
-
-static void P32LocaleFunction_strstr (LocaleFunctions *functions, Charset *charset, Locale *locale) {
-  if (P32_IS_POSIX (locale) || P32_IS_SBCS (charset)) {
-    functions->F_strstr = p32_strstr_sbcs;
-  } else {
-    functions->F_strstr = p32_private_strstr_l;
-  }
-}
-
-char *p32_strstr (const char *str, const char *substr) {
-  locale_t activeLocale = p32_active_locale ();
-
-#ifdef LIBPOSIX32_TEST
-  if (activeLocale == NULL) {
-    activeLocale = p32_posix_locale ();
-  }
-#endif
-
-  return activeLocale->Functions.F_strstr (str, substr, activeLocale);
 }
