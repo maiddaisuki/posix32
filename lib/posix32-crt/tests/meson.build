@@ -46,6 +46,7 @@ posix32_crt_test_dep = declare_dependency (
 
 subdir('ctype')
 subdir('locale')
+subdir('mbstring')
 subdir('string')
 subdir('uchar')
 subdir('wchar')
