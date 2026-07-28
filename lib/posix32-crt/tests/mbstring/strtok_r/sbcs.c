@@ -26,303 +26,192 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "string-test.h"
+#include "tests-internal.h"
 
 /**
  * Test Summary:
  *
- * Test `strtok_r` function with a SBCS code page.
+ * Test `p32_private_strtok_r_l` function with SBCS code page 1253.
+ *
+ * This code page has three unassigned Code Points:
+ *
+ * - 0xAA
+ * - 0xD2
+ * - 0xFF
  */
 
-#define LOCALE "en_US.1250"
+#define C(c)        (char) (unsigned) (c)
+#define C8(c)       C (0x80 | (c))
+#define STRING(...) (const char[]){__VA_ARGS__ __VA_OPT__ (, ) 0x00}
+
+#define LOCALE "el_GR.1253"
+static locale_t locale;
+
+/**
+ * Convenience macro to call `p32_private_strtok_r_l`.
+ */
+#define strtok_r(s, d, c) p32_private_strtok_r_l (s, d, c, locale)
 
 static void DoTest (void) {
-  const char *original_text = NULL;
-
-  char *text = NULL;
-  char *context;
-
-  /**
-   * Test ASCII text.
-   */
-  original_text = AsciiText;
-
-  char *set1 = NULL;
-  char *set2 = NULL;
-
-  assert ((set1 = strndup (original_text, 5)) != NULL);
-  assert ((set2 = strndup (original_text + 6, 4)) != NULL);
+  char *str     = NULL;
+  char *token   = NULL;
+  char *context = NULL;
 
   /**
-   * Use `AsciiText` as separator.
+   * Basic test 1.
+   *
+   * Use empty string as separator.
    */
-  assert ((text = strdup (original_text)) != NULL);
+  const char *Test1String = "ABC";
+  const char *Test1Set    = "";
 
-  assert (strtok_r (text, original_text, &context) == NULL);
-  assert (context == text + 11);
+  assert ((str = strdup (Test1String)) != NULL);
 
-  assert (strtok_r (NULL, original_text, &context) == NULL);
-  assert (context == text + 11);
+  assert ((token = strtok_r (str, Test1Set, &context)) == str);
+  assert (strcmp (token, "ABC") == 0);
+  assert (context == str + 3);
 
-  free (text);
+  assert ((token = strtok_r (NULL, Test1Set, &context)) == NULL);
+  assert (context == str + 3);
+
+  free (str);
+
+  str     = NULL;
+  token   = NULL;
+  context = NULL;
 
   /**
-   * Use `set1` as separator.
+   * Basic test 2.
+   *
+   * Split string which consists entirely of characters in "separator".
    */
-  assert ((text = strdup (original_text)) != NULL);
+  const char *Test2String = "112233332211";
+  const char *Test2Set    = "321";
 
-  assert (strtok_r (text, set1, &context) == text + 5);
-  assert (context == text + 11);
+  assert ((str = strdup (Test2String)) != NULL);
 
-  assert (strtok_r (NULL, set1, &context) == NULL);
-  assert (context == text + 11);
+  assert ((token = strtok_r (str, Test2Set, &context)) == NULL);
+  assert (context == str + 12);
 
-  free (text);
-  free (set1);
+  assert ((token = strtok_r (NULL, Test2Set, &context)) == NULL);
+  assert (context == str + 12);
+
+  free (str);
+
+  str     = NULL;
+  token   = NULL;
+  context = NULL;
 
   /**
-   * Use `set2` as separator.
+   * Split PATH-like string.
    */
-  assert ((text = strdup (original_text)) != NULL);
+  const char *Test3String = "C:\\Windows\\System32;C:\\Windows\\SysWOW64;C:\\Windows";
+  const char *Test3Set    = ";";
 
-  assert (strtok_r (text, set2, &context) == text);
-  assert (context == text + 7);
+  assert ((str = strdup (Test3String)) != NULL);
 
-  assert (strtok_r (NULL, set2, &context) == text + 10);
-  assert (context == text + 11);
+  assert ((token = strtok_r (str, Test3Set, &context)) == str);
+  assert (strcmp (token, "C:\\Windows\\System32") == 0);
+  assert (context == str + 20);
 
-  assert (strtok_r (NULL, set2, &context) == NULL);
-  assert (context == text + 11);
+  assert ((token = strtok_r (NULL, Test3Set, &context)) == str + 20);
+  assert (strcmp (token, "C:\\Windows\\SysWOW64") == 0);
+  assert (context == str + 40);
 
-  free (text);
-  free (set2);
+  assert ((token = strtok_r (NULL, Test3Set, &context)) == str + 40);
+  assert (strcmp (token, "C:\\Windows") == 0);
+  assert (context == str + 50);
+
+  assert ((token = strtok_r (NULL, Test3Set, &context)) == NULL);
+  assert (context == str + 50);
+
+  free (str);
+
+  str     = NULL;
+  token   = NULL;
+  context = NULL;
 
   /**
-   * Test ASCII list.
+   * Split words separated by punctuation and whitespace.
+   *
+   * This allows to tests that characters in "set" found at the start of the
+   * "token" are skipped.
    */
-  original_text = AsciiList;
+  const char *Test4String = "Word1 word2, word3?! Word4: word5.";
+  const char *Test4Set    = " ,.!?:;";
 
-  char *set3 = NULL;
-  char *set4 = NULL;
-  char *set5 = NULL;
+  assert ((str = strdup (Test4String)) != NULL);
 
-  assert ((set3 = strndup (original_text, 3)) != NULL);
-  assert ((set4 = strndup (original_text + 4, 3)) != NULL);
-  assert ((set5 = strndup (original_text + 8, 5)) != NULL);
+  assert ((token = strtok_r (str, Test4Set, &context)) == str);
+  assert (strcmp (token, "Word1") == 0);
+  assert (context == str + 6);
+
+  assert ((token = strtok_r (NULL, Test4Set, &context)) == str + 6);
+  assert (strcmp (token, "word2") == 0);
+  assert (context == str + 12);
+
+  assert ((token = strtok_r (NULL, Test4Set, &context)) == str + 13);
+  assert (strcmp (token, "word3") == 0);
+  assert (context == str + 19);
+
+  assert ((token = strtok_r (NULL, Test4Set, &context)) == str + 21);
+  assert (strcmp (token, "Word4") == 0);
+  assert (context == str + 27);
+
+  assert ((token = strtok_r (NULL, Test4Set, &context)) == str + 28);
+  assert (strcmp (token, "word5") == 0);
+  assert (context == str + 34);
+
+  assert ((token = strtok_r (NULL, Test4Set, &context)) == NULL);
+  assert (context == str + 34);
+
+  free (str);
+
+  str     = NULL;
+  token   = NULL;
+  context = NULL;
 
   /**
-   * Use `AsciiList` as separator.
+   * Test input which contains non-ASCII and unassigned Code Points.
    */
-  assert ((text = strdup (original_text)) != NULL);
+  const char *Test5String = STRING (
+    C8 ('A'), C8 ('B'), C8 ('C'), C8 ('D'), C (0xAA), C8 ('E'), C (0xD2), C8 ('F'), C8 ('G'), C8 (0xFF), C8 ('H')
+  );
 
-  assert (strtok_r (text, AsciiList, &context) == NULL);
-  assert (context == text + 13);
+  const char *Test5Set = STRING (C8 ('D'), C8 ('F'));
 
-  assert (strtok_r (NULL, AsciiList, &context) == NULL);
-  assert (context == text + 13);
+  assert ((str = strdup (Test5String)) != NULL);
 
-  free (text);
+  assert ((token = strtok_r (str, Test5Set, &context)) == str);
+  assert (strcmp (token, STRING (C8 ('A'), C8 ('B'), C8 ('C'))) == 0);
+  assert (context == str + 4);
 
-  /**
-   * Use "|" as separator.
-   */
-  assert ((text = strdup (original_text)) != NULL);
+  assert ((token = strtok_r (NULL, Test5Set, &context)) == NULL);
+  assert (context == str + 4);
 
-  assert (strtok_r (text, "|", &context) == text);
-  assert (context == text + 4);
+  free (str);
 
-  assert (strtok_r (NULL, "|", &context) == text + 4);
-  assert (context == text + 8);
-
-  assert (strtok_r (NULL, "|", &context) == text + 8);
-  assert (context == text + 13);
-
-  assert (strtok_r (NULL, "|", &context) == NULL);
-  assert (context == text + 13);
-
-  free (text);
-
-  /**
-   * Use `set3` as separator.
-   */
-  assert ((text = strdup (original_text)) != NULL);
-
-  assert (strtok_r (text, set3, &context) == text + 3);
-  assert (context == text + 12);
-
-  assert (strtok_r (NULL, set3, &context) == NULL);
-  assert (context == text + 13);
-
-  assert (strtok_r (NULL, set3, &context) == NULL);
-  assert (context == text + 13);
-
-  free (text);
-  free (set3);
-
-  /**
-   * Use `set4` as separator.
-   */
-  assert ((text = strdup (original_text)) != NULL);
-
-  assert (strtok_r (text, set4, &context) == text);
-  assert (context == text + 5);
-
-  assert (strtok_r (NULL, set4, &context) == text + 7);
-  assert (context == text + 9);
-
-  assert (strtok_r (NULL, set4, &context) == text + 9);
-  assert (context == text + 13);
-
-  assert (strtok_r (NULL, set4, &context) == NULL);
-  assert (context == text + 13);
-
-  free (text);
-  free (set4);
-
-  /**
-   * Use `set5` as separator.
-   */
-  assert ((text = strdup (original_text)) != NULL);
-
-  assert (strtok_r (text, set5, &context) == text);
-  assert (context == text + 3);
-
-  assert (strtok_r (NULL, set5, &context) == text + 3);
-  assert (context == text + 5);
-
-  assert (strtok_r (NULL, set5, &context) == text + 5);
-  assert (context == text + 9);
-
-  assert (strtok_r (NULL, set5, &context) == NULL);
-  assert (context == text + 13);
-
-  free (text);
-  free (set5);
-
-  /**
-   * Test SBCS text.
-   */
-  original_text = SBCS;
-
-  char *set6 = NULL;
-  char *set7 = NULL;
-
-  assert ((set6 = strndup (original_text, 4)) != NULL);
-  assert ((set7 = strndup (original_text + 5, 4)) != NULL);
-
-  /**
-   * Use `SBCS` as separator.
-   */
-  assert ((text = strdup (original_text)) != NULL);
-
-  assert (strtok_r (text, SBCS, &context) == NULL);
-  assert (context == text + 10);
-
-  assert (strtok_r (NULL, SBCS, &context) == NULL);
-  assert (context == text + 10);
-
-  free (text);
-
-  /**
-   * Use `set6` as separator.
-   */
-  assert ((text = strdup (original_text)) != NULL);
-
-  assert (strtok_r (text, set6, &context) == text + 4);
-  assert (context == text + 10);
-
-  assert (strtok_r (NULL, set6, &context) == NULL);
-  assert (context == text + 10);
-
-  free (text);
-  free (set6);
-
-  /**
-   * Use `set7` as separator.
-   */
-  assert ((text = strdup (original_text)) != NULL);
-
-  assert (strtok_r (text, set7, &context) == text);
-  assert (context == text + 6);
-
-  assert (strtok_r (NULL, set7, &context) == text + 9);
-  assert (context == text + 10);
-
-  assert (strtok_r (NULL, set7, &context) == NULL);
-  assert (context == text + 10);
-
-  free (text);
-  free (set7);
-
-  /**
-   * Test SBCS list.
-   */
-  original_text = SBCSList;
-
-  /**
-   * Use `SBCSList` as separator.
-   */
-  assert ((text = strdup (original_text)) != NULL);
-
-  assert (strtok_r (text, SBCSList, &context) == NULL);
-  assert (context == text + 13);
-
-  assert (strtok_r (NULL, SBCSList, &context) == NULL);
-  assert (context == text + 13);
-
-  free (text);
-
-  /**
-   * Use "|" as separator.
-   */
-  assert ((text = strdup (original_text)) != NULL);
-
-  assert (strtok_r (text, "|", &context) == text);
-  assert (context == text + 4);
-
-  assert (strtok_r (NULL, "|", &context) == text + 4);
-  assert (context == text + 8);
-
-  assert (strtok_r (NULL, "|", &context) == text + 8);
-  assert (context == text + 13);
-
-  assert (strtok_r (NULL, "|", &context) == NULL);
-  assert (context == text + 13);
-
-  free (text);
-}
-
-static DWORD CALLBACK Thread (PVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
+  str     = NULL;
+  token   = NULL;
+  context = NULL;
 }
 
 int main (void) {
   p32_test_init ();
 
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
+  /**
+   * Skip test if code page 1253 is not installed.
+   */
+  if (!IsValidCodePage (1253)) {
+    return 77;
+  }
+
+  locale = newlocale (LC_ALL_MASK, LOCALE, NULL);
+  assert (locale != NULL);
 
   DoTest ();
 
-  assert (setlocale (LC_ALL, "POSIX") != NULL);
-
-  DWORD  exitCode     = EXIT_FAILURE;
-  HANDLE threadHandle = NULL;
-
-  assert ((threadHandle = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (threadHandle, INFINITE);
-  GetExitCodeThread (threadHandle, &exitCode);
-  CloseHandle (threadHandle);
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }

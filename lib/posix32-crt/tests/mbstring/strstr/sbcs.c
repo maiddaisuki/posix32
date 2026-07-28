@@ -26,114 +26,107 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "string-test.h"
+#include "tests-internal.h"
 
 /**
  * Test Summary:
  *
- * Test `strstr` function with a SBCS code page.
+ * Test `p32_private_strstr_l` function with SBCS code page 1253.
+ *
+ * This code page has three unassigned Code Points:
+ *
+ * - 0xAA
+ * - 0xD2
+ * - 0xFF
  */
 
-#define LOCALE "en_US.1250"
+#define C(c)        (char) (unsigned) (c)
+#define C8(c)       C (0x80 | (c))
+#define STRING(...) (const char[]){__VA_ARGS__ __VA_OPT__ (, ) 0x00}
+
+#define LOCALE "el_GR.1253"
+static locale_t locale;
+
+/**
+ * Convenience macro to call `p32_private_strstr_l`.
+ */
+#define strstr(t, s) p32_private_strstr_l (t, s, locale)
 
 static void DoTest (void) {
-  const char *text = NULL;
+  /**
+   * Basic `strstr` usage.
+   */
+  const char *Test1String = "AAABBBCCC";
+
+  assert (strstr (Test1String, "") == Test1String);
+  assert (strstr (Test1String, "A") == Test1String);
+  assert (strstr (Test1String, "AA") == Test1String);
+  assert (strstr (Test1String, "AAA") == Test1String);
+  assert (strstr (Test1String, "AAAA") == NULL);
+  assert (strstr (Test1String, "AAB") == Test1String + 1);
+  assert (strstr (Test1String, "AB") == Test1String + 2);
+  assert (strstr (Test1String, "B") == Test1String + 3);
+  assert (strstr (Test1String, "BB") == Test1String + 3);
+  assert (strstr (Test1String, "BBB") == Test1String + 3);
+  assert (strstr (Test1String, "BBBB") == NULL);
+  assert (strstr (Test1String, "BBC") == Test1String + 4);
+  assert (strstr (Test1String, "BC") == Test1String + 5);
+  assert (strstr (Test1String, "C") == Test1String + 6);
+  assert (strstr (Test1String, "CC") == Test1String + 6);
+  assert (strstr (Test1String, "CCC") == Test1String + 6);
+  assert (strstr (Test1String, "CCCC") == NULL);
+  assert (strstr (Test1String, Test1String) == Test1String);
 
   /**
-   * Test ASCII text.
+   * Test input which contains non-ASCII and unassigned Code Points.
    */
-  text = AsciiText;
+  const char *Test2String = STRING (
+    C8 ('A'), C8 ('B'), C (0xAA), C8 ('C'), C8 ('D'), C (0xD2), C8 ('E'), C8 ('F'), C (0xFF), C8 ('G'), C8 ('H')
+  );
 
-  assert (strstr (text, "") == text);
-  assert (strstr (text, text) == text);
-  assert (strstr (text, "ASCII") == text);
-  assert (strstr (text, "Text") == text + 6);
-
-  /**
-   * Test ASCII text.
-   */
-  text = AsciiList;
-
-  assert (strstr (text, "") == text);
-  assert (strstr (text, text) == text);
-  assert (strstr (text, "One") == text);
-  assert (strstr (text, "Two") == text + 4);
-  assert (strstr (text, "Three") == text + 8);
-
-  /**
-   * Test SBCS text.
-   */
-  text = SBCS;
-
-  char *substr1 = NULL;
-  char *substr2 = NULL;
-
-  assert ((substr1 = strndup (text, 4)) != NULL);
-  assert ((substr2 = strndup (text + 5, 5)) != NULL);
-
-  assert (strstr (text, "") == text);
-  assert (strstr (text, text) == text);
-  assert (strstr (text, substr1) == text);
-  assert (strstr (text, substr2) == text + 5);
-
-  free (substr1);
-  free (substr2);
-
-  /**
-   * Test SBCS list.
-   */
-  text = SBCSList;
-
-  char *item1 = NULL;
-  char *item2 = NULL;
-  char *item3 = NULL;
-
-  assert ((item1 = strndup (text, 3)) != NULL);
-  assert ((item2 = strndup (text + 4, 3)) != NULL);
-  assert ((item3 = strndup (text + 8, 5)) != NULL);
-
-  assert (strstr (text, "") == text);
-  assert (strstr (text, text) == text);
-  assert (strstr (text, item1) == text);
-  assert (strstr (text, item2) == text + 4);
-  assert (strstr (text, item3) == text + 8);
-
-  free (item1);
-  free (item2);
-  free (item3);
-}
-
-static DWORD CALLBACK Thread (PVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
+  assert (strstr (Test2String, "") == Test2String);
+  assert (strstr (Test2String, STRING (C8 ('A'))) == Test2String);
+  assert (strstr (Test2String, STRING (C8 ('A'), C8 ('A'))) == NULL);
+  assert (strstr (Test2String, STRING (C8 ('A'), C8 ('B'))) == Test2String);
+  assert (strstr (Test2String, STRING (C8 ('B'), C8 ('B'))) == NULL);
+  assert (strstr (Test2String, STRING (C8 ('B'), C (0xAA))) == NULL);
+  assert (strstr (Test2String, STRING (C (0xAA))) == NULL);
+  assert (strstr (Test2String, STRING (C (0xAA), C8 ('C'))) == NULL);
+  assert (strstr (Test2String, STRING (C8 ('C'), C8 ('C'))) == NULL);
+  assert (strstr (Test2String, STRING (C8 ('C'), C8 ('D'))) == NULL);
+  assert (strstr (Test2String, STRING (C8 ('D'), C8 ('D'))) == NULL);
+  assert (strstr (Test2String, STRING (C8 ('D'), C (0xD2))) == NULL);
+  assert (strstr (Test2String, STRING (C (0xD2))) == NULL);
+  assert (strstr (Test2String, STRING (C (0xD2), C8 ('E'))) == NULL);
+  assert (strstr (Test2String, STRING (C8 ('E'), C8 ('E'))) == NULL);
+  assert (strstr (Test2String, STRING (C8 ('E'), C8 ('F'))) == NULL);
+  assert (strstr (Test2String, STRING (C8 ('F'), C8 ('F'))) == NULL);
+  assert (strstr (Test2String, STRING (C8 ('F'), C (0xFF))) == NULL);
+  assert (strstr (Test2String, STRING (C (0xFF))) == NULL);
+  assert (strstr (Test2String, STRING (C (0xFF), C8 ('G'))) == NULL);
+  assert (strstr (Test2String, STRING (C8 ('G'), C8 ('G'))) == NULL);
+  assert (strstr (Test2String, STRING (C8 ('G'), C8 ('H'))) == NULL);
+  assert (strstr (Test2String, STRING (C8 ('H'), C8 ('H'))) == NULL);
+  assert (strstr (Test2String, STRING (C8 ('H'))) == NULL);
+  assert (strstr (Test2String, Test2String) == NULL);
 }
 
 int main (void) {
   p32_test_init ();
 
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
+  /**
+   * Skip test if code page 1253 is not installed.
+   */
+  if (!IsValidCodePage (1253)) {
+    return 77;
+  }
+
+  locale = newlocale (LC_ALL_MASK, LOCALE, NULL);
+  assert (locale != NULL);
 
   DoTest ();
 
-  assert (setlocale (LC_ALL, "POSIX") != NULL);
-
-  DWORD  exitCode     = EXIT_FAILURE;
-  HANDLE threadHandle = NULL;
-
-  assert ((threadHandle = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (threadHandle, INFINITE);
-  GetExitCodeThread (threadHandle, &exitCode);
-  CloseHandle (threadHandle);
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }

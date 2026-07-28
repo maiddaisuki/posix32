@@ -17,7 +17,7 @@ variants = [
   'ascii',
   # 'dbcs',
   'posix',
-  # 'sbcs',
+  'sbcs',
   # 'utf-8',
 ]
 

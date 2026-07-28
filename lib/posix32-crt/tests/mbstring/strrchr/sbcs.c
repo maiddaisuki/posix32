@@ -26,92 +26,79 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "string-test.h"
+#include "tests-internal.h"
 
 /**
  * Test Summary:
  *
- * Test `strrchr` function with a SBCS code page.
+ * Test `p32_private_strrchr_l` function with SBCS code page 1253.
+ *
+ * This code page has three unassigned Code Points:
+ *
+ * - 0xAA
+ * - 0xD2
+ * - 0xFF
  */
 
-#define LOCALE "en_US.1250"
+#define C(c)        (char) (unsigned) (c)
+#define C8(c)       C (0x80 | (c))
+#define STRING(...) (const char[]){__VA_ARGS__ __VA_OPT__ (, ) 0x00}
+
+#define LOCALE "el_GR.1253"
+static locale_t locale;
+
+/**
+ * Convenience macro to call `p32_private_strrchr_l`.
+ */
+#define strrchr(s, c) p32_private_strrchr_l (s, c, locale)
 
 static void DoTest (void) {
-  const char *text = NULL;
+  /**
+   * Basic `strrchr` usage.
+   */
+  const char *Test1String = STRING ('1', '2', '3', '3', '2', '1', '\0', 0x7F);
+
+  assert (strrchr (Test1String, '1') == Test1String + 5);
+  assert (strrchr (Test1String, C8 ('1')) == NULL);
+  assert (strrchr (Test1String, '2') == Test1String + 4);
+  assert (strrchr (Test1String, C8 ('2')) == NULL);
+  assert (strrchr (Test1String, '3') == Test1String + 3);
+  assert (strrchr (Test1String, C8 ('3')) == NULL);
+  assert (strrchr (Test1String, '\0') == Test1String + 6);
+  assert (strrchr (Test1String, 0x7F) == NULL);
 
   /**
-   * Test ASCII text.
+   * Test input which contains non-ASCII and unassigned Code Points.
    */
-  text = AsciiText;
+  const char *Test2String = STRING ('A', C8 ('A'), 'A', C (0xAA), 'D', C (0xD2), 'D', C (0xFF), 'F', C8 ('F'), 'F');
 
-  assert (strrchr (text, 'A') == text);
-  assert (strrchr (text, ' ') == text + 5);
-  assert (strrchr (text, '.') == text + 10);
-  assert (strrchr (text, '\0') == text + 11);
-  assert (strrchr (text, '\n') == NULL);
-
-  /**
-   * Test ASCII list.
-   */
-  text = AsciiList;
-
-  assert (strrchr (text, '|') == text + 7);
-  assert (strrchr (text, '\0') == text + 13);
-  assert (strrchr (text, '\n') == NULL);
-
-  /**
-   * Test SBCS text.
-   */
-  text = SBCS;
-
-  for (size_t i = 0; i < _countof (SBCS); ++i) {
-    assert (strrchr (text, SBCS[i]) == text + i);
-  }
-
-  assert (strrchr (text, '\0') == text + 10);
-  assert (strrchr (text, '\n') == NULL);
-
-  /**
-   * Test SBCS list.
-   */
-  text = SBCSList;
-
-  assert (strrchr (text, '|') == text + 7);
-  assert (strrchr (text, '\0') == text + 13);
-  assert (strrchr (text, '\n') == NULL);
-}
-
-static DWORD CALLBACK Thread (PVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
+  assert (strrchr (Test2String, 'A') == Test2String + 2);
+  assert (strrchr (Test2String, 'D') == NULL);
+  assert (strrchr (Test2String, 'F') == NULL);
+  assert (strrchr (Test2String, C8 ('A')) == Test2String + 1);
+  assert (strrchr (Test2String, C8 ('F')) == NULL);
+  assert (strrchr (Test2String, 0xAA) == NULL);
+  assert (strrchr (Test2String, 0xD2) == NULL);
+  assert (strrchr (Test2String, 0xFF) == NULL);
+  assert (strrchr (Test2String, '\0') == NULL);
 }
 
 int main (void) {
   p32_test_init ();
 
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
+  /**
+   * Skip test if code page 1253 is not installed.
+   */
+  if (!IsValidCodePage (1253)) {
+    return 77;
+  }
+
+  locale = newlocale (LC_ALL_MASK, LOCALE, NULL);
+  assert (locale != NULL);
 
   DoTest ();
 
-  assert (setlocale (LC_ALL, "POSIX") != NULL);
-
-  DWORD  exitCode     = EXIT_FAILURE;
-  HANDLE threadHandle = NULL;
-
-  assert ((threadHandle = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (threadHandle, INFINITE);
-  GetExitCodeThread (threadHandle, &exitCode);
-  CloseHandle (threadHandle);
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }

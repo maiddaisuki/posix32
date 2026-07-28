@@ -26,127 +26,114 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "string-test.h"
+#include "tests-internal.h"
 
 /**
  * Test Summary:
  *
- * Test `strspn` function with a SBCS code page.
+ * Test `p32_private_strspn_l` function with SBCS code page 1253.
+ *
+ * This code page has three unassigned Code Points:
+ *
+ * - 0xAA
+ * - 0xD2
+ * - 0xFF
  */
 
-#define LOCALE "en_US.1250"
+#define C(c)        (char) (unsigned) (c)
+#define C8(c)       C (0x80 | (c))
+#define STRING(...) (const char[]){__VA_ARGS__ __VA_OPT__ (, ) 0x00}
+
+#define LOCALE "el_GR.1253"
+static locale_t locale;
+
+/**
+ * Convenience macro to call `p32_private_strspn_l`.
+ */
+#define strspn(s, l) p32_private_strspn_l (s, l, locale)
 
 static void DoTest (void) {
-  const char *text = NULL;
+  /**
+   * Sanity checks.
+   */
+  const char *Test1String = STRING ('\0', 'A', 'B', 'C', '1', '2', '3');
+
+  assert (strspn (Test1String, "") == 0);
+  assert (strspn (Test1String, "ABC") == 0);
+  assert (strspn (Test1String, "123") == 0);
 
   /**
-   * Test ASCII text.
+   * Basic `strspn` usage.
    */
-  text = AsciiText;
+  const char *Test2String = "AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ";
 
-  char *set1 = NULL;
-  char *set2 = NULL;
-
-  assert ((set1 = strndup (text, 5)) != NULL);
-  assert ((set2 = strndup (text + 6, 5)) != NULL);
-
-  assert (strspn (text, set1) == 5);
-  assert (strspn (text, set2) == 0);
-
-  free (set1);
-  free (set2);
+  assert (strspn (Test2String, "") == 0);
+  assert (strspn (Test2String, "A") == 2);
+  assert (strspn (Test2String, "AB") == 4);
+  assert (strspn (Test2String, "ABC") == 6);
+  assert (strspn (Test2String, "ABCD") == 8);
+  assert (strspn (Test2String, "ABCDE") == 10);
+  assert (strspn (Test2String, "ABCDEF") == 12);
+  assert (strspn (Test2String, "ABCDEFG") == 14);
+  assert (strspn (Test2String, "ABCDEFGH") == 16);
+  assert (strspn (Test2String, "ABCDEFGHI") == 18);
+  assert (strspn (Test2String, "ABCDEFGHIJ") == 20);
+  assert (strspn (Test2String, "ABCDEFGHIJK") == 22);
+  assert (strspn (Test2String, "ABCDEFGHIJKL") == 24);
+  assert (strspn (Test2String, "ABCDEFGHIJKLM") == 26);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMN") == 28);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNO") == 30);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNOP") == 32);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNOPQ") == 34);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNOPQR") == 36);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNOPQRS") == 38);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNOPQRST") == 40);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNOPQRSTU") == 42);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNOPQRSTUV") == 44);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNOPQRSTUVW") == 46);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNOPQRSTUVWX") == 48);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNOPQRSTUVWXY") == 50);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") == 52);
+  assert (strspn (Test2String, Test2String) == strlen (Test2String));
 
   /**
-   * Test ASCII list.
+   * Test input which contains non-ASCII and unassigned Code Points.
    */
-  text = AsciiList;
+  const char *Test3String = STRING (C8 ('A'), C8 ('B'), C8 ('C'), C (0xFF), C8 ('C'), C8 ('B'), C8 ('A'));
 
-  char *set3 = NULL;
-  char *set4 = NULL;
-  char *set5 = NULL;
+  const char *Test3Set1 = STRING (C8 ('A'));
+  const char *Test3Set2 = STRING (C (0xAA), C8 ('A'));
+  const char *Test3Set3 = STRING (C8 ('B'), C8 ('A'));
+  const char *Test3Set4 = STRING (C (0xD2), C8 ('B'), C (0xAA), C8 ('A'));
+  const char *Test3Set5 = STRING (C8 ('C'), C8 ('B'), C8 ('A'));
+  const char *Test3Set6 = STRING (C (0xFF), C8 ('C'), C (0xD2), C8 ('B'), C (0xAA), C8 ('A'));
 
-  assert ((set3 = strndup (text, 3)) != NULL);
-  assert ((set4 = strndup (text + 4, 3)) != NULL);
-  assert ((set5 = strndup (text + 8, 5)) != NULL);
-
-  assert (strspn (text, set3) == 3);
-  assert (strspn (text, set4) == 0);
-  assert (strspn (text, set5) == 0);
-
-  free (set3);
-  free (set4);
-  free (set5);
-
-  /**
-   * Test SBCS text.
-   */
-  text = SBCS;
-
-  char *set6 = NULL;
-  char *set7 = NULL;
-
-  assert ((set6 = strndup (text, 4)) != NULL);
-  assert ((set7 = strndup (text + 5, 5)) != NULL);
-
-  assert (strspn (text, set6) == 4);
-  assert (strspn (text, set7) == 0);
-
-  free (set6);
-  free (set7);
-
-  /**
-   * Test SBCS list.
-   */
-  text = SBCSList;
-
-  char *set8  = NULL;
-  char *set9  = NULL;
-  char *set10 = NULL;
-
-  assert ((set8 = strndup (text, 3)) != NULL);
-  assert ((set9 = strndup (text + 4, 3)) != NULL);
-  assert ((set10 = strndup (text + 8, 5)) != NULL);
-
-  assert (strspn (text, set8) == 3);
-  assert (strspn (text, set9) == 0);
-  assert (strspn (text, set10) == 0);
-
-  free (set8);
-  free (set9);
-  free (set10);
-}
-
-static DWORD CALLBACK Thread (PVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
+  assert (strspn (Test3String, "") == 0);
+  assert (strspn (Test3String, Test3Set1) == 1);
+  assert (strspn (Test3String, Test3Set2) == 0);
+  assert (strspn (Test3String, Test3Set3) == 2);
+  assert (strspn (Test3String, Test3Set4) == 0);
+  assert (strspn (Test3String, Test3Set5) == 3);
+  assert (strspn (Test3String, Test3Set6) == 0);
+  assert (strspn (Test3String, Test3String) == 3);
 }
 
 int main (void) {
   p32_test_init ();
 
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
+  /**
+   * Skip test if code page 1253 is not installed.
+   */
+  if (!IsValidCodePage (1253)) {
+    return 77;
+  }
+
+  locale = newlocale (LC_ALL_MASK, LOCALE, NULL);
+  assert (locale != NULL);
 
   DoTest ();
 
-  assert (setlocale (LC_ALL, "POSIX") != NULL);
-
-  DWORD  exitCode     = EXIT_FAILURE;
-  HANDLE threadHandle = NULL;
-
-  assert ((threadHandle = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (threadHandle, INFINITE);
-  GetExitCodeThread (threadHandle, &exitCode);
-  CloseHandle (threadHandle);
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }
