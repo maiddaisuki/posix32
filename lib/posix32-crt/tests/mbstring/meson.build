@@ -4,6 +4,7 @@
 #
 
 tests = [
+  'strlen', 'strnlen',
   'strchr',
   'strcspn',
   'strrchr',

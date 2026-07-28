@@ -50,6 +50,8 @@ lib/posix32-crt/tests/locale/uselocale/*.c
 lib/posix32-crt/tests/locale/*.c
 lib/posix32-crt/tests/mbstring/strchr/*.c
 lib/posix32-crt/tests/mbstring/strcspn/*.
+lib/posix32-crt/tests/mbstring/strlen/*.c
+lib/posix32-crt/tests/mbstring/strnlen/*.c
 lib/posix32-crt/tests/mbstring/strpbrk/*.c
 lib/posix32-crt/tests/mbstring/strrchr/*.c
 lib/posix32-crt/tests/mbstring/strspn/*.c
