@@ -5,6 +5,7 @@
 
 tests = [
   'strlen', 'strnlen',
+  'strcpy', 'strncpy',
   'strchr',
   'strcspn',
   'strrchr',
