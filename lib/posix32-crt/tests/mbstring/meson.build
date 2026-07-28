@@ -8,6 +8,7 @@ tests = [
   'strcpy', 'strncpy',
   'strcat', 'strncat',
   'strdup', 'strndup',
+  'strcmp', 'strncmp',
   'strchr',
   'strcspn',
   'strrchr',
