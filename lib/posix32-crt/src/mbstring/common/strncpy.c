@@ -25,11 +25,22 @@ static char *p32_strncpy_common (char *dest, const char *src, size_t count, loca
   size_t length = p32_private_strnlen_l (src, count, locale);
 
   if (length == (size_t) -1) {
+    memset (dest, 0x00, count);
     return NULL;
   }
 
-  dest[length] = '\0';
-  return memcpy (dest, src, length);
+  /**
+   * Copy `length` bytes from `src` to `dest`.
+   */
+  memcpy (dest, src, length);
+
+  /**
+   * Fill the rest of `dest` with NUL bytes.
+   * The copied string is NUL-terminated only when `length < count`.
+   */
+  memset (dest + length, 0x00, count - length);
+
+  return dest;
 }
 
 static void P32LocaleFunction_strncpy (LocaleFunctions *functions, Charset *charset) {
