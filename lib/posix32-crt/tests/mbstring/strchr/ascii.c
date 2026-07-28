@@ -26,92 +26,64 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "string-test.h"
+#include "tests-internal.h"
 
 /**
  * Test Summary:
  *
- * Test `strchr` function with ASCII (code page 20127).
+ * Test `p32_private_strchr_l` function with ASCII (code page 20127).
  */
 
+#define C(c)        (char) (unsigned) (c)
+#define C8(c)       C (0x80 | (c))
+#define STRING(...) (const char[]){__VA_ARGS__ __VA_OPT__ (, ) 0x00}
+
 #define LOCALE "en_US.ASCII"
+static locale_t locale;
+
+/**
+ * Convenience macro to call `p32_private_strchr_l`.
+ */
+#define strchr(s, c) p32_private_strchr_l (s, c, locale)
 
 static void DoTest (void) {
-  const char *text = NULL;
+  /**
+   * Basic `strchr` usage.
+   */
+  const char *Test1String = STRING ('1', '2', '3', '3', '2', '1', '\0', 0x7F);
+
+  assert (strchr (Test1String, '1') == Test1String);
+  assert (strchr (Test1String, C8 ('1')) == NULL);
+  assert (strchr (Test1String, '2') == Test1String + 1);
+  assert (strchr (Test1String, C8 ('2')) == NULL);
+  assert (strchr (Test1String, '3') == Test1String + 2);
+  assert (strchr (Test1String, C8 ('3')) == NULL);
+  assert (strchr (Test1String, '\0') == Test1String + 6);
+  assert (strchr (Test1String, 0x7F) == NULL);
 
   /**
-   * Test ASCII text.
+   * Test input which contains non-ASCII Code Points.
    */
-  text = AsciiText;
+  const char *Test2String = STRING ('A', C8 ('A'), 'A', 'B', C8 ('B'), 'B', 'C', C8 ('C'), 'C');
 
-  assert (strchr (text, 'A') == text);
-  assert (strchr (text, ' ') == text + 5);
-  assert (strchr (text, '.') == text + 10);
-  assert (strchr (text, '\0') == text + 11);
-  assert (strchr (text, '\n') == NULL);
-
-  /**
-   * Test ASCII list.
-   */
-  text = AsciiList;
-
-  assert (strchr (text, '|') == text + 3);
-  assert (strchr (text, '\0') == text + 13);
-  assert (strchr (text, '\n') == NULL);
-
-  /**
-   * Test invalid ASCII text.
-   */
-  char *invalidText = NULL;
-
-  assert ((invalidText = strdup (AsciiList)) != NULL);
-  invalidText[5] = C (0x80);
-
-  assert (strchr (invalidText, '|') == invalidText + 3);
-  assert (strchr (invalidText, 0x80) == NULL);
-  assert (strchr (invalidText, '\0') == NULL);
-
-  free (invalidText);
-}
-
-static DWORD CALLBACK Thread (PVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
+  assert (strchr (Test2String, 'A') == Test2String);
+  assert (strchr (Test2String, C8 ('A')) == NULL);
+  assert (strchr (Test2String, 'B') == NULL);
+  assert (strchr (Test2String, C8 ('B')) == NULL);
+  assert (strchr (Test2String, 'C') == NULL);
+  assert (strchr (Test2String, C8 ('C')) == NULL);
+  assert (strchr (Test2String, '\0') == NULL);
 }
 
 int main (void) {
   p32_test_init ();
 
-  /**
-   * TODO: refactor this test to not rely on support for code page 20127.
-   */
-  if (!IsValidCodePage (P32_CODEPAGE_ASCII)) {
-    return 77;
-  }
-
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
+  locale = newlocale (LC_ALL_MASK, LOCALE, NULL);
+  assert (locale != NULL);
 
   DoTest ();
 
-  assert (setlocale (LC_ALL, "POSIX") != NULL);
-
-  DWORD  exitCode     = EXIT_FAILURE;
-  HANDLE threadHandle = NULL;
-
-  assert ((threadHandle = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (threadHandle, INFINITE);
-  GetExitCodeThread (threadHandle, &exitCode);
-  CloseHandle (threadHandle);
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }

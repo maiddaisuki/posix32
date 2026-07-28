@@ -14,7 +14,7 @@ tests = [
 ]
 
 variants = [
-  # 'ascii',
+  'ascii',
   # 'dbcs',
   'posix',
   # 'sbcs',
