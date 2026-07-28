@@ -26,157 +26,148 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "string-test.h"
+#include "tests-internal.h"
 
 /**
  * Test Summary:
  *
- * Test `strcspn` function with a DBCS code page.
+ * Test `p32_private_strcspn_l` function with DBCS code page 932.
  */
 
-#define LOCALE "ja_JP.ACP"
+#define C(c)        (char) (unsigned) (c)
+#define STRING(...) (const char[]){__VA_ARGS__ __VA_OPT__ (, ) 0x00}
+
+#define LOCALE "ja_JP.932"
+static locale_t locale;
+
+/**
+ * Convenience macro to call `p32_private_strcspn_l`.
+ */
+#define strcspn(s, l) p32_private_strcspn_l (s, l, locale)
 
 static void DoTest (void) {
-  const char *text = NULL;
+  /**
+   * Sanity checks.
+   */
+  const char *Test1String = STRING ('\0', 'A', 'B', 'C', '1', '2', '3');
+
+  assert (strcspn (Test1String, "") == 0);
+  assert (strcspn (Test1String, "ABC") == 0);
+  assert (strcspn (Test1String, "123") == 0);
 
   /**
-   * Test ASCII text.
+   * Basic `strcspn` usage.
    */
-  text = AsciiText;
+  const char *Test2String = "AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ";
 
-  char *set1 = NULL;
-  char *set2 = NULL;
-
-  assert ((set1 = strndup (text, 5)) != NULL);
-  assert ((set2 = strndup (text + 6, 5)) != NULL);
-
-  assert (strcspn (text, set1) == 0);
-  assert (strcspn (text, set2) == 6);
-
-  free (set1);
-  free (set2);
+  assert (strcspn (Test2String, "") == strlen (Test2String));
+  assert (strcspn (Test2String, "Z") == 50);
+  assert (strcspn (Test2String, "ZY") == 48);
+  assert (strcspn (Test2String, "ZYX") == 46);
+  assert (strcspn (Test2String, "ZYXW") == 44);
+  assert (strcspn (Test2String, "ZYXWV") == 42);
+  assert (strcspn (Test2String, "ZYXWVU") == 40);
+  assert (strcspn (Test2String, "ZYXWVUT") == 38);
+  assert (strcspn (Test2String, "ZYXWVUTS") == 36);
+  assert (strcspn (Test2String, "ZYXWVUTSR") == 34);
+  assert (strcspn (Test2String, "ZYXWVUTSRQ") == 32);
+  assert (strcspn (Test2String, "ZYXWVUTSRQP") == 30);
+  assert (strcspn (Test2String, "ZYXWVUTSRQPO") == 28);
+  assert (strcspn (Test2String, "ZYXWVUTSRQPON") == 26);
+  assert (strcspn (Test2String, "ZYXWVUTSRQPONM") == 24);
+  assert (strcspn (Test2String, "ZYXWVUTSRQPONML") == 22);
+  assert (strcspn (Test2String, "ZYXWVUTSRQPONMLK") == 20);
+  assert (strcspn (Test2String, "ZYXWVUTSRQPONMLKJ") == 18);
+  assert (strcspn (Test2String, "ZYXWVUTSRQPONMLKJI") == 16);
+  assert (strcspn (Test2String, "ZYXWVUTSRQPONMLKJIH") == 14);
+  assert (strcspn (Test2String, "ZYXWVUTSRQPONMLKJIHG") == 12);
+  assert (strcspn (Test2String, "ZYXWVUTSRQPONMLKJIHGF") == 10);
+  assert (strcspn (Test2String, "ZYXWVUTSRQPONMLKJIHGFE") == 8);
+  assert (strcspn (Test2String, "ZYXWVUTSRQPONMLKJIHGFED") == 6);
+  assert (strcspn (Test2String, "ZYXWVUTSRQPONMLKJIHGFEDC") == 4);
+  assert (strcspn (Test2String, "ZYXWVUTSRQPONMLKJIHGFEDCB") == 2);
+  assert (strcspn (Test2String, "ZYXWVUTSRQPONMLKJIHGFEDCBA") == 0);
+  assert (strcspn (Test2String, Test2String) == 0);
 
   /**
-   * Test ASCII list.
+   * Test input which contains DBCS characters.
    */
-  text = AsciiList;
+  const char *Test3String = STRING (
+    // clang-format off
+    C (0xA1), C (0x82), C (0xA1),
+    C (0xA2), C (0x82), C (0xA2),
+    C (0xA3), C (0x82), C (0xA3)
+    // clang-format on
+  );
 
-  char *set3 = NULL;
-  char *set4 = NULL;
-  char *set5 = NULL;
+  const char *Test3Set1 = STRING (
+    // clang-format off
+    C (0x82), C (0xA3)
+    // clang-format on
+  );
 
-  assert ((set3 = strndup (text, 3)) != NULL);
-  assert ((set4 = strndup (text + 4, 3)) != NULL);
-  assert ((set5 = strndup (text + 8, 5)) != NULL);
+  const char *Test3Set2 = STRING (
+    // clang-format off
+    C (0x82), C (0xA3), C (0xA3)
+    // clang-format on
+  );
 
-  assert (strcspn (text, set3) == 0);
-  assert (strcspn (text, "|") == 3);
-  assert (strcspn (text, set4) == 4);
-  assert (strcspn (text, set5) == 2);
+  const char *Test3Set3 = STRING (
+    // clang-format off
+    C (0x82), C (0xA3), C (0xA3),
+    C (0x82), C (0xA2)
+    // clang-format on
+  );
 
-  free (set3);
-  free (set4);
-  free (set5);
+  const char *Test3Set4 = STRING (
+    // clang-format off
+    C (0x82), C (0xA3), C (0xA3),
+    C (0x82), C (0xA2), C (0xA2)
+    // clang-format on
+  );
 
-  /**
-   * Test DBCS text.
-   */
-  text = DBCS;
+  const char *Test3Set5 = STRING (
+    // clang-format off
+    C (0x82), C (0xA3), C (0xA3),
+    C (0x82), C (0xA2), C (0xA2),
+    C (0x82), C (0xA1)
+    // clang-format on
+  );
 
-  char *str6 = NULL;
-  char *str7 = NULL;
-  char *str8 = NULL;
+  const char *Test3Set6 = STRING (
+    // clang-format off
+    C (0x82), C (0xA3), C (0xA3),
+    C (0x82), C (0xA2), C (0xA2),
+    C (0x82), C (0xA1), C (0xA1)
+    // clang-format on
+  );
 
-  assert ((str6 = strndup (text, 6)) != NULL);
-  assert ((str7 = strndup (text + 6, 8)) != NULL);
-  assert ((str8 = strndup (text + 14, 2)) != NULL);
-
-  assert (strcspn (text, str6) == 0);
-  assert (strcspn (text, str7) == 6);
-  assert (strcspn (text, str8) == 14);
-
-  free (str6);
-  free (str7);
-  free (str8);
-
-  /**
-   * Test DBCS list.
-   */
-  text = DBCSList;
-
-  char *str9 = NULL;
-  char *str10 = NULL;
-  char *str11 = NULL;
-
-  assert ((str9 = strndup (text, 2)) != NULL);
-  assert ((str10 = strndup (text + 3, 2)) != NULL);
-  assert ((str11 = strndup (text + 6, 2)) != NULL);
-
-  assert (strcspn (text, str9) == 0);
-  assert (strcspn (text, "|") == 2);
-  assert (strcspn (text, str10) == 3);
-  assert (strcspn (text, str11) == 6);
-
-  free (str9);
-  free (str10);
-  free (str11);
-
-  /**
-   * Test Invalid DBCS text.
-   */
-  char *invalid_text = NULL;
-
-  assert ((invalid_text = strndup (DBCSList, 7)) != NULL);
-
-  char *str12 = NULL;
-  char *str13 = NULL;
-
-  assert ((str12 = strndup (invalid_text + 3, 2)) != NULL);
-  assert ((str13 = strndup (invalid_text, 1)) != NULL);
-
-  assert (strcspn (invalid_text, "|") == 2);
-  assert (strcspn (invalid_text, str12) == 3);
-  assert (strcspn (invalid_text, str13) == 0);
-
-  free (str12);
-  free (str13);
-}
-
-static DWORD CALLBACK Thread (PVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
+  assert (strcspn (Test3String, "") == strlen (Test3String));
+  assert (strcspn (Test3String, Test3Set1) == 7);
+  assert (strcspn (Test3String, Test3Set2) == 6);
+  assert (strcspn (Test3String, Test3Set3) == 4);
+  assert (strcspn (Test3String, Test3Set4) == 3);
+  assert (strcspn (Test3String, Test3Set5) == 1);
+  assert (strcspn (Test3String, Test3Set6) == 0);
+  assert (strcspn (Test3String, Test3String) == 0);
 }
 
 int main (void) {
   p32_test_init ();
 
-#if P32_CRT == P32_MSVCRT10
-  assert (setlocale (LC_ALL, LOCALE) == NULL);
-#else
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
+  /**
+   * Skip test if code page 932 is not installed.
+   */
+  if (!IsValidCodePage (932)) {
+    return 77;
+  }
+
+  locale = newlocale (LC_ALL_MASK, LOCALE, NULL);
+  assert (locale != NULL);
 
   DoTest ();
-#endif
 
-  assert (setlocale (LC_ALL, "POSIX") != NULL);
-
-  DWORD  exitCode = EXIT_FAILURE;
-  HANDLE threadHandle = NULL;
-
-  assert ((threadHandle = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (threadHandle, INFINITE);
-  GetExitCodeThread (threadHandle, &exitCode);
-  CloseHandle (threadHandle);
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }
