@@ -33,14 +33,24 @@ static int p32_strcmp_common (const char *str1, const char *str2, locale_t local
   mbstate_t str2state = {0};
 
   while (1) {
-    const size_t length1 = p32_private_mbrlen_l (str1, locale->Charset.MaxLength, &str1state, locale);
+    /**
+     * Next Code Point in `str1`.
+     */
+    char32_t str1Char = 0xFFFFFFFF;
+
+    const size_t length1 = p32_mbrtoc32_l (&str1Char, str1, locale->Charset.MaxLength, &str1state, locale);
     assert (length1 != (size_t) -2);
 
     if (length1 == (size_t) -1 || length1 == (size_t) -2) {
       return _NLSCMPERROR;
     }
 
-    const size_t length2 = p32_private_mbrlen_l (str2, locale->Charset.MaxLength, &str2state, locale);
+    /**
+     * Next Code Point in `str2`.
+     */
+    char32_t str2Char = 0xFFFFFFFF;
+
+    const size_t length2 = p32_mbrtoc32_l (&str2Char, str2, locale->Charset.MaxLength, &str2state, locale);
     assert (length2 != (size_t) -2);
 
     if (length2 == (size_t) -1 || length2 == (size_t) -2) {
@@ -51,19 +61,14 @@ static int p32_strcmp_common (const char *str1, const char *str2, locale_t local
      * Reached the end of `str1` or `str2`.
      */
     if (length1 == 0 || length2 == 0) {
-      return *str1 - *str2;
+      return !!str1Char - !!str2Char;
     }
 
-    /**
-     * Two characters of different length cannot be equal.
-     */
-    int diff = memcmp (str1, str2, __min (length1, length2));
+    int diff = str1Char - str2Char;
 
     if (diff) {
       return diff;
     }
-
-    assert (length1 == length2);
 
     str1 += length1;
     str2 += length2;
@@ -71,7 +76,10 @@ static int p32_strcmp_common (const char *str1, const char *str2, locale_t local
 }
 
 static void P32LocaleFunction_strcmp (LocaleFunctions *functions, Charset *charset) {
-  if (P32_IS_SBCS (charset)) {
+  /**
+   * All ISO-8859-1 Code Points map 1:1 with Unicode.
+   */
+  if (charset->CodePage == P32_CODEPAGE_ISO_8859_1) {
     functions->F_strcmp = p32_strcmp_posix;
   } else {
     functions->F_strcmp = p32_strcmp_common;

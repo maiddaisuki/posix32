@@ -28,8 +28,6 @@ P32_TEST_DECL char  *p32_private_strcat_l (char *dest, const char *src, locale_t
 P32_TEST_DECL char  *p32_private_strncat_l (char *dest, const char *src, size_t count, locale_t locale);
 P32_TEST_DECL char  *p32_private_strdup_l (const char *str, locale_t locale);
 P32_TEST_DECL char  *p32_private_strndup_l (const char *str, size_t count, locale_t locale);
-P32_TEST_DECL int    p32_private_strcmp_l (const char *s1, const char *s2, locale_t locale);
-P32_TEST_DECL int    p32_private_strncmp_l (const char *s1, const char *s2, size_t count, locale_t locale);
 P32_TEST_DECL char  *p32_private_strchr_l (const char *str, int c, locale_t locale);
 P32_TEST_DECL char  *p32_private_strrchr_l (const char *str, int c, locale_t locale);
 P32_TEST_DECL char  *p32_private_strstr_l (const char *str, const char *substr, locale_t locale);
@@ -38,6 +36,19 @@ P32_TEST_DECL size_t p32_private_strspn_l (const char *string, const char *set, 
 P32_TEST_DECL size_t p32_private_strcspn_l (const char *string, const char *set, locale_t locale);
 P32_TEST_DECL char  *p32_private_strtok_l (char *str, const char *delim, locale_t locale);
 P32_TEST_DECL char  *p32_private_strtok_r_l (char *str, const char *delim, char **context, locale_t locale);
+
+/**
+ * Locale-specific versions of `str[n]cmp`.
+ *
+ * These functions use Unicode binary order when comparing strings; that is,
+ * strings are sorted in Code Point order. The results are similar to converting
+ * both strings to UTF-8 and then using `str[n]cmp` for comparison.
+ *
+ * These functions validate both strings; if an invalid multibyte sequence is
+ * encountered in any string, these functions return `_NLSCMPERROR`.
+ */
+P32_TEST_DECL int p32_private_strcmp_l (const char *, const char *, locale_t);
+P32_TEST_DECL int p32_private_strncmp_l (const char *, const char *, size_t, locale_t);
 
 /**
  * Internal version of locale-dependent string.h and strings.h functions.

@@ -31,6 +31,7 @@
 
 #include "locale-internal.h"
 #include "string-internal.h"
+#include "uchar-internal.h"
 #include "wchar-internal.h"
 
 /**
