@@ -52,9 +52,11 @@ lib/posix32-crt/tests/mbstring/strcat/*.c
 lib/posix32-crt/tests/mbstring/strchr/*.c
 lib/posix32-crt/tests/mbstring/strcpy/*.c
 lib/posix32-crt/tests/mbstring/strcspn/*.
+lib/posix32-crt/tests/mbstring/strdup/*.c
 lib/posix32-crt/tests/mbstring/strlen/*.c
 lib/posix32-crt/tests/mbstring/strncat/*.c
 lib/posix32-crt/tests/mbstring/strncpy/*.c
+lib/posix32-crt/tests/mbstring/strndup/*.c
 lib/posix32-crt/tests/mbstring/strnlen/*.c
 lib/posix32-crt/tests/mbstring/strpbrk/*.c
 lib/posix32-crt/tests/mbstring/strrchr/*.c
