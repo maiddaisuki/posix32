@@ -26,65 +26,68 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "string-test.h"
+#include "tests-internal.h"
 
 /**
  * Test Summary:
  *
- * Test `strrchr` function with "POSIX" locale.
+ * Test `p32_private_strrchr_l` function with ISO-8859-1 (code page 28591).
+ *
+ * This code page is used with "POSIX" locale.
  */
 
+#define C(c)        (char) (unsigned) (c)
+#define C8(c)       C (0x80 | (c))
+#define STRING(...) (const char[]){__VA_ARGS__ __VA_OPT__ (, ) 0x00}
+
+#define LOCALE "POSIX"
+static locale_t locale;
+
+/**
+ * Convenience macro to call `p32_private_strrchr_l`.
+ */
+#define strrchr(s, c) p32_private_strrchr_l (s, c, locale)
+
 static void DoTest (void) {
-  const char *text = NULL;
+  /**
+   * Basic `strrchr` usage.
+   */
+  const char *Test1String = STRING ('1', '2', '3', '3', '2', '1', '\0', 0x7F);
+
+  assert (strrchr (Test1String, '1') == Test1String + 5);
+  assert (strrchr (Test1String, C8 ('1')) == NULL);
+  assert (strrchr (Test1String, '2') == Test1String + 4);
+  assert (strrchr (Test1String, C8 ('1')) == NULL);
+  assert (strrchr (Test1String, '3') == Test1String + 3);
+  assert (strrchr (Test1String, C8 ('1')) == NULL);
+  assert (strrchr (Test1String, '\0') == Test1String + 6);
+  assert (strrchr (Test1String, 0x7F) == NULL);
 
   /**
-   * Test ASCII text.
+   * Test input which contains non-ASCII Code Points.
+   *
+   * In ISO-8859-1 all bytes are assigned Code Points.
    */
-  text = AsciiText;
+  const char *Test2String = STRING ('A', C8 ('A'), 'A', 'B', C8 ('B'), 'B', 'C', C8 ('C'), 'C');
 
-  assert (strrchr (text, 'A') == text);
-  assert (strrchr (text, ' ') == text + 5);
-  assert (strrchr (text, '.') == text + 10);
-  assert (strrchr (text, '\0') == text + 11);
-  assert (strrchr (text, '\n') == NULL);
-
-  /**
-   * Test ASCII list.
-   */
-  text = AsciiList;
-
-  assert (strrchr (text, '|') == text + 7);
-  assert (strrchr (text, '\0') == text + 13);
-  assert (strrchr (text, '\n') == NULL);
-
-  /**
-   * Test SBCS text.
-   */
-  text = SBCS;
-
-  for (size_t i = 0; i < _countof (SBCS); ++i) {
-    assert (strrchr (text, SBCS[i]) == text + i);
-  }
-
-  assert (strrchr (text, '\0') == text + 10);
-  assert (strrchr (text, '\n') == NULL);
-
-  /**
-   * Test SBCS list.
-   */
-  text = SBCSList;
-
-  assert (strrchr (text, '|') == text + 7);
-  assert (strrchr (text, '\0') == text + 13);
-  assert (strrchr (text, '\n') == NULL);
+  assert (strrchr (Test2String, 'A') == Test2String + 2);
+  assert (strrchr (Test2String, C8 ('A')) == Test2String + 1);
+  assert (strrchr (Test2String, 'B') == Test2String + 5);
+  assert (strrchr (Test2String, C8 ('B')) == Test2String + 4);
+  assert (strrchr (Test2String, 'C') == Test2String + 8);
+  assert (strrchr (Test2String, C8 ('C')) == Test2String + 7);
+  assert (strrchr (Test2String, '\0') == Test2String + 9);
 }
 
 int main (void) {
   p32_test_init ();
 
-  assert (setlocale (LC_ALL, "POSIX") != NULL);
+  locale = newlocale (LC_ALL_MASK, LOCALE, NULL);
+  assert (locale != NULL);
 
   DoTest ();
+
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }

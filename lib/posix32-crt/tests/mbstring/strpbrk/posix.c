@@ -26,103 +26,108 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "string-test.h"
+#include "tests-internal.h"
 
 /**
  * Test Summary:
  *
- * Test `strpbrk` function with "POSIX" locale.
+ * Test `p32_private_strpbrk_l` function with ISO-8859-1 (code page 28591).
+ *
+ * This code page is used with "POSIX" locale.
  */
 
+#define C(c)        (char) (unsigned) (c)
+#define STRING(...) (const char[]){__VA_ARGS__ __VA_OPT__ (, ) 0x00}
+
+#define LOCALE "POSIX"
+static locale_t locale;
+
+/**
+ * Convenience macro to call `p32_private_strpbrk_l`.
+ */
+#define strpbrk(s, l) p32_private_strpbrk_l (s, l, locale)
+
 static void DoTest (void) {
-  const char *text = NULL;
+  /**
+   * Sanity checks.
+   */
+  const char *Test1String = STRING ('\0', 'A', 'B', 'C', '1', '2', '3');
+
+  assert (strpbrk (Test1String, "") == NULL);
+  assert (strpbrk (Test1String, "ABC") == NULL);
+  assert (strpbrk (Test1String, "123") == NULL);
 
   /**
-   * Test ASCII text.
+   * Basic `strpbrk` usage.
    */
-  text = AsciiText;
+  const char *Test2String = "AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ";
 
-  char *set1 = NULL;
-  char *set2 = NULL;
-
-  assert ((set1 = strndup (text, 5)) != NULL);
-  assert ((set2 = strndup (text + 6, 5)) != NULL);
-
-  assert (strpbrk (text, "") == NULL);
-  assert (strpbrk (text, set1) == text);
-  assert (strpbrk (text, set2) == text + 6);
-
-  free (set1);
-  free (set2);
+  assert (strpbrk (Test2String, "") == NULL);
+  assert (strpbrk (Test2String, "Z") == Test2String + 50);
+  assert (strpbrk (Test2String, "ZY") == Test2String + 48);
+  assert (strpbrk (Test2String, "ZYX") == Test2String + 46);
+  assert (strpbrk (Test2String, "ZYXW") == Test2String + 44);
+  assert (strpbrk (Test2String, "ZYXWV") == Test2String + 42);
+  assert (strpbrk (Test2String, "ZYXWVU") == Test2String + 40);
+  assert (strpbrk (Test2String, "ZYXWVUT") == Test2String + 38);
+  assert (strpbrk (Test2String, "ZYXWVUTS") == Test2String + 36);
+  assert (strpbrk (Test2String, "ZYXWVUTSR") == Test2String + 34);
+  assert (strpbrk (Test2String, "ZYXWVUTSRQ") == Test2String + 32);
+  assert (strpbrk (Test2String, "ZYXWVUTSRQP") == Test2String + 30);
+  assert (strpbrk (Test2String, "ZYXWVUTSRQPO") == Test2String + 28);
+  assert (strpbrk (Test2String, "ZYXWVUTSRQPON") == Test2String + 26);
+  assert (strpbrk (Test2String, "ZYXWVUTSRQPONM") == Test2String + 24);
+  assert (strpbrk (Test2String, "ZYXWVUTSRQPONML") == Test2String + 22);
+  assert (strpbrk (Test2String, "ZYXWVUTSRQPONMLK") == Test2String + 20);
+  assert (strpbrk (Test2String, "ZYXWVUTSRQPONMLKJ") == Test2String + 18);
+  assert (strpbrk (Test2String, "ZYXWVUTSRQPONMLKJI") == Test2String + 16);
+  assert (strpbrk (Test2String, "ZYXWVUTSRQPONMLKJIH") == Test2String + 14);
+  assert (strpbrk (Test2String, "ZYXWVUTSRQPONMLKJIHG") == Test2String + 12);
+  assert (strpbrk (Test2String, "ZYXWVUTSRQPONMLKJIHGF") == Test2String + 10);
+  assert (strpbrk (Test2String, "ZYXWVUTSRQPONMLKJIHGFE") == Test2String + 8);
+  assert (strpbrk (Test2String, "ZYXWVUTSRQPONMLKJIHGFED") == Test2String + 6);
+  assert (strpbrk (Test2String, "ZYXWVUTSRQPONMLKJIHGFEDC") == Test2String + 4);
+  assert (strpbrk (Test2String, "ZYXWVUTSRQPONMLKJIHGFEDCB") == Test2String + 2);
+  assert (strpbrk (Test2String, "ZYXWVUTSRQPONMLKJIHGFEDCBA") == Test2String);
+  assert (strpbrk (Test2String, Test2String) == Test2String);
 
   /**
-   * Test ASCII list.
+   * Test input which contains non-ASCII Code Points.
+   *
+   * In ISO-8859-1 all bytes are assigned Code Points.
    */
-  text = AsciiList;
+  const char *Test3String = STRING (C (0x80), C (0x90), C (0xA0), C (0xB0), C (0xC0), C (0xD0), C (0xE0), C (0xF0));
 
-  char *set3 = NULL;
-  char *set4 = NULL;
-  char *set5 = NULL;
+  const char *Test3Set1 = STRING (C (0xF0));
+  const char *Test3Set2 = STRING (C (0xF0), C (0xE0));
+  const char *Test3Set3 = STRING (C (0xF0), C (0xE0), C (0xD0));
+  const char *Test3Set4 = STRING (C (0xF0), C (0xE0), C (0xD0), C (0xC0));
+  const char *Test3Set5 = STRING (C (0xF0), C (0xE0), C (0xD0), C (0xC0), C (0xB0));
+  const char *Test3Set6 = STRING (C (0xF0), C (0xE0), C (0xD0), C (0xC0), C (0xB0), C (0xA0));
+  const char *Test3Set7 = STRING (C (0xF0), C (0xE0), C (0xD0), C (0xC0), C (0xB0), C (0xA0), C (0x90));
+  const char *Test3Set8 = STRING (C (0xF0), C (0xE0), C (0xD0), C (0xC0), C (0xB0), C (0xA0), C (0x90), C (0x80));
 
-  assert ((set3 = strndup (text, 3)) != NULL);
-  assert ((set4 = strndup (text + 4, 3)) != NULL);
-  assert ((set5 = strndup (text + 8, 5)) != NULL);
-
-  assert (strpbrk (text, set3) == text);
-  assert (strpbrk (text, "|") == text + 3);
-  assert (strpbrk (text, set4) == text + 4);
-  assert (strpbrk (text, set5) == text + 2);
-
-  free (set3);
-  free (set4);
-  free (set5);
-
-  /**
-   * Test SBCS text.
-   */
-  text = SBCS;
-
-  char *set6 = NULL;
-  char *set7 = NULL;
-
-  assert ((set6 = strndup (text, 4)) != NULL);
-  assert ((set7 = strndup (text + 5, 5)) != NULL);
-
-  assert (strpbrk (text, set6) == text);
-  assert (strpbrk (text, set7) == text + 5);
-
-  free (set6);
-  free (set7);
-
-  /**
-   * Test SBCS list.
-   */
-  text = SBCSList;
-
-  char *set8  = NULL;
-  char *set9  = NULL;
-  char *set10 = NULL;
-
-  assert ((set8 = strndup (text, 3)) != NULL);
-  assert ((set9 = strndup (text + 4, 3)) != NULL);
-  assert ((set10 = strndup (text + 8, 5)) != NULL);
-
-  assert (strpbrk (text, set8) == text);
-  assert (strpbrk (text, "|") == text + 3);
-  assert (strpbrk (text, set9) == text + 4);
-  assert (strpbrk (text, set10) == text + 2);
-
-  free (set8);
-  free (set9);
-  free (set10);
+  assert (strpbrk (Test3String, "") == NULL);
+  assert (strpbrk (Test3String, Test3Set1) == Test3String + 7);
+  assert (strpbrk (Test3String, Test3Set2) == Test3String + 6);
+  assert (strpbrk (Test3String, Test3Set3) == Test3String + 5);
+  assert (strpbrk (Test3String, Test3Set4) == Test3String + 4);
+  assert (strpbrk (Test3String, Test3Set5) == Test3String + 3);
+  assert (strpbrk (Test3String, Test3Set6) == Test3String + 2);
+  assert (strpbrk (Test3String, Test3Set7) == Test3String + 1);
+  assert (strpbrk (Test3String, Test3Set8) == Test3String);
+  assert (strpbrk (Test3String, Test3String) == Test3String);
 }
 
 int main (void) {
   p32_test_init ();
 
-  assert (setlocale (LC_ALL, "POSIX") != NULL);
+  locale = newlocale (LC_ALL_MASK, LOCALE, NULL);
+  assert (locale != NULL);
 
   DoTest ();
+
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }

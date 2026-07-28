@@ -26,100 +26,108 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "string-test.h"
+#include "tests-internal.h"
 
 /**
  * Test Summary:
  *
- * Test `strspn` function with "POSIX" locale.
+ * Test `p32_private_strspn_l` function with ISO-8859-1 (code page 28591).
+ *
+ * This code page is used with "POSIX" locale.
  */
 
+#define C(c)        (char) (unsigned) (c)
+#define STRING(...) (const char[]){__VA_ARGS__ __VA_OPT__ (, ) 0x00}
+
+#define LOCALE "POSIX"
+static locale_t locale;
+
+/**
+ * Convenience macro to call `p32_private_strspn_l`.
+ */
+#define strspn(s, l) p32_private_strspn_l (s, l, locale)
+
 static void DoTest (void) {
-  const char *text = NULL;
+  /**
+   * Sanity checks.
+   */
+  const char *Test1String = STRING ('\0', 'A', 'B', 'C', '1', '2', '3');
+
+  assert (strspn (Test1String, "") == 0);
+  assert (strspn (Test1String, "ABC") == 0);
+  assert (strspn (Test1String, "123") == 0);
 
   /**
-   * Test ASCII text.
+   * Basic `strspn` usage.
    */
-  text = AsciiText;
+  const char *Test2String = "AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ";
 
-  char *set1 = NULL;
-  char *set2 = NULL;
-
-  assert ((set1 = strndup (text, 5)) != NULL);
-  assert ((set2 = strndup (text + 6, 5)) != NULL);
-
-  assert (strspn (text, set1) == 5);
-  assert (strspn (text, set2) == 0);
-
-  free (set1);
-  free (set2);
+  assert (strspn (Test2String, "") == 0);
+  assert (strspn (Test2String, "A") == 2);
+  assert (strspn (Test2String, "AB") == 4);
+  assert (strspn (Test2String, "ABC") == 6);
+  assert (strspn (Test2String, "ABCD") == 8);
+  assert (strspn (Test2String, "ABCDE") == 10);
+  assert (strspn (Test2String, "ABCDEF") == 12);
+  assert (strspn (Test2String, "ABCDEFG") == 14);
+  assert (strspn (Test2String, "ABCDEFGH") == 16);
+  assert (strspn (Test2String, "ABCDEFGHI") == 18);
+  assert (strspn (Test2String, "ABCDEFGHIJ") == 20);
+  assert (strspn (Test2String, "ABCDEFGHIJK") == 22);
+  assert (strspn (Test2String, "ABCDEFGHIJKL") == 24);
+  assert (strspn (Test2String, "ABCDEFGHIJKLM") == 26);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMN") == 28);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNO") == 30);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNOP") == 32);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNOPQ") == 34);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNOPQR") == 36);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNOPQRS") == 38);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNOPQRST") == 40);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNOPQRSTU") == 42);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNOPQRSTUV") == 44);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNOPQRSTUVW") == 46);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNOPQRSTUVWX") == 48);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNOPQRSTUVWXY") == 50);
+  assert (strspn (Test2String, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") == 52);
+  assert (strspn (Test2String, Test2String) == strlen (Test2String));
 
   /**
-   * Test ASCII list.
+   * Test input which contains non-ASCII Code Points.
+   *
+   * In ISO-8859-1 all bytes are assigned Code Points.
    */
-  text = AsciiList;
+  const char *Test3String = STRING (C (0x80), C (0x90), C (0xA0), C (0xB0), C (0xC0), C (0xD0), C (0xE0), C (0xF0));
 
-  char *set3 = NULL;
-  char *set4 = NULL;
-  char *set5 = NULL;
+  const char *Test3Set1 = STRING (C (0x80));
+  const char *Test3Set2 = STRING (C (0x80), C (0x90));
+  const char *Test3Set3 = STRING (C (0x80), C (0x90), C (0xA0));
+  const char *Test3Set4 = STRING (C (0x80), C (0x90), C (0xA0), C (0xB0));
+  const char *Test3Set5 = STRING (C (0x80), C (0x90), C (0xA0), C (0xB0), C (0xC0));
+  const char *Test3Set6 = STRING (C (0x80), C (0x90), C (0xA0), C (0xB0), C (0xC0), C (0xD0));
+  const char *Test3Set7 = STRING (C (0x80), C (0x90), C (0xA0), C (0xB0), C (0xC0), C (0xD0), C (0xE0));
+  const char *Test3Set8 = STRING (C (0x80), C (0x90), C (0xA0), C (0xB0), C (0xC0), C (0xD0), C (0xE0), C (0xF0));
 
-  assert ((set3 = strndup (text, 3)) != NULL);
-  assert ((set4 = strndup (text + 4, 3)) != NULL);
-  assert ((set5 = strndup (text + 8, 5)) != NULL);
-
-  assert (strspn (text, set3) == 3);
-  assert (strspn (text, set4) == 0);
-  assert (strspn (text, set5) == 0);
-
-  free (set3);
-  free (set4);
-  free (set5);
-
-  /**
-   * Test SBCS text.
-   */
-  text = SBCS;
-
-  char *set6 = NULL;
-  char *set7 = NULL;
-
-  assert ((set6 = strndup (text, 4)) != NULL);
-  assert ((set7 = strndup (text + 5, 5)) != NULL);
-
-  assert (strspn (text, set6) == 4);
-  assert (strspn (text, set7) == 0);
-
-  free (set6);
-  free (set7);
-
-  /**
-   * Test SBCS list.
-   */
-  text = SBCSList;
-
-  char *set8  = NULL;
-  char *set9  = NULL;
-  char *set10 = NULL;
-
-  assert ((set8 = strndup (text, 3)) != NULL);
-  assert ((set9 = strndup (text + 4, 3)) != NULL);
-  assert ((set10 = strndup (text + 8, 5)) != NULL);
-
-  assert (strspn (text, set8) == 3);
-  assert (strspn (text, set9) == 0);
-  assert (strspn (text, set10) == 0);
-
-  free (set8);
-  free (set9);
-  free (set10);
+  assert (strspn (Test3String, "") == 0);
+  assert (strspn (Test3String, Test3Set1) == 1);
+  assert (strspn (Test3String, Test3Set2) == 2);
+  assert (strspn (Test3String, Test3Set3) == 3);
+  assert (strspn (Test3String, Test3Set4) == 4);
+  assert (strspn (Test3String, Test3Set5) == 5);
+  assert (strspn (Test3String, Test3Set6) == 6);
+  assert (strspn (Test3String, Test3Set7) == 7);
+  assert (strspn (Test3String, Test3Set8) == 8);
+  assert (strspn (Test3String, Test3String) == 8);
 }
 
 int main (void) {
   p32_test_init ();
 
-  assert (setlocale (LC_ALL, "POSIX") != NULL);
+  locale = newlocale (LC_ALL_MASK, LOCALE, NULL);
+  assert (locale != NULL);
 
   DoTest ();
+
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }

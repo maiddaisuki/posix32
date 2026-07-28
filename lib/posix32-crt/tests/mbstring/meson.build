@@ -16,7 +16,7 @@ tests = [
 variants = [
   # 'ascii',
   # 'dbcs',
-  # 'posix',
+  'posix',
   # 'sbcs',
   # 'utf-8',
 ]
