@@ -16,7 +16,12 @@
 
 #include "string-internal.h"
 
-char *p32_private_strncpy_l (char *dest, const char *src, size_t count, locale_t locale) {
+static char *p32_strncpy_posix (char *dest, const char *src, size_t count, locale_t locale) {
+  return strncpy (dest, src, count);
+  UNREFERENCED_PARAMETER (locale);
+}
+
+static char *p32_strncpy_common (char *dest, const char *src, size_t count, locale_t locale) {
   size_t length = p32_private_strnlen_l (src, count, locale);
 
   if (length == (size_t) -1) {
@@ -25,4 +30,16 @@ char *p32_private_strncpy_l (char *dest, const char *src, size_t count, locale_t
 
   dest[length] = '\0';
   return memcpy (dest, src, length);
+}
+
+static void P32LocaleFunction_strncpy (LocaleFunctions *functions, Charset *charset) {
+  if (P32_IS_SBCS (charset)) {
+    functions->F_strncpy = p32_strncpy_posix;
+  } else {
+    functions->F_strncpy = p32_strncpy_common;
+  }
+}
+
+char *p32_private_strncpy_l (char *dest, const char *src, size_t count, locale_t locale) {
+  return locale->Functions.F_strncpy (dest, src, count, locale);
 }

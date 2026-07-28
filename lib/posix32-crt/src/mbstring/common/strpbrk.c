@@ -16,7 +16,12 @@
 
 #include "string-internal.h"
 
-char *p32_private_strpbrk_l (const char *str, const char *set, locale_t locale) {
+static char *p32_strpbrk_posix (const char *str, const char *set, locale_t locale) {
+  return strpbrk (str, set);
+  UNREFERENCED_PARAMETER (locale);
+}
+
+static char *p32_strpbrk_common (const char *str, const char *set, locale_t locale) {
   /**
    * Empty string is not a valid set.
    */
@@ -74,4 +79,16 @@ char *p32_private_strpbrk_l (const char *str, const char *set, locale_t locale) 
 
     str += length;
   }
+}
+
+static void P32LocaleFunction_strpbrk (LocaleFunctions *functions, Charset *charset) {
+  if (P32_IS_SBCS (charset)) {
+    functions->F_strpbrk = p32_strpbrk_posix;
+  } else {
+    functions->F_strpbrk = p32_strpbrk_common;
+  }
+}
+
+char *p32_private_strpbrk_l (const char *str, const char *set, locale_t locale) {
+  return locale->Functions.F_strpbrk (str, set, locale);
 }

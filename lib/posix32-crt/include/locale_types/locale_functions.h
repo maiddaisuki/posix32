@@ -29,6 +29,26 @@
  */
 typedef struct LocaleFunctions {
   /**
+   * string-internal.h: Operations on Multibyte Character Strings
+   */
+  size_t (*F_strlen) (const char *, locale_t);
+  size_t (*F_strnlen) (const char *, size_t, locale_t);
+  char  *(*F_strcpy) (char *, const char *, locale_t);
+  char  *(*F_strncpy) (char *, const char *, size_t, locale_t);
+  char  *(*F_strcat) (char *, const char *, locale_t);
+  char  *(*F_strncat) (char *, const char *, size_t, locale_t);
+  char  *(*F_strdup) (const char *, locale_t);
+  char  *(*F_strndup) (const char *, size_t, locale_t);
+  int    (*F_strcmp) (const char *, const char *, locale_t);
+  int    (*F_strncmp) (const char *, const char *, size_t, locale_t);
+  char  *(*F_strchr) (const char *, int, locale_t);
+  char  *(*F_strrchr) (const char *, int, locale_t);
+  char  *(*F_strpbrk) (const char *, const char *, locale_t);
+  size_t (*F_strspn) (const char *, const char *, locale_t);
+  size_t (*F_strcspn) (const char *, const char *, locale_t);
+  char  *(*F_strtok_r) (char *, const char *, char **, locale_t);
+  char  *(*F_strstr) (const char *, const char *, locale_t);
+  /**
    * string.h
    */
   int    (*F_strcoll) (const char *, const char *, locale_t);
@@ -97,6 +117,12 @@ typedef struct LocaleFunctions {
   size_t (*F_mbrtoc32) (uint_least32_t *, const char *, size_t, mbstate_t *, Charset *);
   size_t (*F_c32rtomb) (char *, uint_least32_t, mbstate_t *, Charset *);
 } LocaleFunctions;
+
+/**
+ * Store locale-specific versions of multibyte character string functions
+ * from string-internal.h in `locale->Functions`.
+ */
+void p32_mbstring_functions (locale_t locale);
 
 /**
  * Store locale-specific versions of string.h and strings.h functions in

@@ -16,7 +16,12 @@
 
 #include "string-internal.h"
 
-int p32_private_strncmp_l (const char *str1, const char *str2, size_t count, locale_t locale) {
+static int p32_strncmp_posix (const char *str1, const char *str2, size_t count, locale_t locale) {
+  return strncmp (str1, str2, count);
+  UNREFERENCED_PARAMETER (locale);
+}
+
+static int p32_strncmp_common (const char *str1, const char *str2, size_t count, locale_t locale) {
   /**
    * Conversion state for `str1`.
    */
@@ -83,4 +88,16 @@ int p32_private_strncmp_l (const char *str1, const char *str2, size_t count, loc
 
     count -= length1;
   }
+}
+
+static void P32LocaleFunction_strncmp (LocaleFunctions *functions, Charset *charset) {
+  if (P32_IS_SBCS (charset)) {
+    functions->F_strncmp = p32_strncmp_posix;
+  } else {
+    functions->F_strncmp = p32_strncmp_common;
+  }
+}
+
+int p32_private_strncmp_l (const char *str1, const char *str2, size_t count, locale_t locale) {
+  return locale->Functions.F_strncmp (str1, str2, count, locale);
 }

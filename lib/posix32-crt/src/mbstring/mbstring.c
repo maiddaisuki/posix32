@@ -66,3 +66,30 @@
 #include "common/strstr.c"
 #include "common/strtok.c"
 #include "common/strtok_r.c"
+
+/*******************************************************************************
+ * External Functions
+ */
+
+void p32_mbstring_functions (locale_t locale) {
+  /**
+   * Functions dependant on character set (LC_CTYPE).
+   */
+  P32LocaleFunction_strlen (&locale->Functions, &locale->Charset);
+  P32LocaleFunction_strnlen (&locale->Functions, &locale->Charset);
+  P32LocaleFunction_strcpy (&locale->Functions, &locale->Charset);
+  P32LocaleFunction_strncpy (&locale->Functions, &locale->Charset);
+  P32LocaleFunction_strcat (&locale->Functions, &locale->Charset);
+  P32LocaleFunction_strncat (&locale->Functions, &locale->Charset);
+  P32LocaleFunction_strdup (&locale->Functions, &locale->Charset);
+  P32LocaleFunction_strndup (&locale->Functions, &locale->Charset);
+  P32LocaleFunction_strcmp (&locale->Functions, &locale->Charset);
+  P32LocaleFunction_strncmp (&locale->Functions, &locale->Charset);
+  P32LocaleFunction_strchr (&locale->Functions, &locale->Charset);
+  P32LocaleFunction_strrchr (&locale->Functions, &locale->Charset);
+  P32LocaleFunction_strpbrk (&locale->Functions, &locale->Charset);
+  P32LocaleFunction_strspn (&locale->Functions, &locale->Charset);
+  P32LocaleFunction_strcspn (&locale->Functions, &locale->Charset);
+  P32LocaleFunction_strtok_r (&locale->Functions, &locale->Charset);
+  P32LocaleFunction_strstr (&locale->Functions, &locale->Charset);
+}

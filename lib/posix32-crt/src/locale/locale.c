@@ -1913,6 +1913,7 @@ static void P32CreateLocale (locale_t locale) {
  * Get locale-specific functions.
  */
 static void P32LocaleFunctions (locale_t locale) {
+  p32_mbstring_functions (locale);
   p32_string_functions (locale);
   p32_uchar_functions (locale);
   p32_wchar_c89_functions (locale);

@@ -16,7 +16,12 @@
 
 #include "string-internal.h"
 
-char *p32_private_strndup_l (const char *str, size_t count, locale_t locale) {
+static char *p32_strndup_posix (const char *str, size_t count, locale_t locale) {
+  return p32_strndup (str, count);
+  UNREFERENCED_PARAMETER (locale);
+}
+
+static char *p32_strndup_common (const char *str, size_t count, locale_t locale) {
   size_t length = p32_private_strnlen_l (str, count, locale);
 
   if (length == (size_t) -1) {
@@ -32,4 +37,16 @@ char *p32_private_strndup_l (const char *str, size_t count, locale_t locale) {
 
   buffer[length] = '\0';
   return memcpy (buffer, str, length);
+}
+
+static void P32LocaleFunction_strndup (LocaleFunctions *functions, Charset *charset) {
+  if (P32_IS_SBCS (charset)) {
+    functions->F_strndup = p32_strndup_posix;
+  } else {
+    functions->F_strndup = p32_strndup_common;
+  }
+}
+
+char *p32_private_strndup_l (const char *str, size_t count, locale_t locale) {
+  return locale->Functions.F_strndup (str, count, locale);
 }

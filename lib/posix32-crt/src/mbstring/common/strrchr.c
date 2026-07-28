@@ -16,7 +16,12 @@
 
 #include "string-internal.h"
 
-char *p32_private_strrchr_l (const char *str, int c, locale_t locale) {
+static char *p32_strrchr_posix (const char *str, int c, locale_t locale) {
+  return strrchr (str, c);
+  UNREFERENCED_PARAMETER (locale);
+}
+
+static char *p32_strrchr_common (const char *str, int c, locale_t locale) {
   /**
    * Check if `c` is a valid single-byte character.
    */
@@ -68,4 +73,16 @@ char *p32_private_strrchr_l (const char *str, int c, locale_t locale) {
   }
 
   return ret;
+}
+
+static void P32LocaleFunction_strrchr (LocaleFunctions *functions, Charset *charset) {
+  if (P32_IS_SBCS (charset)) {
+    functions->F_strrchr = p32_strrchr_posix;
+  } else {
+    functions->F_strrchr = p32_strrchr_common;
+  }
+}
+
+char *p32_private_strrchr_l (const char *str, int c, locale_t locale) {
+  return locale->Functions.F_strrchr (str, c, locale);
 }

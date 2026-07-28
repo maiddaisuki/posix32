@@ -16,7 +16,12 @@
 
 #include "string-internal.h"
 
-char *p32_private_strtok_r_l (char *str, const char *delim, char **context, locale_t locale) {
+static char *p32_strtok_r_posix (char *str, const char *delim, char **context, locale_t locale) {
+  return p32_strtok_r (str, delim, context);
+  UNREFERENCED_PARAMETER (locale);
+}
+
+static char *p32_strtok_r_common (char *str, const char *delim, char **context, locale_t locale) {
   /**
    * Start of the next token.
    */
@@ -139,4 +144,16 @@ char *p32_private_strtok_r_l (char *str, const char *delim, char **context, loca
 
 stop:
   return ret;
+}
+
+static void P32LocaleFunction_strtok_r (LocaleFunctions *functions, Charset *charset) {
+  if (P32_IS_SBCS (charset)) {
+    functions->F_strtok_r = p32_strtok_r_posix;
+  } else {
+    functions->F_strtok_r = p32_strtok_r_common;
+  }
+}
+
+char *p32_private_strtok_r_l (char *str, const char *delim, char **context, locale_t locale) {
+  return locale->Functions.F_strtok_r (str, delim, context, locale);
 }

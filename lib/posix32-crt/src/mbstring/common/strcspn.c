@@ -16,7 +16,12 @@
 
 #include "string-internal.h"
 
-size_t p32_private_strcspn_l (const char *str, const char *set, locale_t locale) {
+static size_t p32_strcspn_posix (const char *str, const char *set, locale_t locale) {
+  return strcspn (str, set);
+  UNREFERENCED_PARAMETER (locale);
+}
+
+static size_t p32_strcspn_common (const char *str, const char *set, locale_t locale) {
   /**
    * Return value.
    */
@@ -73,4 +78,16 @@ size_t p32_private_strcspn_l (const char *str, const char *set, locale_t locale)
     ret += length;
     str += length;
   }
+}
+
+static void P32LocaleFunction_strcspn (LocaleFunctions *functions, Charset *charset) {
+  if (P32_IS_SBCS (charset)) {
+    functions->F_strcspn = p32_strcspn_posix;
+  } else {
+    functions->F_strcspn = p32_strcspn_common;
+  }
+}
+
+size_t p32_private_strcspn_l (const char *str, const char *set, locale_t locale) {
+  return locale->Functions.F_strcspn (str, set, locale);
 }
