@@ -18,12 +18,57 @@
 
 char *p32_strtok_r (char *str, const char *delim, char **context) {
   /**
-   * Function `strtok_s` is available since msvcr80.dll.
+   * Start of the next token.
    */
-#if P32_CRT >= P32_MSVCR80
-  return strtok_s (str, delim, context);
-#else
-  locale_t activeLocale = p32_posix_locale ();
-  return p32_private_strtok_r_l (str, delim, context, activeLocale);
-#endif
+  char *start;
+
+  if (str != NULL) {
+    start = str;
+  } else {
+    start = *context;
+  }
+
+  /**
+   * Return value;
+   */
+  char *ret = NULL;
+
+  /**
+   * Skip initial part consisting of characters in `delim`.
+   */
+  start += strspn (start, delim);
+
+  /**
+   * Token pointed by `start` consists entirely of characters in `delim`.
+   */
+  if (start[0] == '\0') {
+    /**
+     * Ensure that next call with the same `context` returns `NULL`.
+     */
+    *context = start;
+    goto done;
+  }
+
+  ret = start;
+
+  /**
+   * Advance to the end of token pointed by `start`.
+   */
+  char *next = start + strcspn (start, delim);
+  assert (next != ret);
+
+  /**
+   * If token pointed by `start` does not extend to the end of the string,
+   * overwrite separator pointed by `next` with NUL and advance `next` past
+   * written NUL byte.
+   */
+  if (next[0] != '\0') {
+    *next  = '\0';
+    next  += 1;
+  }
+
+  *context = next;
+
+done:
+  return ret;
 }
