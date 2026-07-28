@@ -26,357 +26,206 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "string-test.h"
+#include "tests-internal.h"
 
 /**
  * Test Summary:
  *
- * Test `strtok_r` function with UTF-8 (code page 65001).
+ * Test `p32_private_strtok_r_l` function with UTF-8 (code page 65001).
  */
 
+#define C(c)        (char) (unsigned) (c)
+#define STRING(...) (const char[]){__VA_ARGS__ __VA_OPT__ (, ) 0x00}
+
 #define LOCALE "en_US.UTF-8"
+static locale_t locale;
+
+/**
+ * Convenience macro to call `p32_private_strtok_r_l`.
+ */
+#define strtok_r(s, d, c) p32_private_strtok_r_l (s, d, c, locale)
 
 static void DoTest (void) {
-  const char *original_text = NULL;
-
-  char *text = NULL;
-  char *context;
-
-  /**
-   * Test ASCII text.
-   */
-  original_text = AsciiText;
-
-  char *set1 = NULL;
-  char *set2 = NULL;
-
-  assert ((set1 = strndup (original_text, 5)) != NULL);
-  assert ((set2 = strndup (original_text + 6, 4)) != NULL);
+  char *str     = NULL;
+  char *token   = NULL;
+  char *context = NULL;
 
   /**
-   * Use `AsciiText` as separator.
+   * Basic test 1.
+   *
+   * Use empty string as separator.
    */
-  assert ((text = strdup (original_text)) != NULL);
+  const char *Test1String = "ABC";
+  const char *Test1Set    = "";
 
-  assert (strtok_r (text, original_text, &context) == NULL);
-  assert (context == text + 11);
+  assert ((str = strdup (Test1String)) != NULL);
 
-  assert (strtok_r (NULL, original_text, &context) == NULL);
-  assert (context == text + 11);
+  assert ((token = strtok_r (str, Test1Set, &context)) == str);
+  assert (strcmp (token, "ABC") == 0);
+  assert (context == str + 3);
 
-  free (text);
+  assert ((token = strtok_r (NULL, Test1Set, &context)) == NULL);
+  assert (context == str + 3);
 
-  /**
-   * Use `set1` as separator.
-   */
-  assert ((text = strdup (original_text)) != NULL);
+  free (str);
 
-  assert (strtok_r (text, set1, &context) == text + 5);
-  assert (context == text + 11);
-
-  assert (strtok_r (NULL, set1, &context) == NULL);
-  assert (context == text + 11);
-
-  free (text);
-  free (set1);
-
-  /**
-   * Use `set2` as separator.
-   */
-  assert ((text = strdup (original_text)) != NULL);
-
-  assert (strtok_r (text, set2, &context) == text);
-  assert (context == text + 7);
-
-  assert (strtok_r (NULL, set2, &context) == text + 10);
-  assert (context == text + 11);
-
-  assert (strtok_r (NULL, set2, &context) == NULL);
-  assert (context == text + 11);
-
-  free (text);
-  free (set2);
-
-  /**
-   * Test ASCII list.
-   */
-  original_text = AsciiList;
-
-  char *set3 = NULL;
-  char *set4 = NULL;
-  char *set5 = NULL;
-
-  assert ((set3 = strndup (original_text, 3)) != NULL);
-  assert ((set4 = strndup (original_text + 4, 3)) != NULL);
-  assert ((set5 = strndup (original_text + 8, 5)) != NULL);
-
-  /**
-   * Use `AsciiList` as separator.
-   */
-  assert ((text = strdup (original_text)) != NULL);
-
-  assert (strtok_r (text, AsciiList, &context) == NULL);
-  assert (context == text + 13);
-
-  assert (strtok_r (NULL, AsciiList, &context) == NULL);
-  assert (context == text + 13);
-
-  free (text);
-
-  /**
-   * Use "|" as separator.
-   */
-  assert ((text = strdup (original_text)) != NULL);
-
-  assert (strtok_r (text, "|", &context) == text);
-  assert (context == text + 4);
-
-  assert (strtok_r (NULL, "|", &context) == text + 4);
-  assert (context == text + 8);
-
-  assert (strtok_r (NULL, "|", &context) == text + 8);
-  assert (context == text + 13);
-
-  assert (strtok_r (NULL, "|", &context) == NULL);
-  assert (context == text + 13);
-
-  free (text);
-
-  /**
-   * Use `set3` as separator.
-   */
-  assert ((text = strdup (original_text)) != NULL);
-
-  assert (strtok_r (text, set3, &context) == text + 3);
-  assert (context == text + 12);
-
-  assert (strtok_r (NULL, set3, &context) == NULL);
-  assert (context == text + 13);
-
-  assert (strtok_r (NULL, set3, &context) == NULL);
-  assert (context == text + 13);
-
-  free (text);
-  free (set3);
-
-  /**
-   * Use `set4` as separator.
-   */
-  assert ((text = strdup (original_text)) != NULL);
-
-  assert (strtok_r (text, set4, &context) == text);
-  assert (context == text + 5);
-
-  assert (strtok_r (NULL, set4, &context) == text + 7);
-  assert (context == text + 9);
-
-  assert (strtok_r (NULL, set4, &context) == text + 9);
-  assert (context == text + 13);
-
-  assert (strtok_r (NULL, set4, &context) == NULL);
-  assert (context == text + 13);
-
-  free (text);
-  free (set4);
-
-  /**
-   * Use `set5` as separator.
-   */
-  assert ((text = strdup (original_text)) != NULL);
-
-  assert (strtok_r (text, set5, &context) == text);
-  assert (context == text + 3);
-
-  assert (strtok_r (NULL, set5, &context) == text + 3);
-  assert (context == text + 5);
-
-  assert (strtok_r (NULL, set5, &context) == text + 5);
-  assert (context == text + 9);
-
-  assert (strtok_r (NULL, set5, &context) == NULL);
-  assert (context == text + 13);
-
-  free (text);
-  free (set5);
-
-  /**
-   * Test UTF-8 text.
-   */
-  original_text = UTF8;
-
-  char *set6 = NULL;
-  char *set7 = NULL;
-  char *set8 = NULL;
-
-  assert ((set6 = strndup (original_text, 9)) != NULL);
-  assert ((set7 = strndup (original_text + 9, 12)) != NULL);
-  assert ((set8 = strndup (original_text + 21, 3)) != NULL);
-
-  /**
-   * Use `original_text` as separator.
-   */
-  assert ((text = strdup (original_text)) != NULL);
-
-  assert (strtok_r (text, original_text, &context) == NULL);
-  assert (context == text + 24);
-
-  assert (strtok_r (NULL, original_text, &context) == NULL);
-  assert (context == text + 24);
-
-  free (text);
-
-  /**
-   * Use `set6` as separator.
-   */
-  assert ((text = strdup (original_text)) != NULL);
-
-  assert (strtok_r (text, set6, &context) == text + 9);
-  assert (context == text + 24);
-
-  assert (strtok_r (NULL, set6, &context) == NULL);
-  assert (context == text + 24);
-
-  free (text);
-  free (set6);
-
-  /**
-   * Use `set7` as separator.
-   */
-  assert ((text = strdup (original_text)) != NULL);
-
-  assert (strtok_r (text, set7, &context) == text);
-  assert (context == text + 12);
-
-  assert (strtok_r (NULL, set7, &context) == text + 21);
-  assert (context == text + 24);
-
-  assert (strtok_r (NULL, set7, &context) == NULL);
-  assert (context == text + 24);
-
-  free (text);
-  free (set7);
-
-  /**
-   * Use `set8` as separator.
-   */
-  assert ((text = strdup (original_text)) != NULL);
-
-  assert (strtok_r (text, set8, &context) == text);
-  assert (context == text + 24);
-
-  assert (strtok_r (NULL, set8, &context) == NULL);
-  assert (context == text + 24);
-
-  free (text);
-  free (set8);
-
-  /**
-   * Test UTF-8 list.
-   */
-  original_text = UTF8Lits;
-
-  /**
-   * Use `original_text` as separator.
-   */
-  assert ((text = strdup (original_text)) != NULL);
-
-  assert (strtok_r (text, original_text, &context) == NULL);
-  assert (context == text + 11);
-
-  assert (strtok_r (NULL, original_text, &context) == NULL);
-  assert (context == text + 11);
-
-  /**
-   * Use "|" as separator.
-   */
-  assert ((text = strdup (original_text)) != NULL);
-
-  assert (strtok_r (text, "|", &context) == text);
-  assert (context == text + 4);
-
-  assert (strtok_r (NULL, "|", &context) == text + 4);
-  assert (context == text + 8);
-
-  assert (strtok_r (NULL, "|", &context) == text + 8);
-  assert (context == text + 11);
-
-  assert (strtok_r (NULL, "|", &context) == NULL);
-  assert (context == text + 11);
-
-  free (text);
-
-  /**
-   * Test invalid UTF-8.
-   */
-  original_text = UTF8Lits;
-
-  char *set12 = NULL;
-
-  assert ((set12 = strndup (original_text, 6)) != NULL);
-
-  /**
-   * Use "|" as separator.
-   */
+  str     = NULL;
+  token   = NULL;
   context = NULL;
 
-  assert ((text = strndup (original_text, 10)) != NULL);
-
-  assert (strtok_r (text, "|", &context) == text);
-  assert (context == text + 4);
-
-  assert (strtok_r (NULL, "|", &context) == text + 4);
-  assert (context == text + 8);
-
-  assert (strtok_r (NULL, "|", &context) == NULL);
-  assert (context == text + 8);
-
-  free (text);
-
   /**
-   * Use `set12` as separator.
+   * Basic test 2.
+   *
+   * Split string which consists entirely of characters in "separator".
    */
+  const char *Test2String = "112233332211";
+  const char *Test2Set    = "321";
+
+  assert ((str = strdup (Test2String)) != NULL);
+
+  assert ((token = strtok_r (str, Test2Set, &context)) == NULL);
+  assert (context == str + 12);
+
+  assert ((token = strtok_r (NULL, Test2Set, &context)) == NULL);
+  assert (context == str + 12);
+
+  free (str);
+
+  str     = NULL;
+  token   = NULL;
   context = NULL;
 
-  assert ((text = strndup (original_text, 10)) != NULL);
+  /**
+   * Split PATH-like string.
+   */
+  const char *Test3String = "C:\\Windows\\System32;C:\\Windows\\SysWOW64;C:\\Windows";
+  const char *Test3Set    = ";";
 
-  assert (strtok_r (text, set12, &context) == NULL);
-  assert (context == NULL);
+  assert ((str = strdup (Test3String)) != NULL);
 
-  free (text);
-  free (set12);
-}
+  assert ((token = strtok_r (str, Test3Set, &context)) == str);
+  assert (strcmp (token, "C:\\Windows\\System32") == 0);
+  assert (context == str + 20);
 
-static DWORD CALLBACK Thread (PVOID arg) {
-  const char *localeString = arg;
+  assert ((token = strtok_r (NULL, Test3Set, &context)) == str + 20);
+  assert (strcmp (token, "C:\\Windows\\SysWOW64") == 0);
+  assert (context == str + 40);
 
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
+  assert ((token = strtok_r (NULL, Test3Set, &context)) == str + 40);
+  assert (strcmp (token, "C:\\Windows") == 0);
+  assert (context == str + 50);
 
-  DoTest ();
+  assert ((token = strtok_r (NULL, Test3Set, &context)) == NULL);
+  assert (context == str + 50);
 
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
+  free (str);
 
-  return EXIT_SUCCESS;
+  str     = NULL;
+  token   = NULL;
+  context = NULL;
+
+  /**
+   * Split words separated by punctuation and whitespace.
+   *
+   * This allows to tests that characters in "set" found at the start of the
+   * "token" are skipped.
+   */
+  const char *Test4String = "Word1 word2, word3?! Word4: word5.";
+  const char *Test4Set    = " ,.!?:;";
+
+  assert ((str = strdup (Test4String)) != NULL);
+
+  assert ((token = strtok_r (str, Test4Set, &context)) == str);
+  assert (strcmp (token, "Word1") == 0);
+  assert (context == str + 6);
+
+  assert ((token = strtok_r (NULL, Test4Set, &context)) == str + 6);
+  assert (strcmp (token, "word2") == 0);
+  assert (context == str + 12);
+
+  assert ((token = strtok_r (NULL, Test4Set, &context)) == str + 13);
+  assert (strcmp (token, "word3") == 0);
+  assert (context == str + 19);
+
+  assert ((token = strtok_r (NULL, Test4Set, &context)) == str + 21);
+  assert (strcmp (token, "Word4") == 0);
+  assert (context == str + 27);
+
+  assert ((token = strtok_r (NULL, Test4Set, &context)) == str + 28);
+  assert (strcmp (token, "word5") == 0);
+  assert (context == str + 34);
+
+  assert ((token = strtok_r (NULL, Test4Set, &context)) == NULL);
+  assert (context == str + 34);
+
+  free (str);
+
+  str     = NULL;
+  token   = NULL;
+  context = NULL;
+
+  /**
+   * Test input which contains multibyte characters.
+   */
+  const char *Test5String = STRING (
+    // clang-format off
+    C (0xC2), C (0x80),
+    C (0xE0), C (0xA0), C (0x80),
+    C (0xF0), C (0x90), C (0x80), C (0x80),
+    C (0xEF), C (0xBF), C (0xBF),
+    C (0xDF), C (0xBF),
+    C (0xF4), C (0x8F), C (0xBF), C (0xBF),
+    C (0xE0), C (0xA0), C (0xBF),
+    C (0xF0), C (0x90), C (0xBF), C (0xBF),
+    C (0xC2), C (0xBF)
+    // clang-format on
+  );
+
+  const char *Test5Set = STRING (
+    // clang-format off
+    C (0xF0), C (0x90), C (0xBF), C (0xBF),
+    C (0xDF), C (0xBF),
+    C (0xE0), C (0xA0), C (0x80)
+    // clang-format on
+  );
+
+  assert ((str = strdup (Test5String)) != NULL);
+
+  assert ((token = strtok_r (str, Test5Set, &context)) == str);
+  assert (strcmp (token, STRING (C (0xC2), C (0x80))) == 0);
+  assert (context == str + 5);
+
+  assert ((token = strtok_r (NULL, Test5Set, &context)) == str + 5);
+  assert (strcmp (token, STRING (C (0xF0), C (0x90), C (0x80), C (0x80), C (0xEF), C (0xBF), C (0xBF))) == 0);
+  assert (context == str + 14);
+
+  assert ((token = strtok_r (NULL, Test5Set, &context)) == str + 14);
+  assert (strcmp (token, STRING (C (0xF4), C (0x8F), C (0xBF), C (0xBF), C (0xE0), C (0xA0), C (0xBF))) == 0);
+  assert (context == str + 25);
+
+  assert ((token = strtok_r (NULL, Test5Set, &context)) == str + 25);
+  assert (strcmp (token, STRING (C (0xC2), C (0xBF))) == 0);
+  assert (context == str + 27);
+
+  assert ((token = strtok_r (NULL, Test5Set, &context)) == NULL);
+  assert (context == str + 27);
+
+  free (str);
+
+  str     = NULL;
+  token   = NULL;
+  context = NULL;
 }
 
 int main (void) {
   p32_test_init ();
 
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
+  locale = newlocale (LC_ALL_MASK, LOCALE, NULL);
+  assert (locale != NULL);
 
   DoTest ();
 
-  assert (setlocale (LC_ALL, "POSIX") != NULL);
-
-  DWORD  exitCode     = EXIT_FAILURE;
-  HANDLE threadHandle = NULL;
-
-  assert ((threadHandle = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (threadHandle, INFINITE);
-  GetExitCodeThread (threadHandle, &exitCode);
-  CloseHandle (threadHandle);
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }

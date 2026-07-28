@@ -26,102 +26,67 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "string-test.h"
+#include "tests-internal.h"
 
 /**
  * Test Summary:
  *
- * Test `strrchr` function with UTF-8 (code page 65001).
+ * Test `p32_private_strrchr_l` function with UTF-8 (code page 65001).
  */
 
+#define C(c)        (char) (unsigned) (c)
+#define STRING(...) (const char[]){__VA_ARGS__ __VA_OPT__ (, ) 0x00}
+
 #define LOCALE "en_US.UTF-8"
+static locale_t locale;
+
+/**
+ * Convenience macro to call `p32_private_strrchr_l`.
+ */
+#define strrchr(s, c) p32_private_strrchr_l (s, c, locale)
 
 static void DoTest (void) {
-  const char *text = NULL;
+  /**
+   * Basic `strrchr` usage.
+   */
+  const char *Test1String = STRING ('1', '2', '3', '3', '2', '1', '\0', 0x7F);
+
+  assert (strrchr (Test1String, '1') == Test1String + 5);
+  assert (strrchr (Test1String, '2') == Test1String + 4);
+  assert (strrchr (Test1String, '3') == Test1String + 3);
+  assert (strrchr (Test1String, '\0') == Test1String + 6);
+  assert (strrchr (Test1String, 0x7F) == NULL);
 
   /**
-   * Test ASCII text.
+   * Test input which contains multibyte characters.
    */
-  text = AsciiText;
+  const char *Test2String = STRING (
+    // clang-format off
+    'A',      C (0xC2), C (0x80), 'B',      C (0xE0), C (0xA0), C (0x80), 'C',
+    C (0xF0), C (0x90), C (0x80), C (0x80), C (0xF4), C (0x8F), C (0xBF), C (0xBF),
+    'C',      C (0xEF), C (0xBF), C (0xBF), 'B',      C (0xDF), C (0xBF), 'A'
+    // clang-format on
+  );
 
-  assert (strrchr (text, 'A') == text);
-  assert (strrchr (text, ' ') == text + 5);
-  assert (strrchr (text, '.') == text + 10);
-  assert (strrchr (text, '\0') == text + 11);
-  assert (strrchr (text, '\n') == NULL);
+  assert (strrchr (Test2String, 'A') == Test2String + 23);
+  assert (strrchr (Test2String, 'B') == Test2String + 20);
+  assert (strrchr (Test2String, 'C') == Test2String + 16);
+  assert (strrchr (Test2String, '\0') == Test2String + 24);
 
-  /**
-   * Test ASCII list.
-   */
-  text = AsciiList;
-
-  assert (strrchr (text, '|') == text + 7);
-  assert (strrchr (text, '\0') == text + 13);
-  assert (strrchr (text, '\n') == NULL);
-
-  /**
-   * Test UTF-8 text.
-   */
-  text = UTF8;
-
-  for (int i = 1; i < 0x100; ++i) {
-    assert (strrchr (text, i) == 0);
+  for (int c = 0x80; c <= 0xFF; ++c) {
+    assert (strrchr (Test2String, c) == NULL);
   }
-
-  assert (strrchr (text, '\0') == text + 24);
-
-  /**
-   * Test UTF-8 list.
-   */
-  text = UTF8Lits;
-
-  assert (strrchr (text, '|') == text + 7);
-  assert (strrchr (text, '\0') == text + 11);
-
-  /**
-   * Test invalid UTF-8 text.
-   */
-  char *invalid_text = NULL;
-
-  assert ((invalid_text = strndup (UTF8Lits, 10)) != NULL);
-
-  assert (strrchr (invalid_text, '|') == invalid_text + 7);
-  assert (strrchr (invalid_text, '\0') == NULL);
-
-  free (invalid_text);
-}
-
-static DWORD CALLBACK Thread (PVOID arg) {
-  const char *localeString = arg;
-
-  locale_t locale = newlocale (LC_ALL_MASK, localeString, NULL);
-  assert (locale != NULL && uselocale (locale) != NULL);
-
-  DoTest ();
-
-  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  freelocale (locale);
-
-  return EXIT_SUCCESS;
 }
 
 int main (void) {
   p32_test_init ();
 
-  assert (setlocale (LC_ALL, LOCALE) != NULL);
+  locale = newlocale (LC_ALL_MASK, LOCALE, NULL);
+  assert (locale != NULL);
 
   DoTest ();
 
-  assert (setlocale (LC_ALL, "POSIX") != NULL);
-
-  DWORD  exitCode     = EXIT_FAILURE;
-  HANDLE threadHandle = NULL;
-
-  assert ((threadHandle = CreateThread (NULL, 0, Thread, LOCALE, 0, NULL)) != NULL);
-
-  WaitForSingleObject (threadHandle, INFINITE);
-  GetExitCodeThread (threadHandle, &exitCode);
-  CloseHandle (threadHandle);
+  freelocale (locale);
 
   return EXIT_SUCCESS;
 }

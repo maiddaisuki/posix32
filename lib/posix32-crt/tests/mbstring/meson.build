@@ -18,7 +18,7 @@ variants = [
   'dbcs',
   'posix',
   'sbcs',
-  # 'utf-8',
+  'utf-8',
 ]
 
 foreach test : tests
