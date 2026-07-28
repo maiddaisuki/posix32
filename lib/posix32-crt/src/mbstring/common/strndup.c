@@ -1,5 +1,5 @@
 /**
- * Copyright 2025-2026 Kirill Makurin
+ * Copyright 2026 Kirill Makurin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,20 @@
 
 #include "string-internal.h"
 
-char *p32_strtok_r (char *str, const char *delim, char **context) {
-  /**
-   * Function `strtok_s` is available since msvcr80.dll.
-   */
-#if P32_CRT >= P32_MSVCR80
-  return strtok_s (str, delim, context);
-#else
-  locale_t activeLocale = p32_posix_locale ();
-  return p32_private_strtok_r_l (str, delim, context, activeLocale);
-#endif
+char *p32_private_strndup_l (const char *str, size_t count, locale_t locale) {
+  size_t length = p32_private_strnlen_l (str, count, locale);
+
+  if (length == (size_t) -1) {
+    return NULL;
+  }
+
+  char *buffer = malloc (length + 1);
+
+  if (buffer == NULL) {
+    _set_errno (ENOMEM);
+    return NULL;
+  }
+
+  buffer[length] = '\0';
+  return memcpy (buffer, str, length);
 }

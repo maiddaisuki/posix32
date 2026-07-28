@@ -46,12 +46,6 @@
 #define P32_IS_POSIX(l) (l->Type == LocaleType_POSIX)
 
 /**
- * Evaluates to non-zero if `Charset` is a SBCS code page where all 256 bytes
- * are valid characters.
- */
-#define P32_IS_SBCS(c) (c->MaxLength == 1 && (c->Flags & P32_CHARSET_FULL))
-
-/**
  * When we use `LCID` locales, in some cases we can use ANSI versions of NLS
  * functions.
  *
@@ -125,25 +119,6 @@ static int P32MbsToWcs (wchar_t **address, const char *mbs, size_t count, locale
  */
 #include "common/strdup.c"
 #include "common/strndup.c"
-
-/**
- * Functions dependant on character set (LC_CTYPE).
- */
-#include "common/strcat.c"
-#include "common/strchr.c"
-#include "common/strcmp.c"
-#include "common/strcpy.c"
-#include "common/strcspn.c"
-#include "common/strlen.c"
-#include "common/strncat.c"
-#include "common/strncmp.c"
-#include "common/strncpy.c"
-#include "common/strnlen.c"
-#include "common/strpbrk.c"
-#include "common/strrchr.c"
-#include "common/strspn.c"
-#include "common/strstr.c"
-#include "common/strtok.c"
 #include "common/strtok_r.c"
 
 /**

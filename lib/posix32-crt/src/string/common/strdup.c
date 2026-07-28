@@ -28,21 +28,3 @@ char *p32_strdup (const char *str) {
   buffer[length] = '\0';
   return memcpy (buffer, str, length);
 }
-
-char *p32_private_strdup_l (const char *str, locale_t locale) {
-  size_t length = p32_private_strlen_l (str, locale);
-
-  if (length == (size_t) -1) {
-    return NULL;
-  }
-
-  char *buffer = malloc (length + 1);
-
-  if (buffer == NULL) {
-    _set_errno (ENOMEM);
-    return NULL;
-  }
-
-  buffer[length] = '\0';
-  return memcpy (buffer, str, length);
-}
