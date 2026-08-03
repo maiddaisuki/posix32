@@ -450,6 +450,7 @@ static GlobalLocaleState P32GlobalLocale = {
   .GlobalInit          = PTHREAD_ONCE_INIT,
   .GlobalLock          = PTHREAD_RWLOCK_INITIALIZER,
   .Heap                = 0,
+  .GlobalHeap          = 0,
   .PtrGetGlobalHeap    = P32InitGetGlobalHeap,
   .AnsiCodePage        = P32_CODEPAGE_ACP,
   .OemCodePage         = P32_CODEPAGE_OCP,
@@ -541,6 +542,13 @@ static void P32InitGlobalLocaleState (void) {
  * Create private heap for `newlocale`, `duplocale` and `freelocale`.
  */
 static void P32InitGlobalHeap (void) {
+  /**
+   * Make sure Global Locale State is initialized. For static builds, this
+   * ensures that we register `P32DestroyGlobalLocaleState` with `_onexit`,
+   * which is responsible for destroying `P32GlobalLocale.GlobalHeap`.
+   */
+  pthread_once (&P32GlobalLocale.StateInit, P32InitGlobalLocaleState);
+
   P32GlobalLocale.GlobalHeap = p32_heap_create (P32_HEAP_CREATE_LFH | P32_HEAP_CREATE_TERMINATE_ON_CORRUPTION, 0, 0, 0);
 
   if (P32GlobalLocale.GlobalHeap == 0) {
@@ -1086,6 +1094,20 @@ static void P32DestroyGlobalLocale (void) {
 }
 
 static int P32DestroyGlobalLocaleState (void) {
+  /**
+   * Destroy private heap used by `newlocale`, `duplocale` and `freelocale`.
+   */
+  if (P32GlobalLocale.GlobalHeap != 0) {
+    if (!p32_heap_destroy (P32GlobalLocale.GlobalHeap)) {
+      p32_terminate (L"Global Locale State: failed destroy private heap.");
+    }
+
+    P32GlobalLocale.GlobalHeap = 0;
+  }
+
+  /**
+   * Destroy internal `locale_t` objects and private heap.
+   */
   if (P32GlobalLocale.Heap != 0) {
     P32DestroyGlobalLocale ();
     P32DestroyOemLocale ();
