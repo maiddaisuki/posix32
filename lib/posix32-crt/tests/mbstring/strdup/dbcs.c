@@ -36,6 +36,8 @@
  * Test `p32_private_strdup_l` function with DBCS code page 932.
  */
 
+#undef strdup
+
 #define C(c)        (char) (unsigned) (c)
 #define STRING(...) (const char[]){__VA_ARGS__ __VA_OPT__ (, ) 0x00}
 

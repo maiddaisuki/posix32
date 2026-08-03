@@ -40,6 +40,8 @@
  * - 0xFF
  */
 
+#undef strtok_r
+
 #define C(c)        (char) (unsigned) (c)
 #define C8(c)       C (0x80 | (c))
 #define STRING(...) (const char[]){__VA_ARGS__ __VA_OPT__ (, ) 0x00}

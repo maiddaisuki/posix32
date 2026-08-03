@@ -34,6 +34,8 @@
  * Test `p32_private_strtok_r_l` function with UTF-8 (code page 65001).
  */
 
+#undef strtok_r
+
 #define C(c)        (char) (unsigned) (c)
 #define STRING(...) (const char[]){__VA_ARGS__ __VA_OPT__ (, ) 0x00}
 

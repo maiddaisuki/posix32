@@ -36,6 +36,8 @@
  * This code page is used with "POSIX" locale.
  */
 
+#undef strtok_r
+
 #define C(c)        (char) (unsigned) (c)
 #define STRING(...) (const char[]){__VA_ARGS__ __VA_OPT__ (, ) 0x00}
 

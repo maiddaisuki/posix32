@@ -36,6 +36,8 @@
  * Test `p32_private_strndup_l` function with UTF-8 (code page 65001).
  */
 
+#undef strndup
+
 #define C(c)        (char) (unsigned) (c)
 #define STRING(...) (const char[]){__VA_ARGS__ __VA_OPT__ (, ) 0x00}
 

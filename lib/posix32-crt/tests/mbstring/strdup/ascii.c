@@ -36,6 +36,8 @@
  * Test `p32_private_strdup_l` function with ASCII (code page 20127).
  */
 
+#undef strdup
+
 #define C(c)        (char) (unsigned) (c)
 #define C8(c)       C (0x80 | (c))
 #define STRING(...) (const char[]){__VA_ARGS__ __VA_OPT__ (, ) 0x00}
