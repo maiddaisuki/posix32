@@ -76,7 +76,8 @@ unset_variable ('posix32_Requires')
 config_h_in = files('config-cmake.h.in')[0]
 config_h_data = configuration_data (
   {
-    'HAVE_CRTDBG_H': have_crtdbg_h
+    'HAVE_CRTDBG_H':   have_crtdbg_h,
+    'LIBPOSIX32_UTF8': get_option ('emulate-utf8-locale-support'),
   }
 )
 config_h = configure_file (

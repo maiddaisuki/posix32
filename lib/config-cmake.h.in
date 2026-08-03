@@ -22,6 +22,12 @@
  */
 #cmakedefine HAVE_CRTDBG_H
 
+/**
+ * If this macro is defined, then posix32 is built with emulated UTF-8 locale
+ * support.
+ */
+#cmakedefine LIBPOSIX32_UTF8
+
 #include "config-internal.h"
 
 #endif
