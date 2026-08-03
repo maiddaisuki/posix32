@@ -84,6 +84,7 @@ static TestStrings TestThreadLocale;
 
 static DWORD CALLBACK Thread (LPVOID Param) {
   const wchar_t *localeString = (const wchar_t *) Param;
+  locale_t       locale       = NULL;
 
   /**
    * Set CRT's thread locale to `localeString`.
@@ -94,13 +95,35 @@ static DWORD CALLBACK Thread (LPVOID Param) {
   assert (wcscmp (_wsetlocale (LC_ALL, NULL), TestThreadLocale.LocaleString) == 0);
 
   /**
-   * Set Thread Locale to Global Locale.
+   * Query active locale. Since `uselocale` was not called to set Thread Locale
+   * but CRT thread locale state is set to `_ENABLE_PER_THREAD_LOCALE`,
+   * it will attempt to initialize Thread Locale from CRT's thread locale.
    *
-   * This will initialize Thread Locale from CRT's thread locale and then
-   * set both to Global Locale.
+   * FIXME: currently, `uselocale` returns `LC_GLOBAL_LOCALE` when using such
+   *  implicitly initilized Thread Locale, which makes it impossible to use
+   *  returned `locale_t` obejct to restore original CRT thread locale.
    */
-  assert (uselocale (LC_GLOBAL_LOCALE) == LC_GLOBAL_LOCALE);
+  assert ((locale = uselocale (NULL)) == LC_GLOBAL_LOCALE);
+  _RPTW1 (_CRT_WARN, L"Thread Locale: %hs\n", getlocalename_l (LC_ALL, locale));
+  assert (strcmp (getlocalename_l (LC_ALL, locale), TestGlobalLocale.LocaleName) == 0);
 
+  /**
+   * Active CRT locale must remain unchanged.
+   */
+  assert (_configthreadlocale (0) == _ENABLE_PER_THREAD_LOCALE);
+  _RPTW1 (_CRT_WARN, L"Thread Locale (CRT): %s\n", _wsetlocale (LC_ALL, NULL));
+  assert (wcscmp (_wsetlocale (LC_ALL, NULL), TestThreadLocale.LocaleString) == 0);
+
+  /**
+   * Set Thread Locale to Global Locale.
+   */
+  assert (uselocale (LC_GLOBAL_LOCALE) == locale);
+  _RPTW1 (_CRT_WARN, L"Thread Locale (global): %hs\n", getlocalename_l (LC_ALL, locale));
+  assert (strcmp (getlocalename_l (LC_ALL, locale), TestGlobalLocale.LocaleName) == 0);
+
+  /**
+   * Verify that active CRT locale is Global Locale.
+   */
   assert (_configthreadlocale (0) == _DISABLE_PER_THREAD_LOCALE);
   _RPTW1 (_CRT_WARN, L"Thread Locale (CRT, global): %s\n", _wsetlocale (LC_ALL, NULL));
   assert (wcscmp (_wsetlocale (LC_ALL, NULL), TestGlobalLocale.LocaleString) == 0);
