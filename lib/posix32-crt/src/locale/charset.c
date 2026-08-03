@@ -40,7 +40,7 @@
  */
 
 /**
- * A SBCS code page where all 256 bytes are valid characters.
+ * A SBCS code page where all 256 bytes are assigned code points.
  */
 #define CHARSET_SBCS_FULL (P32_CHARSET_SBCS | P32_CHARSET_FULL)
 
@@ -73,7 +73,7 @@
 #endif /* CRT < msvcr110.dll */
 
 /**
- * An EBCDIC code page where all 256 bytes are valid characters.
+ * An EBCDIC code page where all 256 bytes are assigned code points.
  */
 #define CHARSET_EBCDIC_FULL (CHARSET_EBCDIC | P32_CHARSET_FULL)
 
@@ -117,12 +117,36 @@
 #define CHARSET_UTF8 (P32_CHARSET_REJECT_CRT)
 #endif /* No UTF-8 locale support */
 
+/**
+ * Structure to store basic information about code page.
+ */
 typedef struct CodePageInfo {
-  uint32_t       CodePage;
-  uint32_t       Flags;
+  /**
+   * Code page.
+   */
+  uint32_t CodePage;
+  /**
+   * Combination of `P32_CHARSET_*` flags which describes `CodePage`.
+   *
+   * Unsupported code pages have one or more `P32_CHARSET_REJECT_*` flags set;
+   * these are used by `p32_charset_usable`.
+   */
+  uint32_t Flags;
+  /**
+   * Character set name.
+   *
+   * This field stores well-known string which can be used to identify
+   * `CodePage`; for example, it is "UTF-8" for code page 65001 (`CP_UTF8`).
+   */
   const wchar_t *CharsetName;
 } CodePageInfo;
 
+/**
+ * All code pages known to be supported by Windows.
+ *
+ * This list may include code pages which are no longer supported in recent
+ * Windows versions.
+ */
 static const CodePageInfo Charsets[] = {
   /**
    * IBM U.S./Canada.
@@ -941,6 +965,10 @@ bool p32_charset_name (wchar_t **address, uintptr_t heap, uint32_t codePage) {
 
   return true;
 }
+
+/*******************************************************************************
+ * Helper functions for unit tests.
+ */
 
 #ifdef LIBPOSIX32_TEST
 /**

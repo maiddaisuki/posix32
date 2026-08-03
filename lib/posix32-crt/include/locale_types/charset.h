@@ -37,7 +37,7 @@
 #define P32_CHARSET_EBCDIC (1 << 2)
 
 /**
- * A SBCS code page where all 256 bytes are valid characters.
+ * A SBCS code page where all 256 bytes are assigned code points.
  */
 #define P32_CHARSET_FULL (1 << 4)
 
@@ -52,7 +52,7 @@
 /**
  * Allow C normalization form when converting to this code page.
  *
- * If this flag is not set, then `p32_charset_convert` will never explicitly
+ * If this flag is not set, then `p32_charset_convert` will never attempt to
  * normalize string to form C before converting it.
  */
 #define P32_CHARSET_NORM_C (1 << 12)
@@ -60,7 +60,7 @@
 /**
  * Allow D normalization form when converting to this code page.
  *
- * If this flag is not set, then `p32_charset_convert` will never explicitly
+ * If this flag is not set, then `p32_charset_convert` will never attempt to
  * normalize string to form D before converting it.
  */
 #define P32_CHARSET_NORM_D (1 << 13)
@@ -68,7 +68,7 @@
 /**
  * Allow KC normalization form when converting to this code page.
  *
- * If this flag is not set, then `p32_charset_convert` will never explicitly
+ * If this flag is not set, then `p32_charset_convert` will never attempt to
  * normalize string to form KC before converting it.
  */
 #define P32_CHARSET_NORM_KC (1 << 14)
@@ -76,7 +76,7 @@
 /**
  * Allow KD normalization form when converting to this code page.
  *
- * If this flag is not set, then `p32_charset_convert` will never explicitly
+ * If this flag is not set, then `p32_charset_convert` will never attempt to
  * normalize string to form KD before converting it.
  */
 #define P32_CHARSET_NORM_KD (1 << 15)
@@ -129,17 +129,26 @@
 #define P32_CHARSET_REJECT_UNSUPPORTED (1 << 23)
 
 /**
- * Information about code page.
+ * Structure to store information about code page.
  */
 typedef struct Charset {
+  /**
+   * Code page.
+   */
   uint32_t CodePage;
+  /**
+   * Combination of `P32_CHARSET_*` flags which describes `CodePage`.
+   */
   uint32_t Flags;
+  /**
+   * Maximum length of a character in `CodePage`.
+   */
   uint32_t MaxLength;
   /**
    * DBCS: lead bytes.
    *
    * Contains up to five pairs of bytes, terminated by a pair of zero bytes.
-   * Each pair is a range specifying lead bytes used by code page.
+   * Each pair is a range specifying lead bytes used by `CodePage`.
    */
   uint8_t Map[MAX_LEADBYTES];
   /**
@@ -151,11 +160,11 @@ typedef struct Charset {
    */
   uint32_t ToMultiByte;
   /**
-   * For use with `wcrtomb` and `wctomb`.
+   * Multibyte sequence used to represent invalid characters in `CodePage`.
    */
   struct {
     /**
-     * Length of `Char`.
+     * Length of multibyte sequence in `Char`.
      */
     uint8_t Length;
     char    Char[MB_LEN_MAX];
