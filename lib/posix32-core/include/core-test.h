@@ -21,6 +21,7 @@
 #include <stdint.h>
 
 #include "core-atomic.h"
+#include "core-charset.h"
 #include "core-crt.h"
 #include "core-heap.h"
 #include "core-loader.h"

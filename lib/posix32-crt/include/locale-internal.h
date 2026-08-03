@@ -25,6 +25,8 @@
 #include "p32_langinfo.h"
 #include "p32_locale.h"
 
+#include "core-charset.h"
+
 /**
  * If this bit is set in `P32_LOCALE_API`, then the library will be built with
  * `LCID` support.
@@ -77,11 +79,6 @@
 #endif
 
 /**
- * Forward declaration.
- */
-typedef struct Charset Charset;
-
-/**
  * `Locale`.
  */
 #include "locale_types/windows_locale.h"
@@ -94,26 +91,18 @@ typedef struct Charset Charset;
 /**
  * Request to use locale's default ANSI code page.
  */
-#define P32_CODEPAGE_ACP        ((uint16_t) -1)
+#define P32_CODEPAGE_ACP   ((uint16_t) -1)
 /**
  * Request to use locale's default OEM code page.
  */
-#define P32_CODEPAGE_OCP        ((uint16_t) -2)
-/**
- * Code page for ASCII.
- */
-#define P32_CODEPAGE_ASCII      (20127)
-/**
- * Code page for ISO-8859-1.
- */
-#define P32_CODEPAGE_ISO_8859_1 (28591)
+#define P32_CODEPAGE_OCP   ((uint16_t) -2)
 /**
  * Code page used with "POSIX" locale.
  */
-#define P32_CODEPAGE_POSIX      P32_CODEPAGE_ISO_8859_1
+#define P32_CODEPAGE_POSIX P32_CODEPAGE_ISO_8859_1
 
 /**
- * `Charset`.
+ * Character set conversion functions.
  */
 #include "locale_types/charset.h"
 

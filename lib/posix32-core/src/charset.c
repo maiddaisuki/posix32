@@ -28,15 +28,17 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-charset.h"
 #include "core-heap.h"
 #include "core-winver.h"
-
-#include "locale-internal.h"
 
 /**
  * File Summary:
  *
  * This file defines functions to obtain information about code pages.
+ *
+ * NOTE: this file contains information and references which are relevant to
+ *  other modules, and in particular, posix32-crt.
  */
 
 /**

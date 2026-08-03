@@ -22,7 +22,7 @@
 
 #include "p32_locale.h"
 
-#include "locale_types/charset.h"
+#include "core-charset.h"
 
 /**
  * Pointers to locale-specific implementations of locale-dependant functions.
