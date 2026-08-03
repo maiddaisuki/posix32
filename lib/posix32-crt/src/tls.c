@@ -22,6 +22,7 @@
 
 #include <assert.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -95,6 +96,26 @@ static Tls P32Tls = {
 
 #ifndef LIBPOSIX32_DLL
 /**
+ * Destroy `P32Tls`.
+ */
+static int __cdecl P32TlsDestroy (void) {
+  /**
+   * TLS index was not allocated.
+   */
+  if (P32Tls.Index == TLS_OUT_OF_INDEXES) {
+    return EXIT_SUCCESS;
+  }
+
+  if (!TlsFree (P32Tls.Index)) {
+    p32_terminate (L"TLS: failed to free TLS index.");
+  }
+
+  P32Tls.Index = TLS_OUT_OF_INDEXES;
+
+  return EXIT_SUCCESS;
+}
+
+/**
  * Initialize `P32Tls`.
  */
 static void P32TlsInit (void) {
@@ -102,6 +123,20 @@ static void P32TlsInit (void) {
 
   if (P32Tls.Index == TLS_OUT_OF_INDEXES) {
     p32_terminate (L"TLS: failed to allocate TLS index.");
+  }
+
+  /**
+   * For EXEs, functions registered with `_onexit` are executed when process
+   * terminates normally.
+   *
+   * For DLLs, functions registered with `_onexit` are executed when the DLL
+   * is unloading.
+   *
+   * The latter case allows us to clean up resources used by the library when
+   * it was linked statically into another DLL.
+   */
+  if (_onexit (P32TlsDestroy) == NULL) {
+    p32_terminate (L"TLS: failed to register cleanup functions.");
   }
 
   p32_atomic_exchange_fpointer (&P32Tls.PtrTlsIndex, P32TlsIndex);
