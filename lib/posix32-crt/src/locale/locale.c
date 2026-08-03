@@ -2971,13 +2971,25 @@ locale_t p32_uselocale (locale_t locale) {
    * Return current Thread Locale.
    */
   if (locale == NULL) {
-    if (P32_CRT >= P32_MSVCR80 && state.CurrentState == _DISABLE_PER_THREAD_LOCALE) {
+#if P32_CRT >= P32_MSVCR80
+    /**
+     * If CRT thread locale state is `_DISABLE_PER_THREAD_LOCALE`, return
+     * `LC_GLOBAL_LOCALE` to indicate that thread is using Global Locale.
+     */
+    if (state.CurrentState == _DISABLE_PER_THREAD_LOCALE) {
       return LC_GLOBAL_LOCALE;
-    } else if (tls == NULL || tls->ThreadLocale == NULL) {
-      return LC_GLOBAL_LOCALE;
-    } else {
-      return tls->ThreadLocale->Handle;
     }
+#endif
+
+    /**
+     * If `tls->ThreadLocale` is `NULL`, then `uselocale` was not called from
+     * the current thread.
+     */
+    if (tls == NULL || tls->ThreadLocale == NULL) {
+      return LC_GLOBAL_LOCALE;
+    }
+
+    return tls->ThreadLocale->Handle;
   }
 
   /**
