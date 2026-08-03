@@ -102,11 +102,6 @@
 #define P32_CODEPAGE_POSIX P32_CODEPAGE_ISO_8859_1
 
 /**
- * Character set conversion functions.
- */
-#include "locale_types/charset.h"
-
-/**
  * `LocaleStrings`.
  */
 #include "locale_types/locale_strings.h"
@@ -169,6 +164,23 @@ locale_t p32_global_locale (void);
  * Returns `locale_t` object representing active locale.
  */
 locale_t p32_active_locale (void);
+
+/**
+ * Perform conversion according to `request`.
+ *
+ * The `request` argument must point to a properly initialized
+ * `CharsetConversionRequest` structure; one and only one of
+ * `P32_CHARSET_CONVERSION_MB_TO_WC` and `P32_CHARSET_CONVERSION_WC_TO_MB`
+ * must be set in `request->Flags`.
+ *
+ * On success, returns length, excluding terminating NUL, of the converted
+ * string the address of which is stored in variable pointed by
+ * `request->Output`.
+ *
+ * On failure, returns `-1` and sets `request->Status` to provide additional
+ * information about the cause.
+ */
+P32_TEST_DECL int p32_charset_convert (CharsetConversionRequest *request, uintptr_t heap);
 
 /**
  * Format ASCII String using `format`.
