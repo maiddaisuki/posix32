@@ -927,14 +927,16 @@ bool p32_charset_name (wchar_t **address, uintptr_t heap, uint32_t codePage) {
 
   assert (info != NULL);
 
+  /**
+   * If `info->CharsetName` is `NULL`, then `codePage` is not supported by
+   * the library; this value is non-NULL for all supported code pages.
+   */
   if (info == NULL || info->CharsetName == NULL) {
-    if (p32_private_aswprintf (address, heap, L"CP%u", codePage) == -1) {
-      return false;
-    }
-  } else {
-    if (p32_heap_wcsdup (address, heap, info->CharsetName) == -1) {
-      return false;
-    }
+    return false;
+  }
+
+  if (p32_heap_wcsdup (address, heap, info->CharsetName) == -1) {
+    return false;
   }
 
   return true;
