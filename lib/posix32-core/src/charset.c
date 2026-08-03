@@ -846,9 +846,6 @@ bool p32_charset_info (Charset *charset) {
    * this has effect that `p32_charset_convert` will never try to use
    * `WideCharToMultiByte` to perform conversion.
    *
-   * With `CP_UTF8`, pre-Vista `WideChatToMultiByte` allows lone surrogates
-   * and mismatching surrogate pairs.
-   *
    * For ISO-8859-1 we may set `P32_CHARSET_CONV_NO_BEST_FIT` flag if
    * code page 28591 is not supported by the operating system.
    */
@@ -966,6 +963,195 @@ bool p32_charset_name (wchar_t **address, uintptr_t heap, uint32_t codePage) {
   }
 
   return true;
+}
+
+/*******************************************************************************
+ * Functions to convert between wide and multibyte strings.
+ *
+ * Functions `p32_charset_mbstowcs` and `p32_charset_wcstombs` are simple
+ * wrappers for `MultiByteToWideChar` and `WideCharToMultiByte` respectively.
+ *
+ * Known `MultiByteToWideChar` issues and limitations:
+ *
+ * - With `CP_UTF8` on Windows XP, non-shortest-form UTF-8 Sequence is silently
+ *   deleted during conversion.
+ *
+ * - With code page 20127 (ASCII), code points in range [0x80-0xFF] are
+ *   converted as if high bit was cleared; interestingly enough, attempt to
+ *   convert code point 0xBF actually results in conversion error.
+ *
+ * Known `WideCharToMultiByte` issues and limitations:
+ *
+ * - With `CP_UTF8` on pre-Vista systems, lone surrogates and mismatching
+ *   surrogate pairs are silently replaced with U+FFFD.
+ *
+ * - When converting Code Points from Private Use Area (U+E000-U+F8FF),
+ *   some Code Points from Corporate Use Subarea can be converted to target
+ *   code page's unassigned code points; `MultiByteToWideChar` does not
+ *   support round-trip conversion of such code points.
+ */
+
+/**
+ * Convenience wrapper for `MultiByteToWideChar`.
+ */
+static INT P32MultiByteToWideChar (UINT codePage, DWORD flags, LPWSTR buffer, INT bufferSize, LPCSTR mbs) {
+  assert ((buffer == NULL) == (bufferSize == 0));
+  return MultiByteToWideChar (codePage, flags, mbs, -1, buffer, bufferSize);
+}
+
+/**
+ * Convenience wrapper for `WideCharToMultiByte`.
+ */
+static INT P32WideCharToMultiByte (UINT codePage, DWORD flags, LPSTR buffer, INT bufferSize, LPCWSTR wcs) {
+  assert ((buffer == NULL) == (bufferSize == 0));
+
+  /**
+   * If any Code Point in `wcs` cannot be converted to `codePage`,
+   * `WideCharToMultiByte` will set this variable to `TRUE`.
+   */
+  BOOL defaultCharUsed = FALSE;
+
+  /**
+   * When converting to `CP_UTF7` or `CP_UTF8`, the last two arguments to
+   * `WideCharToMultiByte` must be `NULL`; otherwise it will fail with
+   * `ERROR_INVALID_FLAGS`.
+   */
+  LPBOOL defaultCharUsedPtr = &defaultCharUsed;
+
+  if (codePage == CP_UTF7 || codePage == CP_UTF8) {
+    defaultCharUsedPtr = NULL;
+  }
+
+  INT written = WideCharToMultiByte (codePage, flags, wcs, -1, buffer, bufferSize, NULL, defaultCharUsedPtr);
+
+  if (written == 0 || defaultCharUsed) {
+    return 0;
+  }
+
+  return written;
+}
+
+int p32_charset_mbstowcs (CharsetConversionRequest *request, uintptr_t heap) {
+  assert ((request->Flags & P32_CHARSET_CONVERSION_CP) == 0);
+
+  /**
+   * Code page to use during conversion.
+   */
+  UINT codePage = request->Charset->CodePage;
+
+  /**
+   * Flags to use with `MultiByteToWideChar`.
+   */
+  DWORD flags = request->Charset->ToWideChar;
+
+  LPWSTR buffer     = NULL;
+  INT    bufferSize = 0;
+
+  bufferSize = P32MultiByteToWideChar (codePage, flags, buffer, bufferSize, request->Input.A);
+
+  if (bufferSize == 0) {
+    request->Status = CharsetConversionRequestNoConversion;
+    goto fail;
+  }
+
+  if (request->Flags & P32_CHARSET_CONVERSION_MALLOC) {
+    buffer = malloc (bufferSize * sizeof (wchar_t));
+  } else {
+    buffer = p32_heap_alloc (heap, 0, bufferSize * sizeof (wchar_t));
+  }
+
+  if (buffer == NULL) {
+    request->Status = CharsetConversionRequestOutOfMemory;
+    goto fail;
+  }
+
+  INT written = P32MultiByteToWideChar (codePage, flags, buffer, bufferSize, request->Input.A);
+  assert (written == bufferSize);
+
+  if (written == 0 || written != bufferSize) {
+    request->Status = CharsetConversionRequestFailure;
+    goto fail_free;
+  }
+
+  *request->Output.W = buffer;
+  request->Status    = CharsetConversionRequestSuccess;
+
+  return written - 1;
+
+fail_free:
+  if (request->Flags & P32_CHARSET_CONVERSION_MALLOC) {
+    free (buffer);
+  } else {
+    p32_heap_free (heap, 0, buffer);
+  }
+
+fail:
+  return -1;
+}
+
+int p32_charset_wcstombs (CharsetConversionRequest *request, uintptr_t heap) {
+  assert ((request->Flags & P32_CHARSET_CONVERSION_CP) == 0);
+
+  /**
+   * Code page to use during conversion.
+   */
+  UINT codePage = request->Charset->CodePage;
+
+  /**
+   * Flags to use with `WideCharToMultiByte`.
+   */
+  DWORD flags = request->Charset->ToMultiByte;
+
+  /**
+   * If best-fit conversion is allowed, strip `WC_NO_BEST_FIT_CHARS`.
+   */
+  if ((request->Flags & P32_CHARSET_CONVERSION_NO_BEST_FIT) == 0) {
+    flags &= ~WC_NO_BEST_FIT_CHARS;
+  }
+
+  LPSTR buffer     = NULL;
+  INT   bufferSize = 0;
+
+  bufferSize = P32WideCharToMultiByte (codePage, flags, buffer, bufferSize, request->Input.W);
+
+  if (bufferSize == 0) {
+    request->Status = CharsetConversionRequestNoConversion;
+    goto fail;
+  }
+
+  if (request->Flags & P32_CHARSET_CONVERSION_MALLOC) {
+    buffer = malloc (bufferSize * sizeof (char));
+  } else {
+    buffer = p32_heap_alloc (heap, 0, bufferSize * sizeof (char));
+  }
+
+  if (buffer == NULL) {
+    request->Status = CharsetConversionRequestOutOfMemory;
+    goto fail;
+  }
+
+  INT written = P32WideCharToMultiByte (codePage, flags, buffer, bufferSize, request->Input.W);
+  assert (written == bufferSize);
+
+  if (written == 0 || written != bufferSize) {
+    request->Status = CharsetConversionRequestFailure;
+    goto fail_free;
+  }
+
+  *request->Output.A = buffer;
+  request->Status    = CharsetConversionRequestSuccess;
+
+  return written - 1;
+
+fail_free:
+  if (request->Flags & P32_CHARSET_CONVERSION_MALLOC) {
+    free (buffer);
+  } else {
+    p32_heap_free (heap, 0, buffer);
+  }
+
+fail:
+  return -1;
 }
 
 /*******************************************************************************

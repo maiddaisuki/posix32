@@ -52,7 +52,7 @@
  * For example, code page 65001 (`CP_UTF8`) is only supported since Windows XP.
  *
  * If we do not implement conversion functions for some code page,
- * it will use `MultiByteToWideChar` and `WideCharToMultiByte` functions.
+ * it will use `p32_charset_mbstowcs` and `p32_charset_wcstombs` functions.
  */
 
 /**
@@ -131,69 +131,6 @@ typedef struct ConversionState {
  * Pointer type corresponding to `p32_private_mbsrtowcs_*` functions.
  */
 typedef size_t (*MbsToWcsFunc) (wchar_t *, const char **, size_t, mbstate_t *, Charset *);
-
-/**
- * Convenience wrapper around `MultiByteToWideChar`.
- */
-static INT P32MultiByteToWideChar (LPWSTR buffer, INT bufferSize, LPCSTR mbs, Charset *charset) {
-  assert ((buffer == NULL) == (bufferSize == 0));
-  return MultiByteToWideChar (charset->CodePage, charset->ToWideChar, mbs, -1, buffer, bufferSize);
-}
-
-/**
- * Perform conversion using `MultiByteToWideChar`.
- *
- * On success, returns length, excluding terminating '\0', of the string
- * stored in `request->Output.W`.
- *
- * On failure, returns `-1` and sets `request->Status` to provide additional
- * information about the cause.
- */
-static int P32MbsToWcsFallback (CharsetConversionRequest *request, uintptr_t heap) {
-  int      bufferSize = 0;
-  wchar_t *buffer     = NULL;
-
-  bufferSize = P32MultiByteToWideChar (buffer, bufferSize, request->Input.A, request->Charset);
-
-  if (bufferSize == 0) {
-    request->Status = CharsetConversionRequestNoConversion;
-    goto fail;
-  }
-
-  if (request->Flags & P32_CHARSET_CONVERSION_MALLOC) {
-    buffer = malloc (bufferSize * sizeof (wchar_t));
-  } else {
-    buffer = p32_heap_alloc (heap, 0, bufferSize * sizeof (wchar_t));
-  }
-
-  if (buffer == NULL) {
-    request->Status = CharsetConversionRequestOutOfMemory;
-    goto fail;
-  }
-
-  int written = P32MultiByteToWideChar (buffer, bufferSize, request->Input.A, request->Charset);
-  assert (written == bufferSize);
-
-  if (written == 0 || written > bufferSize) {
-    request->Status = CharsetConversionRequestFailure;
-    goto fail_free;
-  }
-
-  *request->Output.W = buffer;
-  request->Status    = CharsetConversionRequestSuccess;
-
-  return written - 1;
-
-fail_free:
-  if (request->Flags & P32_CHARSET_CONVERSION_MALLOC) {
-    free (buffer);
-  } else {
-    p32_heap_free (heap, 0, buffer);
-  }
-
-fail:
-  return -1;
-}
 
 /**
  * Perform conversion using `func`.
@@ -320,14 +257,12 @@ static int P32MbsToWcsMain (CharsetConversionRequest *request, uintptr_t heap, C
 
   /**
    * If we implement conversion function for `charset->CodePage`, then use
-   * `func` to perform conversion.
-   *
-   * Otherwise, use `MultiByteToWideChar`.
+   * `func` to perform conversion; otherwise, use `p32_charset_mbstowcs`.
    */
   if (func != NULL) {
     convState.Length = P32MbsToWcs (&convState.ConvRequest, heap, func);
   } else {
-    convState.Length = P32MbsToWcsFallback (&convState.ConvRequest, heap);
+    convState.Length = p32_charset_mbstowcs (&convState.ConvRequest, heap);
   }
 
   if (convState.Length == -1) {
@@ -398,108 +333,6 @@ fail:
  * Pointer type corresponding to `p32_private_wcsrtombs_*` functions.
  */
 typedef size_t (*WcsToMbsFunc) (char *, const wchar_t **, size_t, mbstate_t *, Charset *);
-
-/**
- * Convenience wrapper around `WideCharToMultiByte`.
- */
-static INT P32WideCharToMultiByte (LPSTR buffer, INT bufferSize, LPCWSTR wcs, Charset *charset) {
-  assert ((buffer == NULL) == (bufferSize == 0));
-
-  /**
-   * If `charset->CodePage` is a code page for which we have appropriate
-   * `p32_private_wcsrtombs_*` function, then we are using `WideCharToMultiByte`
-   * to attempt best-fit conversion.
-   *
-   * Otherwise, `charset->CodePage` is a code page for which we do not
-   * implement our own conversion functions. This includes all code pages
-   * for which `charset->MaxLength` is greater than 2, with exception of
-   * code page 65001 (UTF-8), which we fully support. All of them do not
-   * allow using `WC_NO_BEST_FIT_CHARS` with `WideCharToMultiByte`.
-   *
-   * As such, stripping `WC_NO_BEST_FIT_CHARS` is appropriate in both cases.
-   */
-  DWORD flags = (charset->ToMultiByte & ~WC_NO_BEST_FIT_CHARS);
-
-  /**
-   * If any character in `wcs` cannot be represented by `charset->CodePage`,
-   * `WideCharToMultiByte` will set this variable to `TRUE`.
-   */
-  BOOL defaultCharUsed = FALSE;
-
-  /**
-   * The last two arguments to `WideCharToMultiByte` must be `NULL` with
-   * `CP_UTF7` and `CP_UTF8`.
-   */
-  LPBOOL defaultCharUsedPtr = &defaultCharUsed;
-
-  if (charset->CodePage == CP_UTF7 || charset->CodePage == CP_UTF8) {
-    assert (charset->CodePage != CP_UTF8);
-    defaultCharUsedPtr = NULL;
-  }
-
-  INT written = WideCharToMultiByte (charset->CodePage, flags, wcs, -1, buffer, bufferSize, NULL, defaultCharUsedPtr);
-
-  if (written == 0 || defaultCharUsed) {
-    return 0;
-  }
-
-  return written;
-}
-
-/**
- * Perform conversion using `WideCharToMultiByte`.
- *
- * On success, returns length, excluding terminating '\0', of the string
- * stored in `request->Output.A`.
- *
- * On failure, returns `-1` and sets `request->Status` to provide additional
- * information about the cause.
- */
-static int P32WcsToMbsFallback (CharsetConversionRequest *request, uintptr_t heap) {
-  char *buffer     = NULL;
-  int   bufferSize = 0;
-
-  bufferSize = P32WideCharToMultiByte (buffer, bufferSize, request->Input.W, request->Charset);
-
-  if (bufferSize == 0) {
-    request->Status = CharsetConversionRequestNoConversion;
-    goto fail;
-  }
-
-  if (request->Flags & P32_CHARSET_CONVERSION_MALLOC) {
-    buffer = malloc (bufferSize * sizeof (char));
-  } else {
-    buffer = p32_heap_alloc (heap, 0, bufferSize * sizeof (char));
-  }
-
-  if (buffer == NULL) {
-    request->Status = CharsetConversionRequestOutOfMemory;
-    goto fail;
-  }
-
-  int written = P32WideCharToMultiByte (buffer, bufferSize, request->Input.W, request->Charset);
-  assert (written == bufferSize);
-
-  if (written == 0 || written > bufferSize) {
-    request->Status = CharsetConversionRequestFailure;
-    goto fail_free;
-  }
-
-  *request->Output.A = buffer;
-  request->Status    = CharsetConversionRequestSuccess;
-
-  return written - 1;
-
-fail_free:
-  if (request->Flags & P32_CHARSET_CONVERSION_MALLOC) {
-    free (buffer);
-  } else {
-    p32_heap_free (heap, 0, buffer);
-  }
-
-fail:
-  return -1;
-}
 
 /**
  * Perform conversion using `func`.
@@ -849,12 +682,12 @@ static int P32WcsToMbsMain (CharsetConversionRequest *request, uintptr_t heap, C
   assert (func == NULL || convState.ConvRequest.Status == CharsetConversionRequestNoConversion);
 
   /**
-   * Try to perform conversion using `WideCharToMultiByte`.
+   * Try to perform conversion using `p32_charset_wcstombs`.
    */
   convState.ConvRequest.Input.W  = convState.Input.W;
   convState.ConvRequest.Output.A = convState.Output.A;
 
-  convState.Length = P32WcsToMbsFallback (&convState.ConvRequest, heap);
+  convState.Length = p32_charset_wcstombs (&convState.ConvRequest, heap);
 
   if (convState.Length == -1) {
     goto fail;
