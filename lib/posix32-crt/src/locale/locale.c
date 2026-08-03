@@ -1309,14 +1309,17 @@ static locale_t P32GetThreadLocale (bool useThreadLocaleState) {
   }
 
   /**
-   * If `tls->ThreadLocale == NULL`, then `uselocale` was not called from the
-   * current thread.
+   * If `tls->ThreadLocale` is `NULL`, then `uselocale` was not called from
+   * the current thread.
    */
   if (tls->ThreadLocale == NULL) {
 #if P32_CRT >= P32_MSVCR80
     /**
      * Thread locale was set by CRT's `setlocale`.
      * Try to initialized Thread Locale from CRT's thread locale.
+     *
+     * See comment in `p32_uselocale` for more details on why this may occur
+     * and how we handle this case.
      */
     if (!usingGlobalLocale) {
       P32InitThreadLocaleUnsafe (tls);
@@ -2967,6 +2970,31 @@ locale_t p32_uselocale (locale_t locale) {
    */
   ThreadStorage *tls = p32_tls (allowNullTls);
 
+#if P32_CRT >= P32_MSVCR80
+  /**
+   * We need to handle a case when CRT thread locale was set before calling
+   * `uselocale`. This scenario may also occur if an application was linked
+   * with threadlocale.obj, which causes all spawned threads to use per-thread
+   * locales (`_ENABLE_PER_THREAD_LOCALE`) by default.
+   *
+   * When this occurs, we attempt to create `locale_t` object corresponding to
+   * active CRT thread locale.
+   *
+   * When using such implicitly initialized Thread Locale, successful calls to
+   * `uselocale` will return `LC_GLOBAL_LOCALE`. It has an unfortunate effect
+   * that if the returned `locale_t` object is later used to restore previous
+   * Thread Locale, it will result in setting current thread's locale to
+   * Global Locale, not original CRT thread locale.
+   */
+  if (state.CurrentState == _ENABLE_PER_THREAD_LOCALE) {
+    assert (tls != NULL);
+
+    if (tls->ThreadLocale == NULL) {
+      P32InitThreadLocaleUnsafe (tls);
+    }
+  }
+#endif
+
   /**
    * Return current Thread Locale.
    */
@@ -2996,17 +3024,9 @@ locale_t p32_uselocale (locale_t locale) {
    * Initialize Thread Locale structure in TLS.
    */
   if (tls != NULL && tls->ThreadLocale == NULL) {
-#if P32_CRT >= P32_MSVCR80
-    if (state.CurrentState == _ENABLE_PER_THREAD_LOCALE) {
-      P32InitThreadLocaleUnsafe (tls);
-    } else if (!P32InitThreadLocale (tls)) {
-      return NULL;
-    }
-#else
     if (!P32InitThreadLocale (tls)) {
       return NULL;
     }
-#endif
   }
 
   /**
