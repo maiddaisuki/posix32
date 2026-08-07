@@ -753,6 +753,11 @@ static void P32SetUTF8ConversionState (mbstate_t *state, UTF8ConversionState *ut
     return;
   }
 
+  assert (utf8->Info.State == P32_MBSTATE_UTF8_COMPLETE || utf8->Info.State == P32_MBSTATE_UTF8_INCOMPLETE);
+
+  /**
+   * Number of UTF-8 Code Units from `utf8` to store in `state`.
+   */
   uint8_t bytesToStore = 0;
 
   /**
@@ -765,9 +770,10 @@ static void P32SetUTF8ConversionState (mbstate_t *state, UTF8ConversionState *ut
    */
   if (utf8->Info.State == P32_MBSTATE_UTF8_COMPLETE) {
     bytesToStore = utf8->Info.Length;
-  } else {
-    assert (utf8->Info.State == P32_MBSTATE_UTF8_INCOMPLETE);
+    assert (bytesToStore >= 2 && bytesToStore <= 4);
+  } else if (utf8->Info.State == P32_MBSTATE_UTF8_INCOMPLETE) {
     bytesToStore = utf8->Info.Bytes;
+    assert (bytesToStore >= 1 && bytesToStore <= 3);
   }
 
   /**
@@ -828,9 +834,10 @@ static void P32SetUTF8ConversionState (mbstate_t *state, UTF8ConversionState *ut
   conversionState.UTF8.Info.Length = utf8->Info.Length - 1;
 
   if (utf8->Info.State == P32_MBSTATE_UTF8_COMPLETE) {
-    assert (utf8->Info.Bytes < 4);
+    assert (utf8->Info.Bytes <= 3);
     conversionState.UTF8.Info.Bytes = utf8->Info.Bytes;
   } else if (utf8->Info.State == P32_MBSTATE_UTF8_INCOMPLETE) {
+    assert (utf8->Info.Bytes >= 1 && utf8->Info.Bytes <= 4);
     conversionState.UTF8.Info.Bytes = utf8->Info.Bytes - 1;
   }
 
@@ -928,9 +935,22 @@ static bool P32GetUTF8ConversionState (UTF8ConversionState *utf8, ConversionStat
     }
   }
 
+  /**
+   * Retrieve UTF-8 Code Units from unpacked `conversionState`.
+   */
 #if P32_CRT >= P32_UCRT
-  if (1) {
+  utf8->Unit1.Value = conversionState->UTF8.Units[0];
+  utf8->Unit2.Value = conversionState->UTF8.Units[1];
+  utf8->Unit3.Value = conversionState->UTF8.Units[2];
+  utf8->Unit4.Value = conversionState->UTF8.Units[3];
 #else
+  /**
+   * Since we cannot store all 4 UTF-8 Code Units in `mbstate_t` objects,
+   * we store it as a single UTF-32 Code Unit.
+   *
+   * Convert stored UTF-32 Code Unit back to UTF-8 Code Unit Sequence;
+   * retrieved UTF-8 Code Unit Sequence must have length `utf8->Info.Length`.
+   */
   if (utf8->Info.State == P32_MBSTATE_UTF8_COMPLETE && utf8->Info.Length == 4) {
     uint8_t csLength = utf8->Info.Length;
     uint8_t csBytes  = utf8->Info.Bytes;
@@ -950,13 +970,23 @@ static bool P32GetUTF8ConversionState (UTF8ConversionState *utf8, ConversionStat
 
     utf8->Info.Bytes = csBytes;
   } else {
-#endif
     utf8->Unit1.Value = conversionState->UTF8.Units[0];
     utf8->Unit2.Value = conversionState->UTF8.Units[1];
     utf8->Unit3.Value = conversionState->UTF8.Units[2];
-#if P32_CRT >= P32_UCRT
-    utf8->Unit4.Value = conversionState->UTF8.Units[3];
+  }
 #endif
+
+  /**
+   * Number of UTF-8 Code Units stored in `utf8`.
+   */
+  uint8_t bytesToValidate = 0;
+
+  if (utf8->Info.State == P32_MBSTATE_UTF8_COMPLETE) {
+    bytesToValidate = utf8->Info.Length;
+    assert (bytesToValidate >= 2 && bytesToValidate <= 4);
+  } else if (utf8->Info.State == P32_MBSTATE_UTF8_INCOMPLETE) {
+    bytesToValidate = utf8->Info.Bytes;
+    assert (bytesToValidate >= 1 && bytesToValidate <= 3);
   }
 
   if (utf8->Info.Length == 0) {
@@ -976,7 +1006,7 @@ static bool P32GetUTF8ConversionState (UTF8ConversionState *utf8, ConversionStat
     /**
      * Validate second UTF-8 Code Unit.
      */
-    if (utf8->Info.State == P32_MBSTATE_UTF8_COMPLETE || utf8->Info.Bytes >= 2) {
+    if (bytesToValidate >= 2) {
       if (utf8->Unit2.L2.Unit2.Magic != P32_UTF8_MAGIC) {
         return false;
       }
@@ -999,7 +1029,7 @@ static bool P32GetUTF8ConversionState (UTF8ConversionState *utf8, ConversionStat
     /**
      * Validate second UTF-8 Code Unit.
      */
-    if (utf8->Info.State == P32_MBSTATE_UTF8_COMPLETE || utf8->Info.Bytes >= 2) {
+    if (bytesToValidate >= 2) {
       /**
        * This check cannot be done until two Code Untis are stored in `utf8`.
        */
@@ -1015,7 +1045,7 @@ static bool P32GetUTF8ConversionState (UTF8ConversionState *utf8, ConversionStat
     /**
      * Validate third UTF-8 Code Unit.
      */
-    if (utf8->Info.State == P32_MBSTATE_UTF8_COMPLETE || utf8->Info.Bytes >= 3) {
+    if (bytesToValidate >= 3) {
       if (utf8->Unit3.L3.Unit3.Magic != P32_UTF8_MAGIC) {
         return false;
       }
@@ -1038,7 +1068,7 @@ static bool P32GetUTF8ConversionState (UTF8ConversionState *utf8, ConversionStat
     /**
      * Validate second UTF-8 Code Unit.
      */
-    if (utf8->Info.State == P32_MBSTATE_UTF8_COMPLETE || utf8->Info.Bytes >= 2) {
+    if (bytesToValidate >= 2) {
       /**
        * This check cannot be done until two Code Untis are stored in `utf8`.
        */
@@ -1054,7 +1084,7 @@ static bool P32GetUTF8ConversionState (UTF8ConversionState *utf8, ConversionStat
     /**
      * Validate third UTF-8 Code Unit.
      */
-    if (utf8->Info.State == P32_MBSTATE_UTF8_COMPLETE || utf8->Info.Bytes >= 3) {
+    if (bytesToValidate >= 3) {
       if (utf8->Unit3.L4.Unit3.Magic != P32_UTF8_MAGIC) {
         return false;
       }
@@ -1064,7 +1094,7 @@ static bool P32GetUTF8ConversionState (UTF8ConversionState *utf8, ConversionStat
     /**
      * Validate fourth UTF-8 Code Unit.
      */
-    if (utf8->Info.State == P32_MBSTATE_UTF8_COMPLETE || utf8->Info.Bytes >= 4) {
+    if (bytesToValidate >= 4) {
       if (utf8->Unit4.L4.Unit4.Magic != P32_UTF8_MAGIC) {
         return false;
       }
@@ -1130,8 +1160,8 @@ static size_t P32GetUTF8Unit (UTF8ConversionState *utf8, const char *str, size_t
       goto eilseq;
     }
 
-    utf8->Info.Bytes  += 1;
-    utf8->Unit1.Value  = codeUnit.Value;
+    utf8->Buffer[utf8->Info.Bytes]  = codeUnit.Value;
+    utf8->Info.Bytes               += 1;
   } else {
     /**
      * Consumed byte must be a valid trailing UTF-8 Code Unit.
@@ -1140,15 +1170,8 @@ static size_t P32GetUTF8Unit (UTF8ConversionState *utf8, const char *str, size_t
       goto eilseq;
     }
 
-    if (utf8->Info.Bytes == 1) {
-      utf8->Unit2.Value = codeUnit.Value;
-    } else if (utf8->Info.Bytes == 2) {
-      utf8->Unit3.Value = codeUnit.Value;
-    } else if (utf8->Info.Bytes == 3) {
-      utf8->Unit4.Value = codeUnit.Value;
-    }
-
-    utf8->Info.Bytes += 1;
+    utf8->Buffer[utf8->Info.Bytes]  = codeUnit.Value;
+    utf8->Info.Bytes               += 1;
 
     /**
      * We have to delay validation for UTF-8 Code Unit Sequence with
@@ -1168,18 +1191,13 @@ static size_t P32GetUTF8Unit (UTF8ConversionState *utf8, const char *str, size_t
   *count -= 1;
 
   /**
-   * We consumed enough UTF-8 Code Units to complete conversion.
+   * Check if we have consumed enough UTF-8 Code Units to complete conversion.
    */
   if (utf8->Info.Length == utf8->Info.Bytes) {
     utf8->Info.State = P32_MBSTATE_UTF8_COMPLETE;
-    return !!str[0];
+  } else {
+    utf8->Info.State = P32_MBSTATE_UTF8_INCOMPLETE;
   }
-
-  /**
-   * We need to consume at least one more UTF-8 Code Unit to perform
-   * conversion.
-   */
-  utf8->Info.State = P32_MBSTATE_UTF8_INCOMPLETE;
 
   return !!str[0];
 
