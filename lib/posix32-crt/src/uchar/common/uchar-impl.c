@@ -1328,16 +1328,20 @@ static bool P32GetDBCSConversionState (
  * Convert UTF-16 Code Unit Sequence to DBCS character.
  */
 static bool P32UTF16ToDBCS (DBCSConversionState *dbcs, UTF16ConversionState *utf16, Charset *charset) {
+  /**
+   * `WideCharToMultiByte` will set this variable to `TRUE` if UTF-16 Code Unit
+   * Sequence `utf16->Buffer` cannot be converted to `charset->CodePage`.
+   */
   BOOL defaultCharacterUsed = FALSE;
 
   int length = WideCharToMultiByte (
-    charset->CodePage, charset->ToMultiByte, utf16->Buffer, utf16->Info.Length, dbcs->Buffer, charset->MaxLength, NULL,
+    charset->CodePage, charset->ToMultiByte, utf16->Buffer, utf16->Info.Length, dbcs->Buffer, 2, NULL,
     &defaultCharacterUsed
   );
 
-  assert (length <= (int) charset->MaxLength);
+  assert (length >= 0 && length <= 2);
 
-  if (length == 0 || length > (int) charset->MaxLength || defaultCharacterUsed) {
+  if (length == 0 || defaultCharacterUsed) {
     return false;
   }
 
@@ -1352,12 +1356,12 @@ static bool P32UTF16ToDBCS (DBCSConversionState *dbcs, UTF16ConversionState *utf
  */
 static bool P32DBCSToUTF16 (UTF16ConversionState *utf16, DBCSConversionState *dbcs, Charset *charset) {
   int length = MultiByteToWideChar (
-    charset->CodePage, charset->ToWideChar, dbcs->Buffer, dbcs->Info.Bytes, utf16->Buffer, 2
+    charset->CodePage, charset->ToWideChar, dbcs->Buffer, dbcs->Info.Length, utf16->Buffer, 2
   );
 
-  assert (length <= (int) charset->MaxLength);
+  assert (length >= 0 && length <= 2);
 
-  if (length == 0 || length > 2) {
+  if (length == 0) {
     return false;
   }
 
