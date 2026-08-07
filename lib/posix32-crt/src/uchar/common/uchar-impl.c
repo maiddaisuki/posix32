@@ -1187,6 +1187,38 @@ eilseq:
   return (size_t) -1;
 }
 
+#if P32_UCHAR_IMPL == P32_UCHAR_IMPL_SBCS || P32_UCHAR_IMPL == P32_UCHAR_IMPL_DBCS
+/*******************************************************************************
+ * Helper functions used with SBCS and DBCS code pages.
+ */
+
+/**
+ * Perform round-trip conversion of multibyte sequence `mb` with length
+ * `mbLength`.
+ *
+ * If conversion yields UTF-16 Code Unit Sequence `wc` with length `wcLength`,
+ * this functions returns `true`; otherwise, it returns `false`.
+ */
+static bool P32MultiByteToWideCharRoundTrip (wchar_t *wc, int wcLength, char *mb, int mbLength, Charset *charset) {
+  /**
+   * Buffer to hold conversion results.
+   */
+  wchar_t buffer[2];
+
+  int length = MultiByteToWideChar (charset->CodePage, charset->ToWideChar, mb, mbLength, buffer, 2);
+
+  if (length != wcLength) {
+    return false;
+  }
+
+  if (wmemcmp (wc, buffer, wcLength) != 0) {
+    return false;
+  }
+
+  return true;
+}
+#endif
+
 #ifdef P32_UCHAR_DBCS
 /*******************************************************************************
  * DBCS
@@ -1345,6 +1377,29 @@ static bool P32UTF16ToDBCS (DBCSConversionState *dbcs, UTF16ConversionState *utf
     return false;
   }
 
+  /**
+   * Whether round-trip conversion is required to validate conversion results.
+   */
+  bool roundTrip = false;
+
+  /**
+   * When converting Code Points from Private Use Area (U+E000-U+F8FF),
+   * some Code Points from Corporate Use Subarea can be converted to target
+   * code page's unassigned code points.
+   */
+  if (utf16->Unit1.Value >= 0xE000 && utf16->Unit1.Value <= 0xF8FF) {
+    roundTrip = true;
+  }
+
+  /**
+   * Attempt round-trip conversion if required.
+   */
+  if (roundTrip) {
+    if (!P32MultiByteToWideCharRoundTrip (utf16->Buffer, utf16->Info.Length, dbcs->Buffer, length, charset)) {
+      return false;
+    }
+  }
+
   dbcs->Info.Length = (uint8_t) length;
   dbcs->Info.Bytes  = (uint8_t) length;
 
@@ -1474,6 +1529,29 @@ static bool P32UTF16ToSBCS (SBCSConversionState *sbcs, UTF16ConversionState *utf
 
   if (length == 0 || defaultCharacterUsed) {
     return false;
+  }
+
+  /**
+   * Whether round-trip conversion is required to validate conversion results.
+   */
+  bool roundTrip = false;
+
+  /**
+   * When converting Code Points from Private Use Area (U+E000-U+F8FF),
+   * some Code Points from Corporate Use Subarea can be converted to target
+   * code page's unassigned code points.
+   */
+  if (utf16->Unit1.Value >= 0xE000 && utf16->Unit1.Value <= 0xF8FF) {
+    roundTrip = true;
+  }
+
+  /**
+   * Attempt round-trip conversion if required.
+   */
+  if (roundTrip) {
+    if (!P32MultiByteToWideCharRoundTrip (utf16->Buffer, utf16->Info.Length, sbcs->Buffer, length, charset)) {
+      return false;
+    }
   }
 
   sbcs->Info.Length = (uint8_t) length;
