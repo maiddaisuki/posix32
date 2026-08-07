@@ -1536,8 +1536,10 @@ static size_t P32GetSBCSByte (SBCSConversionState *sbcs, const char *str, size_t
   }
 #endif
 
-  sbcs->Byte       = str[0];
-  sbcs->Info.State = P32_MBSTATE_SBCS_COMPLETE;
+  sbcs->Byte        = str[0];
+  sbcs->Info.Length = 1;
+  sbcs->Info.Bytes  = 1;
+  sbcs->Info.State  = P32_MBSTATE_SBCS_COMPLETE;
 
   return !!str[0];
 }
