@@ -78,6 +78,7 @@ lib/posix32-crt/tests/uchar/c32rtomb/*.c
 lib/posix32-crt/tests/uchar/mbrtoc8/*.c
 lib/posix32-crt/tests/uchar/mbrtoc16/*.c
 lib/posix32-crt/tests/uchar/mbrtoc32/*.c
+lib/posix32-crt/tests/uchar/unicode/*.c
 lib/posix32-crt/tests/uchar/*.c
 lib/posix32-crt/tests/wchar/c89/mblen/*.c
 lib/posix32-crt/tests/wchar/c89/mbstowcs/*.c

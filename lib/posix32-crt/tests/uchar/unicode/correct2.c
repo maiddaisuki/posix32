@@ -21,13 +21,12 @@
 #endif
 
 #include <assert.h>
-#include <errno.h>
-#include <stdio.h>
+#include <stdlib.h>
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "uchar-test.h"
+#include "tests-internal.h"
 
 /**
  * Test Summary:
@@ -66,6 +65,12 @@
  *
  *  Both functions must produce the same result.
  */
+
+#define HIGH_SURROGATE_MIN 0xD800
+#define HIGH_SURROGATE_MAX 0xDBFF
+
+#define LOW_SURROGATE_MIN 0xDC00
+#define LOW_SURROGATE_MAX 0xDFFF
 
 static locale_t locale = NULL;
 
