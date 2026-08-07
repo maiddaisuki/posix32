@@ -234,13 +234,9 @@ static void DoTest (void) {
   assert (errno != 0 && errno != ENOMEM);
   free (str);
 
-  /**
-   * FIXME: according to Unicode Standard, 0xED 0xA0-0xBF ... is an ill-formed
-   *  UTF-8 Code Unit Sequence as it corresponds to a Surrogate Code Point.
-   */
   _set_errno (0);
-  assert ((str = strndup (Test9String, 2)) != NULL || errno == ENOMEM);
-  assert (str == NULL || strcmp (str, "") == 0);
+  assert ((str = strndup (Test9String, 2)) == NULL);
+  assert (errno != 0 && errno != ENOMEM);
   free (str);
 
   _set_errno (0);

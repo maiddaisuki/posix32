@@ -1000,7 +1000,7 @@ static bool P32GetUTF8ConversionState (UTF8ConversionState *utf8, ConversionStat
     /**
      * Validate first UTF-8 Code Unit.
      */
-    if (utf8->Unit1.L2.Unit1.Magic != P32_UTF8_L2_MAGIC || utf8->Unit1.L2.Unit1.Bits1 == 0) {
+    if (!(utf8->Unit1.Value >= 0xC2 && utf8->Unit1.Value <= 0xDF)) {
       return false;
     }
     /**
@@ -1023,20 +1023,23 @@ static bool P32GetUTF8ConversionState (UTF8ConversionState *utf8, ConversionStat
     /**
      * Validate first UTF-8 Code Unit.
      */
-    if (utf8->Unit1.L3.Unit1.Magic != P32_UTF8_L3_MAGIC) {
+    if (!(utf8->Unit1.Value >= 0xE0 && utf8->Unit1.Value <= 0xEF)) {
       return false;
     }
     /**
      * Validate second UTF-8 Code Unit.
      */
     if (bytesToValidate >= 2) {
-      /**
-       * This check cannot be done until two Code Untis are stored in `utf8`.
-       */
-      if (utf8->Unit1.L3.Unit1.Bits1 == 0 && (utf8->Unit2.L3.Unit2.Bits2 & 0x20) == 0) {
+      if (utf8->Unit2.L3.Unit2.Magic != P32_UTF8_MAGIC) {
         return false;
       }
-      if (utf8->Unit2.L3.Unit2.Magic != P32_UTF8_MAGIC) {
+      /**
+       * Check for exceptions to the rule that trailing UTF-8 Code Unit must be
+       * in range [0x80-0xBF].
+       */
+      if (utf8->Unit1.Value == 0xE0 && utf8->Unit2.Value < 0xA0) {
+        return false;
+      } else if (utf8->Unit1.Value == 0xED && utf8->Unit2.Value > 0x9F) {
         return false;
       }
     } else if (utf8->Unit2.Value != 0) {
@@ -1062,20 +1065,23 @@ static bool P32GetUTF8ConversionState (UTF8ConversionState *utf8, ConversionStat
     /**
      * Validate first UTF-8 Code Unit.
      */
-    if (utf8->Unit1.L4.Unit1.Magic != P32_UTF8_L4_MAGIC) {
+    if (!(utf8->Unit1.Value >= 0xF0 && utf8->Unit1.Value <= 0xF4)) {
       return false;
     }
     /**
      * Validate second UTF-8 Code Unit.
      */
     if (bytesToValidate >= 2) {
-      /**
-       * This check cannot be done until two Code Untis are stored in `utf8`.
-       */
-      if (utf8->Unit1.L4.Unit1.Bits1 == 0 && utf8->Unit2.L4.Unit2.Bits2 == 0) {
+      if (utf8->Unit2.L4.Unit2.Magic != P32_UTF8_MAGIC) {
         return false;
       }
-      if (utf8->Unit2.L4.Unit2.Magic != P32_UTF8_MAGIC) {
+      /**
+       * Check for exceptions to the rule that trailing UTF-8 Code Unit must be
+       * in range [0x80-0xBF].
+       */
+      if (utf8->Unit1.Value == 0xF0 && utf8->Unit2.Value < 0x90) {
+        return false;
+      } else if (utf8->Unit1.Value == 0xF4 && utf8->Unit2.Value > 0x8F) {
         return false;
       }
     } else if (utf8->Unit2.Value != 0) {
@@ -1145,23 +1151,23 @@ static size_t P32GetUTF8Unit (UTF8ConversionState *utf8, const char *str, size_t
     if (codeUnit.L1.Unit1.Magic == P32_UTF8_L1_MAGIC) {
       utf8->Info.Length = 1;
     } else if (codeUnit.L2.Unit1.Magic == P32_UTF8_L2_MAGIC) {
-      /**
-       * Validte cosumed UTF-8 Code Unit.
-       */
-      if (codeUnit.L2.Unit1.Bits1 == 0) {
+      if (!(codeUnit.Value >= 0xC2 && codeUnit.Value <= 0xDF)) {
         goto eilseq;
       }
       utf8->Info.Length = 2;
     } else if (codeUnit.L3.Unit1.Magic == P32_UTF8_L3_MAGIC) {
+      if (!(codeUnit.Value >= 0xE0 && codeUnit.Value <= 0xEF)) {
+        goto eilseq;
+      }
       utf8->Info.Length = 3;
     } else if (codeUnit.L4.Unit1.Magic == P32_UTF8_L4_MAGIC) {
+      if (!(codeUnit.Value >= 0xF0 && codeUnit.Value <= 0xF4)) {
+        goto eilseq;
+      }
       utf8->Info.Length = 4;
     } else {
       goto eilseq;
     }
-
-    utf8->Buffer[utf8->Info.Bytes]  = codeUnit.Value;
-    utf8->Info.Bytes               += 1;
   } else {
     /**
      * Consumed byte must be a valid trailing UTF-8 Code Unit.
@@ -1170,23 +1176,25 @@ static size_t P32GetUTF8Unit (UTF8ConversionState *utf8, const char *str, size_t
       goto eilseq;
     }
 
-    utf8->Buffer[utf8->Info.Bytes]  = codeUnit.Value;
-    utf8->Info.Bytes               += 1;
-
     /**
-     * We have to delay validation for UTF-8 Code Unit Sequence with
-     * length 3 and 4 until we have consumed two UTF-8 Code Units.
+     * Check for exceptions to the rule that trailing UTF-8 Code Unit must be
+     * in range [0x80-0xBF].
      */
-    if (utf8->Info.Length == 3 && utf8->Info.Bytes == 2) {
-      if (utf8->Unit1.L3.Unit1.Bits1 == 0 && (utf8->Unit2.L3.Unit2.Bits2 & 0x20) == 0) {
+    if (utf8->Info.Bytes == 1 && utf8->Info.Length > 2) {
+      if (utf8->Unit1.Value == 0xE0 && codeUnit.Value < 0xA0) {
         goto eilseq;
-      }
-    } else if (utf8->Info.Length == 4 && utf8->Info.Bytes == 2) {
-      if (utf8->Unit1.L4.Unit1.Bits1 == 0 && utf8->Unit2.L4.Unit2.Bits2 == 0) {
+      } else if (utf8->Unit1.Value == 0xED && codeUnit.Value > 0x9F) {
+        goto eilseq;
+      } else if (utf8->Unit1.Value == 0xF0 && codeUnit.Value < 0x90) {
+        goto eilseq;
+      } else if (utf8->Unit1.Value == 0xF4 && codeUnit.Value > 0x8F) {
         goto eilseq;
       }
     }
   }
+
+  utf8->Buffer[utf8->Info.Bytes]  = codeUnit.Value;
+  utf8->Info.Bytes               += 1;
 
   *count -= 1;
 
@@ -1730,27 +1738,13 @@ static bool P32MBToUTF16 (UTF16ConversionState *utf16, MBConversionState *mbStat
 }
 
 static bool P32MBToUTF8 (UTF8ConversionState *utf8, MBConversionState *mbState, Charset *charset) {
-  CodePoint codePoint = {0};
-
-  if (!P32UTF8ToCodePoint (&codePoint, &mbState->UTF8)) {
-    return false;
-  }
-
   *utf8 = mbState->UTF8;
-
   return true;
   UNREFERENCED_PARAMETER (charset);
 }
 
 static bool P32UTF8ToMB (MBConversionState *mbState, UTF8ConversionState *utf8, Charset *charset) {
-  CodePoint codePoint = {0};
-
-  if (!P32UTF8ToCodePoint (&codePoint, utf8)) {
-    return false;
-  }
-
   mbState->UTF8 = *utf8;
-
   return true;
   UNREFERENCED_PARAMETER (charset);
 }

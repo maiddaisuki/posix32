@@ -254,12 +254,8 @@ static void DoTest (void) {
   assert (buffer[0] == '\0');
   assert (buffer[BUFSIZ - 1] == '\0');
 
-  /**
-   * FIXME: according to Unicode Standard, 0xED 0xA0-0xBF ... is an ill-formed
-   *  UTF-8 Code Unit Sequence as it corresponds to a Surrogate Code Point.
-   */
   memset (buffer, 0xFF, BUFSIZ);
-  assert (strncpy (buffer, Test9String, 2) == buffer);
+  assert (strncpy (buffer, Test9String, 2) == NULL);
   assert (buffer[0] == '\0' && buffer[1] == '\0');
   assert (buffer[2] == C (0xFF));
 

@@ -122,11 +122,7 @@ static void DoTest (void) {
 
   assert (strnlen (Test9String, 0) == 0);
   assert (strnlen (Test9String, 1) == 0);
-  /**
-   * FIXME: according to Unicode Standard, 0xED 0xA0-0xBF ... is an ill-formed
-   *  UTF-8 Code Unit Sequence as it corresponds to a Surrogate Code Point.
-   */
-  assert (strnlen (Test9String, 2) == 0);
+  assert (strnlen (Test9String, 2) == (size_t) -1);
   assert (strnlen (Test9String, SIZE_MAX) == (size_t) -1);
 
   assert (strnlen (Test10String, 0) == 0);
