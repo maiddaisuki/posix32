@@ -297,7 +297,7 @@ typedef struct {
    */
   uint8_t Magic;
   /**
-   * Describes how to interpret `Length` and Bytes` members.
+   * Describes how to interpret `Length` and `Bytes` members.
    */
   uint8_t State;
   /**
@@ -307,10 +307,10 @@ typedef struct {
    */
   uint8_t Length;
   /**
-   * When `state == P32_MBSTATE_INCOMPLETE`, this is number of bytes that has
+   * When `State` is `P32_MBSTATE_INCOMPLETE`, this is number of bytes that has
    * been consumed and stored in `mbstate_t` object.
    *
-   * When `state == P32_MBSTATE_COMPLETE`, this is number of Code Units left to
+   * When `State` is `P32_MBSTATE_COMPLETE`, this is number of Code Units left to
    * write. This is used by `mbrtoc8` and `mbrtoc16`, since they may require
    * multiple calls to write converted Code Unit Sequence.
    *
@@ -320,8 +320,11 @@ typedef struct {
 } ConversionStateInfo;
 
 /**
- * Extract conversion state information from `mbstate_t` object `state` and
- * store it in `info`.
+ * Unpack conversion state from `mbstate_t` object `state` and store it in
+ * `ConversionState` object `mbState`.
+ *
+ * Additionally, store conversion state information in `ConversionStateInfo`
+ * object `info`.
  */
 static void P32GetConversionState (ConversionStateInfo *info, ConversionState *mbState, mbstate_t *state) {
 #if P32_CRT >= P32_UCRT
@@ -488,6 +491,9 @@ static void P32SetUTF16ConversionState (mbstate_t *state, UTF16ConversionState *
  * Get UTF-16 conversion state `utf16` from `mbstate_t` object `state`.
  */
 static bool P32GetUTF16ConversionState (UTF16ConversionState *utf16, mbstate_t *state) {
+  /**
+   * Unpacked conversion state.
+   */
   ConversionState conversionState = {0};
 
   P32GetConversionState (&utf16->Info, &conversionState, state);
@@ -739,8 +745,8 @@ static void P32SetUTF8ConversionState (mbstate_t *state, UTF8ConversionState *ut
   /**
    * Set `state` to initial conversion state.
    *
-   * Situation when `utf8->Info.Length == 0` can occur when `count` argument
-   * to mbrtoc{8,16,32} was `0`.
+   * Situation when `utf8->Info.Length` is zero can occur when `count` argument
+   * to `mbrtoc{8,16,32}` was zero.
    */
   if (utf8 == NULL || utf8->Info.Length == 0) {
     memset (state, 0, sizeof (mbstate_t));
@@ -750,7 +756,7 @@ static void P32SetUTF8ConversionState (mbstate_t *state, UTF8ConversionState *ut
   uint8_t bytesToStore = 0;
 
   /**
-   * When `utf8->Info.State == P32_MBSTATE_UTF8_COMPLETE`, we must store
+   * When `utf8->Info.State` is `P32_MBSTATE_UTF8_COMPLETE`, we must store
    * `utf8->Info.Length` bytes in `state`, since `utf8->Info.Bytes`
    * no longer reflects number of bytes stored in `utf8`.
    *
@@ -833,7 +839,7 @@ static void P32SetUTF8ConversionState (mbstate_t *state, UTF8ConversionState *ut
 }
 
 /**
- * Get UTF-8 conversion state `utf8` from `mbstate_t` object `state`.
+ * Get UTF-8 conversion state `utf8` from unpacked `conversionState`.
  */
 static bool P32GetUTF8ConversionState (UTF8ConversionState *utf8, ConversionState *conversionState, const int magic) {
   /**
@@ -1307,7 +1313,7 @@ static bool P32GetDBCSConversionState (
   }
 
   /**
-   * We store DBCS leading byte in `mbState->Bytes[0]`.
+   * We store DBCS leading byte in `conversionState->DBCS.Byte`.
    */
   if (!P32IsLeadByte ((uint8_t) conversionState->DBCS.Byte, charset)) {
     return false;
@@ -1564,8 +1570,13 @@ static void P32SetMBConversionState (mbstate_t *state, MBConversionState *mbStat
 }
 
 static bool P32GetMBConversionState (MBConversionState *mbState, mbstate_t *state, Charset *charset) {
+  /**
+   * Unpacked conversion state from `state`.
+   */
   ConversionState conversionState = {0};
+
   P32GetConversionState (&mbState->MB.Info, &conversionState, state);
+
   return P32GetUTF8ConversionState (&mbState->UTF8, &conversionState, P32_MBSTATE_MAGIC);
   UNREFERENCED_PARAMETER (charset);
 }
@@ -1651,6 +1662,10 @@ static size_t P32GetMB (MBConversionState *mbState, const char *str, size_t *cou
 }
 
 static void P32SetMBConversionState (mbstate_t *state, MBConversionState *mbState, Charset *charset) {
+  /**
+   * If `mbState->MB.Info.State` is `P32_MBSTATE_COMPLETE`, then `mbrtoc8` or
+   * `mbrtoc16` needs multiple calls to write converted Code Unit Sequence.
+   */
   if (mbState != NULL && mbState->MB.Info.State == P32_MBSTATE_COMPLETE) {
     P32SetUTF8ConversionState (state, &mbState->UTF8);
   } else {
@@ -1659,10 +1674,17 @@ static void P32SetMBConversionState (mbstate_t *state, MBConversionState *mbStat
 }
 
 static bool P32GetMBConversionState (MBConversionState *mbState, mbstate_t *state, Charset *charset) {
+  /**
+   * Unpacked conversion state from `state`.
+   */
   ConversionState conversionState = {0};
 
   P32GetConversionState (&mbState->MB.Info, &conversionState, state);
 
+  /**
+   * If `mbState->MB.Info.State` is `P32_MBSTATE_COMPLETE`, then `mbrtoc8` or
+   * `mbrtoc16` needs multiple calls to write converted Code Unit Sequence.
+   */
   if (mbState->MB.Info.State == P32_MBSTATE_COMPLETE) {
     return P32GetUTF8ConversionState (&mbState->UTF8, &conversionState, P32_MBSTATE_MAGIC);
   } else {
@@ -1703,6 +1725,9 @@ static bool P32UTF16ToMB (MBConversionState *mbState, UTF16ConversionState *utf1
 }
 
 static bool P32MBToUTF16 (UTF16ConversionState *utf16, MBConversionState *mbState, Charset *charset) {
+  /**
+   * Convert consumed multibyte sequence to UTF-16.
+   */
   if (mbState->MB.Info.Length == mbState->MB.Info.Bytes) {
     if (!P32DBCSToUTF16 (utf16, &mbState->MB, charset)) {
       return false;
@@ -1712,6 +1737,11 @@ static bool P32MBToUTF16 (UTF16ConversionState *utf16, MBConversionState *mbStat
       return true;
     }
 
+    /**
+     * If conversion produces UTF-16 Surrogate Pair, convert it to UTF-8
+     * Code Unit Sequence and store it in `mbState`; next call to `mbrtoc16`
+     * will convert it back to UTF-16 in order to write Low Surrogate.
+     */
     CodePoint codePoint = {0};
 
     if (!P32UTF16ToCodePoint (&codePoint, utf16)) {
@@ -1719,15 +1749,18 @@ static bool P32MBToUTF16 (UTF16ConversionState *utf16, MBConversionState *mbStat
     }
 
     return P32CodePointToUTF8 (&mbState->UTF8, &codePoint);
-  } else {
-    CodePoint codePoint = {0};
-
-    if (!P32UTF8ToCodePoint (&codePoint, &mbState->UTF8)) {
-      return false;
-    }
-
-    return P32CodePointToUTF16 (utf16, &codePoint);
   }
+
+  /**
+   * Convert UTF-8 Code Unit Sequence from `mbState` back to UTF-16.
+   */
+  CodePoint codePoint = {0};
+
+  if (!P32UTF8ToCodePoint (&codePoint, &mbState->UTF8)) {
+    return false;
+  }
+
+  return P32CodePointToUTF16 (utf16, &codePoint);
 }
 
 static bool P32UTF8ToMB (MBConversionState *mbState, UTF8ConversionState *utf8, Charset *charset) {
@@ -1745,6 +1778,9 @@ static bool P32UTF8ToMB (MBConversionState *mbState, UTF8ConversionState *utf8, 
 }
 
 static bool P32MBToUTF8 (UTF8ConversionState *utf8, MBConversionState *mbState, Charset *charset) {
+  /**
+   * Convert consumed multibyte sequence to UTF-8.
+   */
   if (mbState->MB.Info.Length == mbState->MB.Info.Bytes) {
     CodePoint codePoint = {0};
 
@@ -1758,9 +1794,14 @@ static bool P32MBToUTF8 (UTF8ConversionState *utf8, MBConversionState *mbState, 
 
     utf8->Info.Magic = mbState->MB.Info.Magic;
     utf8->Info.State = mbState->MB.Info.State;
-  } else {
-    *utf8 = mbState->UTF8;
+
+    return true;
   }
+
+  /**
+   * Copy UTF-8 Code Unit Sequence from `mbState`.
+   */
+  *utf8 = mbState->UTF8;
 
   return true;
 }
@@ -1781,6 +1822,10 @@ static size_t P32GetMB (MBConversionState *mbState, const char *str, size_t *cou
 }
 
 static void P32SetMBConversionState (mbstate_t *state, MBConversionState *mbState, Charset *charset) {
+  /**
+   * If `mbState->MB.Info.State` is `P32_MBSTATE_COMPLETE`, then `mbrtoc8` or
+   * `mbrtoc16` needs multiple calls to write converted Code Unit Sequence.
+   */
   if (mbState != NULL && mbState->MB.Info.State == P32_MBSTATE_COMPLETE) {
     P32SetUTF8ConversionState (state, &mbState->UTF8);
   } else {
@@ -1792,10 +1837,17 @@ static void P32SetMBConversionState (mbstate_t *state, MBConversionState *mbStat
 }
 
 static bool P32GetMBConversionState (MBConversionState *mbState, mbstate_t *state, Charset *charset) {
+  /**
+   * Unpacked conversion state from `state`.
+   */
   ConversionState conversionState = {0};
 
   P32GetConversionState (&mbState->MB.Info, &conversionState, state);
 
+  /**
+   * If `mbState->MB.Info.State` is `P32_MBSTATE_COMPLETE`, then `mbrtoc8` or
+   * `mbrtoc16` needs multiple calls to write converted Code Unit Sequence.
+   */
   if (mbState->MB.Info.State == P32_MBSTATE_COMPLETE) {
     return P32GetUTF8ConversionState (&mbState->UTF8, &conversionState, P32_MBSTATE_MAGIC);
   } else {
@@ -1838,6 +1890,9 @@ static bool P32UTF16ToMB (MBConversionState *mbState, UTF16ConversionState *utf1
 }
 
 static bool P32MBToUTF16 (UTF16ConversionState *utf16, MBConversionState *mbState, Charset *charset) {
+  /**
+   * Convert consumed multibyte sequence to UTF-16.
+   */
   if (mbState->MB.Info.Length == mbState->MB.Info.Bytes) {
     if (!P32SBCSToUTF16 (utf16, &mbState->MB, charset)) {
       return false;
@@ -1847,6 +1902,11 @@ static bool P32MBToUTF16 (UTF16ConversionState *utf16, MBConversionState *mbStat
       return true;
     }
 
+    /**
+     * If conversion produces UTF-16 Surrogate Pair, convert it to UTF-8
+     * Code Unit Sequence and store it in `mbState`; next call to `mbrtoc16`
+     * will convert it back to UTF-16 in order to write Low Surrogate.
+     */
     CodePoint codePoint = {0};
 
     if (!P32UTF16ToCodePoint (&codePoint, utf16)) {
@@ -1854,15 +1914,18 @@ static bool P32MBToUTF16 (UTF16ConversionState *utf16, MBConversionState *mbStat
     }
 
     return P32CodePointToUTF8 (&mbState->UTF8, &codePoint);
-  } else {
-    CodePoint codePoint = {0};
-
-    if (!P32UTF8ToCodePoint (&codePoint, &mbState->UTF8)) {
-      return false;
-    }
-
-    return P32CodePointToUTF16 (utf16, &codePoint);
   }
+
+  /**
+   * Convert UTF-8 Code Unit Sequence from `mbState` back to UTF-16.
+   */
+  CodePoint codePoint = {0};
+
+  if (!P32UTF8ToCodePoint (&codePoint, &mbState->UTF8)) {
+    return false;
+  }
+
+  return P32CodePointToUTF16 (utf16, &codePoint);
 }
 
 static bool P32UTF8ToMB (MBConversionState *mbState, UTF8ConversionState *utf8, Charset *charset) {
@@ -1880,6 +1943,9 @@ static bool P32UTF8ToMB (MBConversionState *mbState, UTF8ConversionState *utf8, 
 }
 
 static bool P32MBToUTF8 (UTF8ConversionState *utf8, MBConversionState *mbState, Charset *charset) {
+  /**
+   * Convert consumed multibyte sequence to UTF-8.
+   */
   if (mbState->MB.Info.Length == mbState->MB.Info.Bytes) {
     CodePoint codePoint = {0};
 
@@ -1893,9 +1959,14 @@ static bool P32MBToUTF8 (UTF8ConversionState *utf8, MBConversionState *mbState, 
 
     utf8->Info.Magic = mbState->MB.Info.Magic;
     utf8->Info.State = mbState->MB.Info.State;
-  } else {
-    *utf8 = mbState->UTF8;
+
+    return true;
   }
+
+  /**
+   * Copy UTF-8 Code Unit Sequence from `mbState`.
+   */
+  *utf8 = mbState->UTF8;
 
   return true;
 }
@@ -2470,7 +2541,7 @@ size_t c32rtomb (char *str, char32_t u32, mbstate_t *state, Charset *charset) {
   }
 
   /**
-   * `u32char` is a single Unicdeo Code Point.
+   * `u32` is a single Unicode Code Point.
    */
   CodePoint codePoint = {.Value = u32};
 
