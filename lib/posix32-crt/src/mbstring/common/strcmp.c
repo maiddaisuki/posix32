@@ -38,7 +38,7 @@ static int p32_strcmp_common (const char *str1, const char *str2, locale_t local
      */
     char32_t str1Char = 0xFFFFFFFF;
 
-    const size_t length1 = p32_mbrtoc32_l (&str1Char, str1, locale->Charset.MaxLength, &str1state, locale);
+    const size_t length1 = p32_private_mbrtoc32_l (&str1Char, str1, locale->Charset.MaxLength, &str1state, locale);
     assert (length1 != (size_t) -2);
 
     if (length1 == (size_t) -1 || length1 == (size_t) -2) {
@@ -50,7 +50,7 @@ static int p32_strcmp_common (const char *str1, const char *str2, locale_t local
      */
     char32_t str2Char = 0xFFFFFFFF;
 
-    const size_t length2 = p32_mbrtoc32_l (&str2Char, str2, locale->Charset.MaxLength, &str2state, locale);
+    const size_t length2 = p32_private_mbrtoc32_l (&str2Char, str2, locale->Charset.MaxLength, &str2state, locale);
     assert (length2 != (size_t) -2);
 
     if (length2 == (size_t) -1 || length2 == (size_t) -2) {

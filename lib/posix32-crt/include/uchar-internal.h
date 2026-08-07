@@ -72,4 +72,16 @@ P32_TEST_DECL size_t p32_private_c16rtomb_dbcs (char *, char16_t, mbstate_t *, C
 P32_TEST_DECL size_t p32_private_mbrtoc32_dbcs (char32_t *, const char *, size_t, mbstate_t *, Charset *);
 P32_TEST_DECL size_t p32_private_c32rtomb_dbcs (char *, char32_t, mbstate_t *, Charset *);
 
+/**
+ * Internal versions which use `locale_t` objects.
+ *
+ * Code inside the library should use these versions instead of public ones.
+ */
+size_t p32_private_mbrtoc8_l (char8_t *, const char *, size_t, mbstate_t *, locale_t);
+size_t p32_private_c8rtomb_l (char *, char8_t, mbstate_t *, locale_t);
+size_t p32_private_mbrtoc16_l (char16_t *, const char *, size_t, mbstate_t *, locale_t);
+size_t p32_private_c16rtomb_l (char *, char16_t, mbstate_t *, locale_t);
+size_t p32_private_mbrtoc32_l (char32_t *, const char *, size_t, mbstate_t *, locale_t);
+size_t p32_private_c32rtomb_l (char *, char32_t, mbstate_t *, locale_t);
+
 #endif /* LIBPOSIX32_UCHAR_INTERNAL_H_INCLUDED */

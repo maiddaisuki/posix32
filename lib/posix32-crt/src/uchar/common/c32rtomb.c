@@ -31,6 +31,11 @@ static void P32LocaleFunction_c32rtomb (LocaleFunctions *functions, Charset *cha
   assert (functions->F_c32rtomb != NULL);
 }
 
+size_t p32_private_c32rtomb_l (char *u8str, char32_t u32char, mbstate_t *state, locale_t locale) {
+  assert (state != NULL);
+  return locale->Functions.F_c32rtomb (u8str, u32char, state, &locale->Charset);
+}
+
 /**
  * Private `mbstate_t` if called did not supply one.
  */
@@ -41,7 +46,7 @@ size_t p32_c32rtomb_l (char *u8str, char32_t u32char, mbstate_t *state, locale_t
     state = &P32MbState_c32rtomb;
   }
 
-  return locale->Functions.F_c32rtomb (u8str, u32char, state, &locale->Charset);
+  return p32_private_c32rtomb_l (u8str, u32char, state, locale);
 }
 
 size_t p32_c32rtomb (char *u8str, char32_t u32char, mbstate_t *state) {

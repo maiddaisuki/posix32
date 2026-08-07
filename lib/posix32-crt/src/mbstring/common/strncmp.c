@@ -48,7 +48,7 @@ static int p32_strncmp_common (const char *str1, const char *str2, size_t count,
      */
     char32_t str1Char = 0xFFFFFFFF;
 
-    const size_t length1 = p32_mbrtoc32_l (&str1Char, str1, str1Count, &str1state, locale);
+    const size_t length1 = p32_private_mbrtoc32_l (&str1Char, str1, str1Count, &str1state, locale);
 
     if (length1 == (size_t) -1) {
       return _NLSCMPERROR;
@@ -59,7 +59,7 @@ static int p32_strncmp_common (const char *str1, const char *str2, size_t count,
      */
     char32_t str2Char = 0xFFFFFFFF;
 
-    const size_t length2 = p32_mbrtoc32_l (&str2Char, str2, str2Count, &str2state, locale);
+    const size_t length2 = p32_private_mbrtoc32_l (&str2Char, str2, str2Count, &str2state, locale);
 
     if (length2 == (size_t) -1) {
       return _NLSCMPERROR;

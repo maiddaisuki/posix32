@@ -31,6 +31,11 @@ static void P32LocaleFunction_mbrtoc16 (LocaleFunctions *functions, Charset *cha
   assert (functions->F_mbrtoc16 != NULL);
 }
 
+size_t p32_private_mbrtoc16_l (char16_t *u16char, const char *u8str, size_t count, mbstate_t *state, locale_t locale) {
+  assert (state != NULL);
+  return locale->Functions.F_mbrtoc16 (u16char, u8str, count, state, &locale->Charset);
+}
+
 /**
  * Private `mbstate_t` if called did not supply one.
  */
@@ -41,7 +46,7 @@ size_t p32_mbrtoc16_l (char16_t *u16char, const char *u8str, size_t count, mbsta
     state = &P32MbState_mbrtoc16;
   }
 
-  return locale->Functions.F_mbrtoc16 (u16char, u8str, count, state, &locale->Charset);
+  return p32_private_mbrtoc16_l (u16char, u8str, count, state, locale);
 }
 
 size_t p32_mbrtoc16 (char16_t *u16char, const char *u8str, size_t count, mbstate_t *state) {
