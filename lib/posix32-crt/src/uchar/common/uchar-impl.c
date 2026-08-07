@@ -133,7 +133,7 @@ typedef union {
     struct {
       uint32_t Bits1   : 7;
       uint32_t Padding : 25;
-    } Unit1;
+    } L1;
     /**
      * UTF-8 Code Unit Sequence of length 2.
      */
@@ -141,7 +141,7 @@ typedef union {
       uint32_t Bits2   : 6;
       uint32_t Bits1   : 5;
       uint32_t Padding : 21;
-    } Unit2;
+    } L2;
     /**
      * UTF-8 Code Unit Sequence of length 3.
      */
@@ -150,7 +150,7 @@ typedef union {
       uint32_t Bits2   : 6;
       uint32_t Bits1   : 4;
       uint32_t Padding : 16;
-    } Unit3;
+    } L3;
     /**
      * UTF-8 Code Unit Sequence of length 4.
      */
@@ -161,7 +161,7 @@ typedef union {
       uint32_t Bits2   : 2;
       uint32_t Bits1   : 3;
       uint32_t Padding : 11;
-    } Unit4;
+    } L4;
   } UTF8;
 } CodePoint;
 
@@ -665,40 +665,40 @@ static bool P32CodePointToUTF8 (UTF8ConversionState *utf8, CodePoint *codePoint)
     return false;
   }
 
-  if (codePoint->UTF8.Unit1.Padding == 0) {
+  if (codePoint->UTF8.L1.Padding == 0) {
     utf8->Info.Length          = 1;
     utf8->Info.Bytes           = 1;
     utf8->Unit1.L1.Unit1.Magic = P32_UTF8_L1_MAGIC;
-    utf8->Unit1.L1.Unit1.Bits1 = codePoint->UTF8.Unit1.Bits1;
-  } else if (codePoint->UTF8.Unit2.Padding == 0) {
+    utf8->Unit1.L1.Unit1.Bits1 = codePoint->UTF8.L1.Bits1;
+  } else if (codePoint->UTF8.L2.Padding == 0) {
     utf8->Info.Length          = 2;
     utf8->Info.Bytes           = 2;
     utf8->Unit1.L2.Unit1.Magic = P32_UTF8_L2_MAGIC;
-    utf8->Unit1.L2.Unit1.Bits1 = codePoint->UTF8.Unit2.Bits1;
+    utf8->Unit1.L2.Unit1.Bits1 = codePoint->UTF8.L2.Bits1;
     utf8->Unit2.L2.Unit2.Magic = P32_UTF8_MAGIC;
-    utf8->Unit2.L2.Unit2.Bits2 = codePoint->UTF8.Unit2.Bits2;
-  } else if (codePoint->UTF8.Unit3.Padding == 0) {
+    utf8->Unit2.L2.Unit2.Bits2 = codePoint->UTF8.L2.Bits2;
+  } else if (codePoint->UTF8.L3.Padding == 0) {
     utf8->Info.Length          = 3;
     utf8->Info.Bytes           = 3;
     utf8->Unit1.L3.Unit1.Magic = P32_UTF8_L3_MAGIC;
-    utf8->Unit1.L3.Unit1.Bits1 = codePoint->UTF8.Unit3.Bits1;
+    utf8->Unit1.L3.Unit1.Bits1 = codePoint->UTF8.L3.Bits1;
     utf8->Unit2.L3.Unit2.Magic = P32_UTF8_MAGIC;
-    utf8->Unit2.L3.Unit2.Bits2 = codePoint->UTF8.Unit3.Bits2;
+    utf8->Unit2.L3.Unit2.Bits2 = codePoint->UTF8.L3.Bits2;
     utf8->Unit3.L3.Unit3.Magic = P32_UTF8_MAGIC;
-    utf8->Unit3.L3.Unit3.Bits3 = codePoint->UTF8.Unit3.Bits3;
+    utf8->Unit3.L3.Unit3.Bits3 = codePoint->UTF8.L3.Bits3;
   } else {
-    assert (codePoint->UTF8.Unit4.Padding == 0);
+    assert (codePoint->UTF8.L4.Padding == 0);
     utf8->Info.Length          = 4;
     utf8->Info.Bytes           = 4;
     utf8->Unit1.L4.Unit1.Magic = P32_UTF8_L4_MAGIC;
-    utf8->Unit1.L4.Unit1.Bits1 = codePoint->UTF8.Unit4.Bits1;
+    utf8->Unit1.L4.Unit1.Bits1 = codePoint->UTF8.L4.Bits1;
     utf8->Unit2.L4.Unit2.Magic = P32_UTF8_MAGIC;
-    utf8->Unit2.L4.Unit2.Bits2 = codePoint->UTF8.Unit4.Bits2;
-    utf8->Unit2.L4.Unit2.Bits3 = codePoint->UTF8.Unit4.Bits3;
+    utf8->Unit2.L4.Unit2.Bits2 = codePoint->UTF8.L4.Bits2;
+    utf8->Unit2.L4.Unit2.Bits3 = codePoint->UTF8.L4.Bits3;
     utf8->Unit3.L4.Unit3.Magic = P32_UTF8_MAGIC;
-    utf8->Unit3.L4.Unit3.Bits4 = codePoint->UTF8.Unit4.Bits4;
+    utf8->Unit3.L4.Unit3.Bits4 = codePoint->UTF8.L4.Bits4;
     utf8->Unit4.L4.Unit4.Magic = P32_UTF8_MAGIC;
-    utf8->Unit4.L4.Unit4.Bits5 = codePoint->UTF8.Unit4.Bits5;
+    utf8->Unit4.L4.Unit4.Bits5 = codePoint->UTF8.L4.Bits5;
   }
 
   return true;
@@ -709,20 +709,20 @@ static bool P32CodePointToUTF8 (UTF8ConversionState *utf8, CodePoint *codePoint)
  */
 static bool P32UTF8ToCodePoint (CodePoint *codePoint, UTF8ConversionState *utf8) {
   if (utf8->Info.Length == 1) {
-    codePoint->UTF8.Unit1.Bits1 = utf8->Unit1.L1.Unit1.Bits1;
+    codePoint->UTF8.L1.Bits1 = utf8->Unit1.L1.Unit1.Bits1;
   } else if (utf8->Info.Length == 2) {
-    codePoint->UTF8.Unit2.Bits1 = utf8->Unit1.L2.Unit1.Bits1;
-    codePoint->UTF8.Unit2.Bits2 = utf8->Unit2.L2.Unit2.Bits2;
+    codePoint->UTF8.L2.Bits1 = utf8->Unit1.L2.Unit1.Bits1;
+    codePoint->UTF8.L2.Bits2 = utf8->Unit2.L2.Unit2.Bits2;
   } else if (utf8->Info.Length == 3) {
-    codePoint->UTF8.Unit3.Bits1 = utf8->Unit1.L3.Unit1.Bits1;
-    codePoint->UTF8.Unit3.Bits2 = utf8->Unit2.L3.Unit2.Bits2;
-    codePoint->UTF8.Unit3.Bits3 = utf8->Unit3.L3.Unit3.Bits3;
+    codePoint->UTF8.L3.Bits1 = utf8->Unit1.L3.Unit1.Bits1;
+    codePoint->UTF8.L3.Bits2 = utf8->Unit2.L3.Unit2.Bits2;
+    codePoint->UTF8.L3.Bits3 = utf8->Unit3.L3.Unit3.Bits3;
   } else if (utf8->Info.Length == 4) {
-    codePoint->UTF8.Unit4.Bits1 = utf8->Unit1.L4.Unit1.Bits1;
-    codePoint->UTF8.Unit4.Bits2 = utf8->Unit2.L4.Unit2.Bits2;
-    codePoint->UTF8.Unit4.Bits3 = utf8->Unit2.L4.Unit2.Bits3;
-    codePoint->UTF8.Unit4.Bits4 = utf8->Unit3.L4.Unit3.Bits4;
-    codePoint->UTF8.Unit4.Bits5 = utf8->Unit4.L4.Unit4.Bits5;
+    codePoint->UTF8.L4.Bits1 = utf8->Unit1.L4.Unit1.Bits1;
+    codePoint->UTF8.L4.Bits2 = utf8->Unit2.L4.Unit2.Bits2;
+    codePoint->UTF8.L4.Bits3 = utf8->Unit2.L4.Unit2.Bits3;
+    codePoint->UTF8.L4.Bits4 = utf8->Unit3.L4.Unit3.Bits4;
+    codePoint->UTF8.L4.Bits5 = utf8->Unit4.L4.Unit4.Bits5;
   }
 
   assert (codePoint->Value <= 0x0010FFFF);
