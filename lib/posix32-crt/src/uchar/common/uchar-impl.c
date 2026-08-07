@@ -1455,16 +1455,20 @@ static bool P32GetSBCSConversionState (mbstate_t *state) {
  */
 static bool P32UTF16ToSBCS (SBCSConversionState *sbcs, UTF16ConversionState *utf16, Charset *charset) {
 #if P32_UCHAR_IMPL == P32_UCHAR_IMPL_SBCS
+  /**
+   * `WideCharToMultiByte` will set this variable to `TRUE` if UTF-16 Code Unit
+   * Sequence `utf16->Buffer` cannot be converted to `charset->CodePage`.
+   */
   BOOL defaultCharacterUsed = FALSE;
 
   int length = WideCharToMultiByte (
-    charset->CodePage, charset->ToMultiByte, utf16->Buffer, utf16->Info.Length, sbcs->Buffer, charset->MaxLength, NULL,
+    charset->CodePage, charset->ToMultiByte, utf16->Buffer, utf16->Info.Length, sbcs->Buffer, 1, NULL,
     &defaultCharacterUsed
   );
 
-  assert (length <= 1);
+  assert (length >= 0 && length <= 1);
 
-  if (length == 0 || length > (int) charset->MaxLength || defaultCharacterUsed) {
+  if (length == 0 || defaultCharacterUsed) {
     return false;
   }
 
@@ -1499,11 +1503,13 @@ static bool P32UTF16ToSBCS (SBCSConversionState *sbcs, UTF16ConversionState *utf
  */
 static bool P32SBCSToUTF16 (UTF16ConversionState *utf16, SBCSConversionState *sbcs, Charset *charset) {
 #if P32_UCHAR_IMPL == P32_UCHAR_IMPL_SBCS
-  int length = MultiByteToWideChar (charset->CodePage, charset->ToWideChar, sbcs->Buffer, 1, utf16->Buffer, 2);
+  int length = MultiByteToWideChar (
+    charset->CodePage, charset->ToWideChar, sbcs->Buffer, sbcs->Info.Length, utf16->Buffer, 2
+  );
 
-  assert (length <= 1);
+  assert (length >= 0 && length <= 2);
 
-  if (length == 0 || length > 2) {
+  if (length == 0) {
     return false;
   }
 
