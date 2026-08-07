@@ -36,6 +36,7 @@ tests = [
 variants = [
   'correct1',
   'correct2',
+  'utf-8',
 ]
 
 foreach test : tests
