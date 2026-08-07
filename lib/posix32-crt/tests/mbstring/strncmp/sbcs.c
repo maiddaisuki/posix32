@@ -77,6 +77,7 @@ static void DoTest (void) {
     assert ((diff = strncmp (Char, Prev, 0)) != _NLSCMPERROR);
     assert (diff == 0);
 
+#if !1 // Functions `c{8,16,32}rtomb` are no longer affected by this issue
     /**
      * `WideCharToMultiByte`, which is used to implement `c{n}rtomb` functions,
      * converts some Code Points from Private Use Area (U+E000-U+F8FF) to
@@ -90,6 +91,7 @@ static void DoTest (void) {
       assert ((diff = strncmp (Char, Prev, 1)) == _NLSCMPERROR);
       continue;
     }
+#endif
 
     assert ((diff = strncmp ("", Char, 1)) != _NLSCMPERROR);
     assert (diff < 0);
