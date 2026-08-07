@@ -2179,10 +2179,7 @@ size_t c8rtomb (char *str, char8_t u8, mbstate_t *state, Charset *charset) {
     goto eilseq;
   }
 
-  if (str != NULL) {
-    memcpy (str, mbState.MB.Buffer, mbState.MB.Info.Length);
-  }
-
+  memcpy (str, mbState.MB.Buffer, mbState.MB.Info.Length);
   P32SetUTF8ConversionState (state, NULL);
 
   return mbState.MB.Info.Length;
@@ -2404,10 +2401,7 @@ size_t c16rtomb (char *str, char16_t u16, mbstate_t *state, Charset *charset) {
     goto eilseq;
   }
 
-  if (str != NULL) {
-    memcpy (str, conversionState.MB.Buffer, conversionState.MB.Info.Length);
-  }
-
+  memcpy (str, conversionState.MB.Buffer, conversionState.MB.Info.Length);
   P32SetUTF16ConversionState (state, NULL);
 
   return conversionState.MB.Info.Length;
@@ -2554,9 +2548,7 @@ size_t c32rtomb (char *str, char32_t u32, mbstate_t *state, Charset *charset) {
     goto eilseq;
   }
 
-  if (str != NULL) {
-    memcpy (str, conversionState.MB.Buffer, conversionState.MB.Info.Length);
-  }
+  memcpy (str, conversionState.MB.Buffer, conversionState.MB.Info.Length);
 
   return conversionState.MB.Info.Length;
 
