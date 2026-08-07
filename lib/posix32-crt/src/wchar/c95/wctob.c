@@ -51,6 +51,40 @@ static int p32_wctob_generic (wint_t wc, Charset *charset) {
     return EOF;
   }
 
+  /**
+   * Whether round-trip conversion is required to validate conversion results.
+   */
+  bool roundTrip = false;
+
+  /**
+   * When converting Code Points from Private Use Area (U+E000-U+F8FF),
+   * some Code Points from Corporate Use Subarea can be converted to target
+   * code page's unassigned code points.
+   */
+  if (wc >= 0xE000 && wc <= 0xF8FF) {
+    roundTrip = true;
+  }
+
+  /**
+   * Attempt round-trip conversion if required.
+   */
+  if (roundTrip) {
+    /**
+     * Results of round-trip conversion.
+     */
+    WCHAR wcRoundTrip;
+
+    INT length = MultiByteToWideChar (charset->CodePage, charset->ToWideChar, &c, 1, &wcRoundTrip, 1);
+
+    if (length != 1) {
+      return EOF;
+    }
+
+    if (wc != wcRoundTrip) {
+      return EOF;
+    }
+  }
+
   return (BYTE) c;
 }
 
