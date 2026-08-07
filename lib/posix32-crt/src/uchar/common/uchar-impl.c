@@ -415,15 +415,17 @@ static bool P32CodePointToUTF16 (UTF16ConversionState *utf16, CodePoint *codePoi
     utf16->Info.Length = 1;
     utf16->Info.Bytes  = 1;
     utf16->Unit1.Value = codePoint->UTF16.L1.Bits1;
-  } else {
-    assert (codePoint->UTF16.L2.Padding == 0);
-    utf16->Info.Length               = 2;
-    utf16->Info.Bytes                = 2;
+  } else if (codePoint->UTF16.L2.Padding == 0) {
+    utf16->Info.Length = 2;
+    utf16->Info.Bytes  = 2;
+    assert (codePoint->Value >= 0x00010000 && codePoint->Value <= 0x0010FFFF);
     utf16->Unit1.HighSurrogate.Magic = P32_UTF16_HIGH_SURROGATE_MAGIC;
     utf16->Unit1.HighSurrogate.Bits1 = codePoint->UTF16.L2.Bits1 - 1;
     utf16->Unit1.HighSurrogate.Bits2 = codePoint->UTF16.L2.Bits2;
-    utf16->Unit2.LowSurrogate.Magic  = P32_UTF16_LOW_SURROGATE_MAGIC;
-    utf16->Unit2.LowSurrogate.Bits3  = codePoint->UTF16.L2.Bits3;
+    assert (IS_HIGH_SURROGATE (utf16->Unit1.Value));
+    utf16->Unit2.LowSurrogate.Magic = P32_UTF16_LOW_SURROGATE_MAGIC;
+    utf16->Unit2.LowSurrogate.Bits3 = codePoint->UTF16.L2.Bits3;
+    assert (IS_LOW_SURROGATE (utf16->Unit2.Value));
   }
 
   return true;
@@ -433,17 +435,28 @@ static bool P32CodePointToUTF16 (UTF16ConversionState *utf16, CodePoint *codePoi
  * Convert UTF-16 Code Unit Sequence to Unicode Code Point.
  */
 static bool P32UTF16ToCodePoint (CodePoint *codePoint, UTF16ConversionState *utf16) {
+  assert (utf16->Info.Length >= 1 && utf16->Info.Length <= 2);
+
   if (utf16->Info.Length == 1) {
+    assert (!IS_HIGH_SURROGATE (utf16->Unit1.Value) && !IS_LOW_SURROGATE (utf16->Unit1.Value));
     codePoint->UTF16.L1.Bits1 = utf16->Unit1.Value;
-  } else {
-    assert (utf16->Info.Length == 2);
+    assert (codePoint->Value <= 0xFFFF);
+  } else if (utf16->Info.Length == 2) {
+    assert (IS_HIGH_SURROGATE (utf16->Unit1.Value));
     codePoint->UTF16.L2.Bits1 = utf16->Unit1.HighSurrogate.Bits1 + 1;
     codePoint->UTF16.L2.Bits2 = utf16->Unit1.HighSurrogate.Bits2;
+    assert (IS_LOW_SURROGATE (utf16->Unit2.Value));
     codePoint->UTF16.L2.Bits3 = utf16->Unit2.LowSurrogate.Bits3;
+    assert (codePoint->Value >= 0x00010000 && codePoint->Value <= 0x0010FFFF);
   }
 
-  assert (codePoint->Value <= 0x0010FFFF);
-  assert (!IS_HIGH_SURROGATE (codePoint->Value) && !IS_LOW_SURROGATE (codePoint->Value));
+  if (codePoint->Value > 0x0010FFFF) {
+    return false;
+  }
+
+  if (IS_HIGH_SURROGATE (codePoint->Value) || IS_LOW_SURROGATE (codePoint->Value)) {
+    return false;
+  }
 
   return true;
 }
@@ -666,39 +679,52 @@ static bool P32CodePointToUTF8 (UTF8ConversionState *utf8, CodePoint *codePoint)
   }
 
   if (codePoint->UTF8.L1.Padding == 0) {
-    utf8->Info.Length          = 1;
-    utf8->Info.Bytes           = 1;
+    utf8->Info.Length = 1;
+    utf8->Info.Bytes  = 1;
+    assert (codePoint->Value <= 0x7F);
     utf8->Unit1.L1.Unit1.Magic = P32_UTF8_L1_MAGIC;
     utf8->Unit1.L1.Unit1.Bits1 = codePoint->UTF8.L1.Bits1;
+    assert (utf8->Unit1.Value <= 0x7F);
   } else if (codePoint->UTF8.L2.Padding == 0) {
-    utf8->Info.Length          = 2;
-    utf8->Info.Bytes           = 2;
+    utf8->Info.Length = 2;
+    utf8->Info.Bytes  = 2;
+    assert (codePoint->Value >= 0x80 && codePoint->Value <= 0x07FF);
     utf8->Unit1.L2.Unit1.Magic = P32_UTF8_L2_MAGIC;
     utf8->Unit1.L2.Unit1.Bits1 = codePoint->UTF8.L2.Bits1;
+    assert (utf8->Unit1.Value >= 0xC2 && utf8->Unit1.Value <= 0xDF);
     utf8->Unit2.L2.Unit2.Magic = P32_UTF8_MAGIC;
     utf8->Unit2.L2.Unit2.Bits2 = codePoint->UTF8.L2.Bits2;
+    assert (utf8->Unit2.Value >= 0x80 && utf8->Unit2.Value <= 0xBF);
   } else if (codePoint->UTF8.L3.Padding == 0) {
-    utf8->Info.Length          = 3;
-    utf8->Info.Bytes           = 3;
+    utf8->Info.Length = 3;
+    utf8->Info.Bytes  = 3;
+    assert (codePoint->Value >= 0x0800 && codePoint->Value <= 0xFFFF);
     utf8->Unit1.L3.Unit1.Magic = P32_UTF8_L3_MAGIC;
     utf8->Unit1.L3.Unit1.Bits1 = codePoint->UTF8.L3.Bits1;
+    assert (utf8->Unit1.Value >= 0xE0 && utf8->Unit1.Value <= 0xEF);
     utf8->Unit2.L3.Unit2.Magic = P32_UTF8_MAGIC;
     utf8->Unit2.L3.Unit2.Bits2 = codePoint->UTF8.L3.Bits2;
+    assert (utf8->Unit2.Value >= 0x80 && utf8->Unit2.Value <= 0xBF);
     utf8->Unit3.L3.Unit3.Magic = P32_UTF8_MAGIC;
     utf8->Unit3.L3.Unit3.Bits3 = codePoint->UTF8.L3.Bits3;
-  } else {
-    assert (codePoint->UTF8.L4.Padding == 0);
-    utf8->Info.Length          = 4;
-    utf8->Info.Bytes           = 4;
+    assert (utf8->Unit3.Value >= 0x80 && utf8->Unit3.Value <= 0xBF);
+  } else if (codePoint->UTF8.L4.Padding == 0) {
+    utf8->Info.Length = 4;
+    utf8->Info.Bytes  = 4;
+    assert (codePoint->Value >= 0x00010000 && codePoint->Value <= 0x0010FFFF);
     utf8->Unit1.L4.Unit1.Magic = P32_UTF8_L4_MAGIC;
     utf8->Unit1.L4.Unit1.Bits1 = codePoint->UTF8.L4.Bits1;
+    assert (utf8->Unit1.Value >= 0xF0 && utf8->Unit1.Value <= 0xF4);
     utf8->Unit2.L4.Unit2.Magic = P32_UTF8_MAGIC;
     utf8->Unit2.L4.Unit2.Bits2 = codePoint->UTF8.L4.Bits2;
     utf8->Unit2.L4.Unit2.Bits3 = codePoint->UTF8.L4.Bits3;
+    assert (utf8->Unit2.Value >= 0x80 && utf8->Unit2.Value <= 0xBF);
     utf8->Unit3.L4.Unit3.Magic = P32_UTF8_MAGIC;
     utf8->Unit3.L4.Unit3.Bits4 = codePoint->UTF8.L4.Bits4;
+    assert (utf8->Unit3.Value >= 0x80 && utf8->Unit3.Value <= 0xBF);
     utf8->Unit4.L4.Unit4.Magic = P32_UTF8_MAGIC;
     utf8->Unit4.L4.Unit4.Bits5 = codePoint->UTF8.L4.Bits5;
+    assert (utf8->Unit4.Value >= 0x80 && utf8->Unit4.Value <= 0xBF);
   }
 
   return true;
@@ -708,24 +734,33 @@ static bool P32CodePointToUTF8 (UTF8ConversionState *utf8, CodePoint *codePoint)
  * Convert UTF-8 Code Unit Sequence to Unicode Code Point.
  */
 static bool P32UTF8ToCodePoint (CodePoint *codePoint, UTF8ConversionState *utf8) {
+  assert (utf8->Info.Length >= 1 && utf8->Info.Length <= 4);
+
   if (utf8->Info.Length == 1) {
     codePoint->UTF8.L1.Bits1 = utf8->Unit1.L1.Unit1.Bits1;
+    assert (codePoint->Value <= 0x7F);
   } else if (utf8->Info.Length == 2) {
     codePoint->UTF8.L2.Bits1 = utf8->Unit1.L2.Unit1.Bits1;
     codePoint->UTF8.L2.Bits2 = utf8->Unit2.L2.Unit2.Bits2;
+    assert (codePoint->Value >= 0x80 && codePoint->Value <= 0x07FF);
   } else if (utf8->Info.Length == 3) {
     codePoint->UTF8.L3.Bits1 = utf8->Unit1.L3.Unit1.Bits1;
     codePoint->UTF8.L3.Bits2 = utf8->Unit2.L3.Unit2.Bits2;
     codePoint->UTF8.L3.Bits3 = utf8->Unit3.L3.Unit3.Bits3;
+    assert (codePoint->Value >= 0x0800 && codePoint->Value <= 0xFFFF);
+    assert (!IS_HIGH_SURROGATE (codePoint->Value) && !IS_LOW_SURROGATE (codePoint->Value));
   } else if (utf8->Info.Length == 4) {
     codePoint->UTF8.L4.Bits1 = utf8->Unit1.L4.Unit1.Bits1;
     codePoint->UTF8.L4.Bits2 = utf8->Unit2.L4.Unit2.Bits2;
     codePoint->UTF8.L4.Bits3 = utf8->Unit2.L4.Unit2.Bits3;
     codePoint->UTF8.L4.Bits4 = utf8->Unit3.L4.Unit3.Bits4;
     codePoint->UTF8.L4.Bits5 = utf8->Unit4.L4.Unit4.Bits5;
+    assert (codePoint->Value >= 0x00010000 && codePoint->Value <= 0x0010FFFF);
   }
 
-  assert (codePoint->Value <= 0x0010FFFF);
+  if (codePoint->Value > 0x0010FFFF) {
+    return false;
+  }
 
   if (IS_HIGH_SURROGATE (codePoint->Value) || IS_LOW_SURROGATE (codePoint->Value)) {
     return false;
