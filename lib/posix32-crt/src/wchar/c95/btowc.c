@@ -78,8 +78,12 @@ static void P32LocaleFunction_btowc (LocaleFunctions *functions, Charset *charse
   }
 }
 
-wint_t p32_btowc_l (int c, locale_t locale) {
+wint_t p32_private_btowc_l (int c, locale_t locale) {
   return locale->Functions.F_btowc (c, &locale->Charset);
+}
+
+wint_t p32_btowc_l (int c, locale_t locale) {
+  return p32_private_btowc_l (c, locale);
 }
 
 wint_t p32_btowc (int c) {
@@ -95,5 +99,5 @@ wint_t p32_btowc (int c) {
   }
 #endif
 
-  return p32_btowc_l (c, activeLocale);
+  return p32_private_btowc_l (c, activeLocale);
 }

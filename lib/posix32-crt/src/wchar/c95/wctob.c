@@ -64,8 +64,12 @@ static void P32LocaleFunction_wctob (LocaleFunctions *functions, Charset *charse
   }
 }
 
-int p32_wctob_l (wint_t wc, locale_t locale) {
+int p32_private_wctob_l (wint_t wc, locale_t locale) {
   return locale->Functions.F_wctob (wc, &locale->Charset);
+}
+
+int p32_wctob_l (wint_t wc, locale_t locale) {
+  return p32_private_wctob_l (wc, locale);
 }
 
 int p32_wctob (wint_t wc) {
@@ -81,5 +85,5 @@ int p32_wctob (wint_t wc) {
   }
 #endif
 
-  return p32_wctob_l (wc, activeLocale);
+  return p32_private_wctob_l (wc, activeLocale);
 }

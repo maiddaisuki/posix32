@@ -25,7 +25,7 @@ static char *p32_strchr_common (const char *str, int c, locale_t locale) {
   /**
    * Check if `c` is a valid single-byte character.
    */
-  if (p32_btowc_l ((unsigned char) c, locale) == WEOF) {
+  if (p32_private_btowc_l ((unsigned char) c, locale) == WEOF) {
     return NULL;
   }
 

@@ -33,6 +33,7 @@
 #include "core-heap.h"
 
 #include "locale-internal.h"
+#include "wchar-internal.h"
 #include "wctype-internal.h"
 
 /**
@@ -222,7 +223,7 @@ static void P32FreeLcCtypeInfoA (LcCtypeInfo *lcCtypeInfo, uintptr_t heap) {
  */
 static bool P32AsciiMap (AsciiMap *asciiMap, locale_t locale) {
   for (wint_t wc = 0; wc < 0x80; ++wc) {
-    int c = locale->Functions.F_wctob (wc, &locale->Charset);
+    int c = p32_private_wctob_l (wc, locale);
 
     /**
      * Code pages 10021 and 20269 cannot represent ASCII character 0x7F (DEL).
@@ -240,7 +241,7 @@ static bool P32AsciiMap (AsciiMap *asciiMap, locale_t locale) {
  */
 static bool P32CharTypeMap (CharTypeMap *charTypeMap, locale_t locale) {
   for (int i = 0; i < 256; ++i) {
-    wchar_t wc = locale->Functions.F_btowc (i, &locale->Charset);
+    wchar_t wc = p32_private_btowc_l (i, locale);
 
     if (wc == WEOF) {
       charTypeMap->Map[i] = 0;
@@ -258,7 +259,7 @@ static bool P32CharTypeMap (CharTypeMap *charTypeMap, locale_t locale) {
  */
 static bool P32ToLowerMap (LowerMap *lowerMap, locale_t locale) {
   for (int i = 0; i < 256; ++i) {
-    wchar_t wc = locale->Functions.F_btowc (i, &locale->Charset);
+    wchar_t wc = p32_private_btowc_l (i, locale);
 
     if (wc == WEOF) {
       lowerMap->Map[i] = (uint8_t) i;
@@ -272,7 +273,7 @@ static bool P32ToLowerMap (LowerMap *lowerMap, locale_t locale) {
       continue;
     }
 
-    int cLower = locale->Functions.F_wctob (wcLower, &locale->Charset);
+    int cLower = p32_private_wctob_l (wcLower, locale);
 
     if (cLower == EOF) {
       lowerMap->Map[i] = (uint8_t) i;
@@ -290,7 +291,7 @@ static bool P32ToLowerMap (LowerMap *lowerMap, locale_t locale) {
  */
 static bool P32ToUpperMap (UpperMap *upperMap, locale_t locale) {
   for (int i = 0; i < 256; ++i) {
-    wchar_t wc = locale->Functions.F_btowc (i, &locale->Charset);
+    wchar_t wc = p32_private_btowc_l (i, locale);
 
     if (wc == WEOF) {
       upperMap->Map[i] = (uint8_t) i;
@@ -304,7 +305,7 @@ static bool P32ToUpperMap (UpperMap *upperMap, locale_t locale) {
       continue;
     }
 
-    int cUpper = locale->Functions.F_wctob (wcUpper, &locale->Charset);
+    int cUpper = p32_private_wctob_l (wcUpper, locale);
 
     if (cUpper == EOF) {
       upperMap->Map[i] = (uint8_t) i;

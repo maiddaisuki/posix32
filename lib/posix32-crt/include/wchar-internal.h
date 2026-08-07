@@ -27,6 +27,8 @@
  *
  * Code inside the library should use these versions instead of public ones.
  */
+wint_t p32_private_btowc_l (int, locale_t);
+int    p32_private_wctob_l (wint_t, locale_t);
 size_t p32_private_mbrlen_l (const char *, size_t, mbstate_t *, locale_t);
 size_t p32_private_mbrtowc_l (wchar_t *, const char *, size_t, mbstate_t *, locale_t);
 size_t p32_private_mbsrtowcs_l (wchar_t *, const char **, size_t, mbstate_t *, locale_t);
