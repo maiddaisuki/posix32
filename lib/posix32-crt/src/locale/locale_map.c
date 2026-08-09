@@ -586,6 +586,14 @@ static bool P32LocaleMap (LocaleMap *localeMap, LocaleStringMap *stringMap, bool
   P32Modifier (localeMap, stringMap);
 
   /**
+   * Invariant locale "x-IV_mathan" is handled as Known Locale.
+   */
+  if (localeMap->Language.Language == iv) {
+    p32_known_locale_map (localeMap, KnownLocale_Invariant);
+    return true;
+  }
+
+  /**
    * Windows pseudo locales are handled as Known Locales.
    */
   if (localeMap->Language.Language == qps_ploc) {
