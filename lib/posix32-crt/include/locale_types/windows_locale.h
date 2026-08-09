@@ -27,10 +27,8 @@
  * CALID values.
  */
 typedef enum Calendar {
-  Calendar_ArabicLunar_Hijri = CAL_HIJRI,
-#ifdef CAL_UMALQURA
-  Calendar_ArabicLunar_UmAlQura = CAL_UMALQURA,
-#endif
+  Calendar_ArabicLunar_Hijri           = CAL_HIJRI,
+  Calendar_ArabicLunar_UmAlQura        = CAL_UMALQURA,
   Calendar_Gregorian                   = CAL_GREGORIAN,
   Calendar_Gregorian_Arabic            = CAL_GREGORIAN_ARABIC,
   Calendar_Gregorian_MiddleEast_French = CAL_GREGORIAN_ME_FRENCH,
