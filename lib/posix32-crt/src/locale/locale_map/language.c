@@ -46,6 +46,9 @@ static const Language Languages[] = {
   LANGUAGE_DECL ("Assamese",                    "as",  LANG_ASSAMESE),
   LANGUAGE_DECL ("Asu",                         "asa", -1),
   LANGUAGE_DECL ("Asturian",                    "ast", -1),
+  /**
+   * `LANG_AZERI` is a legacy alias.
+   */
   LANGUAGE_DECL ("Azerbaijani",                 "az",  LANG_AZERBAIJANI),
   LANGUAGE_DECL ("Bashkir",                     "ba",  LANG_BASHKIR),
   LANGUAGE_DECL ("Basaa",                       "bas", -1),
@@ -57,14 +60,27 @@ static const Language Languages[] = {
   LANGUAGE_DECL ("Bhojpuri",                    "bho", -1),
   LANGUAGE_DECL ("Edo",                         "bin", 0x66),
   LANGUAGE_DECL ("Bamanankan",                  "bm",  -1),
+  /**
+   * `LANG_BENGALI` is an alias.
+   */
   LANGUAGE_DECL ("Bangla",                      "bn",  LANG_BANGLA),
+  /**
+   * `LANG_TIBETAN` can be used with SUBLANGs 0x01 and 0x03, but not 0x02.
+   */
   LANGUAGE_DECL ("Tibetan",                     "bo",  LANG_TIBETAN),
   LANGUAGE_DECL ("Breton",                      "br",  LANG_BRETON),
   LANGUAGE_DECL ("Bodo",                        "brx", -1),
+  /**
+   * `LANG_BOSNIAN` has the same value as `LANG_CROATIAN` and `LANG_SERBIAN`;
+   * using it with `SUBLANG_DEFAULT` will construct `LCID` locale for "hr-HR".
+   *
+   * There is also `LANG_BOSNIAN_NEUTRAL`; this constant is for use with
+   * `ConvertDefaultLocale` function.
+   */
   LANGUAGE_DECL ("Bosnian",                     "bs",  LANG_BOSNIAN),
   LANGUAGE_DECL ("Blin",                        "byn", -1),
   /**
-   * Same as `LANG_VALENCIAN`.
+   * `LANG_CATALAN` has the same value as `LANG_VALENCIAN`.
    */
   LANGUAGE_DECL ("Catalan",                     "ca",  LANG_CATALAN),
   LANGUAGE_DECL ("Chakma",                      "ccp", -1),
@@ -82,6 +98,10 @@ static const Language Languages[] = {
   LANGUAGE_DECL ("German",                      "de",  LANG_GERMAN),
   LANGUAGE_DECL ("Zarma",                       "dje", -1),
   LANGUAGE_DECL ("Dogri",                       "doi", -1),
+  /**
+   * `LANG_LOWER_SORBIAN` has the same value as `LANG_UPPER_SORBIAN`; using it
+   * with `SUBLANG_DEFAULT` will construct `LCID` locale for "hsb-DE".
+   */
   LANGUAGE_DECL ("Lower Sorbian",               "dsb", LANG_LOWER_SORBIAN),
   LANGUAGE_DECL ("Duala",                       "dua", -1),
   LANGUAGE_DECL ("Divehi",                      "dv",  LANG_DIVEHI),
@@ -90,13 +110,22 @@ static const Language Languages[] = {
   LANGUAGE_DECL ("Embu",                        "ebu", -1),
   LANGUAGE_DECL ("Ewe",                         "ee",  -1),
   LANGUAGE_DECL ("Greek",                       "el",  LANG_GREEK),
+  /**
+   * `LANG_ENGLISH` can be used with SUBLANGs 0x01-0x16, except 0x14 and 0x15.
+   */
   LANGUAGE_DECL ("English",                     "en",  LANG_ENGLISH),
   LANGUAGE_DECL ("Esperanto",                   "eo",  -1),
   LANGUAGE_DECL ("Spanish",                     "es",  LANG_SPANISH),
   LANGUAGE_DECL ("Estonian",                    "et",  LANG_ESTONIAN),
   LANGUAGE_DECL ("Basque",                      "eu",  LANG_BASQUE),
   LANGUAGE_DECL ("Ewondo",                      "ewo", -1),
+  /**
+   * `LANG_FARSI` is a legacy alias.
+   */
   LANGUAGE_DECL ("Persian",                     "fa",  LANG_PERSIAN),
+  /**
+   * `LANG_PULAR` is a legacy alias.
+   */
   LANGUAGE_DECL ("Fula",                        "ff",  LANG_FULAH),
   LANGUAGE_DECL ("Finnish",                     "fi",  LANG_FINNISH),
   LANGUAGE_DECL ("Filipino",                    "fil", LANG_FILIPINO),
@@ -104,6 +133,10 @@ static const Language Languages[] = {
   LANGUAGE_DECL ("French",                      "fr",  LANG_FRENCH),
   LANGUAGE_DECL ("Friulian",                    "fur", -1),
   LANGUAGE_DECL ("Frisian",                     "fy",  LANG_FRISIAN),
+  /**
+   * `LANG_IRISH` cannot be used with `SUBLANG_DEFAULT` to construct valid
+   * `LCID` locale.
+   */
   LANGUAGE_DECL ("Irish",                       "ga",  LANG_IRISH),
   LANGUAGE_DECL ("Scottish Gaelic",             "gd",  LANG_SCOTTISH_GAELIC),
   LANGUAGE_DECL ("Galician",                    "gl",  LANG_GALICIAN),
@@ -116,7 +149,13 @@ static const Language Languages[] = {
   LANGUAGE_DECL ("Hawaiian",                    "haw", LANG_HAWAIIAN),
   LANGUAGE_DECL ("Hebrew",                      "he",  LANG_HEBREW),
   LANGUAGE_DECL ("Hindi",                       "hi",  LANG_HINDI),
+  /**
+   * `LANG_CROATIAN` has the same value as `LANG_BOSNIAN` and `LANG_SERBIAN`.
+   */
   LANGUAGE_DECL ("Croatian",                    "hr",  LANG_CROATIAN),
+  /**
+   * `LANG_UPPER_SORBIAN` has the same value as `LANG_LOWER_SORBIAN`.
+   */
   LANGUAGE_DECL ("Upper Sorbian",               "hsb", LANG_UPPER_SORBIAN),
   LANGUAGE_DECL ("Hungarian",                   "hu",  LANG_HUNGARIAN),
   LANGUAGE_DECL ("Armenian",                    "hy",  LANG_ARMENIAN),
@@ -150,6 +189,10 @@ static const Language Languages[] = {
   LANGUAGE_DECL ("Korean",                      "ko",  LANG_KOREAN),
   LANGUAGE_DECL ("Konkani",                     "kok", LANG_KONKANI),
   LANGUAGE_DECL ("Kanuri",                      "kr",  0x71),
+  /**
+   * `LANG_KASHMIRI` cannot be used with `SUBLANG_DEFAULT` to construct valid
+   * `LCID` locale.
+   */
   LANGUAGE_DECL ("Kashmiri",                    "ks",  LANG_KASHMIRI),
   LANGUAGE_DECL ("Shambala",                    "ksb", -1),
   LANGUAGE_DECL ("Bafia",                       "ksf", -1),
@@ -205,6 +248,9 @@ static const Language Languages[] = {
   LANGUAGE_DECL ("Nyankole",                    "nyn", -1),
   LANGUAGE_DECL ("Occitan",                     "oc",  LANG_OCCITAN),
   LANGUAGE_DECL ("Oromo",                       "om",  0x72),
+  /**
+   * `LANG_ORIYA` is a legacy alias.
+   */
   LANGUAGE_DECL ("Odia",                        "or",  LANG_ODIA),
   LANGUAGE_DECL ("Ossetic",                     "os",  -1),
   LANGUAGE_DECL ("Punjabi",                     "pa",  LANG_PUNJABI),
@@ -213,8 +259,8 @@ static const Language Languages[] = {
   LANGUAGE_DECL ("Polish",                      "pl",  LANG_POLISH),
   LANGUAGE_DECL ("Prussian",                    "prg", -1),
   /**
-   * Locale `fa-AF` and `prs-AF` are the same locale.
-   * Unfortunately, `fa-AF` and `fa-IR` use different LANG_* values.
+   * Locales "fa-AF" and "prs-AF" are the same locale.
+   * However, locales "fa-AF" and "fa-IR" use different LANG_* values.
    */
   LANGUAGE_DECL ("Persian",                     "fa",  LANG_DARI),
   LANGUAGE_DECL ("Pashto",                      "ps",  LANG_PASHTO),
@@ -230,6 +276,9 @@ static const Language Languages[] = {
   LANGUAGE_DECL ("Kinyarwanda",                 "rw",  LANG_KINYARWANDA),
   LANGUAGE_DECL ("Rwa",                         "rwk", -1),
   LANGUAGE_DECL ("Sanskrit",                    "sa",  LANG_SANSKRIT),
+  /**
+   * `LANG_YAKUT` is a legacy alias.
+   */
   LANGUAGE_DECL ("Yakut",                       "sah", LANG_SAKHA),
   LANGUAGE_DECL ("Samburu",                     "saq", -1),
   LANGUAGE_DECL ("Santali",                     "sat", -1),
@@ -251,6 +300,13 @@ static const Language Languages[] = {
   LANGUAGE_DECL ("Shona",                       "sn",  -1),
   LANGUAGE_DECL ("Somali",                      "so",  0x77),
   LANGUAGE_DECL ("Albanian",                    "sq",  LANG_ALBANIAN),
+  /**
+   * `LANG_SERBIAN` has the same value as `LANG_BOSNIAN` and `LANG_CROATIAN`;
+   * using it with `SUBLANG_DEFAULT` will construct `LCID` locale for "hr-HR".
+   *
+   * There is also `LANG_SERBIAN_NEUTRAL`; this constant is for use with
+   * `ConvertDefaultLocale` function.
+   */
   LANGUAGE_DECL ("Serbian",                     "sr",  LANG_SERBIAN),
   LANGUAGE_DECL ("siSwati",                     "ss",  -1),
   LANGUAGE_DECL ("Saho",                        "ssy", -1),
@@ -264,6 +320,9 @@ static const Language Languages[] = {
   LANGUAGE_DECL ("Teso",                        "teo", -1),
   LANGUAGE_DECL ("Tajik",                       "tg",  LANG_TAJIK),
   LANGUAGE_DECL ("Thai",                        "th",  LANG_THAI),
+  /**
+   * `LANG_TIGRIGNA` is an alias.
+   */
   LANGUAGE_DECL ("Tigrinya",                    "ti",  LANG_TIGRINYA),
   LANGUAGE_DECL ("Tigre",                       "tig", -1),
   LANGUAGE_DECL ("Turkmen",                     "tk",  LANG_TURKMEN),
@@ -273,6 +332,9 @@ static const Language Languages[] = {
   LANGUAGE_DECL ("Tsonga",                      "ts",  0x31),
   LANGUAGE_DECL ("Tatar",                       "tt",  LANG_TATAR),
   LANGUAGE_DECL ("Tasawaq",                     "twq", -1),
+  /**
+   * `LANG_TAMAZIGHT` can be used with SUBLANGs 0x01-0x04, except 0x03.
+   */
   LANGUAGE_DECL ("Central Atlas Tamazight",     "tzm", LANG_TAMAZIGHT),
   LANGUAGE_DECL ("Uyghur",                      "ug",  LANG_UIGHUR),
   LANGUAGE_DECL ("Ukrainian",                   "uk",  LANG_UKRAINIAN),
@@ -293,6 +355,10 @@ static const Language Languages[] = {
   LANGUAGE_DECL ("Nheengatu",                   "yrl", -1),
   LANGUAGE_DECL ("Yoruba",                      "yo",  LANG_YORUBA),
   LANGUAGE_DECL ("Standard Moroccan Tamazight", "zgh", -1),
+  /**
+   * There are also `LANG_CHINESE_SIMPLIFIED` and `LANG_CHINESE_TRADITIONAL`;
+   * these constants are for use with `ConvertDefaultLocale` function.
+   */
   LANGUAGE_DECL ("Chinese",                     "zh",  LANG_CHINESE),
   LANGUAGE_DECL ("Zulu",                        "zu",  LANG_ZULU),
   /* clang-format on */

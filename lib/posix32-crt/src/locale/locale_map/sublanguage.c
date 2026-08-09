@@ -53,13 +53,25 @@ static const SubLanguage Sublanguages[] = {
   SUBLANG_DECL (SUBLANG_ARABIC_YEMEN,                        ar,          -1, YE),
   SUBLANG_DECL (SUBLANG_MAPUDUNGUN_CHILE,                    arn,         -1, CL),
   SUBLANG_DECL (SUBLANG_ASSAMESE_INDIA,                      as,          -1, IN),
+  /**
+   * `SUBLANG_AZERI_CYRILLIC` is a legacy alias.
+   */
   SUBLANG_DECL (SUBLANG_AZERBAIJANI_AZERBAIJAN_CYRILLIC,     az,        Cyrl, AZ),
+  /**
+   * `SUBLANG_AZERI_LATIN` is a legacy alias.
+   */
   SUBLANG_DECL (SUBLANG_AZERBAIJANI_AZERBAIJAN_LATIN,        az,        Latn, AZ),
   SUBLANG_DECL (SUBLANG_BASHKIR_RUSSIA,                      ba,          -1, RU),
   SUBLANG_DECL (SUBLANG_BELARUSIAN_BELARUS,                  be,          -1, BY),
   SUBLANG_DECL (SUBLANG_BULGARIAN_BULGARIA,                  bg,          -1, BG),
   SUBLANG_DECL (0x01,                                        bin,         -1, NG),
+  /**
+   * `SUBLANG_BENGALI_BANGLADESH` is an alias.
+   */
   SUBLANG_DECL (SUBLANG_BANGLA_BANGLADESH,                   bn,          -1, BD),
+  /**
+   * `SUBLANG_BENGALI_INDIA` is an alias.
+   */
   SUBLANG_DECL (SUBLANG_BANGLA_INDIA,                        bn,          -1, IN),
   SUBLANG_DECL (SUBLANG_TIBETAN_PRC,                         bo,          -1, CN),
   SUBLANG_DECL (SUBLANG_BRETON_FRANCE,                       br,          -1, FR),
@@ -128,6 +140,9 @@ static const SubLanguage Sublanguages[] = {
   SUBLANG_DECL (SUBLANG_BASQUE_BASQUE,                       eu,          -1, ES),
   SUBLANG_DECL (SUBLANG_PERSIAN_IRAN,                        fa,          -1, IR),
   SUBLANG_DECL (0x01,                                        ff,        Latn, NG),
+  /**
+   * `SUBLANG_PULAR_SENEGAL` is a legacy alias.
+   */
   SUBLANG_DECL (SUBLANG_FULAH_SENEGAL,                       ff,        Latn, SN),
   SUBLANG_DECL (SUBLANG_FINNISH_FINLAND,                     fi,          -1, FI),
   SUBLANG_DECL (SUBLANG_FILIPINO_PHILIPPINES,                fil,         -1, PH),
@@ -185,6 +200,9 @@ static const SubLanguage Sublanguages[] = {
 #endif
   SUBLANG_DECL (SUBLANG_KONKANI_INDIA,                       kok,         -1, IN),
   SUBLANG_DECL (0x01,                                        kr,          -1, NG),
+  /**
+   * `SUBLANG_KASHMIRI_INDIA` is a legacy alias.
+   */
   SUBLANG_DECL (SUBLANG_KASHMIRI_SASIA,                      ks,        Deva, IN),
   SUBLANG_DECL (SUBLANG_CENTRAL_KURDISH_IRAQ,                ku,        Arab, IQ),
   SUBLANG_DECL (SUBLANG_KYRGYZ_KYRGYZSTAN,                   ky,          -1, KG),
@@ -218,6 +236,9 @@ static const SubLanguage Sublanguages[] = {
   SUBLANG_DECL (SUBLANG_SOTHO_NORTHERN_SOUTH_AFRICA,         nso,         -1, ZA),
   SUBLANG_DECL (SUBLANG_OCCITAN_FRANCE,                      oc,          -1, FR),
   SUBLANG_DECL (0x01,                                        om,          -1, ET),
+  /**
+   * `SUBLANG_ORIYA_INDIA` is a legacy alias.
+   */
   SUBLANG_DECL (SUBLANG_ODIA_INDIA,                          or,          -1, IN),
   SUBLANG_DECL (SUBLANG_PUNJABI_PAKISTAN,                    pa,        Arab, PK),
   SUBLANG_DECL (SUBLANG_PUNJABI_INDIA,                       pa,        Guru, IN),
@@ -238,7 +259,13 @@ static const SubLanguage Sublanguages[] = {
   SUBLANG_DECL (SUBLANG_RUSSIAN_RUSSIA,                      ru,          -1, RU),
   SUBLANG_DECL (SUBLANG_KINYARWANDA_RWANDA,                  rw,          -1, RW),
   SUBLANG_DECL (SUBLANG_SANSKRIT_INDIA,                      sa,          -1, IN),
+  /**
+   * `SUBLANG_YAKUT_RUSSIA` is a legacy alias.
+   */
   SUBLANG_DECL (SUBLANG_SAKHA_RUSSIA,                        sah,         -1, RU),
+  /**
+   * `SUBLANG_SINDHI_AFGHANISTAN` is a legacy alias.
+   */
   SUBLANG_DECL (SUBLANG_SINDHI_PAKISTAN,                     sd,        Arab, PK),
   SUBLANG_DECL (SUBLANG_SINDHI_INDIA,                        sd,        Deva, IN),
   SUBLANG_DECL (SUBLANG_SAMI_NORTHERN_FINLAND,               se,          -1, FI),
@@ -255,6 +282,10 @@ static const SubLanguage Sublanguages[] = {
   SUBLANG_DECL (SUBLANG_SAMI_SKOLT_FINLAND,                  sms,         -1, FI),
   SUBLANG_DECL (0x01,                                        so,          -1, SO),
   SUBLANG_DECL (SUBLANG_ALBANIAN_ALBANIA,                    sq,          -1, AL),
+  /**
+   * There is also `SUBLANG_SERBIAN_CROATIA`; however, it creates `LCID` locale
+   * for "hr-HR".
+   */
   SUBLANG_DECL (SUBLANG_SERBIAN_BOSNIA_HERZEGOVINA_CYRILLIC, sr,        Cyrl, BA),
   SUBLANG_DECL (SUBLANG_SERBIAN_CYRILLIC,                    sr,        Cyrl, CS),
   SUBLANG_DECL (SUBLANG_SERBIAN_MONTENEGRO_CYRILLIC,         sr,        Cyrl, ME),
@@ -273,6 +304,9 @@ static const SubLanguage Sublanguages[] = {
   SUBLANG_DECL (SUBLANG_TELUGU_INDIA,                        te,          -1, IN),
   SUBLANG_DECL (SUBLANG_TAJIK_TAJIKISTAN,                    tg,        Cyrl, TJ),
   SUBLANG_DECL (SUBLANG_THAI_THAILAND,                       th,          -1, TH),
+  /**
+   * `SUBLANG_TIGRIGNA_ERITREA` is an alias.
+   */
   SUBLANG_DECL (SUBLANG_TIGRINYA_ERITREA,                    ti,          -1, ER),
   SUBLANG_DECL (SUBLANG_TIGRINYA_ETHIOPIA,                   ti,          -1, ET),
   SUBLANG_DECL (SUBLANG_TURKMEN_TURKMENISTAN,                tk,          -1, TM),
