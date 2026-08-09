@@ -321,6 +321,7 @@ Portuguese,                             BaseLanguage_pt
 Portuguese (Brazil),                    BaseLanguage_pt_BR
 portuguese-brazilian,                   BaseLanguage_pt_BR
 Portuguese (Portugal),                  BaseLanguage_pt_PT
+Pseudo,                                 BaseLanguage_qps
 K'iche',                                BaseLanguage_quc
 Kiche,                                  BaseLanguage_quc
 K'iche' (Latin),                        BaseLanguage_quc_Latn

@@ -237,6 +237,9 @@ Niue,                                        NU
 New Zealand,                                 NZ
 new-zealand,                                 NZ
 Oman,                                        OM
+Pseudo,                                      CountryIndex_ploc
+Pseudo Asia,                                 CountryIndex_ploca
+Pseudo Mirrored,                             CountryIndex_plocm
 Panama,                                      PA
 Peru,                                        PE
 French Polynesia,                            PF
