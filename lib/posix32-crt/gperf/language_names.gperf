@@ -208,6 +208,7 @@ italian-swiss,                          BaseLanguage_it_CH
 Inuktitut,                              BaseLanguage_iu
 Inuktitut (Syllabics),                  BaseLanguage_iu_Cans
 Inuktitut (Latin),                      BaseLanguage_iu_Latn
+Invariant Language,                     BaseLanguage_iv
 Japanese,                               BaseLanguage_ja
 Ngomba,                                 BaseLanguage_jgo
 Machame,                                BaseLanguage_jmc
