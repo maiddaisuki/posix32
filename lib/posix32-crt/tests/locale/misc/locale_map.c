@@ -61,6 +61,10 @@ static int exit_code = EXIT_SUCCESS;
  * Try to parse locale string constructed from `ll` and `cc`.
  */
 static void DoTest (LPCWSTR ll, LPCWSTR cc) {
+  if (ll[0] == L'\0' || cc[0] == L'\0') {
+    return;
+  }
+
   LPWSTR    localeString = NULL;
   LocaleMap localeMap    = {0};
 

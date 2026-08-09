@@ -853,8 +853,6 @@ static BOOL WINAPI P32LNEnumSystemLocalesW (LPWSTR localeString, DWORD flags, LP
 
   if (localeString[0] == L'\0') {
     return TRUE;
-  } else if (wcscmp (localeString, L"x-IV_mathan") == 0) {
-    return TRUE;
   }
 
   Locale locale = {0};

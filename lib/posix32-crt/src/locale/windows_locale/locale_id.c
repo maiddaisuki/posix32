@@ -1039,10 +1039,6 @@ static BOOL WINAPI P32LCIDEnumSystemLocalesW (LPWSTR localeString) {
   locale.KnownLocale = KnownLocaleIndex_Invalid;
   locale.LocaleId    = wcstoul (localeString, NULL, 16);
 
-  if (PRIMARYLANGID (LANGIDFROMLCID (locale.LocaleId)) == LANG_INVARIANT) {
-    return TRUE;
-  }
-
   if (!P32WinlocaleFromLCID (&locale, P32LCIDEnumSystemLocaleData.Heap)) {
     return TRUE;
   }

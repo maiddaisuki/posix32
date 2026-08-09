@@ -276,6 +276,10 @@ static FuncIsKnownFailure IsKnownFailure;
  * Resolved locale must be equivalent to `originalLocale`.
  */
 static void DoTest (Locale *originaLocale, LPCWSTR ll, LPCWSTR cc) {
+  if (ll[0] == L'\0' || cc[0] == L'\0') {
+    return;
+  }
+
   LPWSTR    LocaleString   = NULL;
   LocaleMap localeMap      = {0};
   Locale    resolvedLocale = {0};
