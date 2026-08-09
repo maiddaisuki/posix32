@@ -77,6 +77,31 @@ static const KnownLocaleName KnownLocaleNames[] = {
   /* clang-format off */
   KNOWN_LOCALE_NAME (LocaleType_POSIX, L"POSIX", L"en-US", en_US, P32_CODEPAGE_POSIX, P32_CODEPAGE_POSIX, en, -1, US, -1, -1),
   /**
+   * Invariant locale "x-IV_mathan".
+   *
+   * There are two `LCID` locales for this locale:
+   *
+   * 1. MAKELCID (MAKELANGID (LANG_INVARIANT, SUBLANG_NEUTRAL), SORT_DEFAULT);
+   * 2. MAKELCID (MAKELANGID (LANG_INVARIANT, SUBLANG_NEUTRAL), SORT_INVARIANT_MATH);
+   *
+   * Only the second one has corresponding locale name - "x-IV_mathan".
+   *
+   * When used with Locale Name NLS APIs, only locale name "x-IV_mathan"
+   * can be used; all other combinations are invalid:
+   *
+   * - "x"
+   * - "x-IV"
+   * - "iv"
+   * - "iv-IV"
+   * - "iv-IV_mathan"
+   *
+   * This makes it impossible to resolve locale name "x-IV_mathan" following
+   * resolution logic used for other locale names.
+   *
+   * Otherwise, "x-IV_mathan" is a regular Windows locale.
+   */
+  KNOWN_LOCALE_NAME (LocaleType_WindowsLocale, L"x-IV_mathan", L"x-IV_mathan", iv_IV_mathan, P32_CODEPAGE_ACP, P32_CODEPAGE_OCP, iv, -1, IV, mathan, -1),
+  /**
    * Windows pseudo locales.
    *
    * They were introduced in Windows Vista.
