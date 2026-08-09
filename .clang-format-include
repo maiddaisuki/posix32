@@ -17,7 +17,7 @@ lib/posix32-crt/src/ctype/common/*.c
 lib/posix32-crt/src/ctype/*.c
 lib/posix32-crt/src/locale/locale_map/*.c
 lib/posix32-crt/src/locale/locale_string/*.c
-lib/posix32-crt/src/locale/locale_win32/*.c
+lib/posix32-crt/src/locale/windows_locale/*.c
 lib/posix32-crt/src/locale/*.c
 lib/posix32-crt/src/mbstring/common/*.c
 lib/posix32-crt/src/mbstring/*.c

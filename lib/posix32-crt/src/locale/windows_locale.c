@@ -74,7 +74,7 @@
  */
 
 /**
- * Functions defined in `locale_win32/locale_id.c`.
+ * Functions defined in `windows_locale/locale_id.c`.
  */
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 /**
@@ -169,7 +169,7 @@ static void P32WinlocaleLCIDEnumSystemLocalesW (EnumSystemLocalesCallback, uintp
 #endif
 
 /**
- * Functions defined in `locale_win32/locale_name.c`.
+ * Functions defined in `windows_locale/locale_name.c`.
  */
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
 /**
@@ -264,7 +264,7 @@ static void P32WinlocaleLNEnumSystemLocalesW (EnumSystemLocalesCallback, uintptr
 #endif
 
 /**
- * Functions defined in `locale_win32/region_id.c`.
+ * Functions defined in `windows_locale/region_id.c`.
  */
 #if (P32_GEO_API & P32_GEO_API_GEOID)
 /**
@@ -288,7 +288,7 @@ static void P32WinlocaleGeoDestroy (Locale *, uintptr_t);
 #endif
 
 /**
- * Functions defined in `locale_win32/region_name.c`.
+ * Functions defined in `windows_locale/region_name.c`.
  */
 #if (P32_GEO_API & P32_GEO_API_RN)
 /**
@@ -1678,19 +1678,19 @@ typedef struct EnumSystemLocaleData {
 #endif
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
-#include "locale_win32/locale_id.c"
+#include "windows_locale/locale_id.c"
 #endif
 
 #if (P32_GEO_API & P32_GEO_API_GEOID)
-#include "locale_win32/region_id.c"
+#include "windows_locale/region_id.c"
 #endif
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
-#include "locale_win32/locale_name.c"
+#include "windows_locale/locale_name.c"
 #endif
 
 #if (P32_GEO_API & P32_GEO_API_RN)
-#include "locale_win32/region_name.c"
+#include "windows_locale/region_name.c"
 #endif
 
 /*******************************************************************************

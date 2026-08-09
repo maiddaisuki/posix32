@@ -42,7 +42,7 @@ posix32_crt_sources = files (
   'src/locale/locale.c',
   'src/locale/locale_map.c',
   'src/locale/locale_string.c',
-  'src/locale/locale_win32.c',
+  'src/locale/windows_locale.c',
   'src/locale/misc.c',
   'src/locale/posix_locale.c',
   'src/mbstring/mbstring.c',

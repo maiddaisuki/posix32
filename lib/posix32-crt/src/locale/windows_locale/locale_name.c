@@ -29,7 +29,7 @@
  * are named `P32WinlocaleLN*`; they must not be called derectly by name
  * outside of this file.
  *
- * The `Winlocale*` macros defined in `locale_win32.c` is the appropriate way
+ * The `Winlocale*` macros defined in `windows_locale.c` is the appropriate way
  * to call `P32Winlocale*` functions outside of this file.
  */
 

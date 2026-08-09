@@ -20,31 +20,21 @@
  * File Summary:
  *
  * This file defines functions to manipulate geological information stored in
- * `Locale` objects as `GEOID` objects.
+ * `Locale` objects as Region Names.
  *
  * Functions defined in this file must not be called directly outside of this
- * file; use `WinlocaleGeo*` macros defined in `locale_win32.c` instead.
+ * file; use `WinlocaleGeo*` macros defined in `windows_locale.c` instead.
  */
 
-P32_STATIC_ASSERT (sizeof ((Locale){0}.GeoId), "Size of `Locale.GeoId` must be 4 bytes.");
-
-static bool P32WinlocaleGeo (Locale *locale, uintptr_t heap) {
-  LocaleInfoRequest infoRequest = {0};
-
-  infoRequest.Info   = LOCALE_IGEOID;
-  infoRequest.Output = (uint32_t *) &locale->GeoId;
-
-  return WinlocaleGetNumericLocaleInfo (&infoRequest, heap, locale);
+static bool P32WinlocaleRegionName (Locale *locale, uintptr_t heap) {
+  return WinlocaleGetCountryCode (&locale->GeoName, heap, locale);
 }
 
-static bool P32WinlocaleGeoCopy (Locale *destLocale, uintptr_t heap, Locale *srcLocale) {
-  destLocale->GeoId = srcLocale->GeoId;
-  return true;
-  UNREFERENCED_PARAMETER (heap);
+static bool P32WinlocaleRegionNameCopy (Locale *destLocale, uintptr_t heap, Locale *srcLocale) {
+  return p32_heap_wcsdup (&destLocale->GeoName, heap, srcLocale->GeoName) != -1;
 }
 
-static void P32WinlocaleGeoDestroy (Locale *locale, uintptr_t heap) {
-  locale->GeoId = 0;
-  return;
-  UNREFERENCED_PARAMETER (heap);
+static void P32WinlocaleRegionNameDestroy (Locale *locale, uintptr_t heap) {
+  p32_heap_free (heap, 0, locale->GeoName);
+  locale->GeoName = NULL;
 }
