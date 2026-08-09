@@ -78,7 +78,7 @@
  */
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 /**
- * Wrapper around `GetLocaleInfoW` which used `Locale` object instead of
+ * Wrapper around `GetLocaleInfoW` which uses `Locale` object instead of
  * `LCID` object.
  *
  * Return value is the same as for `GetLocaleInfoW`.
@@ -173,7 +173,7 @@ static void P32WinlocaleLCIDEnumSystemLocalesW (EnumSystemLocalesCallback, uintp
  */
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
 /**
- * Wrapper around `GetLocaleInfoEx` which used `Locale` object instead of
+ * Wrapper around `GetLocaleInfoEx` which uses `Locale` object instead of
  * Locale Name.
  *
  * Return value is the same as for `GetLocaleInfoEx`.
@@ -491,19 +491,19 @@ static void P32InitLocaleApi (void) {
   if (kernel32 != 0) {
     if (P32_WINNT_CHECK (P32_WINNT_VISTA, WindowsNtVista)) {
       ptrGetSystemDefaultLocaleName = p32_get_proc_address (kernel32, GetSystemDefaultLocaleName);
-      assert (ptrGetSystemDefaultLocaleName);
+      assert (ptrGetSystemDefaultLocaleName != NULL);
       ptrGetUserDefaultLocaleName = p32_get_proc_address (kernel32, GetUserDefaultLocaleName);
-      assert (ptrGetUserDefaultLocaleName);
+      assert (ptrGetUserDefaultLocaleName != NULL);
       ptrCompareStringEx = p32_get_proc_address (kernel32, CompareStringEx);
-      assert (ptrCompareStringEx);
+      assert (ptrCompareStringEx != NULL);
       ptrGetCalendarInfoEx = p32_get_proc_address (kernel32, GetCalendarInfoEx);
-      assert (ptrGetCalendarInfoEx);
+      assert (ptrGetCalendarInfoEx != NULL);
       ptrGetLocaleInfoEx = p32_get_proc_address (kernel32, GetLocaleInfoEx);
-      assert (ptrGetLocaleInfoEx);
+      assert (ptrGetLocaleInfoEx != NULL);
       ptrLCMapStringEx = p32_get_proc_address (kernel32, LCMapStringEx);
-      assert (ptrLCMapStringEx);
+      assert (ptrLCMapStringEx != NULL);
       ptrEnumSystemLocalesEx = p32_get_proc_address (kernel32, EnumSystemLocalesEx);
-      assert (ptrEnumSystemLocalesEx);
+      assert (ptrEnumSystemLocalesEx != NULL);
     }
   }
 
@@ -1243,7 +1243,7 @@ static void P32InitWinlocaleEnumSystemLocales (EnumSystemLocalesCallback callbac
   WinlocaleEnumSystemLocales (callback, heap, data);
 }
 #endif
-#else /* Only one implementation is compiled id */
+#else /* Only one implementation is compiled-in */
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
 #define WinlocaleEnumSystemLocales P32WinlocaleLCIDEnumSystemLocalesW
@@ -1279,7 +1279,7 @@ static void P32InitWinlocaleEnumSystemLocales (EnumSystemLocalesCallback callbac
 #define WinlocaleDestroy           P32WinlocaleLNDestroy
 #endif /* Locale Name APIs */
 
-#endif /* Only one implementation is compiled id */
+#endif /* Only one implementation is compiled-in */
 
 #if P32_WINNT < P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI < NTDDI_WIN10_RS3)
 #define WinlocaleGeo        P32WinlocaleApi.PtrWinlocaleGeo
@@ -1626,7 +1626,7 @@ static bool P32WinlocaleInfo (Locale *locale, uintptr_t heap) {
 
   /**
    * Locale's default ANSI code page.
-   * For an Unicode Locales, ANSI code page is returned as `CP_ACP`.
+   * For Unicode Locales, ANSI code page is returned as `CP_ACP`.
    */
   infoRequest.Info   = LOCALE_IDEFAULTANSICODEPAGE;
   infoRequest.Output = &ansiCodePage;
@@ -1637,7 +1637,7 @@ static bool P32WinlocaleInfo (Locale *locale, uintptr_t heap) {
 
   /**
    * Locale's default OEM code page.
-   * For an Unicode Locales, OEM code page is returned as `CP_OEMCP`.
+   * For Unicode Locales, OEM code page is returned as `CP_OEMCP`.
    */
   infoRequest.Info   = LOCALE_IDEFAULTCODEPAGE;
   infoRequest.Output = &oemCodePage;
