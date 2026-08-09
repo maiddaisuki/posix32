@@ -23,6 +23,8 @@ typedef enum SortingIdIndex {
   Sorting_de_phoneb,
   Sorting_hu_default,
   Sorting_hu_technl,
+  Sorting_iv_default,
+  Sorting_iv_mathan,
   Sorting_ja_default,
   Sorting_ja_radstr,
   Sorting_ja_unicode,

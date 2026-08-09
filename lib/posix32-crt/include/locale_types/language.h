@@ -109,6 +109,7 @@ typedef enum LanguageIndex {
   is,
   it,
   iu,
+  iv,
   ja,
   jgo,
   jmc,

@@ -159,6 +159,7 @@ typedef enum SublanguageIndex {
   it_IT,
   iu_Cans_CA,
   iu_Latn_CA,
+  iv_IV_mathan,
   ja_JP,
   ka_GE,
   kk_KZ,

@@ -168,6 +168,7 @@ typedef enum BaseLanguageIndex {
 #define BaseLanguage_iu BaseLanguage_iu_Latn
   BaseLanguage_iu_Cans,
   BaseLanguage_iu_Latn,
+  BaseLanguage_iv,
   BaseLanguage_ja,
   BaseLanguage_jgo,
   BaseLanguage_jmc,

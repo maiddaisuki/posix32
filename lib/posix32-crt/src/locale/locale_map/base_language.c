@@ -169,7 +169,7 @@ static const BaseLanguage BaseLanguages[] = {
   LANGUAGE_DECL (it,          CH,          -1),
   LANGUAGE_DECL (iu,          -1,          Cans),
   LANGUAGE_DECL (iu,          -1,          Latn),
-  // LANGUAGE_DECL (iv,          IV,          -1),
+  LANGUAGE_DECL (iv,          IV,          -1),
   LANGUAGE_DECL (ja,          -1,          -1),
   LANGUAGE_DECL (jgo,         -1,          -1),
   LANGUAGE_DECL (jmc,         -1,          -1),

@@ -172,6 +172,7 @@ static const SubLanguage Sublanguages[] = {
   SUBLANG_DECL (SUBLANG_ITALIAN,                             it,          -1, IT),
   SUBLANG_DECL (SUBLANG_INUKTITUT_CANADA,                    iu,        Cans, CA),
   SUBLANG_DECL (SUBLANG_INUKTITUT_CANADA_LATIN,              iu,        Latn, CA),
+  SUBLANG_DECL (SUBLANG_NEUTRAL,                             iv,          -1, IV),
   SUBLANG_DECL (SUBLANG_JAPANESE_JAPAN,                      ja,          -1, JP),
   SUBLANG_DECL (SUBLANG_GEORGIAN_GEORGIA,                    ka,          -1, GE),
   SUBLANG_DECL (SUBLANG_KAZAK_KAZAKHSTAN,                    kk,          -1, KZ),
@@ -179,6 +180,9 @@ static const SubLanguage Sublanguages[] = {
   SUBLANG_DECL (SUBLANG_KHMER_CAMBODIA,                      km,          -1, KH),
   SUBLANG_DECL (SUBLANG_KANNADA_INDIA,                       kn,          -1, IN),
   SUBLANG_DECL (SUBLANG_KOREAN,                              ko,          -1, KR),
+#if !1
+  SUBLANG_DECL (0x02,                                        ko,          -1, KR),
+#endif
   SUBLANG_DECL (SUBLANG_KONKANI_INDIA,                       kok,         -1, IN),
   SUBLANG_DECL (0x01,                                        kr,          -1, NG),
   SUBLANG_DECL (SUBLANG_KASHMIRI_SASIA,                      ks,        Deva, IN),
@@ -188,6 +192,9 @@ static const SubLanguage Sublanguages[] = {
   SUBLANG_DECL (SUBLANG_LUXEMBOURGISH_LUXEMBOURG,            lb,          -1, LU),
   SUBLANG_DECL (SUBLANG_LAO_LAO,                             lo,          -1, LA),
   SUBLANG_DECL (SUBLANG_LITHUANIAN,                          lt,          -1, LT),
+#if !1
+  SUBLANG_DECL (0x02,                                        lt,          -1, LT),
+#endif
   SUBLANG_DECL (SUBLANG_LATVIAN_LATVIA,                      lv,          -1, LV),
   SUBLANG_DECL (SUBLANG_MAORI_NEW_ZEALAND,                   mi,          -1, NZ),
   SUBLANG_DECL (SUBLANG_MACEDONIAN_MACEDONIA,                mk,          -1, MK),
@@ -233,7 +240,7 @@ static const SubLanguage Sublanguages[] = {
   SUBLANG_DECL (SUBLANG_SANSKRIT_INDIA,                      sa,          -1, IN),
   SUBLANG_DECL (SUBLANG_SAKHA_RUSSIA,                        sah,         -1, RU),
   SUBLANG_DECL (SUBLANG_SINDHI_PAKISTAN,                     sd,        Arab, PK),
-  SUBLANG_DECL (0x01,                                        sd,        Deva, IN),
+  SUBLANG_DECL (SUBLANG_SINDHI_INDIA,                        sd,        Deva, IN),
   SUBLANG_DECL (SUBLANG_SAMI_NORTHERN_FINLAND,               se,          -1, FI),
   SUBLANG_DECL (SUBLANG_SAMI_NORTHERN_NORWAY,                se,          -1, NO),
   SUBLANG_DECL (SUBLANG_SAMI_NORTHERN_SWEDEN,                se,          -1, SE),

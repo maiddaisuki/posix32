@@ -37,6 +37,8 @@ static const SortingId SortingIds[] = {
   SORTING_DECL (SORT_GERMAN_PHONE_BOOK,      de, phoneb),
   SORTING_DECL (SORT_HUNGARIAN_DEFAULT,      hu, SortingIndex_default),
   SORTING_DECL (SORT_HUNGARIAN_TECHNICAL,    hu, technl),
+  SORTING_DECL (SORT_DEFAULT,                iv, SortingIndex_default),
+  SORTING_DECL (SORT_INVARIANT_MATH,         iv, mathan),
   SORTING_DECL (SORT_JAPANESE_XJIS,          ja, SortingIndex_default),
   SORTING_DECL (SORT_JAPANESE_RADICALSTROKE, ja, radstr),
   SORTING_DECL (SORT_JAPANESE_UNICODE,       ja, SortingIndex_invalid),
