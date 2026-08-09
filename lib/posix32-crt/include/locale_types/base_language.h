@@ -275,6 +275,7 @@ typedef enum BaseLanguageIndex {
 #define BaseLanguage_pt BaseLanguage_pt_PT
   BaseLanguage_pt_BR,
   BaseLanguage_pt_PT,
+  BaseLanguage_qps,
 #define BaseLanguage_quc BaseLanguage_quc_Latn
   BaseLanguage_quc_Latn,
   BaseLanguage_quz,

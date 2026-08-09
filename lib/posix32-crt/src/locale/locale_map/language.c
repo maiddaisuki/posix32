@@ -265,6 +265,18 @@ static const Language Languages[] = {
   LANGUAGE_DECL ("Persian",                     "fa",  LANG_DARI),
   LANGUAGE_DECL ("Pashto",                      "ps",  LANG_PASHTO),
   LANGUAGE_DECL ("Portuguese",                  "pt",  LANG_PORTUGUESE),
+  /**
+   * Language ID for pseudo locale `qps-ploc`.
+   */
+  LANGUAGE_DECL ("Pseudo",                      "qps", 0x0101),
+  /**
+   * Language ID for pseudo locale `qps-ploca`.
+   */
+  LANGUAGE_DECL ("Pseudo",                      "qps", 0x01FE),
+  /**
+   * Language ID for pseudo locale `qps-plocm`.
+   */
+  LANGUAGE_DECL ("Pseudo",                      "qps", 0x01FF),
   LANGUAGE_DECL ("Kʼicheʼ",                     "quc", LANG_KICHE),
   LANGUAGE_DECL ("Quechua",                     "quz", LANG_QUECHUA),
   LANGUAGE_DECL ("Rajasthani",                  "raj", -1),

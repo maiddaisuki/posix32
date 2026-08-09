@@ -248,6 +248,18 @@ static const SubLanguage Sublanguages[] = {
   SUBLANG_DECL (SUBLANG_PASHTO_AFGHANISTAN,                  ps,          -1, AF),
   SUBLANG_DECL (SUBLANG_PORTUGUESE_BRAZILIAN,                pt,          -1, BR),
   SUBLANG_DECL (SUBLANG_PORTUGUESE,                          pt,          -1, PT),
+  /**
+   * Pseudo locale `qps-ploc`.
+   */
+  SUBLANG_DECL (0x01,                                        qps_ploc,    -1, CountryIndex_ploc),
+  /**
+   * Pseudo locale `qps-ploca`.
+   */
+  SUBLANG_DECL (0x01,                                        qps_ploca,   -1, CountryIndex_ploca),
+  /**
+   * Pseudo locale `qps-plocm`.
+   */
+  SUBLANG_DECL (0x02,                                        qps_plocm,   -1, CountryIndex_plocm),
   SUBLANG_DECL (SUBLANG_KICHE_GUATEMALA,                     quc,       Latn, GT),
   SUBLANG_DECL (SUBLANG_QUECHUA_BOLIVIA,                     quz,         -1, BO),
   SUBLANG_DECL (SUBLANG_QUECHUA_ECUADOR,                     quz,         -1, EC),

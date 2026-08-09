@@ -264,6 +264,7 @@ static const BaseLanguage BaseLanguages[] = {
   LANGUAGE_DECL (ps,          -1,          -1),
   LANGUAGE_DECL (pt,          BR,          -1),
   LANGUAGE_DECL (pt,          PT,          -1),
+  LANGUAGE_DECL (qps_ploc,    -1,          -1),
   LANGUAGE_DECL (quc,         -1,          Latn),
   LANGUAGE_DECL (quz,         -1,          -1),
   LANGUAGE_DECL (quz,         BO,          -1),
