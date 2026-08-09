@@ -71,9 +71,9 @@
 #line 45 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
 struct sublanguage {const char *name; SublanguageIndex Index; };
 
-#define TOTAL_KEYWORDS 497
+#define TOTAL_KEYWORDS 503
 #define MIN_WORD_LENGTH 2
-#define MAX_WORD_LENGTH 16
+#define MAX_WORD_LENGTH 18
 #define MIN_HASH_VALUE 3
 #define MAX_HASH_VALUE 1555
 /* maximum key range = 1553, duplicates = 0 */
@@ -99,9 +99,9 @@ P32SublanguageHash (register const char *str, register size_t len)
       1556, 1556, 1556, 1556,    0,   30,  150,    0,   15,  260,
        435,   55,   20,   20,  210,  465,   60,  230,   88,  353,
        150,    0,  138,  118,  440,   75,  230,  295,  218,   85,
-       208,    5,  283,  258, 1556,  175, 1556,    5,   55,  175,
+       208,    5,  283,  258, 1556,  225, 1556,    5,   55,  175,
         10,  425,    0,  405,  455,  115,   10,  475,    0,   35,
-        30,    1,    0,  130,   15,   20,  225,   45,    3,  430,
+        30,    1,  325,  130,   15,   20,  225,   45,    3,  430,
        400,   10,  270,  365,   85,    0,  320,  481,   70,  371,
        213,  385,    0,  421,   30,  190,  215,  350,    0,   60,
         65,   95, 1556, 1556, 1556, 1556, 1556, 1556, 1556, 1556,
@@ -190,7 +190,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
   static struct sublanguage wordlist[] =
     {
       {""}, {""}, {""},
-#line 520 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 526 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"wo",             wo_SN},
       {""}, {""},
 #line 109 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -221,26 +221,26 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 196 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"fr",             fr_FR},
       {""}, {""}, {""}, {""},
-#line 415 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 421 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sl",             sl_SI},
-#line 427 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 433 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"so",             so_SO},
       {""},
-#line 455 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 461 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sv",             sv_SE},
 #line 184 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ff@fallback",    ff_Latn_NG},
-#line 395 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 401 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sa",             sa_IN},
       {""}, {""}, {""}, {""},
-#line 399 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 405 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sd",             sd_Arab_PK},
       {""}, {""},
 #line 199 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"fr-CA",          fr_CA},
 #line 197 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"fr-029",         fr_029},
-#line 431 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 437 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sr",               sr_Latn_CS},
 #line 91 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"bo",             bo_CN},
@@ -250,41 +250,41 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 79 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ba",             ba_RU},
       {""}, {""}, {""}, {""}, {""},
-#line 460 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 466 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"syr",            syr_SY},
       {""},
-#line 396 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 402 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sa-IN",          sa_IN},
       {""},
 #line 93 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"br",             br_FR},
       {""}, {""},
-#line 401 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 407 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sd-IN",          sd_Deva_IN},
-#line 400 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 406 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sd@fallback",    sd_Deva_IN},
 #line 95 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"bs",             bs_Latn_BA},
-#line 526 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 532 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"yo",             yo_NG},
       {""},
 #line 181 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"fa-AF",          prs_AF},
-#line 432 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 438 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sr@fallback",      sr_Cyrl_CS},
 #line 310 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ml",             ml_IN},
-#line 417 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 423 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sma",            sma_SE},
       {""}, {""},
-#line 418 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 424 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sma-NO",         sma_NO},
 #line 87 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"bn",             bn_BD},
-#line 420 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 426 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"smj",            smj_SE},
       {""}, {""},
-#line 421 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 427 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"smj-NO",         smj_NO},
 #line 337 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"my",             my_MM},
@@ -294,7 +294,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {""},
 #line 329 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"mr",             mr_IN},
-#line 425 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 431 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sms",            sms_FI},
       {""},
 #line 202 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -309,7 +309,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {""},
 #line 250 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"id",             id_ID},
-#line 423 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 429 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"smn",            smn_FI},
       {""},
 #line 90 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -327,7 +327,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {""}, {""},
 #line 330 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"mr-IN",          mr_IN},
-#line 426 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 432 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sms-FI",         sms_FI},
       {""}, {""}, {""},
 #line 182 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -337,10 +337,10 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 187 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ff-Latn",        ff_Latn_SN},
       {""}, {""}, {""},
-#line 424 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 430 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"smn-FI",         smn_FI},
       {""}, {""},
-#line 521 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 527 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"wo-SN",          wo_SN},
       {""},
 #line 313 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -355,18 +355,18 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 186 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ff-SN",          ff_Latn_SN},
       {""}, {""}, {""},
-#line 441 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 447 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sr-Cyrl",          sr_Cyrl_RS},
       {""}, {""},
-#line 444 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 450 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sr-Cyrl-CS",       sr_Cyrl_CS},
       {""},
-#line 542 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 548 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"zu",             zu_ZA},
       {""}, {""}, {""},
-#line 442 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 448 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sr-Cyrl@fallback", sr_Cyrl_CS},
-#line 411 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 417 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"si",             si_LK},
 #line 211 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"fr-SN",          fr_SN},
@@ -374,19 +374,19 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 263 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"iu-CA",          iu_Latn_CA},
       {""},
-#line 447 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 453 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sr-Latn",          sr_Latn_RS},
       {""}, {""},
-#line 450 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 456 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sr-Latn-CS",       sr_Latn_CS},
 #line 262 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"iu@fallback",    iu_Cans_CA},
 #line 98 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"bs-Cyrl",        bs_Cyrl_BA},
       {""}, {""}, {""},
-#line 448 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 454 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sr-Latn@fallback", sr_Latn_CS},
-#line 429 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 435 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sq",             sq_AL},
       {""}, {""}, {""}, {""},
 #line 264 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -400,15 +400,15 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {""}, {""},
 #line 251 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"id-ID",          id_ID},
-#line 457 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 463 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sv-SE",          sv_SE},
-#line 403 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 409 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sd-Arab",        sd_Arab_PK},
       {""}, {""},
 #line 203 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"fr-CM",          fr_CM},
       {""},
-#line 524 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 530 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"yi",             yi_001},
       {""}, {""}, {""}, {""},
 #line 306 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -421,9 +421,9 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 85 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"bin",            bin_NG},
       {""}, {""},
-#line 525 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 531 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"yi-001",         yi_001},
-#line 462 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 468 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ta",             ta_IN},
 #line 248 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ibb",            ibb_NG},
@@ -438,31 +438,31 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 255 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ii-CN",          ii_CN},
       {""},
-#line 484 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 490 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tr",             tr_TR},
 #line 188 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ff-Latn-NG",     ff_Latn_NG},
       {""}, {""}, {""},
-#line 486 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 492 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ts",             ts_ZA},
-#line 416 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 422 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sl-SI",          sl_SI},
       {""},
-#line 433 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 439 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sr-BA",            sr_Latn_BA},
       {""}, {""},
 #line 323 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"mni",            mni_Beng_IN},
       {""},
-#line 464 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 470 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ta-IN",          ta_IN},
-#line 463 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 469 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ta@fallback",    ta_LK},
-#line 480 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 486 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tn",             tn_ZA},
-#line 377 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 383 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"quc",            quc_Latn_GT},
-#line 434 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 440 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sr-BA@fallback",   sr_Cyrl_BA},
       {""}, {""},
 #line 47 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -471,7 +471,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 355 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"or",             or_IN},
       {""},
-#line 505 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 511 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ur",             ur_PK},
       {""}, {""},
 #line 97 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -490,7 +490,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {""}, {""},
 #line 333 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ms-BN",          ms_BN},
-#line 481 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 487 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tn@fallback",    tn_BW},
 #line 70 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"as",             as_IN},
@@ -503,11 +503,11 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 356 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"or-IN",          or_IN},
       {""},
-#line 507 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 513 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ur-IN",          ur_IN},
-#line 506 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 512 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ur@fallback",    ur_IN},
-#line 453 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 459 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"st",             st_ZA},
       {""}, {""},
 #line 63 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -529,16 +529,16 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {""},
 #line 214 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ga",             ga_IE},
-#line 446 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 452 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sr-Cyrl-RS",       sr_Cyrl_RS},
       {""},
-#line 435 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 441 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sr-CS",            sr_Latn_CS},
 #line 324 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"mni-IN",         mni_Beng_IN},
 #line 216 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"gd",             gd_GB},
-#line 402 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 408 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sd-PK",          sd_Arab_PK},
       {""},
 #line 89 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -546,15 +546,15 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 112 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"cs-CZ",          cs_CZ},
       {""}, {""},
-#line 436 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 442 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sr-CS@fallback",   sr_Cyrl_CS},
-#line 443 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 449 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sr-Cyrl-BA",       sr_Cyrl_BA},
-#line 461 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 467 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"syr-SY",         syr_SY},
-#line 428 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 434 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"so-SO",          so_SO},
-#line 452 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 458 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sr-Latn-RS",       sr_Latn_RS},
       {""},
 #line 52 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -562,28 +562,28 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {""},
 #line 335 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"mt",             mt_MT},
-#line 412 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 418 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"si-LK",          si_LK},
       {""},
-#line 437 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 443 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sr-ME",            sr_Latn_ME},
       {""},
 #line 220 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"gn",             gn_PY},
       {""}, {""},
-#line 449 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 455 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sr-Latn-BA",       sr_Latn_BA},
-#line 419 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 425 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sma-SE",         sma_SE},
-#line 474 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 480 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ti",             ti_ER},
 #line 206 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"fr-LU",          fr_LU},
-#line 438 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 444 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sr-ME@fallback",   sr_Cyrl_ME},
 #line 99 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"bs-Cyrl-BA",     bs_Cyrl_BA},
-#line 422 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 428 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"smj-SE",         smj_SE},
 #line 258 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"it",             it_IT},
@@ -592,7 +592,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {""}, {""}, {""},
 #line 224 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"gu",             gu_IN},
-#line 381 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 387 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"quz",            quz_BO},
       {""},
 #line 215 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -609,9 +609,9 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 270 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ka",             ka_GE},
       {""}, {""},
-#line 404 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 410 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sd-Arab-PK",     sd_Arab_PK},
-#line 475 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 481 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ti@fallback",    ti_ET},
 #line 294 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ky",             ky_KG},
@@ -628,7 +628,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {""},
 #line 225 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"gu-IN",          gu_IN},
-#line 383 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 389 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"quz-EC",         quz_EC},
 #line 286 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ks",             ks_Deva_IN},
@@ -638,7 +638,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 205 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"fr-HT",          fr_HT},
       {""}, {""},
-#line 465 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 471 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ta-LK",          ta_LK},
       {""},
 #line 67 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -658,19 +658,19 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {""},
 #line 290 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ku",             ku_Arab_IQ},
-#line 543 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 549 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"zu-ZA",          zu_ZA},
-#line 527 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 533 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"yo-NG",          yo_NG},
-#line 445 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 451 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sr-Cyrl-ME",       sr_Cyrl_ME},
-#line 86 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
-      {"bin_NG",         bin_NG},
+      {""},
 #line 226 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ha",             ha_Latn_NG},
 #line 344 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"nl",             nl_NL},
-      {""},
+#line 377 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+      {"qps-ploc",           SublanguageIndex_qps_ploc},
 #line 279 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"kn-IN",          kn_IN},
       {""},
@@ -678,30 +678,32 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {"hy",             hy_AM},
 #line 64 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ar-SA",          ar_SA},
-      {""}, {""}, {""},
+      {""},
+#line 379 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+      {"qps-ploca",          SublanguageIndex_qps_ploca},
+      {""},
 #line 238 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"hr",             hr_Latn_HR},
-      {""}, {""},
-#line 451 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 378 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+      {"qps-ploc@fallback",  en_US},
+      {""},
+#line 457 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sr-Latn-ME",       sr_Latn_ME},
       {""},
 #line 369 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"pl",             pl_PL},
-      {""}, {""},
+      {""},
+#line 380 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+      {"qps-ploca@fallback", ja_JP},
 #line 351 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"oc",             oc_FR},
       {""},
 #line 357 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"pa",             pa_Guru_IN},
-#line 365 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
-      {"pap",            pap_029},
-      {""},
+      {""}, {""},
 #line 349 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"nso",            nso_ZA},
-      {""},
-#line 366 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
-      {"pap-029",        pap_029},
-      {""}, {""}, {""}, {""},
+      {""}, {""}, {""}, {""}, {""}, {""},
 #line 129 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"el",             el_GR},
 #line 347 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -713,7 +715,9 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {"hr@fallback",    hr_Latn_BA},
 #line 371 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ps",             ps_AF},
-      {""}, {""}, {""},
+      {""}, {""},
+#line 381 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+      {"qps-plocm",          SublanguageIndex_qps_plocm},
 #line 80 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ba-RU",          ba_RU},
 #line 244 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -723,21 +727,25 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {"pa-IN",          pa_Guru_IN},
 #line 358 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"pa@fallback",    pa_Arab_PK},
-#line 488 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 494 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tt",             tt_RU},
-#line 439 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 445 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sr-RS",            sr_Latn_RS},
-      {""}, {""}, {""},
+#line 382 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+      {"qps-plocm@fallback", ar_SA},
+      {""},
+#line 86 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+      {"bin_NG",         bin_NG},
 #line 152 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"es",             es_ES_modern},
 #line 367 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"prs",            prs_AF},
-#line 387 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 393 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ro",             ro_RO},
 #line 318 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"mn-Cyrl-MN",       mn_Cyrl_MN},
       {""},
-#line 440 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 446 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sr-RS@fallback",   sr_Cyrl_RS},
 #line 339 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"nb",             nb_NO},
@@ -747,13 +755,13 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {""}, {""},
 #line 125 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"dv",             dv_MV},
-#line 378 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 384 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"quc-GT",         quc_Latn_GT},
 #line 115 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"da",             da_DK},
-#line 487 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 493 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ts-ZA",          ts_ZA},
-#line 384 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 390 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"quz-PE",         quz_PE},
       {""},
 #line 368 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -768,7 +776,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {"es@fallback",    es_ES},
 #line 178 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"eu",             eu_ES},
-#line 483 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 489 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tn-ZA",          tn_ZA},
       {""},
 #line 137 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -783,29 +791,29 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 142 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"en-IN",          en_IN},
       {""},
-#line 407 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 413 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"se",             se_NO},
-#line 385 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 391 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"rm",             rm_CH},
       {""},
 #line 372 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ps-AF",          ps_AF},
       {""},
-#line 458 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 464 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sw",             sw_KE},
       {""}, {""},
 #line 338 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"my-MM",          my_MM},
 #line 213 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"fy-NL",          fy_NL},
-#line 518 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 524 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"vi",             vi_VN},
-#line 390 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 396 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ru",             ru_RU},
       {""}, {""}, {""},
 #line 81 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"be",             be_BY},
-#line 508 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 514 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ur-PK",          ur_PK},
       {""},
 #line 141 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -820,7 +828,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {""},
 #line 234 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"hi",             hi_Deva_IN},
-#line 454 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 460 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"st-ZA",          st_ZA},
 #line 300 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"lo",             lo_LA},
@@ -828,7 +836,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {"en-AE",          en_AE},
 #line 304 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"lv",             lv_LV},
-#line 509 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 515 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"uz",             uz_Latn_UZ},
 #line 296 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"la",             la_VA},
@@ -838,7 +846,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {""},
 #line 252 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ig",             ig_NG},
-#line 397 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 403 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sah",            sah_RU},
       {""},
 #line 201 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -847,7 +855,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {"es-419",         es_419},
 #line 72 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"az",             az_Latn_AZ},
-#line 490 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 496 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tzm",             tzm_Latn_DZ},
       {""},
 #line 159 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -863,14 +871,14 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {"hi-IN",          hi_Deva_IN},
 #line 133 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"en-419",         en_419},
-#line 413 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 419 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sk",             sk_SK},
 #line 123 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"dsb",            dsb_DE},
       {""},
 #line 140 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"en-ID",          en_ID},
-#line 510 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 516 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"uz@fallback",    uz_Cyrl_UZ},
       {""},
 #line 325 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -880,7 +888,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {"ca-ES-valencia", ca_ES_valencia},
 #line 326 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"mni-Beng-IN",    mni_Beng_IN},
-#line 522 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 528 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"xh",             xh_ZA},
 #line 54 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ar-DZ",          ar_DZ},
@@ -889,14 +897,14 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {""},
 #line 73 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"az@fallback",    az_Cyrl_AZ},
-#line 405 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 411 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sd-Deva",        sd_Deva_IN},
-#line 495 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 501 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tzm-Arab",        tzm_Arab_MA},
       {""},
 #line 293 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ku-Arab-IQ",     ku_Arab_IQ},
-#line 496 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 502 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tzm-Arab-MA",     tzm_Arab_MA},
 #line 361 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"pa-Arab",        pa_Arab_PK},
@@ -906,7 +914,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 155 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"es-AR",          es_AR},
       {""}, {""},
-#line 456 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 462 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sv-FI",          sv_FI},
       {""},
 #line 130 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -923,24 +931,24 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 139 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"en-HK",          en_HK},
       {""},
-#line 406 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 412 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sd-Deva-IN",     sd_Deva_IN},
 #line 345 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"nl-BE",          nl_BE},
 #line 308 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"mk",             mk_MK},
-#line 430 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 436 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sq-AL",          sq_AL},
       {""},
 #line 241 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"hr-BA",          hr_Latn_BA},
       {""},
-#line 528 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 534 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"zh",             zh_Hans_CN},
       {""}, {""},
-#line 530 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 536 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"zh-CN",          zh_Hans_CN},
-#line 492 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 498 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tzm-DZ",          tzm_Latn_DZ},
       {""}, {""}, {""},
 #line 247 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -959,7 +967,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 229 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ha-Latn-NG",     ha_Latn_NG},
       {""}, {""},
-#line 398 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 404 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sah-RU",         sah_RU},
       {""},
 #line 167 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -967,17 +975,17 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {""},
 #line 94 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"br-FR",          br_FR},
-#line 529 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 535 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"zh@fallback",    zh_Hant_TW},
-#line 512 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 518 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"uz-Cyrl",        uz_Cyrl_UZ},
 #line 161 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"es-DO",          es_DO},
       {""}, {""},
-#line 382 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 388 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"quz-BO",         quz_BO},
       {""},
-#line 482 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 488 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tn-BW",          tn_BW},
       {""}, {""}, {""},
 #line 75 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -989,7 +997,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 168 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"es-PA",          es_PA},
       {""},
-#line 514 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 520 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"uz-Latn",        uz_Latn_UZ},
 #line 57 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ar-JO",          ar_JO},
@@ -997,9 +1005,9 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 169 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"es-PE",          es_PE},
       {""},
-#line 468 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 474 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tg",             tg_Cyrl_TJ},
-#line 410 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 416 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"se-SE",          se_SE},
       {""},
 #line 217 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -1008,12 +1016,12 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 77 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"az-Latn",        az_Latn_AZ},
       {""}, {""}, {""}, {""},
-#line 535 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 541 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"zh-Hans",        zh_Hans_CN},
 #line 334 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ms-MY",          ms_MY},
       {""},
-#line 536 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 542 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"zh-Hans-CN",     zh_Hans_CN},
       {""},
 #line 373 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -1021,16 +1029,16 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 209 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"fr-ML",          fr_ML},
       {""}, {""}, {""},
-#line 466 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 472 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"te",             te_IN},
       {""}, {""},
 #line 76 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"az-Cyrl-AZ",     az_Cyrl_AZ},
       {""},
-#line 501 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 507 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ug",             ug_CN},
       {""}, {""},
-#line 502 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 508 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ug-CN",          ug_CN},
       {""},
 #line 176 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -1055,28 +1063,28 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 285 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"kr-NG",          kr_NG},
       {""},
-#line 467 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 473 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"te-IN",          te_IN},
       {""}, {""},
 #line 160 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"es-CU",          es_CU},
       {""},
-#line 476 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 482 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ti-ER",          ti_ER},
 #line 65 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ar-SY",          ar_SY},
-#line 472 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 478 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"th",             th_TH},
       {""}, {""},
 #line 170 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"es-PR",          es_PR},
-#line 493 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 499 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tzm-MA",          tzm_Arab_MA},
       {""},
 #line 245 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"hu-HU",          hu_HU},
       {""},
-#line 513 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 519 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"uz-Cyrl-UZ",     uz_Cyrl_UZ},
 #line 350 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"nso-ZA",         nso_ZA},
@@ -1088,16 +1096,16 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 166 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"es-MX",          es_MX},
       {""}, {""},
-#line 531 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 537 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"zh-HK",          zh_Hant_HK},
       {""},
-#line 494 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 500 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tzm-MA@fallback", tzm_Tfng_MA},
       {""},
-#line 478 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 484 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tk",             tk_TM},
       {""}, {""},
-#line 515 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 521 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"uz-Latn-UZ",     uz_Latn_UZ},
       {""}, {""},
 #line 227 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -1106,7 +1114,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 175 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"es-VE",          es_VE},
       {""},
-#line 491 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 497 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tzm@fallback",    tzm_Arab_MA},
       {""}, {""},
 #line 362 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -1117,12 +1125,12 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {""},
 #line 66 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ar-TN",          ar_TN},
-#line 409 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 415 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"se-NO",          se_NO},
-#line 470 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 476 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tg-Cyrl",        tg_Cyrl_TJ},
       {""}, {""}, {""}, {""},
-#line 503 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 509 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"uk",             uk_UA},
       {""}, {""},
 #line 208 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -1131,12 +1139,12 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 106 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"chr-US",         chr_Cher_US},
       {""}, {""},
-#line 519 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 525 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"vi-VN",          vi_VN},
       {""},
 #line 127 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"dz",             dz_BT},
-#line 389 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 395 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ro-RO",          ro_RO},
       {""},
 #line 56 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -1147,26 +1155,28 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {""}, {""},
 #line 69 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"arn-CL",         arn_CL},
-#line 388 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 394 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ro-MD",          ro_MD},
 #line 156 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"es-BO",          es_BO},
       {""},
 #line 55 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ar-EG",          ar_EG},
-#line 414 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 420 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sk-SK",          sk_SK},
       {""},
-#line 116 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
-      {"da_DK",          da_DK},
-      {""}, {""}, {""}, {""},
+#line 365 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+      {"pap",            pap_029},
+      {""}, {""}, {""},
+#line 366 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+      {"pap-029",        pap_029},
 #line 222 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"gsw",            gsw_FR},
       {""},
-#line 485 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 491 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tr-TR",          tr_TR},
       {""}, {""},
-#line 537 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 543 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"zh-Hans-SG",     zh_Hans_SG},
       {""},
 #line 173 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -1184,7 +1194,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 149 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"en-US",          en_US},
       {""}, {""},
-#line 523 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 529 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"xh-ZA",          xh_ZA},
       {""}, {""},
 #line 223 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -1199,7 +1209,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 126 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"dv-MV",          dv_MV},
       {""}, {""},
-#line 391 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 397 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ru-MD",          ru_MD},
 #line 319 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"mn-Mong",          mn_Mong_MN},
@@ -1214,12 +1224,15 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {"gl-ES",          gl_ES},
 #line 320 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"mn-Mong@fallback", mn_Mong_CN},
-      {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
+      {""},
+#line 116 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+      {"da_DK",          da_DK},
+      {""}, {""}, {""}, {""}, {""}, {""},
 #line 164 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"es-GT",          es_GT},
-#line 489 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 495 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tt-RU",          tt_RU},
-#line 516 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 522 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ve",             ve_ZA},
 #line 157 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"es-CL",          es_CL},
@@ -1232,7 +1245,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 174 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"es-UY",          es_UY},
       {""},
-#line 504 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 510 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"uk-UA",          uk_UA},
       {""}, {""},
 #line 74 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -1252,21 +1265,19 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {"ne",             ne_NP},
 #line 282 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"kok",            kok_IN},
-#line 191 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
-      {"fi_FI",          fi_FI},
-      {""}, {""},
+      {""}, {""}, {""},
 #line 230 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"haw",            haw_US},
       {""}, {""},
-#line 379 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 385 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"quc-Latn",       quc_Latn_GT},
       {""},
 #line 354 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"om-ET",          om_ET},
-#line 380 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 386 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"quc-Latn-GT",    quc_Latn_GT},
       {""}, {""},
-#line 538 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 544 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"zh-Hant",        zh_Hant_TW},
       {""}, {""},
 #line 84 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -1283,23 +1294,23 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {"ne-IN",          ne_IN},
 #line 288 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ks-Deva",        ks_Deva_IN},
-#line 511 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 517 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"uz-UZ",          uz_Latn_UZ},
       {""},
 #line 336 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"mt-MT",          mt_MT},
       {""},
-#line 392 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 398 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ru-RU",          ru_RU},
-#line 499 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 505 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tzm-Tfng",        tzm_Tfng_MA},
       {""},
 #line 291 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ku-IQ",          ku_Arab_IQ},
-#line 500 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 506 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tzm-Tfng-MA",     tzm_Tfng_MA},
       {""}, {""}, {""},
-#line 539 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 545 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"zh-Hant-HK",     zh_Hant_HK},
       {""}, {""}, {""}, {""},
 #line 375 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -1310,11 +1321,13 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {""},
 #line 289 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ks-Deva-IN",     ks_Deva_IN},
-      {""}, {""}, {""}, {""}, {""},
+      {""}, {""}, {""}, {""},
+#line 191 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+      {"fi_FI",          fi_FI},
 #line 151 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"en-ZW",          en_ZW},
       {""},
-#line 393 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 399 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"rw",             rw_RW},
       {""}, {""}, {""},
 #line 117 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -1328,7 +1341,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 283 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"kok-IN",         kok_IN},
       {""}, {""},
-#line 477 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 483 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ti-ET",          ti_ET},
 #line 281 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ko-KR",          ko_KR},
@@ -1337,7 +1350,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {"mk-MK",          mk_MK},
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
       {""}, {""}, {""}, {""}, {""},
-#line 533 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 539 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"zh-SG",          zh_Hans_SG},
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
 #line 370 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -1367,10 +1380,10 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 364 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"pa-Guru-IN",     pa_Guru_IN},
       {""}, {""},
-#line 532 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 538 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"zh-MO",          zh_Hant_MO},
       {""}, {""},
-#line 386 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 392 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"rm-CH",          rm_CH},
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
       {""}, {""}, {""}, {""},
@@ -1380,10 +1393,10 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 144 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"en-MY",          en_MY},
       {""},
-#line 459 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 465 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"sw-KE",          sw_KE},
       {""}, {""}, {""}, {""},
-#line 408 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 414 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"se-FI",          se_FI},
       {""}, {""}, {""}, {""}, {""}, {""},
 #line 236 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -1403,7 +1416,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {"mn-Mong-MN",       mn_Mong_MN},
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
       {""}, {""}, {""},
-#line 517 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 523 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"ve-ZA",          ve_ZA},
       {""}, {""}, {""},
 #line 343 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -1418,7 +1431,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
       {""}, {""},
-#line 540 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 546 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"zh-Hant-MO",     zh_Hant_MO},
       {""}, {""}, {""}, {""},
 #line 146 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -1431,10 +1444,10 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {"lt-LT",          lt_LT},
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
       {""}, {""}, {""}, {""}, {""},
-#line 497 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 503 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tzm-Latn",        tzm_Latn_DZ},
       {""}, {""},
-#line 498 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 504 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tzm-Latn-DZ",     tzm_Latn_DZ},
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
@@ -1443,7 +1456,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
 #line 162 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"es-EC",          es_EC},
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
-#line 471 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 477 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tg-Cyrl-TJ",     tg_Cyrl_TJ},
       {""}, {""}, {""}, {""}, {""}, {""}, {""},
 #line 122 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
@@ -1465,9 +1478,9 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {"de-AT",          de_AT},
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
       {""}, {""}, {""}, {""}, {""}, {""}, {""},
-#line 394 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 400 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"rw-RW",          rw_RW},
-#line 534 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 540 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"zh-TW",          zh_Hant_TW},
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
@@ -1475,13 +1488,13 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
       {""}, {""}, {""}, {""}, {""}, {""},
-#line 541 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 547 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"zh-Hant-TW",     zh_Hant_TW},
       {""}, {""}, {""}, {""},
-#line 479 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 485 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tk-TM",          tk_TM},
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
-#line 469 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 475 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"tg-TJ",          tg_Cyrl_TJ},
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
@@ -1527,7 +1540,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
       {""}, {""}, {""}, {""},
-#line 473 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 479 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
       {"th-TH",          th_TH}
     };
 #if (defined __GNUC__ && __GNUC__ + (__GNUC_MINOR__ >= 6) > 4) || (defined __clang__ && __clang_major__ >= 3)
@@ -1548,7 +1561,7 @@ P32SublanguageLookup (register const char *str, register size_t len)
     }
   return (struct sublanguage *) 0;
 }
-#line 544 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
+#line 550 "F:/posix32/lib/posix32-crt/gperf/sublanguage.gperf"
 
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop

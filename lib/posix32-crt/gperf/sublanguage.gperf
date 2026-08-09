@@ -374,6 +374,12 @@ pt,             pt_PT
 pt@fallback,    pt_BR
 pt-BR,          pt_BR
 pt-PT,          pt_PT
+qps-ploc,           SublanguageIndex_qps_ploc
+qps-ploc@fallback,  en_US
+qps-ploca,          SublanguageIndex_qps_ploca
+qps-ploca@fallback, ja_JP
+qps-plocm,          SublanguageIndex_qps_plocm
+qps-plocm@fallback, ar_SA
 quc,            quc_Latn_GT
 quc-GT,         quc_Latn_GT
 quc-Latn,       quc_Latn_GT
