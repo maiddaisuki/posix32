@@ -151,22 +151,46 @@ static bool P32LCIDTryResolve (LocaleIdMap *locale, uintptr_t heap, LanguageInde
     length = p32_private_asprintf (&string, heap, L"%s-%s-%s", language.Code, script.Name, country.Code);
   } else if (ss != ScriptIndex_invalid) {
     assert (script.Name != NULL);
-    length = p32_private_asprintf (&string, heap, L"%s-%s", language.Code, script.Name);
+    length = p32_private_asprintf (&string, heap, L"%s-%s@fallback", language.Code, script.Name);
   } else if (cc != CountryIndex_invalid) {
     assert (country.Code != NULL);
-    length = p32_private_asprintf (&string, heap, L"%s-%s", language.Code, country.Code);
+    length = p32_private_asprintf (&string, heap, L"%s-%s@fallback", language.Code, country.Code);
   } else {
-    length = p32_private_asprintf (&string, heap, L"%s", language.Code);
+    length = p32_private_asprintf (&string, heap, L"%s@fallback", language.Code);
   }
 
   if (length == -1) {
     return false;
   }
 
+  /**
+   * We provide fallback entries for some locales; for example, locale "es" has
+   * fallback entry "es@fallback".
+   *
+   * The fallback entry is used only when `LCID` locale constructed for the
+   * main entry is not a valid locale (e.g. it is not installed); such fallback
+   * provides a substitute locale which closely matches original locale.
+   *
+   * The fallbacks are not used for complete locales such as "en-US" or
+   * "sr-Latn-RS". The fallbacks are only used to provide an alternative to
+   * partial locales such as "es", "sr-Latn" or even "mn-MN".
+   *
+   * In the example above, "mn-MN" will first try to construct `LCID` locale
+   * for "mn-Cyrl-MN", and only if it failed, "mn-Mong-MN".
+   */
+  char  *fallbackSeparator    = strrchr (string, '@');
+  size_t fallbackStringLength = 0;
+
+  if (fallbackSeparator != NULL) {
+    fallbackStringLength = strlen (fallbackSeparator);
+    fallbackSeparator[0] = '\0';
+  }
+
+fallback:;
   SubLangInfo info = {0};
 
   info.String = string;
-  info.Length = length;
+  info.Length = length - fallbackStringLength;
 
   if (p32_lookup_sublanguage (&info)) {
     SubLanguage subLanguage = {0};
@@ -179,6 +203,11 @@ static bool P32LCIDTryResolve (LocaleIdMap *locale, uintptr_t heap, LanguageInde
     if (IsValidLocale (localeId, LCID_INSTALLED)) {
       locale->Locale      = localeId;
       locale->Sublanguage = info.SubLanguage;
+    } else if (fallbackSeparator != NULL) {
+      fallbackStringLength = 0;
+      fallbackSeparator[0] = '@';
+      fallbackSeparator    = NULL;
+      goto fallback;
     }
   }
 
