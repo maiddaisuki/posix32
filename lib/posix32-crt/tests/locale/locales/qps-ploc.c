@@ -34,12 +34,12 @@
  *
  * Locale `qps-ploc` cannot be used with its default ANSI code page.
  *
- * When using locale names, instead of creating `qps-ploc` locale with its
+ * On Windows Vista and later, instead of creating `qps-ploc` locale with its
  * default ANSI code page, we will try to create this locale with code page
  * 65001 (UTF-8) instead. This, however, requires UTF-8 support.
  *
- * When using LCID locales, we emulate Windows Pseudo Locales; emulated locale
- * `qps-ploc` can be used with its default ANSI code page.
+ * On older Windows versions, we emulate Windows pseudo locales;
+ * emulated locale `qps-ploc` can be used with its default ANSI code page.
  */
 
 #if P32_CRT >= P32_UCRT || defined(LIBPOSIX32_UTF8)
@@ -48,23 +48,17 @@
 #define HAVE_UTF8_SUPPORT 0
 #endif
 
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-#define HAVE_LOCALE_NAMES (P32_WINNT_CHECK (P32_WINNT_VISTA, WindowsNtVista))
-#else
-#define HAVE_LOCALE_NAMES (0)
-#endif
-
 int main (void) {
   p32_test_init ();
 
   /**
-   * Skip this test if using locale names, but lacking UTF-8 locale support.
+   * Skip this test if on Windows Vista or later, and lacking UTF-8 support.
    */
-  if (HAVE_LOCALE_NAMES && !HAVE_UTF8_SUPPORT) {
+  if (P32_WINNT_CHECK (P32_WINNT_VISTA, WindowsNtVista) && !HAVE_UTF8_SUPPORT) {
     return 77;
   }
 
-  if (HAVE_LOCALE_NAMES) {
+  if (P32_WINNT_CHECK (P32_WINNT_VISTA, WindowsNtVista)) {
     assert (setlocale (LC_ALL, "qps-ploc.UTF-8") != NULL);
     assert (strcmp (getlocalename_l (LC_ALL, LC_GLOBAL_LOCALE), "qps-ploc.65001") == 0);
   } else {

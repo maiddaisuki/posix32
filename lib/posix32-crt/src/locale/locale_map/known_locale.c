@@ -75,10 +75,22 @@ typedef struct KnownLocaleName {
  */
 static const KnownLocaleName KnownLocaleNames[] = {
   /* clang-format off */
-  KNOWN_LOCALE_NAME (LocaleType_POSIX,        L"POSIX",     L"en-US", en_US, P32_CODEPAGE_POSIX, P32_CODEPAGE_POSIX, en, -1, US, -1, -1),
-  KNOWN_LOCALE_NAME (LocaleType_PseudoLocale, L"qps-ploc",  L"en-US", en_US, 1250,               852,                en, -1, US, -1, -1),
-  KNOWN_LOCALE_NAME (LocaleType_PseudoLocale, L"qps-ploca", L"ja-JP", ja_JP, 932,                932,                ja, -1, JP, -1, -1),
-  KNOWN_LOCALE_NAME (LocaleType_PseudoLocale, L"qps-plocm", L"ar-SA", ar_SA, 1256,               720,                ar, -1, SA, -1, -1),
+  KNOWN_LOCALE_NAME (LocaleType_POSIX, L"POSIX", L"en-US", en_US, P32_CODEPAGE_POSIX, P32_CODEPAGE_POSIX, en, -1, US, -1, -1),
+  /**
+   * Windows pseudo locales.
+   *
+   * They were introduced in Windows Vista.
+   *
+   * For older Windows versions, which support only `LCID` locales,
+   * we emulate Windows pseudo locales using similar locales as substitutes.
+   *
+   * When we emulate Windows pseudo locales, we have to provide correct default
+   * code pages for them; otherwise, we might end up using substitute locales'
+   * default code pages.
+   */
+  KNOWN_LOCALE_NAME (LocaleType_PseudoLocale, L"qps-ploc",  L"en-US", en_US, 1250, 852, qps_ploc,  -1, CountryIndex_ploc,  -1, -1),
+  KNOWN_LOCALE_NAME (LocaleType_PseudoLocale, L"qps-ploca", L"ja-JP", ja_JP, 932,  932, qps_ploca, -1, CountryIndex_ploca, -1, -1),
+  KNOWN_LOCALE_NAME (LocaleType_PseudoLocale, L"qps-plocm", L"ar-SA", ar_SA, 1256, 720, qps_plocm, -1, CountryIndex_plocm, -1, -1),
   /* clang-format on */
 };
 
@@ -110,9 +122,7 @@ void p32_known_locale_map (LocaleMap *localeMap, KnownLocaleIndex index) {
    * For "POSIX" locale, we want to use code page 28591 (ISO-8859-1) as
    * default code page.
    *
-   * For Winodws pseudo locales, we want to use their default ANSI code pages;
-   * we emulate them with `LCID` locales, which means we need to supply
-   * code page to use explicitly.
+   * For Winodws pseudo locales, we want to use their default ANSI code pages.
    */
   if (KnownLocaleNames[index].KnownLocale.Type == LocaleType_POSIX) {
     localeMap->CodePage = KnownLocaleNames[index].KnownLocale.AnsiCodePage;

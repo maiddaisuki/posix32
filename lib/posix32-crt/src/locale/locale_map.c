@@ -490,8 +490,6 @@ static bool P32KnownLocaleMap (LocaleMap *localeMap, LocaleStringMap *stringMap)
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
     /**
-     * We emulate Windows pseudo locales with `LCID` locales.
-     *
      * If user requested locale's default ANSI or OEM code page,
      * we must ensure that the appropriate code page is used.
      */

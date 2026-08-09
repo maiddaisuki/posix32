@@ -539,11 +539,8 @@ static bool P32LCIDLlSsCc (LocaleIdMap *locale, LocaleMap *map, uintptr_t heap) 
  */
 static bool P32LCIDLocaleName (Locale *locale, uintptr_t heap, LocaleIdMap *resolved, LocaleMap *localeMap) {
   /**
-   * If `localeMap` describes some Known Locale, we might me able to use
+   * If `localeMap` describes some Known Locale, we might be able to use
    * locale name stored in `KnownLocale` structure.
-   *
-   * Windows Pseudo locales were added in Windows Vista and are only supported
-   * with locale names. We emulate them with `LCID` locales.
    */
   if (localeMap != NULL && localeMap->KnownLocale != KnownLocaleIndex_Invalid) {
     KnownLocale knownLocale = {0};

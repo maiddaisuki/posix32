@@ -632,16 +632,16 @@ static bool P32FormatCLocaleString (wchar_t **address, uintptr_t heap) {
  */
 static bool P32FormatPseudoLocaleString (wchar_t **address, uintptr_t heap, Locale *locale, uint32_t codePage) {
   /**
-   * Windows pseudo locales were introduced in Windows Vista and are only
-   * supported with locale names; we emulate them with `LCID` locales.
+   * Windows pseudo locales were introduced in Windows Vista; for older Windows
+   * versions, which only support `LCID` locales, we emulate them using similar
+   * locales as substitutes.
    *
-   * This means that code pages stored in `locale->CodePage` are default
-   * code pages for `locale->LocaleId` and not for Windows pseudo locale
-   * `locale->LocaleName`.
+   * This means that code pages stored in `locale->CodePage` may be default
+   * code pages for the substitute locale and not emulated pseudo locale.
    *
    * To ensure proper formatting, we have to lookup `KnownLocale` structure
-   * for `locale->KnownLocale` in order to check whether `codePage` is
-   * `locale->LocaleName`'s default ANSI code page
+   * for `locale->KnownLocale` in order to check whether `codePage` is default
+   * ANSI code page for emulated pseudo locale.
    */
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
   /**
