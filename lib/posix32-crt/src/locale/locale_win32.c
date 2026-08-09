@@ -132,32 +132,32 @@ static int P32WinlocaleLCIDMapStringW (Locale *, uint32_t, const wchar_t *, int,
 /**
  * Implementation for `p32_winlocale_system_default`.
  */
-static bool P32WinlocaleLCIDSystemDefault (Locale *locale, uintptr_t heap);
+static bool P32WinlocaleLCIDSystemDefault (Locale *, uintptr_t);
 
 /**
  * Implementation for `p32_winlocale_user_default`.
  */
-static bool P32WinlocaleLCIDUserDefault (Locale *locale, uintptr_t heap);
+static bool P32WinlocaleLCIDUserDefault (Locale *, uintptr_t);
 
 /**
  * Implementation for `p32_winlocale_resolve`.
  */
-static bool P32WinlocaleLCIDResolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap);
+static bool P32WinlocaleLCIDResolve (Locale *, uintptr_t, LocaleMap *);
 
 /**
  * Implementation for `p32_winlocale_copy`.
  */
-static bool P32WinlocaleLCIDCopy (Locale *destLocale, uintptr_t heap, Locale *srcLocale);
+static bool P32WinlocaleLCIDCopy (Locale *, uintptr_t, Locale *);
 
 /**
  * Implementation for `p32_winlocale_destroy`.
  */
-static void P32WinlocaleLCIDDestroy (Locale *locale, uintptr_t heap);
+static void P32WinlocaleLCIDDestroy (Locale *, uintptr_t);
 
 /**
  * Implementation for `p32_winlocale_equal`.
  */
-static bool P32WinlocaleLCIDEqual (Locale *l1, Locale *l2);
+static bool P32WinlocaleLCIDEqual (Locale *, Locale *);
 
 #ifdef LIBPOSIX32_TEST
 /**
@@ -207,52 +207,52 @@ static int P32WinlocaleLNMapStringW (Locale *, uint32_t, const wchar_t *, int, w
 /**
  * Implementation for `p32_winlocale_system_default`.
  */
-static bool P32WinlocaleLNSystemDefault (Locale *locale, uintptr_t heap);
+static bool P32WinlocaleLNSystemDefault (Locale *, uintptr_t);
 
 /**
  * Implementation for `p32_winlocale_user_default`.
  */
-static bool P32WinlocaleLNUserDefault (Locale *locale, uintptr_t heap);
+static bool P32WinlocaleLNUserDefault (Locale *, uintptr_t);
 
 /**
  * Implementation for `p32_winlocale_resolve`.
  */
-static bool P32WinlocaleLNResolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap);
+static bool P32WinlocaleLNResolve (Locale *, uintptr_t, LocaleMap *);
 
 /**
  * Implementation for `p32_winlocale_copy`.
  */
-static bool P32WinlocaleLNCopy (Locale *destLocale, uintptr_t heap, Locale *srcLocale);
+static bool P32WinlocaleLNCopy (Locale *, uintptr_t, Locale *);
 
 /**
  * Implementation for `p32_winlocale_destroy`.
  */
-static void P32WinlocaleLNDestroy (Locale *locale, uintptr_t heap);
+static void P32WinlocaleLNDestroy (Locale *, uintptr_t);
 
 /**
  * Implementation for `p32_winlocale_equal`.
  */
-static bool P32WinlocaleLNEqual (Locale *l1, Locale *l2);
+static bool P32WinlocaleLNEqual (Locale *, Locale *);
 
 /**
  * Implementation for `p32_winlocale_get_language_name`.
  */
-static bool P32WinlocaleLNGetLanguageName (wchar_t **address, uintptr_t heap, Locale *locale);
+static bool P32WinlocaleLNGetLanguageName (wchar_t **, uintptr_t, Locale *);
 
 /**
  * Implementation for `p32_winlocale_get_country_name`.
  */
-static bool P32WinlocaleLNGetCountryName (wchar_t **address, uintptr_t heap, Locale *locale);
+static bool P32WinlocaleLNGetCountryName (wchar_t **, uintptr_t, Locale *);
 
 /**
  * Implementation for `p32_winlocale_get_language_code`.
  */
-static bool P32WinlocaleLNGetLanguageCode (wchar_t **address, uintptr_t heap, Locale *locale);
+static bool P32WinlocaleLNGetLanguageCode (wchar_t **, uintptr_t, Locale *);
 
 /**
  * Implementation for `p32_winlocale_get_country_code`.
  */
-static bool P32WinlocaleLNGetCountryCode (wchar_t **address, uintptr_t heap, Locale *locale);
+static bool P32WinlocaleLNGetCountryCode (wchar_t **, uintptr_t, Locale *);
 
 #ifdef LIBPOSIX32_TEST
 /**
@@ -268,23 +268,23 @@ static void P32WinlocaleLNEnumSystemLocalesW (EnumSystemLocalesCallback, uintptr
  */
 #if (P32_GEO_API & P32_GEO_API_GEOID)
 /**
- * Store `GEOID` object in `locale`.
+ * Store `GEOID` object in `Locale` object.
  *
  * Returns `true` on success, and `false` otherwise.
  */
-static bool P32WinlocaleGeo (Locale *locale, uintptr_t heap);
+static bool P32WinlocaleGeo (Locale *, uintptr_t);
 
 /**
- * Copy `GEOID` object from `srcLocale` to `destLocale`,
+ * Copy `GEOID` object from one `Locale` object to another,
  *
  * Returns `true` on success, and `false` otherwise.
  */
-static bool P32WinlocaleGeoCopy (Locale *destLocale, uintptr_t heap, Locale *srcLocale);
+static bool P32WinlocaleGeoCopy (Locale *, uintptr_t, Locale *);
 
 /**
- * Destroy `GEOID` object stored in `locale`.
+ * Destroy `GEOID` object stored in `Locale` object.
  */
-static void P32WinlocaleGeoDestroy (Locale *locale, uintptr_t heap);
+static void P32WinlocaleGeoDestroy (Locale *, uintptr_t);
 #endif
 
 /**
@@ -292,23 +292,23 @@ static void P32WinlocaleGeoDestroy (Locale *locale, uintptr_t heap);
  */
 #if (P32_GEO_API & P32_GEO_API_RN)
 /**
- * Store Region Name in `locale`.
+ * Store Region Name in `Locale` object.
  *
  * Returns `true` on success, and `false` otherwise.
  */
-static bool P32WinlocaleRegionName (Locale *locale, uintptr_t heap);
+static bool P32WinlocaleRegionName (Locale *, uintptr_t);
 
 /**
- * Copy Region Name from `srcLocale` to `destLocale`,
+ * Copy Region Name from one `Locale` object to another,
  *
  * Returns `true` on success, and `false` otherwise.
  */
-static bool P32WinlocaleRegionNameCopy (Locale *destLocale, uintptr_t heap, Locale *srcLocale);
+static bool P32WinlocaleRegionNameCopy (Locale *, uintptr_t, Locale *);
 
 /**
- * Destroy Region Name stored in `locale`.
+ * Destroy Region Name stored in `Locale` object.
  */
-static void P32WinlocaleRegionNameDestroy (Locale *locale, uintptr_t heap);
+static void P32WinlocaleRegionNameDestroy (Locale *, uintptr_t);
 #endif
 
 /*******************************************************************************
