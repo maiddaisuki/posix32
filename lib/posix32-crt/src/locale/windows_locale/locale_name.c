@@ -546,6 +546,55 @@ fail:
   return false;
 }
 
+/**
+ * Construct `Locale` object for Known Locale `localeMap->KnownLocale`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+static bool P32LNKnownLocale (Locale *locale, uintptr_t heap, LocaleMap *localeMap) {
+  KnownLocale knownLocale = {0};
+  p32_known_locale (localeMap->KnownLocale, &knownLocale);
+
+  /**
+   * Locale name to store in `locale`.
+   * This locale name will be used with NLS APIs such as `CompareStringEx`.
+   */
+  wchar_t *localeName = NULL;
+
+  if (knownLocale.Type == LocaleType_POSIX) {
+    localeName = knownLocale.LocaleName;
+  } else {
+    localeName = knownLocale.LocaleString;
+  }
+
+  if (P32IsValidLocaleName (localeName, heap) != 0) {
+    goto fail;
+  }
+
+  if (p32_heap_wcsdup (&locale->LocaleName, heap, localeName) == -1) {
+    goto fail;
+  }
+
+  if (!P32WinlocaleInfo (locale, heap)) {
+    goto fail_destroy;
+  }
+
+  locale->Type         = knownLocale.Type;
+  locale->KnownLocale  = localeMap->KnownLocale;
+  locale->Map.Language = localeMap->Language.Language;
+  locale->Map.Script   = localeMap->Language.Script;
+  locale->Map.Country  = localeMap->Language.Country;
+  locale->Map.Modifier = localeMap->Modifier;
+
+  return true;
+
+fail_destroy:
+  P32WinlocaleLNDestroy (locale, heap);
+
+fail:
+  return false;
+}
+
 static bool P32WinlocaleLNSystemDefault (Locale *locale, uintptr_t heap) {
   return P32DefaultLocaleName (locale, heap, SystemDefaultLocale);
 }
@@ -556,49 +605,10 @@ static bool P32WinlocaleLNUserDefault (Locale *locale, uintptr_t heap) {
 
 static bool P32WinlocaleLNResolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap) {
   /**
-   * We do not need to resolve Known Locales.
+   * `localeMap` describes some Known Locale.
    */
   if (localeMap->KnownLocale != KnownLocaleIndex_Invalid) {
-    KnownLocale knownLocale = {0};
-
-    p32_known_locale (localeMap->KnownLocale, &knownLocale);
-
-    /**
-     * Locale name to store in `locale`.
-     * This locale name will be used with NLS APIs such as `CompareStringEx`.
-     */
-    wchar_t *localeName = NULL;
-
-    if (knownLocale.Type == LocaleType_POSIX) {
-      localeName = knownLocale.LocaleName;
-    } else {
-      localeName = knownLocale.LocaleString;
-    }
-
-    if (P32IsValidLocaleName (localeName, heap) != 0) {
-      return false;
-    }
-
-    if (p32_heap_wcsdup (&locale->LocaleName, heap, localeName) == -1) {
-      return false;
-    }
-
-    if (!P32WinlocaleInfo (locale, heap)) {
-      p32_heap_free (heap, 0, locale->LocaleName);
-      locale->LocaleName = NULL;
-
-      return false;
-    }
-
-    locale->Map.Language = localeMap->Language.Language;
-    locale->Map.Script   = localeMap->Language.Script;
-    locale->Map.Country  = localeMap->Language.Country;
-    locale->Map.Modifier = localeMap->Modifier;
-
-    locale->Type        = knownLocale.Type;
-    locale->KnownLocale = localeMap->KnownLocale;
-
-    return true;
+    return P32LNKnownLocale (locale, heap, localeMap);
   }
 
   /**
@@ -682,13 +692,12 @@ static bool P32WinlocaleLNResolve (Locale *locale, uintptr_t heap, LocaleMap *lo
     goto fail_destroy;
   }
 
+  locale->Type         = LocaleType_WindowsLocale;
+  locale->KnownLocale  = localeMap->KnownLocale;
   locale->Map.Language = resolvedLocale.Language;
   locale->Map.Script   = resolvedLocale.Script;
   locale->Map.Country  = resolvedLocale.Country;
   locale->Map.Modifier = localeMap->Modifier;
-
-  locale->Type        = LocaleType_WindowsLocale;
-  locale->KnownLocale = localeMap->KnownLocale;
 
   return true;
 
