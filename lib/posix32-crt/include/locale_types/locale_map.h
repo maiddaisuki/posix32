@@ -136,17 +136,6 @@ typedef struct Language {
  */
 void p32_language (LanguageIndex index, Language *language);
 
-#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
-/**
- * Lookup `LanguageIndex` for primary language ID (`LANGID`) `langId` and
- * language code `ll`.
- *
- * On success, returns valid `LanguageIndex` value.
- * On failure, returns `LanguageIndex_invalid`.
- */
-LanguageIndex p32_language_from_id (uint16_t langId, const wchar_t *ll);
-#endif
-
 /**
  * Information about script.
  */
@@ -222,20 +211,6 @@ typedef struct SortingId {
  * Retrieve `SortingId` structure for `index`.
  */
 void p32_sorting_id (SortingIdIndex index, SortingId *sortingId);
-
-/**
- * Lookup `SortingIndex` for sorting order ID `sortingId` and language `ll`.
- *
- * On success, returns either
- *
- *  1. `SortingIndex_default`, if `sortingId` is the default sorting order
- *    for language `ll`
- *  2. valid `SortingIndex` value, if `sortingId` is not default sorting order
- *    for language `ll`
- *
- * On failure, returns `SortingIndex_invalid`.
- */
-SortingIndex p32_sorting_from_id (uint16_t sortingId, LanguageIndex ll);
 #endif
 
 /**
@@ -270,14 +245,6 @@ typedef struct {
  * Retrieve `SubLanguage` structure for `index`.
  */
 void p32_sublanguage (SublanguageIndex index, SubLanguage *subLanguage);
-
-/**
- * Lookup `SublanguageIndex` for sublanguage ID `subLangId` and language `ll`.
- *
- * On success, returns valid `SublanguageIndex` value.
- * On failure, returns `SublanguageIndex_invalid`.
- */
-SublanguageIndex p32_sublanguage_from_id (uint16_t subLangId, LanguageIndex ll);
 #endif
 
 /**

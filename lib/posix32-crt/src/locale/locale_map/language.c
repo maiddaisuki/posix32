@@ -380,15 +380,3 @@ void p32_language (LanguageIndex index, Language *language) {
   assert (index >= LanguageIndex_MIN && index <= LanguageIndex_MAX);
   *language = Languages[index];
 }
-
-#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
-LanguageIndex p32_language_from_id (uint16_t langId, const wchar_t *ll) {
-  for (LanguageIndex i = 0; i < (LanguageIndex) _countof (Languages); i++) {
-    if (Languages[i].LangId == langId && wcscmp (Languages[i].Code, ll) == 0) {
-      return i;
-    }
-  }
-
-  return LanguageIndex_invalid;
-}
-#endif

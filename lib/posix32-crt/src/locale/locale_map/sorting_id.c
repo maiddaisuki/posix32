@@ -63,14 +63,4 @@ void p32_sorting_id (SortingIdIndex index, SortingId *sortingId) {
   assert (index >= SortingIdIndex_MIN && index <= SortingIdIndex_MAX);
   *sortingId = SortingIds[index];
 }
-
-SortingIndex p32_sorting_from_id (uint16_t sortingId, LanguageIndex ll) {
-  for (SortingIdIndex i = 0; i < (SortingIdIndex) _countof (SortingIds); ++i) {
-    if (SortingIds[i].Language == ll && SortingIds[i].SortingId == sortingId) {
-      return SortingIds[i].Sorting;
-    }
-  }
-
-  return sortingId == 0 ? SortingIndex_default : SortingIndex_invalid;
-}
 #endif

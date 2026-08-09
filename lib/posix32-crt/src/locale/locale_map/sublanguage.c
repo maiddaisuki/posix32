@@ -355,14 +355,4 @@ void p32_sublanguage (SublanguageIndex index, SubLanguage *subLanguage) {
   assert (index >= SublanguageIndex_MIN && index <= SublanguageIndex_MAX);
   *subLanguage = Sublanguages[index];
 }
-
-SublanguageIndex p32_sublanguage_from_id (uint16_t subLangId, LanguageIndex ll) {
-  for (SublanguageIndex i = 0; i < (SublanguageIndex) _countof (Sublanguages); i++) {
-    if (Sublanguages[i].Map.Language == ll && Sublanguages[i].SubLangId == subLangId) {
-      return i;
-    }
-  }
-
-  return SublanguageIndex_invalid;
-}
 #endif
