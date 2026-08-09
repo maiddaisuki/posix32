@@ -379,7 +379,7 @@ static bool P32LCIDLl (LocaleIdMap *locale, LocaleMap *map, uintptr_t heap) {
   }
 
   /**
-   * Attempt to constuct default locale for `map->Language.Language`.
+   * Attempt to construct default locale for `map->Language.Language`.
    *
    * There are locales for which `SUBLANG_DEFAULT` cannot be used to construct
    * valid `LCID` locale.
@@ -391,43 +391,12 @@ static bool P32LCIDLl (LocaleIdMap *locale, LocaleMap *map, uintptr_t heap) {
    * In order to provide consistent result, we define default `SublanuageIndex`
    * for each supported language.
    */
-  if (1) {
-    if (!P32LCIDTryResolve (locale, heap, map->Language.Language, ScriptIndex_invalid, CountryIndex_invalid)) {
-      return false;
-    }
-
-    if (locale->Locale != 0) {
-      return true;
-    }
+  if (!P32LCIDTryResolve (locale, heap, map->Language.Language, ScriptIndex_invalid, CountryIndex_invalid)) {
+    return false;
   }
 
-  /**
-   * If everyting above failed, try to use `SUBLANG_DEFAULT`.
-   *
-   * If it result in valid `LCID` locale, attempt to figure out
-   * `SublanguageIndex` for that locale.
-   *
-   * Currently, there is only one known case:
-   *
-   * when
-   *
-   *  `MAKELCID (MAKELANGID (LANG_SPANISH, SUBLANG_SPANISH_MODERN), 0)`
-   *
-   * does not result in valid `LCID` locale, but
-   *
-   *  `MAKELCID (MAKELANGID (LANG_SPANISH, SUBLANG_SPANISH), 0)`
-   *
-   * does.
-   */
-  LANGID langId   = MAKELANGID (language.LangId, SUBLANG_DEFAULT);
-  LCID   localeId = MAKELCID (langId, SORT_DEFAULT);
-
-  if (IsValidLocale (localeId, LCID_INSTALLED)) {
-    Locale l = {0};
-
-    l.LocaleId = localeId;
-
-    return P32LocaleIdMapFromLCID (locale, heap, &l);
+  if (locale->Locale != 0) {
+    return true;
   }
 
   return false;
