@@ -586,6 +586,49 @@ static bool P32LocaleMap (LocaleMap *localeMap, LocaleStringMap *stringMap, bool
   P32Modifier (localeMap, stringMap);
 
   /**
+   * Windows pseudo locales are handled as Known Locales.
+   */
+  if (localeMap->Language.Language == qps_ploc) {
+    /**
+     * Call to `p32_known_locale_map` will store pseudo locale's default ANSI
+     * code page in `localeMap->CodePage`, overriding code page from the
+     * locale string; save current value and set it back afterward if non-zero.
+     */
+    uint32_t codePage = localeMap->CodePage;
+
+    switch (localeMap->Country) {
+      /**
+       * "Pseudo_Pseudo Mirrored" is "qps-plocm".
+       */
+      case CountryIndex_plocm:
+        p32_known_locale_map (localeMap, KnownLocale_QpsPlocm);
+        break;
+      /**
+       * "Pseudo_Pseudo Asia" is "qps-ploca".
+       */
+      case CountryIndex_ploca:
+        p32_known_locale_map (localeMap, KnownLocale_QpsPloca);
+        break;
+      /**
+       * "Pseudo_Pseudo" is "qps-ploc".
+       */
+      case CountryIndex_ploc:
+      /**
+       * Handle any valid locale string starting with "Pseudo" as "qps-ploc".
+       */
+      default:
+        p32_known_locale_map (localeMap, KnownLocale_QpsPloc);
+        break;
+    }
+
+    if (codePage != 0) {
+      localeMap->CodePage = codePage;
+    }
+
+    return true;
+  }
+
+  /**
    * ca-ES-valencia.
    *
    * The following locale string can be used for this locale:
