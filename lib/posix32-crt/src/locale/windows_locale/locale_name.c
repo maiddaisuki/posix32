@@ -770,7 +770,15 @@ static bool P32WinlocaleLNEqual (Locale *l1, Locale *l2) {
 
 static bool P32WinlocaleLNGetLanguageName (wchar_t **address, uintptr_t heap, Locale *locale) {
   if (locale->Type == LocaleType_PseudoLocale) {
-    return p32_known_locale_language_name (address, heap, locale->KnownLocale);
+    KnownLocale knownLocale = {0};
+    p32_known_locale (locale->KnownLocale, &knownLocale);
+
+    /**
+     * Partial `Locale` object for use with `P32GetLanguageNameFromLocale`
+     */
+    Locale l = {.LocaleName = knownLocale.LocaleName};
+
+    return P32GetLanguageNameFromLocale (address, heap, &l);
   }
 
   return P32GetLanguageNameFromLocale (address, heap, locale);
@@ -778,7 +786,15 @@ static bool P32WinlocaleLNGetLanguageName (wchar_t **address, uintptr_t heap, Lo
 
 static bool P32WinlocaleLNGetCountryName (wchar_t **address, uintptr_t heap, Locale *locale) {
   if (locale->Type == LocaleType_PseudoLocale) {
-    return p32_known_locale_country_name (address, heap, locale->KnownLocale);
+    KnownLocale knownLocale = {0};
+    p32_known_locale (locale->KnownLocale, &knownLocale);
+
+    /**
+     * Partial `Locale` object for use with `P32GetCountryNameFromLocale`
+     */
+    Locale l = {.LocaleName = knownLocale.LocaleName};
+
+    return P32GetCountryNameFromLocale (address, heap, &l);
   }
 
   return P32GetCountryNameFromLocale (address, heap, locale);
@@ -786,7 +802,15 @@ static bool P32WinlocaleLNGetCountryName (wchar_t **address, uintptr_t heap, Loc
 
 static bool P32WinlocaleLNGetLanguageCode (wchar_t **address, uintptr_t heap, Locale *locale) {
   if (locale->Type == LocaleType_PseudoLocale) {
-    return p32_known_locale_language_code (address, heap, locale->KnownLocale);
+    KnownLocale knownLocale = {0};
+    p32_known_locale (locale->KnownLocale, &knownLocale);
+
+    /**
+     * Partial `Locale` object for use with `P32GetLanguageCodeFromLocale`
+     */
+    Locale l = {.LocaleName = knownLocale.LocaleName};
+
+    return P32GetLanguageCodeFromLocale (address, heap, &l);
   }
 
   return P32GetLanguageCodeFromLocale (address, heap, locale);
@@ -794,7 +818,15 @@ static bool P32WinlocaleLNGetLanguageCode (wchar_t **address, uintptr_t heap, Lo
 
 static bool P32WinlocaleLNGetCountryCode (wchar_t **address, uintptr_t heap, Locale *locale) {
   if (locale->Type == LocaleType_PseudoLocale) {
-    return p32_known_locale_country_code (address, heap, locale->KnownLocale);
+    KnownLocale knownLocale = {0};
+    p32_known_locale (locale->KnownLocale, &knownLocale);
+
+    /**
+     * Partial `Locale` object for use with `P32GetCountryCodeFromLocale`
+     */
+    Locale l = {.LocaleName = knownLocale.LocaleName};
+
+    return P32GetCountryCodeFromLocale (address, heap, &l);
   }
 
   return P32GetCountryCodeFromLocale (address, heap, locale);
