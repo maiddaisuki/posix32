@@ -63,17 +63,15 @@ typedef struct Locale {
    * Locale name
    */
   wchar_t *LocaleName;
+  /**
+   * Country/Region name
+   */
+  wchar_t *GeoName;
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
   /**
    * LCID
    */
   uint32_t LocaleId;
-#endif
-#if (P32_GEO_API & P32_GEO_API_RN)
-  /**
-   * Country/Region name
-   */
-  wchar_t *GeoName;
 #endif
 #if (P32_GEO_API & P32_GEO_API_GEOID)
   /**
