@@ -612,6 +612,62 @@ fail:
 }
 
 /**
+ * Construct `Locale` object for Known Locale `localeMap->KnownLocale`.
+ *
+ * Returns `true` on success, and `false` otherwise.
+ */
+static bool P32LCIDKnownLocale (Locale *locale, uintptr_t heap, LocaleMap *localeMap) {
+  KnownLocale knownLocale = {0};
+  p32_known_locale (localeMap->KnownLocale, &knownLocale);
+
+  /**
+   * Locale resolved from information in `localeMap`.
+   */
+  LocaleIdMap map = {0, SublanguageIndex_invalid, SortingIndex_invalid};
+
+  if (!P32LCIDLl (&map, localeMap, heap)) {
+    goto fail;
+  }
+
+  SubLanguage sublanguage = {0};
+  p32_sublanguage (map.Sublanguage, &sublanguage);
+
+  if (localeMap->Sorting != SortingIndex_invalid) {
+    if (!P32LCIDTrySortOrder (&map, heap, sublanguage.Map.Language, localeMap->Sorting)) {
+      goto fail;
+    }
+  }
+
+  /**
+   * Store resolved `LCID` in `locale`.
+   */
+  locale->LocaleId = map.Locale;
+
+  if (!P32LCIDLocaleName (locale, heap, &map, localeMap)) {
+    goto fail;
+  }
+
+  if (!P32WinlocaleInfo (locale, heap)) {
+    goto fail_destroy;
+  }
+
+  locale->Type         = knownLocale.Type;
+  locale->KnownLocale  = localeMap->KnownLocale;
+  locale->Map.Language = sublanguage.Map.Language;
+  locale->Map.Script   = sublanguage.Map.Script;
+  locale->Map.Country  = sublanguage.Map.Country;
+  locale->Map.Modifier = localeMap->Modifier;
+
+  return true;
+
+fail_destroy:
+  P32WinlocaleLCIDDestroy (locale, heap);
+
+fail:
+  return false;
+}
+
+/**
  * Construct `Locale` object for valid `LCID` locale `locale->LocaleId`.
  *
  * Returns `true` on success, and `false` otherwise.
@@ -659,6 +715,13 @@ static bool P32WinlocaleLCIDUserDefault (Locale *locale, uintptr_t heap) {
 }
 
 static bool P32WinlocaleLCIDResolve (Locale *locale, uintptr_t heap, LocaleMap *localeMap) {
+  /**
+   * `localeMap` describes some Known Locale.
+   */
+  if (localeMap->KnownLocale != KnownLocaleIndex_Invalid) {
+    return P32LCIDKnownLocale (locale, heap, localeMap);
+  }
+
   /**
    * Locale resolved from implicit information in `localeMap->Language`.
    *
@@ -741,23 +804,14 @@ static bool P32WinlocaleLCIDResolve (Locale *locale, uintptr_t heap, LocaleMap *
   }
 
   SubLanguage sublanguage = {0};
-
   p32_sublanguage (resolvedLocale.Sublanguage, &sublanguage);
 
+  locale->Type         = LocaleType_WindowsLocale;
+  locale->KnownLocale  = localeMap->KnownLocale;
   locale->Map.Language = sublanguage.Map.Language;
   locale->Map.Script   = sublanguage.Map.Script;
   locale->Map.Country  = sublanguage.Map.Country;
   locale->Map.Modifier = localeMap->Modifier;
-
-  locale->KnownLocale = localeMap->KnownLocale;
-
-  if (locale->KnownLocale == KnownLocaleIndex_Invalid) {
-    locale->Type = LocaleType_WindowsLocale;
-  } else {
-    KnownLocale knownLocale = {0};
-    p32_known_locale (locale->KnownLocale, &knownLocale);
-    locale->Type = knownLocale.Type;
-  }
 
   return true;
 
