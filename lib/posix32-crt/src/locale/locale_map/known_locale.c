@@ -66,24 +66,19 @@ typedef struct KnownLocaleName {
   ModifierIndex Modifier;
 } KnownLocaleName;
 
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
-#define KNOWN_LOCALE(type, acp, oemcp, locale_string, locale_name) {type, 0, acp, oemcp, locale_string, locale_name}
-#else
-#define KNOWN_LOCALE(type, acp, oemcp, locale_string, locale_name) {type, 0, acp, oemcp, locale_string}
-#endif
-
-#define KNOWN_LOCALE_NAME(type, locale_string, locale_name, acp, oemcp, ll, ss, cc, xx, mm) \
-  {KNOWN_LOCALE (type, acp, oemcp, locale_string, locale_name), ll, ss, cc, xx, mm}
+#define KNOWN_LOCALE(type, acp, ocp, locale, locale_name, index) {type, index, acp, ocp, locale, locale_name}
+#define KNOWN_LOCALE_NAME(type, locale, locale_name, index, acp, ocp, ll, ss, cc, xx, mm) \
+  {KNOWN_LOCALE (type, acp, ocp, locale, locale_name, index), ll, ss, cc, xx, mm}
 
 /**
  * Known Locale names.
  */
 static const KnownLocaleName KnownLocaleNames[] = {
   /* clang-format off */
-  KNOWN_LOCALE_NAME (LocaleType_POSIX,        L"POSIX",     L"en-US", P32_CODEPAGE_POSIX, P32_CODEPAGE_POSIX, en, -1, US, -1, -1),
-  KNOWN_LOCALE_NAME (LocaleType_PseudoLocale, L"qps-ploc",  L"en-US", 1250,               852,                en, -1, US, -1, -1),
-  KNOWN_LOCALE_NAME (LocaleType_PseudoLocale, L"qps-ploca", L"ja-JP", 932,                932,                ja, -1, JP, -1, -1),
-  KNOWN_LOCALE_NAME (LocaleType_PseudoLocale, L"qps-plocm", L"ar-SA", 1256,               720,                ar, -1, SA, -1, -1),
+  KNOWN_LOCALE_NAME (LocaleType_POSIX,        L"POSIX",     L"en-US", en_US, P32_CODEPAGE_POSIX, P32_CODEPAGE_POSIX, en, -1, US, -1, -1),
+  KNOWN_LOCALE_NAME (LocaleType_PseudoLocale, L"qps-ploc",  L"en-US", en_US, 1250,               852,                en, -1, US, -1, -1),
+  KNOWN_LOCALE_NAME (LocaleType_PseudoLocale, L"qps-ploca", L"ja-JP", ja_JP, 932,                932,                ja, -1, JP, -1, -1),
+  KNOWN_LOCALE_NAME (LocaleType_PseudoLocale, L"qps-plocm", L"ar-SA", ar_SA, 1256,               720,                ar, -1, SA, -1, -1),
   /* clang-format on */
 };
 

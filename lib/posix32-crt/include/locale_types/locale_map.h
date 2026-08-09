@@ -44,7 +44,11 @@ typedef struct KnownLocale {
    * Locale type.
    */
   LocaleType Type;
-  int        Reserved;
+  /**
+   * The `SublanguageIndex` corresponding to the Known Locale; it is used to
+   * construct `LCID` locale which has the same purpose as `LocaleName`.
+   */
+  SublanguageIndex Sublanguage;
   /**
    * Locale's default ANSI code page.
    */
@@ -57,7 +61,6 @@ typedef struct KnownLocale {
    * Known Locale name.
    */
   wchar_t *LocaleString;
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
   /**
    * Locale name.
    *
@@ -79,7 +82,6 @@ typedef struct KnownLocale {
    * retrieveing such information with `GetLocaleInfoEx`.
    */
   wchar_t *LocaleName;
-#endif
 } KnownLocale;
 
 /**

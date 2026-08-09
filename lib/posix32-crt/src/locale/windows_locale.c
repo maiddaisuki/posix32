@@ -159,6 +159,26 @@ static void P32WinlocaleLCIDDestroy (Locale *, uintptr_t);
  */
 static bool P32WinlocaleLCIDEqual (Locale *, Locale *);
 
+/**
+ * Implementation for `p32_winlocale_get_language_name`.
+ */
+static bool P32WinlocaleLCIDGetLanguageName (wchar_t **, uintptr_t, Locale *);
+
+/**
+ * Implementation for `p32_winlocale_get_country_name`.
+ */
+static bool P32WinlocaleLCIDGetCountryName (wchar_t **, uintptr_t, Locale *);
+
+/**
+ * Implementation for `p32_winlocale_get_language_code`.
+ */
+static bool P32WinlocaleLCIDGetLanguageCode (wchar_t **, uintptr_t, Locale *);
+
+/**
+ * Implementation for `p32_winlocale_get_country_code`.
+ */
+static bool P32WinlocaleLCIDGetCountryCode (wchar_t **, uintptr_t, Locale *);
+
 #ifdef LIBPOSIX32_TEST
 /**
  * Implementation for `p32_winlocale_enum_system_locales` using
@@ -1078,10 +1098,10 @@ static void P32InitLocaleApiWindowsNt (void) {
   p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleCopy, P32WinlocaleLCIDCopy);
   p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleEqual, P32WinlocaleLCIDEqual);
   p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleDestroy, P32WinlocaleLCIDDestroy);
-  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetLanguageName, P32GetLanguageNameFromLocale);
-  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetCountryName, P32GetCountryNameFromLocale);
-  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetLanguageCode, P32GetLanguageCodeFromLocale);
-  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetCountryCode, P32GetCountryCodeFromLocale);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetLanguageName, P32WinlocaleLCIDGetLanguageName);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetCountryName, P32WinlocaleLCIDGetCountryName);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetLanguageCode, P32WinlocaleLCIDGetLanguageCode);
+  p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetCountryCode, P32WinlocaleLCIDGetCountryCode);
 
 #ifdef LIBPOSIX32_TEST
   p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleEnumSystemLocales, P32WinlocaleLCIDEnumSystemLocalesW);
@@ -1251,10 +1271,10 @@ static void P32InitWinlocaleEnumSystemLocales (EnumSystemLocalesCallback callbac
 #define WinlocaleGetCalendarInfoW  P32WinlocaleLCIDGetCalendarInfoW
 #define WinlocaleCompareStringW    P32WinlocaleLCIDCompareStringW
 #define WinlocaleMapStringW        P32WinlocaleLCIDMapStringW
-#define WinlocaleGetLanguageName   P32GetLanguageNameFromLocale
-#define WinlocaleGetCountryName    P32GetCountryNameFromLocale
-#define WinlocaleGetLanguageCode   P32GetLanguageCodeFromLocale
-#define WinlocaleGetCountryCode    P32GetCountryCodeFromLocale
+#define WinlocaleGetLanguageName   P32WinlocaleLCIDGetLanguageName
+#define WinlocaleGetCountryName    P32WinlocaleLCIDGetCountryName
+#define WinlocaleGetLanguageCode   P32WinlocaleLCIDGetLanguageCode
+#define WinlocaleGetCountryCode    P32WinlocaleLCIDGetCountryCode
 #define WinlocaleSystemDefault     P32WinlocaleLCIDSystemDefault
 #define WinlocaleUserDefault       P32WinlocaleLCIDUserDefault
 #define WinlocaleResolve           P32WinlocaleLCIDResolve

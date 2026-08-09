@@ -550,7 +550,7 @@ static bool P32LCIDLocaleName (Locale *locale, uintptr_t heap, LocaleIdMap *reso
 
     p32_known_locale (localeMap->KnownLocale, &knownLocale);
 
-    if (knownLocale.Type == LocaleType_PseudoLocale) {
+    if (knownLocale.Type == LocaleType_WindowsLocale || knownLocale.Type == LocaleType_PseudoLocale) {
       return p32_heap_wcsdup (&locale->LocaleName, heap, knownLocale.LocaleString) != -1;
     }
   }
@@ -619,6 +619,29 @@ fail:
 static bool P32LCIDKnownLocale (Locale *locale, uintptr_t heap, LocaleMap *localeMap) {
   KnownLocale knownLocale = {0};
   p32_known_locale (localeMap->KnownLocale, &knownLocale);
+
+  /**
+   * When `knownLocale.Type` is `LocaleType_WindowsLocale` or
+   * `LocaleType_PseudoLocale`, we need to varify that `LCID` locale for
+   * `knownLocale.Sublanguage` is supported and can be used.
+   */
+  if (knownLocale.Type == LocaleType_WindowsLocale || knownLocale.Type == LocaleType_PseudoLocale) {
+    SubLanguage sublanguage = {0};
+    p32_sublanguage (knownLocale.Sublanguage, &sublanguage);
+
+    Language language = {0};
+    p32_language (sublanguage.Map.Language, &language);
+
+    /**
+     * Construct `LCID` locale for `knownLocale`.
+     */
+    LANGID langId   = MAKELANGID (language.LangId, sublanguage.SubLangId);
+    LCID   localeId = MAKELCID (langId, SORT_DEFAULT);
+
+    if (!IsValidLocale (localeId, LCID_INSTALLED)) {
+      goto fail;
+    }
+  }
 
   /**
    * Locale resolved from information in `localeMap`.
@@ -884,6 +907,118 @@ static bool P32WinlocaleLCIDEqual (Locale *l1, Locale *l2) {
   assert (wcscmp (l1->LocaleName, l2->LocaleName) == 0);
 
   return true;
+}
+
+static bool P32WinlocaleLCIDGetLanguageName (wchar_t **address, uintptr_t heap, Locale *locale) {
+  if (locale->Type == LocaleType_PseudoLocale) {
+    KnownLocale knownLocale = {0};
+    p32_known_locale (locale->KnownLocale, &knownLocale);
+
+    SubLanguage sublanguage = {0};
+    p32_sublanguage (knownLocale.Sublanguage, &sublanguage);
+
+    Language language = {0};
+    p32_language (sublanguage.Map.Language, &language);
+
+    /**
+     * Construct `LCID` locale for `knownLocale`.
+     */
+    LANGID langId   = MAKELANGID (language.LangId, sublanguage.SubLangId);
+    LCID   localeId = MAKELCID (langId, SORT_DEFAULT);
+
+    /**
+     * Partial `Locale` object for use with `P32GetLanguageNameFromLocale`
+     */
+    Locale l = {.LocaleId = localeId};
+
+    return P32GetLanguageNameFromLocale (address, heap, &l);
+  }
+
+  return P32GetLanguageNameFromLocale (address, heap, locale);
+}
+
+static bool P32WinlocaleLCIDGetCountryName (wchar_t **address, uintptr_t heap, Locale *locale) {
+  if (locale->Type == LocaleType_PseudoLocale) {
+    KnownLocale knownLocale = {0};
+    p32_known_locale (locale->KnownLocale, &knownLocale);
+
+    SubLanguage sublanguage = {0};
+    p32_sublanguage (knownLocale.Sublanguage, &sublanguage);
+
+    Language language = {0};
+    p32_language (sublanguage.Map.Language, &language);
+
+    /**
+     * Construct `LCID` locale for `knownLocale`.
+     */
+    LANGID langId   = MAKELANGID (language.LangId, sublanguage.SubLangId);
+    LCID   localeId = MAKELCID (langId, SORT_DEFAULT);
+
+    /**
+     * Partial `Locale` object for use with `P32GetCountryNameFromLocale`
+     */
+    Locale l = {.LocaleId = localeId};
+
+    return P32GetCountryNameFromLocale (address, heap, &l);
+  }
+
+  return P32GetCountryNameFromLocale (address, heap, locale);
+}
+
+static bool P32WinlocaleLCIDGetLanguageCode (wchar_t **address, uintptr_t heap, Locale *locale) {
+  if (locale->Type == LocaleType_PseudoLocale) {
+    KnownLocale knownLocale = {0};
+    p32_known_locale (locale->KnownLocale, &knownLocale);
+
+    SubLanguage sublanguage = {0};
+    p32_sublanguage (knownLocale.Sublanguage, &sublanguage);
+
+    Language language = {0};
+    p32_language (sublanguage.Map.Language, &language);
+
+    /**
+     * Construct `LCID` locale for `knownLocale`.
+     */
+    LANGID langId   = MAKELANGID (language.LangId, sublanguage.SubLangId);
+    LCID   localeId = MAKELCID (langId, SORT_DEFAULT);
+
+    /**
+     * Partial `Locale` object for use with `P32GetLanguageCodeFromLocale`
+     */
+    Locale l = {.LocaleId = localeId};
+
+    return P32GetLanguageCodeFromLocale (address, heap, &l);
+  }
+
+  return P32GetLanguageCodeFromLocale (address, heap, locale);
+}
+
+static bool P32WinlocaleLCIDGetCountryCode (wchar_t **address, uintptr_t heap, Locale *locale) {
+  if (locale->Type == LocaleType_PseudoLocale) {
+    KnownLocale knownLocale = {0};
+    p32_known_locale (locale->KnownLocale, &knownLocale);
+
+    SubLanguage sublanguage = {0};
+    p32_sublanguage (knownLocale.Sublanguage, &sublanguage);
+
+    Language language = {0};
+    p32_language (sublanguage.Map.Language, &language);
+
+    /**
+     * Construct `LCID` locale for `knownLocale`.
+     */
+    LANGID langId   = MAKELANGID (language.LangId, sublanguage.SubLangId);
+    LCID   localeId = MAKELCID (langId, SORT_DEFAULT);
+
+    /**
+     * Partial `Locale` object for use with `P32GetCountryCodeFromLocale`
+     */
+    Locale l = {.LocaleId = localeId};
+
+    return P32GetCountryCodeFromLocale (address, heap, &l);
+  }
+
+  return P32GetCountryCodeFromLocale (address, heap, locale);
 }
 
 #ifdef LIBPOSIX32_TEST
