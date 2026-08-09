@@ -48,6 +48,8 @@ de,         Sorting_de_default
 de_phoneb,  Sorting_de_phoneb
 hu,         Sorting_hu_default
 hu_technl,  Sorting_hu_technl
+iv,         Sorting_iv_default
+iv_mathan,  Sorting_iv_mathan
 ja,         Sorting_ja_default
 ja_radstr,  Sorting_ja_radstr
 ja_unicode, Sorting_ja_unicode

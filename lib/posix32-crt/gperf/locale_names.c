@@ -1,6 +1,6 @@
 /* ANSI-C code produced by gperf version 3.3 */
 /* Command-line: gperf --output-file=F:/posix32/lib/posix32-crt/gperf/locale_names.c F:/posix32/lib/posix32-crt/gperf/locale_names.gperf  */
-/* Computed positions: -k'9' */
+/* Computed positions: -k'$' */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
       && ('%' == 37) && ('&' == 38) && ('\'' == 39) && ('(' == 40) \
@@ -72,9 +72,9 @@
 #line 46 "F:/posix32/lib/posix32-crt/gperf/locale_names.gperf"
 struct known_locale { const char *name; KnownLocaleIndex Index; };
 
-#define TOTAL_KEYWORDS 5
+#define TOTAL_KEYWORDS 8
 #define MIN_WORD_LENGTH 1
-#define MAX_WORD_LENGTH 9
+#define MAX_WORD_LENGTH 11
 #define MIN_HASH_VALUE 1
 #define MAX_HASH_VALUE 14
 /* maximum key range = 14, duplicates = 0 */
@@ -97,13 +97,13 @@ P32LocaleNameHash (register const char *str, register size_t len)
       15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
       15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
       15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-      15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-      15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-      15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
       15, 15, 15, 15, 15, 15, 15,  5, 15, 15,
+      15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+      15, 15, 15, 15, 15, 15,  0, 15,  0, 15,
+      15, 15, 15, 15, 15, 15, 15,  5, 15,  0,
       15, 15, 15, 15, 15, 15, 15, 15, 15,  0,
-      15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-      15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+       0, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+       0, 15, 15, 15, 15, 15, 15, 15, 15, 15,
       15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
       15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
       15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
@@ -118,29 +118,7 @@ P32LocaleNameHash (register const char *str, register size_t len)
       15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
       15, 15, 15, 15, 15, 15
     };
-  register unsigned int hval = len;
-
-  switch (hval)
-    {
-      default:
-        hval += asso_values[(unsigned char)str[8]];
-#if (defined __cplusplus && (__cplusplus >= 201703L || (__cplusplus >= 201103L && defined __clang__ && __clang_major__ + (__clang_minor__ >= 9) > 3))) || (defined __STDC_VERSION__ && __STDC_VERSION__ >= 202000L && ((defined __GNUC__ && __GNUC__ >= 10) || (defined __clang__ && __clang_major__ >= 9)))
-      [[fallthrough]];
-#elif (defined __GNUC__ && __GNUC__ >= 7) || (defined __clang__ && __clang_major__ >= 10)
-      __attribute__ ((__fallthrough__));
-#endif
-      /*FALLTHROUGH*/
-      case 8:
-      case 7:
-      case 6:
-      case 5:
-      case 4:
-      case 3:
-      case 2:
-      case 1:
-        break;
-    }
-  return hval;
+  return len + asso_values[(unsigned char)str[len - 1]];
 }
 
 struct known_locale *
@@ -153,17 +131,24 @@ P32LocaleNameLookup (register const char *str, register size_t len)
   static struct known_locale wordlist[] =
     {
       {""},
-#line 48 "F:/posix32/lib/posix32-crt/gperf/locale_names.gperf"
-      {"C",         KnownLocale_POSIX},
-      {""}, {""}, {""},
+#line 53 "F:/posix32/lib/posix32-crt/gperf/locale_names.gperf"
+      {"x",           KnownLocale_Invariant},
+      {""}, {""},
+#line 54 "F:/posix32/lib/posix32-crt/gperf/locale_names.gperf"
+      {"x-IV",        KnownLocale_Invariant},
 #line 49 "F:/posix32/lib/posix32-crt/gperf/locale_names.gperf"
       {"POSIX",     KnownLocale_POSIX},
-      {""}, {""},
+#line 48 "F:/posix32/lib/posix32-crt/gperf/locale_names.gperf"
+      {"C",         KnownLocale_POSIX},
+      {""},
 #line 50 "F:/posix32/lib/posix32-crt/gperf/locale_names.gperf"
       {"qps-ploc",  KnownLocale_QpsPloc},
 #line 52 "F:/posix32/lib/posix32-crt/gperf/locale_names.gperf"
       {"qps-plocm", KnownLocale_QpsPlocm},
-      {""}, {""}, {""}, {""},
+      {""},
+#line 55 "F:/posix32/lib/posix32-crt/gperf/locale_names.gperf"
+      {"x-IV_mathan", KnownLocale_Invariant},
+      {""}, {""},
 #line 51 "F:/posix32/lib/posix32-crt/gperf/locale_names.gperf"
       {"qps-ploca", KnownLocale_QpsPloca}
     };
@@ -185,7 +170,7 @@ P32LocaleNameLookup (register const char *str, register size_t len)
     }
   return (struct known_locale *) 0;
 }
-#line 53 "F:/posix32/lib/posix32-crt/gperf/locale_names.gperf"
+#line 56 "F:/posix32/lib/posix32-crt/gperf/locale_names.gperf"
 
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop

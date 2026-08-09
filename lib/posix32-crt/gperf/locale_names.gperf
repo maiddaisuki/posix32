@@ -50,6 +50,9 @@ POSIX,     KnownLocale_POSIX
 qps-ploc,  KnownLocale_QpsPloc
 qps-ploca, KnownLocale_QpsPloca
 qps-plocm, KnownLocale_QpsPlocm
+x,           KnownLocale_Invariant
+x-IV,        KnownLocale_Invariant
+x-IV_mathan, KnownLocale_Invariant
 %%
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
