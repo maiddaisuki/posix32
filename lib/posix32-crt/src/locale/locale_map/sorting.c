@@ -32,7 +32,7 @@
 
 static const Sorting SortingTable[] = {
   /* clang-format off */
-  SORTING_DECL ("matham"),
+  SORTING_DECL ("mathan"),
   SORTING_DECL ("modern"),
   SORTING_DECL ("phoneb"),
   SORTING_DECL ("pronun"),
