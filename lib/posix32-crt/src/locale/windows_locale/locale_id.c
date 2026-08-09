@@ -271,65 +271,64 @@ static bool P32LCIDTrySortOrder (LocaleIdMap *locale, uintptr_t heap, LanguageIn
  *
  * Returns `true` on success, and `false` otherwise.
  */
-static bool P32LocaleIdMapFromLCID (LocaleIdMap *map, uintptr_t heap, Locale *locale) {
+static bool P32LocaleIdMapFromLCID (LocaleIdMap *map, uint32_t localeId) {
   /**
-   * We have to take both primary language ID (`LANG_*`) and ISO-639 language
-   * code into account when looking up `LanguageIndex` for `locale->LocaleId`.
-   *
-   * The are languages IDs which may be used to construct `LCID` which have
-   * different ISO-639 language codes.
-   *
-   * For example, `LANG_NORWEGIAN` may be used to construct `LCID` locales with
-   * `no` and `nb` ISO-639 language code.
-   *
-   * Similarly, there are ISO-639 language codes which are with more than one
-   * language ID.
-   *
-   * For example, both `LANG_CATALAN` and `LANG_VALENCIAN` are used to
-   * construct `LCID` locale with ISO-639 language code "ca".
+   * Deconstruct `localeId`.
    */
-  LPWSTR ll = NULL;
+  LANGID langId = LANGIDFROMLCID (localeId);
+  WORD   sortId = SORTIDFROMLCID (localeId);
 
-  if (!WinlocaleGetLanguageCode (&ll, heap, locale)) {
+  /**
+   * Lookup sublanguage index.
+   */
+  SublanguageIndex sublanguageIndex = SublanguageIndex_invalid;
+
+  for (SublanguageIndex i = SublanguageIndex_MIN; i <= SublanguageIndex_MAX; ++i) {
+    SubLanguage sublanguage = {0};
+    p32_sublanguage (i, &sublanguage);
+
+    Language language = {0};
+    p32_language (sublanguage.Map.Language, &language);
+
+    if (langId == MAKELCID (MAKELANGID (language.LangId, sublanguage.SubLangId), SORT_DEFAULT)) {
+      sublanguageIndex = i;
+      break;
+    }
+  }
+
+  if (sublanguageIndex == SublanguageIndex_invalid) {
     return false;
   }
 
-  bool success = false;
+  SubLanguage sublanguage = {0};
+  p32_sublanguage (sublanguageIndex, &sublanguage);
 
-  LCID   localeId      = locale->LocaleId;
-  LANGID langId        = LANGIDFROMLCID (localeId);
-  LANGID primaryLangId = PRIMARYLANGID (langId);
-  LANGID subLangId     = SUBLANGID (langId);
-  WORD   sortingId     = SORTIDFROMLCID (localeId);
+  /**
+   * Lookup sorting index.
+   */
+  SortingIndex sortingIndex = SortingIndex_default;
 
-  LanguageIndex language = p32_language_from_id (primaryLangId, ll);
+  if (sortId != 0) {
+    for (SortingIdIndex i = SortingIdIndex_MIN; i <= SortingIdIndex_MAX; ++i) {
+      SortingId sortingId = {0};
+      p32_sorting_id (i, &sortingId);
 
-  if (language == LanguageIndex_invalid) {
-    goto fail;
-  }
+      if (sortingId.Language == sublanguage.Map.Language && sortingId.SortingId == sortId) {
+        sortingIndex = sortingId.Sorting;
+        break;
+      }
+    }
 
-  SublanguageIndex sublanguage = p32_sublanguage_from_id (subLangId, language);
-
-  if (sublanguage == SublanguageIndex_invalid) {
-    goto fail;
-  }
-
-  SortingIndex sorting = p32_sorting_from_id (sortingId, language);
-
-  if (sorting == SortingIndex_invalid) {
-    goto fail;
+    if (sortingIndex == SortingIndex_default) {
+      return false;
+    }
   }
 
   map->Locale      = localeId;
-  map->Sublanguage = sublanguage;
-  map->Sorting     = (sorting == SortingIndex_default ? SortingIndex_invalid : sorting);
+  map->Sublanguage = sublanguageIndex;
+  map->Sorting     = (sortingIndex == SortingIndex_default ? SortingIndex_invalid : sortingIndex);
 
-  success = true;
-
-fail:
-  p32_heap_free (heap, 0, ll);
-
-  return success;
+  return true;
 }
 
 /**
@@ -695,7 +694,7 @@ fail:
 static bool P32WinlocaleFromLCID (Locale *locale, uintptr_t heap) {
   LocaleIdMap map = {0};
 
-  if (!P32LocaleIdMapFromLCID (&map, heap, locale)) {
+  if (!P32LocaleIdMapFromLCID (&map, locale->LocaleId)) {
     goto fail;
   }
 
