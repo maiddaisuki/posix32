@@ -47,6 +47,7 @@ struct known_locale { const char *name; KnownLocaleIndex Index; };
 %%
 C,         KnownLocale_POSIX
 POSIX,     KnownLocale_POSIX
+ca-ES-valencia, KnownLocale_ca_ES_valencia
 qps-ploc,  KnownLocale_QpsPloc
 qps-ploca, KnownLocale_QpsPloca
 qps-plocm, KnownLocale_QpsPlocm
