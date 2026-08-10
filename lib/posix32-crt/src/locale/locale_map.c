@@ -637,21 +637,18 @@ static bool P32LocaleMap (LocaleMap *localeMap, LocaleStringMap *stringMap, bool
   }
 
   /**
-   * Locale "ca-ES-valencia".
+   * Locale "ca-ES-valencia" is handled as Known Locale.
    *
    * The following locale string can be used for this locale:
    *
    *  - ca-ES-valencia
    *  - ca[_ES]@valencia
    *  - Valencian[_Spain]
-   *
-   * With information in `localeMap`, they would always resolve to "ca-ES";
-   * give resolver a hint so that this locale can be resolved properly.
    */
   if (localeMap->Language.Language == ca) {
     if (localeMap->Language.Country == ES_valencia || localeMap->Modifier == Modifier_valencia) {
-      localeMap->Country  = ES_valencia;
-      localeMap->Modifier = Modifier_valencia;
+      p32_known_locale_map (localeMap, KnownLocale_ca_ES_valencia);
+      return true;
     }
   }
 

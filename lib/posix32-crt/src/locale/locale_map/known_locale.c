@@ -77,6 +77,11 @@ static const KnownLocaleName KnownLocaleNames[] = {
   /* clang-format off */
   KNOWN_LOCALE_NAME (LocaleType_POSIX, L"POSIX", L"en-US", en_US, P32_CODEPAGE_POSIX, P32_CODEPAGE_POSIX, en, -1, US, -1, -1),
   /**
+   * Locale name "ca-ES-valencia" does not follow the same format as other
+   * locale names, which makes it hard to parse properly.
+   */
+  KNOWN_LOCALE_NAME (LocaleType_WindowsLocale, L"ca-ES-valencia", L"ca-ES-valencia", ca_ES_valencia, P32_CODEPAGE_ACP, P32_CODEPAGE_OCP, ca, -1, ES_valencia, -1, -1),
+  /**
    * Invariant locale "x-IV_mathan".
    *
    * There are two `LCID` locales for this locale:

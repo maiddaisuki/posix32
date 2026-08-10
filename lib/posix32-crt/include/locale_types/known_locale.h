@@ -21,6 +21,7 @@ typedef enum KnownLocaleIndex {
   KnownLocaleIndex_Invalid = -1,
 #define KnownLocaleIndex_MIN KnownLocale_POSIX
   KnownLocale_POSIX,
+  KnownLocale_ca_ES_valencia,
   KnownLocale_Invariant,
   KnownLocale_QpsPloc,
   KnownLocale_QpsPloca,
