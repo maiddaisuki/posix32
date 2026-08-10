@@ -226,17 +226,40 @@ fallback:;
  * This functions returns `false` only if an error has occured.
  * Failure to apply `ss` is not considered an error.
  */
-static bool P32LCIDTrySortOrder (LocaleIdMap *locale, uintptr_t heap, LanguageIndex ll, SortingIndex ss) {
-  Language language = {0};
+static bool P32LCIDTrySortOrder (LocaleIdMap *locale, uintptr_t heap, SortingIndex ss) {
+  SubLanguage sublanguage = {0};
+  p32_sublanguage (locale->Sublanguage, &sublanguage);
 
-  p32_language (ll, &language);
+  Language language = {0};
+  p32_language (sublanguage.Map.Language, &language);
 
   Sorting sorting = {0};
-
   p32_sorting (ss, &sorting);
 
   char *string = NULL;
-  int   length = p32_private_asprintf (&string, heap, L"%s_%s", language.Code, sorting.Name);
+  int   length = 0;
+
+  /**
+   * For most locales which support non-default sorting behavior, it is
+   * achieved by using some `SORT_*` constant when creating `LCID` locale.
+   *
+   * Such cases are handled by using `p32_sorting_id` function to lookup
+   * whether sorting order `ss` is valid for `language`, and if so, try to
+   * construct `LCID` by using appropriate `SORT_*` constant.
+   *
+   * There is one known exception to this rule - "es-ES_tradnl"; its `LCID`
+   * locale is created by using specific `SUBLANG_*` rather than `SORT_*`.
+   *
+   * In order to properly handle this case, we have to lookup appropriate
+   * `SUBLANG_*` constant using `p32_lookup_sublanguage` function.
+   *
+   * The latter case will be attempted only if `p32_sorting_id` did not find
+   * a match, regardless of whether created `LCID` locale is supported;
+   * if a match was found, this variable will be set to `false`.
+   */
+  bool tryHarder = true;
+
+  length = p32_private_asprintf (&string, heap, L"%s_%s", language.Code, sorting.Name);
 
   if (length == -1) {
     return false;
@@ -260,9 +283,53 @@ static bool P32LCIDTrySortOrder (LocaleIdMap *locale, uintptr_t heap, LanguageIn
       locale->Locale  = localeId;
       locale->Sorting = ss;
     }
+
+    tryHarder = false;
   }
 
   p32_heap_free (heap, 0, string);
+
+  if (tryHarder) {
+    Country country = {0};
+    Script  script  = {0};
+
+    p32_country (sublanguage.Map.Country, &country);
+
+    if (sublanguage.Map.Script != ScriptIndex_invalid) {
+      p32_script (sublanguage.Map.Script, &script);
+
+      length = p32_private_asprintf (
+        &string, heap, L"%s-%s-%s_%s", language.Code, script.Name, country.Code, sorting.Name
+      );
+    } else {
+      length = p32_private_asprintf (&string, heap, L"%s-%s_%s", language.Code, country.Code, sorting.Name);
+    }
+
+    if (length == -1) {
+      return false;
+    }
+
+    SubLangInfo sublangInfo = {0};
+
+    sublangInfo.String = string;
+    sublangInfo.Length = length;
+
+    if (p32_lookup_sublanguage (&sublangInfo)) {
+      SubLanguage subLanguage = {0};
+      p32_sublanguage (sublangInfo.SubLanguage, &subLanguage);
+
+      LANGID langId   = MAKELANGID (language.LangId, subLanguage.SubLangId);
+      LCID   localeId = MAKELCID (langId, SORT_DEFAULT);
+
+      if (IsValidLocale (localeId, LCID_INSTALLED)) {
+        locale->Locale      = localeId;
+        locale->Sublanguage = sublangInfo.SubLanguage;
+        locale->Sorting     = ss;
+      }
+    }
+
+    p32_heap_free (heap, 0, string);
+  }
 
   return true;
 }
@@ -653,7 +720,7 @@ static bool P32LCIDKnownLocale (Locale *locale, uintptr_t heap, LocaleMap *local
   p32_sublanguage (map.Sublanguage, &sublanguage);
 
   if (localeMap->Sorting != SortingIndex_invalid) {
-    if (!P32LCIDTrySortOrder (&map, heap, sublanguage.Map.Language, localeMap->Sorting)) {
+    if (!P32LCIDTrySortOrder (&map, heap, localeMap->Sorting)) {
       goto fail;
     }
   }
@@ -799,7 +866,7 @@ static bool P32WinlocaleLCIDResolve (Locale *locale, uintptr_t heap, LocaleMap *
    * Try to apply sorting order to resolved locale.
    */
   if (localeMap->Sorting != SortingIndex_invalid) {
-    if (!P32LCIDTrySortOrder (&resolvedLocale, heap, localeMap->Language.Language, localeMap->Sorting)) {
+    if (!P32LCIDTrySortOrder (&resolvedLocale, heap, localeMap->Sorting)) {
       return false;
     }
   }
