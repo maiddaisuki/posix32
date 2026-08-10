@@ -139,6 +139,7 @@
  *
  * - "C"
  * - "POSIX"
+ * - "ca-ES-valencia"
  * - "x[-IV[_mathan]]"
  * - "qps-ploc"
  * - "qps-ploca"

@@ -77,10 +77,6 @@ static const ReplacementPair Languages[] = {
   {L"Metaʼ",            5,  L"Meta'",            5 },
   {L"Norwegian Bokmål", 16, L"Norwegian Bokmal", 16},
   {L"Volapük",          7,  L"Volapuk",          7 },
-  /**
-   * We also handle it here...
-   */
-  {L"ca-ES-valencia",   14, L"Valencian",        9 }
 };
 
 /**
