@@ -139,6 +139,7 @@
  *
  * - "C"
  * - "POSIX"
+ * - "x[-IV[_mathan]]"
  * - "qps-ploc"
  * - "qps-ploca"
  * - "qps-plocm"
