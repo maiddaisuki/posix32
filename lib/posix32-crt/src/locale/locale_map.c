@@ -637,7 +637,7 @@ static bool P32LocaleMap (LocaleMap *localeMap, LocaleStringMap *stringMap, bool
   }
 
   /**
-   * ca-ES-valencia.
+   * Locale "ca-ES-valencia".
    *
    * The following locale string can be used for this locale:
    *
@@ -645,44 +645,50 @@ static bool P32LocaleMap (LocaleMap *localeMap, LocaleStringMap *stringMap, bool
    *  - ca[_ES]@valencia
    *  - Valencian[_Spain]
    *
-   * With information in `localeMap`, they would always resolve to `ca-ES`.
+   * With information in `localeMap`, they would always resolve to "ca-ES";
+   * give resolver a hint so that this locale can be resolved properly.
    */
   if (localeMap->Language.Language == ca) {
     if (localeMap->Language.Country == ES_valencia || localeMap->Modifier == Modifier_valencia) {
       localeMap->Country  = ES_valencia;
       localeMap->Modifier = Modifier_valencia;
     }
+  }
 
-    /**
-     * Locale strings `Punjabi_India` and `Punjabi_Pakistan` correspond to
-     * locales `pa[-Guru]-IN` and `pa-Arab-PK` respectively.
-     *
-     * Locale name `pa-PK`, which is resolved from `Punjabi_Pakistan`, is not
-     * a valid locale. This will cause `Punjabi_Pakistan` always resolve to
-     * `pa-IN`.
-     *
-     * Give resolver a hint to resolve `Punjabi_Pakistan` to `pa-Arab-PK`.
-     */
-  } else if (localeMap->Language.Language == pa) {
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
+  /**
+   * Locale strings "Punjabi_India" and "Punjabi_Pakistan" correspond to
+   * locales "pa[-Guru]-IN" and "pa-Arab-PK" respectively.
+   *
+   * Locale name "pa-PK", which is resolved from "Punjabi_Pakistan", is not
+   * a valid locale. This will cause "Punjabi_Pakistan" always resolve to
+   * "pa-IN".
+   *
+   * Give resolver a hint to resolve "Punjabi_Pakistan" to "pa-Arab-PK".
+   */
+  if (localeMap->Language.Language == pa) {
     if (localeMap->Country == PK && localeMap->Language.Script == ScriptIndex_invalid) {
       localeMap->Language.Script = Arab;
     }
+  }
+#endif
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
-    /**
-     * fa-AF.
-     *
-     * Locale names for `Persian_Afganistan` and `Persian_Iran` locales
-     * use the same language code `fa` (`fa-AF` and `fa-IR` respectively).
-     *
-     * However, `LCID` locales use different primary language IDs (`LANG_*`).
-     */
-  } else if (localeMap->Language.Language == fa) {
+  /**
+   * Locale "fa-AF" ("prs-AF").
+   *
+   * Locale names for "Persian_Afganistan" and "Persian_Iran" locales
+   * use the same language code "fa" ("fa-AF" and "fa-IR" respectively).
+   *
+   * However, corresponding `LCID` locales use different primary language IDs;
+   * make sure `LCID` locale resolver uses appropriate `LANG_*` constant.
+   */
+  if (localeMap->Language.Language == fa) {
     if (localeMap->Country == AF) {
       localeMap->Language.Language = prs;
     }
-#endif
   }
+#endif
 
   switch (localeMap->Modifier) {
     case Modifier_valencia:
