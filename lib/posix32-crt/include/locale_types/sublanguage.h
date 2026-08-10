@@ -98,7 +98,7 @@ typedef enum SublanguageIndex {
   es_DO,
   es_EC,
   es_ES,
-  es_ES_modern,
+  es_ES_tradnl,
   es_GT,
   es_HN,
   es_MX,

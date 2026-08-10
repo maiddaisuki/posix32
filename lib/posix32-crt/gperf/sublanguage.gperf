@@ -149,8 +149,8 @@ en-TT,          en_TT
 en-US,          en_US
 en-ZA,          en_ZA
 en-ZW,          en_ZW
-es,             es_ES_modern
-es@fallback,    es_ES
+es,             es_ES
+es@fallback,    es_ES_tradnl
 es-419,         es_419
 es-AR,          es_AR
 es-BO,          es_BO
@@ -160,7 +160,7 @@ es-CR,          es_CR
 es-CU,          es_CU
 es-DO,          es_DO
 es-EC,          es_EC
-es-ES,          es_ES_modern
+es-ES,          es_ES
 es-GT,          es_GT
 es-HN,          es_HN
 es-MX,          es_MX
