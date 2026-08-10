@@ -673,23 +673,6 @@ static bool P32LocaleMap (LocaleMap *localeMap, LocaleStringMap *stringMap, bool
   }
 #endif
 
-#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
-  /**
-   * Locale "fa-AF" ("prs-AF").
-   *
-   * Locale names for "Persian_Afganistan" and "Persian_Iran" locales
-   * use the same language code "fa" ("fa-AF" and "fa-IR" respectively).
-   *
-   * However, corresponding `LCID` locales use different primary language IDs;
-   * make sure `LCID` locale resolver uses appropriate `LANG_*` constant.
-   */
-  if (localeMap->Language.Language == fa) {
-    if (localeMap->Country == AF) {
-      localeMap->Language.Language = prs;
-    }
-  }
-#endif
-
   switch (localeMap->Modifier) {
     case Modifier_valencia:
       if (localeMap->Language.Language != ca) {
