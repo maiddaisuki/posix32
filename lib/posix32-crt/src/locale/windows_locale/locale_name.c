@@ -557,13 +557,23 @@ static bool P32LNKnownLocale (Locale *locale, uintptr_t heap, LocaleMap *localeM
 
   /**
    * Locale name to store in `locale`.
-   * This locale name will be used with NLS APIs such as `CompareStringEx`.
    */
   wchar_t *localeName = NULL;
 
   if (knownLocale.Type == LocaleType_POSIX) {
     localeName = knownLocale.LocaleName;
-  } else {
+  } else if (knownLocale.Type == LocaleType_WindowsLocale) {
+    localeName = knownLocale.LocaleName;
+  } else if (knownLocale.Type == LocaleType_PseudoLocale) {
+    /**
+     * For Windows pseudo locales, `knownLocale.LocaleName` is the locale name
+     * which is used instead of that pseudo locale's name in some cases;
+     * we also need to validate that locale name.
+     */
+    if (P32IsValidLocaleName (knownLocale.LocaleName, heap) != 0) {
+      goto fail;
+    }
+
     localeName = knownLocale.LocaleString;
   }
 

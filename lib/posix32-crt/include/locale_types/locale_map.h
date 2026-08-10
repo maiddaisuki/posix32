@@ -64,22 +64,17 @@ typedef struct KnownLocale {
   /**
    * Locale name.
    *
-   * When some special locale names, `GetLocaleInfoEx` may return inadequate
-   * information which cannot be used. This includes Windows pseudo locales
-   * such as `qps-ploc`, and `x-IV_mathan`.
+   * When `Type` is `LocaleType_WindowsLocale`, this is the locale name for
+   * the Known Locale; usually it is the same as `LocaleString`.
    *
-   * In particular, it affects the following information:
+   * When `Type` is `LocaleType_PseudoLocale`, this is the locale name which
+   * can be used instead of that pseudo locale's name; for example, it used with
+   * `GetLocaleInfoEx` function to obtain the following locale information:
    *
    * - LOCALE_SENGLANGUAGE
    * - LOCALE_SENGCOUNTRY
    * - LOCALE_SISO639LANGNAME
    * - LOCALE_SISO3166CTRYNAME
-   *
-   * We need this information to construct locale string passed to
-   * CRT's `[_w]setlocale` and locale name returned by `getlocalename_l`.
-   *
-   * This locale name will be used instead of that pseudo locale's name when
-   * retrieveing such information with `GetLocaleInfoEx`.
    */
   wchar_t *LocaleName;
 } KnownLocale;
