@@ -196,6 +196,7 @@ fallback:;
     SubLanguage subLanguage = {0};
 
     p32_sublanguage (info.SubLanguage, &subLanguage);
+    p32_language (subLanguage.Map.Language, &language);
 
     LANGID langId   = MAKELANGID (language.LangId, subLanguage.SubLangId);
     LCID   localeId = MAKELCID (langId, SORT_DEFAULT);
