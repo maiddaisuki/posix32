@@ -9,6 +9,7 @@ posix32_core_args     = ['-DP32_BUILD', '-DP32_CORE_BUILD']
 posix32_core_sources = files (
   'src/charset.c',
   'src/crt.c',
+  'src/debug.c',
   'src/heap.c',
   'src/loader.c',
   'src/norm.c',

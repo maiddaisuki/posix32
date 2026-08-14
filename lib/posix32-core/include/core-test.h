@@ -23,6 +23,7 @@
 #include "core-atomic.h"
 #include "core-charset.h"
 #include "core-crt.h"
+#include "core-debug.h"
 #include "core-heap.h"
 #include "core-loader.h"
 #include "core-norm.h"
