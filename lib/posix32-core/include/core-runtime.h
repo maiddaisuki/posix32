@@ -21,7 +21,7 @@
 #include <stdint.h>
 #include <wchar.h>
 
-#include "posix32.h"
+#include "core-debug.h"
 
 #ifdef LIBPOSIX32_TEST
 typedef void (*TerminateHandler) (void);
@@ -62,6 +62,7 @@ P32_TEST_DECL P32_NORETURN void p32_terminate_safely (const wchar_t *message, vo
  */
 #define p32_terminate(msg)                            \
   do {                                                \
+    p32_dbg_error (L"%s\n", msg);                     \
     CONTEXT context = {0};                            \
     GetThreadContext (GetCurrentThread (), &context); \
     p32_terminate (msg, &context);                    \

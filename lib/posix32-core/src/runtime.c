@@ -268,8 +268,6 @@ void p32_terminate_handler (TerminateHandler handler) {
 #endif
 
 void p32_terminate (const wchar_t *message, void *context) {
-  p32_dbg_error (L"%s\n", message);
-
 #ifdef LIBPOSIX32_TEST
   if (P32TerminateHandler != NULL) {
     P32TerminateHandler ();
@@ -293,8 +291,6 @@ void p32_terminate (const wchar_t *message, void *context) {
 }
 
 void p32_terminate_safely (const wchar_t *message, void *context) {
-  p32_dbg_error (L"%s\n", message);
-
 #ifdef LIBPOSIX32_TEST
   if (P32TerminateHandler != NULL) {
     P32TerminateHandler ();
