@@ -31,7 +31,7 @@ static void __cdecl P32InvalidParameterHandler (
    * The arguments are only valid when using debug version of CRT.
    */
 #ifdef _DEBUG
-  _RPTW4 (_CRT_ERROR, L"%s:%u: invalid parameter has been passed to %s: %s\n", filename, line, function, expression);
+  p32_dbg_error (L"%s:%u: invalid parameter has been passed to %s: %s\n", filename, line, function, expression);
 #endif
 
   p32_terminate (L"The invalid parameter handler has been invoked.");
