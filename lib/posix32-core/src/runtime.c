@@ -28,6 +28,7 @@
 #include <windows.h>
 
 #include "core-atomic.h"
+#include "core-debug.h"
 #include "core-loader.h"
 #include "core-runtime.h"
 #include "core-winver.h"
@@ -278,9 +279,9 @@ void p32_terminate (const wchar_t *message, void *context) {
 #endif
 
   /**
-   * Send `message` to debugger (if present) before terminating.
+   * Send `message` to the debugger before terminating.
    */
-  OutputDebugStringW (message);
+  p32_dbg_output_string (message);
 
   /**
    * Terminate the process.
@@ -303,9 +304,15 @@ void p32_terminate_safely (const wchar_t *message, void *context) {
 #endif
 
   /**
-   * Send `message` to debugger (if present) before terminating.
+   * Function `p32_dbg_output_string` is safe to call only when the library
+   * is configured without Windows 9x support.
    */
-  OutputDebugStringW (message);
+#if !P32_WIN9X
+  /**
+   * Send `message` to the debugger before terminating.
+   */
+  p32_dbg_output_string (message);
+#endif
 
   /**
    * Terminate the process.
