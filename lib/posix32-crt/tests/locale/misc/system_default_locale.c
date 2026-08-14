@@ -41,7 +41,7 @@ int main (void) {
 
   assert (p32_winlocale_system_default (&locale, 0));
   assert (locale.LocaleName != NULL);
-  _RPTW1 (_CRT_WARN, L"%s\n", locale.LocaleName);
+  p32_dbg_message (L"%s\n", locale.LocaleName);
   p32_winlocale_destroy (&locale, 0);
 
   return EXIT_SUCCESS;

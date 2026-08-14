@@ -91,7 +91,7 @@ static DWORD CALLBACK Thread (LPVOID Param) {
    */
   assert (_configthreadlocale (_ENABLE_PER_THREAD_LOCALE) != -1);
   assert (_wsetlocale (LC_ALL, localeString) != NULL);
-  _RPTW1 (_CRT_WARN, L"Thread Locale (CRT): %s\n", _wsetlocale (LC_ALL, NULL));
+  p32_dbg_message (L"Thread Locale (CRT): %s\n", _wsetlocale (LC_ALL, NULL));
   assert (wcscmp (_wsetlocale (LC_ALL, NULL), TestThreadLocale.LocaleString) == 0);
 
   /**
@@ -104,28 +104,28 @@ static DWORD CALLBACK Thread (LPVOID Param) {
    *  returned `locale_t` obejct to restore original CRT thread locale.
    */
   assert ((locale = uselocale (NULL)) == LC_GLOBAL_LOCALE);
-  _RPTW1 (_CRT_WARN, L"Thread Locale: %hs\n", getlocalename_l (LC_ALL, locale));
+  p32_dbg_message (L"Thread Locale: %hs\n", getlocalename_l (LC_ALL, locale));
   assert (strcmp (getlocalename_l (LC_ALL, locale), TestGlobalLocale.LocaleName) == 0);
 
   /**
    * Active CRT locale must remain unchanged.
    */
   assert (_configthreadlocale (0) == _ENABLE_PER_THREAD_LOCALE);
-  _RPTW1 (_CRT_WARN, L"Thread Locale (CRT): %s\n", _wsetlocale (LC_ALL, NULL));
+  p32_dbg_message (L"Thread Locale (CRT): %s\n", _wsetlocale (LC_ALL, NULL));
   assert (wcscmp (_wsetlocale (LC_ALL, NULL), TestThreadLocale.LocaleString) == 0);
 
   /**
    * Set Thread Locale to Global Locale.
    */
   assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  _RPTW1 (_CRT_WARN, L"Thread Locale (global): %hs\n", getlocalename_l (LC_ALL, locale));
+  p32_dbg_message (L"Thread Locale (global): %hs\n", getlocalename_l (LC_ALL, locale));
   assert (strcmp (getlocalename_l (LC_ALL, locale), TestGlobalLocale.LocaleName) == 0);
 
   /**
    * Verify that active CRT locale is Global Locale.
    */
   assert (_configthreadlocale (0) == _DISABLE_PER_THREAD_LOCALE);
-  _RPTW1 (_CRT_WARN, L"Thread Locale (CRT, global): %s\n", _wsetlocale (LC_ALL, NULL));
+  p32_dbg_message (L"Thread Locale (CRT, global): %s\n", _wsetlocale (LC_ALL, NULL));
   assert (wcscmp (_wsetlocale (LC_ALL, NULL), TestGlobalLocale.LocaleString) == 0);
 
   return 0;
@@ -155,7 +155,7 @@ int main (void) {
    */
   assert (setlocale (LC_ALL, TestGlobalLocale.Locale) != NULL);
   assert (strcmp (getlocalename_l (LC_ALL, LC_GLOBAL_LOCALE), TestGlobalLocale.LocaleName) == 0);
-  _RPTW1 (_CRT_WARN, L"Global Locale: %s\n", _wsetlocale (LC_ALL, NULL));
+  p32_dbg_message (L"Global Locale: %s\n", _wsetlocale (LC_ALL, NULL));
   assert (wcscmp (_wsetlocale (LC_ALL, NULL), TestGlobalLocale.LocaleString) == 0);
 
   HANDLE thread   = NULL;
@@ -168,7 +168,7 @@ int main (void) {
   CloseHandle (thread);
 
   assert (strcmp (getlocalename_l (LC_ALL, LC_GLOBAL_LOCALE), TestGlobalLocale.LocaleName) == 0);
-  _RPTW1 (_CRT_WARN, L"Global Locale: %s\n", _wsetlocale (LC_ALL, NULL));
+  p32_dbg_message (L"Global Locale: %s\n", _wsetlocale (LC_ALL, NULL));
   assert (wcscmp (_wsetlocale (LC_ALL, NULL), TestGlobalLocale.LocaleString) == 0);
 
   return exitCode;

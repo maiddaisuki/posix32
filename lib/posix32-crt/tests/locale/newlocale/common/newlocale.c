@@ -528,9 +528,9 @@ static bool __cdecl Test (Locale *locale) {
 
     assert (p32_heap_free (0, 0, localeString));
   } else if (!usableCharset && doTest) {
-    _RPTW2 (_CRT_WARN, L"UNSUPPORTED: %s.%u\n", locale->LocaleName, codePage);
+    p32_dbg_message (L"UNSUPPORTED: %s.%u\n", locale->LocaleName, codePage);
   } else {
-    _RPTW1 (_CRT_WARN, L"SKIP: %s\n", locale->LocaleName);
+    p32_dbg_message (L"SKIP: %s\n", locale->LocaleName);
   }
 
   return true;

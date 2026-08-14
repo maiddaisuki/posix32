@@ -51,7 +51,7 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
 
     if (wc != wcTranslated) {
       exit_code = EXIT_SUCCESS;
-      _RPTW3 (_CRT_WARN, L"%s: %c -> %c\n", localeName, wc, wcTranslated);
+      p32_dbg_message (L"%s: %c -> %c\n", localeName, wc, wcTranslated);
     }
 
     if (wc == WEOF) {

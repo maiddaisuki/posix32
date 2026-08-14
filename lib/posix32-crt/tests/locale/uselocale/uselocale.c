@@ -121,7 +121,7 @@ static DWORD CALLBACK Thread (LPVOID Param) {
 #if P32_CRT >= P32_MSVCR80
   assert (_configthreadlocale (0) == _DISABLE_PER_THREAD_LOCALE);
   assert ((global_locale_pre = _wcsdup (_wsetlocale (LC_ALL, NULL))) != NULL);
-  _RPTW1 (_CRT_WARN, L"Thread Locale (CRT, global): %s\n", global_locale_pre);
+  p32_dbg_message (L"Thread Locale (CRT, global): %s\n", global_locale_pre);
   assert (wcscmp (global_locale_pre, L"C") == 0);
 #endif
 
@@ -130,13 +130,13 @@ static DWORD CALLBACK Thread (LPVOID Param) {
    */
   assert ((locale = newlocale (LC_ALL_MASK, localeName, NULL)) != NULL);
   assert (uselocale (locale) == LC_GLOBAL_LOCALE);
-  _RPTW1 (_CRT_WARN, L"Thread Locale: %hs\n", getlocalename_l (LC_ALL, uselocale (NULL)));
+  p32_dbg_message (L"Thread Locale: %hs\n", getlocalename_l (LC_ALL, uselocale (NULL)));
   assert (strcmp (getlocalename_l (LC_ALL, uselocale (NULL)), TestThreadLocale.LocaleName) == 0);
 
 #if P32_CRT >= P32_MSVCR80
   assert (_configthreadlocale (0) == _ENABLE_PER_THREAD_LOCALE);
   assert ((thread_locale_pre = _wcsdup (_wsetlocale (LC_ALL, NULL))) != NULL);
-  _RPTW1 (_CRT_WARN, L"Thread Locale (CRT): %s\n", thread_locale_pre);
+  p32_dbg_message (L"Thread Locale (CRT): %s\n", thread_locale_pre);
   assert (wcscmp (thread_locale_pre, TestThreadLocale.LocaleString) == 0);
 #endif
 
@@ -161,7 +161,7 @@ static DWORD CALLBACK Thread (LPVOID Param) {
 #if P32_CRT >= P32_MSVCR80
   assert (_configthreadlocale (0) == _ENABLE_PER_THREAD_LOCALE);
   assert ((thread_locale_post = _wcsdup (_wsetlocale (LC_ALL, NULL))) != NULL);
-  _RPTW1 (_CRT_WARN, L"Thread Locale (CRT): %s\n", thread_locale_post);
+  p32_dbg_message (L"Thread Locale (CRT): %s\n", thread_locale_post);
   assert (wcscmp (thread_locale_pre, thread_locale_post) == 0);
 #endif
 
@@ -169,13 +169,13 @@ static DWORD CALLBACK Thread (LPVOID Param) {
    * Set Thread Locale to Global Locale.
    */
   assert (uselocale (LC_GLOBAL_LOCALE) == locale);
-  _RPTW1 (_CRT_WARN, L"Thread Locale (global): %hs\n", getlocalename_l (LC_ALL, uselocale (NULL)));
+  p32_dbg_message (L"Thread Locale (global): %hs\n", getlocalename_l (LC_ALL, uselocale (NULL)));
   assert (strcmp (getlocalename_l (LC_ALL, uselocale (NULL)), TestGlobalLocale.LocaleName) == 0);
 
 #if P32_CRT >= P32_MSVCR80
   assert (_configthreadlocale (0) == _DISABLE_PER_THREAD_LOCALE);
   assert ((global_locale_post = _wcsdup (_wsetlocale (LC_ALL, NULL))) != NULL);
-  _RPTW1 (_CRT_WARN, L"Thread Locale (CRT, global): %s\n", global_locale_post);
+  p32_dbg_message (L"Thread Locale (CRT, global): %s\n", global_locale_post);
   assert (wcscmp (global_locale_post, TestGlobalLocale.LocaleString) == 0);
 #endif
 
@@ -187,7 +187,7 @@ static DWORD CALLBACK Thread (LPVOID Param) {
 
 #if P32_CRT >= P32_MSVCR80
   assert (_configthreadlocale (0) == _DISABLE_PER_THREAD_LOCALE);
-  _RPTW1 (_CRT_WARN, L"Thread Locale (CRT, global): %s\n", _wsetlocale (LC_ALL, NULL));
+  p32_dbg_message (L"Thread Locale (CRT, global): %s\n", _wsetlocale (LC_ALL, NULL));
   assert (wcscmp (_wsetlocale (LC_ALL, NULL), TestGlobalLocale.LocaleString) == 0);
 #endif
 
@@ -236,7 +236,7 @@ int main (void) {
    * Set Global Locale to "POSIX" locale.
    */
   assert (setlocale (LC_ALL, "POSIX") != NULL);
-  _RPTW1 (_CRT_WARN, L"Global Locale: %s\n", SETLOCALE (LC_ALL, NULL));
+  p32_dbg_message (L"Global Locale: %s\n", SETLOCALE (LC_ALL, NULL));
   assert (CMP (SETLOCALE (LC_ALL, NULL), STR ("C")) == 0);
 
   HANDLE thread   = NULL;
@@ -252,7 +252,7 @@ int main (void) {
    * Global Locale has been changed to `en-US`.
    */
   assert (strcmp (getlocalename_l (LC_ALL, LC_GLOBAL_LOCALE), TestGlobalLocale.LocaleName) == 0);
-  _RPTW1 (_CRT_WARN, L"Global Locale: %s\n", SETLOCALE (LC_ALL, NULL));
+  p32_dbg_message (L"Global Locale: %s\n", SETLOCALE (LC_ALL, NULL));
   assert (CMP (SETLOCALE (LC_ALL, NULL), TestGlobalLocale.LocaleString) == 0);
 
   return exitCode;

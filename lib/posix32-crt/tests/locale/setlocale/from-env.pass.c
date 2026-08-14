@@ -125,7 +125,7 @@ int main (void) {
    */
   assert (setlocale (LC_ALL, "") != NULL);
   assert (strcmp (getlocalename_l (LC_ALL, LC_GLOBAL_LOCALE), TestLocale.LocaleName) == 0);
-  _RPTW1 (_CRT_WARN, L"Global Locale (CRT): %s\n", SETLOCALE (LC_ALL, NULL));
+  p32_dbg_message (L"Global Locale (CRT): %s\n", SETLOCALE (LC_ALL, NULL));
   assert (CMP (SETLOCALE (LC_ALL, NULL), TestLocale.LocaleString) == 0);
 
   return 0;
