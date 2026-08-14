@@ -112,13 +112,30 @@ void p32_test_init (void) {
 #endif
 
 #ifdef _DEBUG
-  assert (_CrtSetReportMode (_CRT_WARN, _CRTDBG_MODE_DEBUG | _CRTDBG_MODE_FILE) != -1);
+  /**
+   * Usually, we want `_CrtDbgReport` functions to write debug messages
+   * to the log file, or `stderr` if running tests directly.
+   *
+   * However, if the process was started under debugger, we will send these
+   * messages to the debugger instead; this should provide better debugging
+   * experience.
+   *
+   * We do not send them to both; otherwise, all messages would be repeated
+   * twice when using debuggers such `gdb` or `lldb`.
+   */
+  int reportMode = _CRTDBG_MODE_FILE;
+
+  if (p32_dbg_is_debugger_present ()) {
+    reportMode = _CRTDBG_MODE_DEBUG;
+  }
+
+  assert (_CrtSetReportMode (_CRT_WARN, reportMode) != -1);
   assert (_CrtSetReportFile (_CRT_WARN, _CRTDBG_FILE_STDOUT) != _CRTDBG_HFILE_ERROR);
 
-  assert (_CrtSetReportMode (_CRT_ERROR, _CRTDBG_MODE_DEBUG | _CRTDBG_MODE_FILE) != -1);
+  assert (_CrtSetReportMode (_CRT_ERROR, reportMode) != -1);
   assert (_CrtSetReportFile (_CRT_ERROR, _CRTDBG_FILE_STDERR) != _CRTDBG_HFILE_ERROR);
 
-  assert (_CrtSetReportMode (_CRT_ASSERT, _CRTDBG_MODE_DEBUG | _CRTDBG_MODE_FILE) != -1);
+  assert (_CrtSetReportMode (_CRT_ASSERT, reportMode) != -1);
   assert (_CrtSetReportFile (_CRT_ASSERT, _CRTDBG_FILE_STDERR) != _CRTDBG_HFILE_ERROR);
 #endif
 
