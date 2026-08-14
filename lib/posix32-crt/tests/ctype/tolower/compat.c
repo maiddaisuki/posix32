@@ -64,7 +64,7 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
         wcP32 = 0xFFFD;
       }
 
-      fwprintf (stderr, L"%-24s: %0.2X (%c) -> %0.2X (%c) | %0.2X (%c)\n", localeName, c, wc, crt, wcCrt, p32, wcP32);
+      p32_dbg_message (L"%-24s: %0.2X (%c) -> %0.2X (%c) | %0.2X (%c)\n", localeName, c, wc, crt, wcCrt, p32, wcP32);
     }
   }
 

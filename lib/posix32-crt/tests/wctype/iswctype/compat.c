@@ -111,8 +111,7 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
       }
 
 #if P32_CRT >= P32_MSVCR80
-      fwprintf (
-        stderr,
+      p32_dbg_message (
         L"%-24s: %0.4X %c | (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d)\n",
         localeName, wc, wcPrint,
         /* clang-format off */
@@ -130,6 +129,12 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
         /* clang-format on */
       );
 #else
+      /**
+       * We want to produce output encoded as UTF-8 so that we can avoid
+       * best-fit conversion of `wc`.
+       *
+       * TODO: use `wprintf` once implemented in posix32-crt.
+       */
       wchar_t format[] =
         L"%-24s: %0.4X %c | (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d)";
 

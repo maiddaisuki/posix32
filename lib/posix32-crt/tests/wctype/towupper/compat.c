@@ -49,8 +49,14 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
       exit_code = EXIT_SUCCESS;
 
 #if P32_CRT >= P32_MSVCR80
-      fwprintf (stderr, L"%-24s: %0.4X (%c) -> %.4X (%c) | %.4X (%c)\n", localeName, wc, wc, crt, crt, p32, p32);
+      p32_dbg_message (L"%-24s: %0.4X (%c) -> %.4X (%c) | %.4X (%c)\n", localeName, wc, wc, crt, crt, p32, p32);
 #else
+      /**
+       * We want to produce output encoded as UTF-8 so that we can avoid
+       * best-fit conversion of `wc`.
+       *
+       * TODO: use `wprintf` once implemented in posix32-crt.
+       */
       wchar_t format[] = L"%-24s: %0.4X (%c) -> %.4X (%c) | %.4X (%c)";
 
       char    *mbs = NULL;

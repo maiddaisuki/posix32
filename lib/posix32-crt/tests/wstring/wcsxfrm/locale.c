@@ -67,7 +67,7 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
 
   if (cmpDiff != collDiff) {
     exit_code = EXIT_FAILURE;
-    fwprintf (stderr, L"%-24s: %d | %d\n", localeName, cmpDiff, collDiff);
+    p32_dbg_error (L"%-24s: %d | %d\n", localeName, cmpDiff, collDiff);
   }
 
   assert (collDiff != _NLSCMPERROR);

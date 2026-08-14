@@ -62,7 +62,7 @@ static void CompareStringIncremental (
 
     if (diff) {
       exit_code = EXIT_FAILURE;
-      fwprintf (stderr, L"%-24s: %d\n", localeName, diff);
+      p32_dbg_error (L"%-24s: %d\n", localeName, diff);
     }
 
     assert (diff != _NLSCMPERROR);

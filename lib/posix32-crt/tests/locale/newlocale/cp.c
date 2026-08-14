@@ -262,9 +262,9 @@ en_US:
 
   if (locale == NULL) {
     exit_code = EXIT_FAILURE;
-    fwprintf (stderr, L"FAIL: %s\n", localeStringW);
+    p32_dbg_error (L"FAIL: %s\n", localeStringW);
   } else {
-    fwprintf (stdout, L"PASS: %s\n", localeStringW);
+    p32_dbg_message (L"PASS: %s\n", localeStringW);
     freelocale (locale);
   }
 

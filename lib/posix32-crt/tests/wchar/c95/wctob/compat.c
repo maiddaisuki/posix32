@@ -68,8 +68,14 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
       }
 
 #if P32_CRT >= P32_MSVCR80
-      fwprintf (stderr, L"%-24s: %0.4X (%c) -> EOF | %0.2X\n", localeName, wc, wcToPrint, p32);
+      p32_dbg_message (L"%-24s: %0.4X (%c) -> EOF | %0.2X\n", localeName, wc, wcToPrint, p32);
 #else
+      /**
+       * We want to produce output encoded as UTF-8 so that we can avoid
+       * best-fit conversion of `wc`.
+       *
+       * TODO: use `wprintf` once implemented in posix32-crt.
+       */
       wchar_t formatString[] = L"%-24s: %0.4X (%c) -> EOF | %0.2X";
 
       char    *u8Str = NULL;
@@ -104,8 +110,14 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
       crt = (uint8_t) crt;
 
 #if P32_CRT >= P32_MSVCR80
-      fwprintf (stderr, L"%-24s: %0.4X (%c) -> %0.2X (%c) | EOF\n", localeName, wc, wcToPrint, crt, crtAsWc);
+      p32_dbg_message (L"%-24s: %0.4X (%c) -> %0.2X (%c) | EOF\n", localeName, wc, wcToPrint, crt, crtAsWc);
 #else
+      /**
+       * We want to produce output encoded as UTF-8 so that we can avoid
+       * best-fit conversion of `wc`.
+       *
+       * TODO: use `wprintf` once implemented in posix32-crt.
+       */
       wchar_t formatString[] = L"%-24s: %0.4X (%c) -> %0.2X (%c) | EOF";
 
       char    *u8Str = NULL;
@@ -125,7 +137,7 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
        */
     } else if ((uint8_t) crt != (uint8_t) p32) {
       exit_code = EXIT_SUCCESS;
-      fwprintf (stderr, L"%-24s: %0.4X -> %0.2X | %0.2X\n", localeName, wc, (uint8_t) crt, p32);
+      p32_dbg_message (L"%-24s: %0.4X -> %0.2X | %0.2X\n", localeName, wc, (uint8_t) crt, p32);
     }
 
     if (wc == WEOF) {

@@ -108,8 +108,7 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
         wc = 0xFFFD;
       }
 
-      fwprintf (
-        stderr,
+      p32_dbg_message (
         L"%-24s: %0.2X %c | (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d) (%d|%d)\n",
         localeName, i, wc,
         /* clang-format off */

@@ -72,7 +72,7 @@ static void DoTest (LPCWSTR ll, LPCWSTR cc) {
 
   if (!p32_locale_map (&localeMap, localeString, 0)) {
     exit_code = EXIT_FAILURE;
-    fwprintf (stderr, L"FAIL: %s\n", localeString);
+    p32_dbg_error (L"FAIL: %s\n", localeString);
   }
 
   assert (p32_heap_free (0, 0, localeString));
@@ -86,7 +86,7 @@ static void DoTestLocaleName (Locale *locale) {
 
   if (!p32_locale_map (&localeMap, locale->LocaleName, 0)) {
     exit_code = EXIT_FAILURE;
-    fwprintf (stderr, L"FAIL: %s\n", locale->LocaleName);
+    p32_dbg_error (L"FAIL: %s\n", locale->LocaleName);
   }
 }
 

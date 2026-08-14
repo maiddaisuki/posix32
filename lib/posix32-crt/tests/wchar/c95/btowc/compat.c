@@ -52,7 +52,7 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
 
     if (crt != p32) {
       exit_code = EXIT_SUCCESS;
-      fwprintf (stderr, L"%-24s: %0.2X -> %0.4X | %0.4X\n", localeName, c, crt, p32);
+      p32_dbg_message (L"%-24s: %0.2X -> %0.4X | %0.4X\n", localeName, c, crt, p32);
     }
   }
 

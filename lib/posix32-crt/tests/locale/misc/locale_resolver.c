@@ -128,7 +128,7 @@ static bool IsEqualLCIDLocale (Locale *from, Locale *to) {
   WORD toSortingId   = SORTIDFROMLCID (to->LocaleId);
 
   if (fromSortingId != toSortingId) {
-    fwprintf (stdout, L"UNRESOLVED: %s -> %s\n", from->LocaleName, to->LocaleName);
+    p32_dbg_message (L"UNRESOLVED: %s -> %s\n", from->LocaleName, to->LocaleName);
   }
 
   return true;
@@ -248,9 +248,9 @@ static bool IsEqualLNLocale (Locale *from, Locale *to) {
         return true;
       }
 
-      fwprintf (stdout, L"UNRESOLVED: %s (%s) -> %s\n", from->LocaleName, LocaleName, to->LocaleName);
+      p32_dbg_message (L"UNRESOLVED: %s (%s) -> %s\n", from->LocaleName, LocaleName, to->LocaleName);
     } else {
-      fwprintf (stdout, L"UNRESOLVED: %s -> %s\n", from->LocaleName, to->LocaleName);
+      p32_dbg_message (L"UNRESOLVED: %s -> %s\n", from->LocaleName, to->LocaleName);
     }
 
     return wcsncmp (from->LocaleName, to->LocaleName, compare) == 0;
@@ -292,14 +292,14 @@ static void DoTest (Locale *originaLocale, LPCWSTR ll, LPCWSTR cc) {
 
     if (!IsEqualLocale (originaLocale, &resolvedLocale) && !IsKnownFailure (originaLocale, &resolvedLocale)) {
       exit_code = EXIT_FAILURE;
-      fwprintf (stderr, L"FAIL: %s -> %s -> %s\n", originaLocale->LocaleName, LocaleString, resolvedLocale.LocaleName);
+      p32_dbg_error (L"FAIL: %s -> %s -> %s\n", originaLocale->LocaleName, LocaleString, resolvedLocale.LocaleName);
     }
 
     p32_winlocale_destroy (&resolvedLocale, 0);
     assert (resolvedLocale.Type == LocaleType_Invalid);
   } else {
     exit_code = EXIT_FAILURE;
-    fwprintf (stderr, L"ERROR: %s (%s)\n", originaLocale->LocaleName, LocaleString);
+    p32_dbg_error (L"ERROR: %s (%s)\n", originaLocale->LocaleName, LocaleString);
   }
 
   assert (p32_heap_free (0, 0, LocaleString));
@@ -321,14 +321,14 @@ static void DoTestLocaleName (Locale *originalLocale) {
 
     if (!IsEqualLocale (originalLocale, &resolvedLocale) && !IsKnownFailure (originalLocale, &resolvedLocale)) {
       exit_code = EXIT_FAILURE;
-      fwprintf (stderr, L"FAIL: %s -> %s\n", originalLocale->LocaleName, resolvedLocale.LocaleName);
+      p32_dbg_error (L"FAIL: %s -> %s\n", originalLocale->LocaleName, resolvedLocale.LocaleName);
     }
 
     p32_winlocale_destroy (&resolvedLocale, 0);
     assert (resolvedLocale.Type == LocaleType_Invalid);
   } else {
     exit_code = EXIT_FAILURE;
-    fwprintf (stderr, L"ERROR: %s\n", originalLocale->LocaleName);
+    p32_dbg_error (L"ERROR: %s\n", originalLocale->LocaleName);
   }
 }
 

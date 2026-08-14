@@ -75,7 +75,7 @@ static bool P32LocaleTestFunc4 (uint32_t codePage, void *localeTestFuncData) {
       keep_going = data->Callback4 (locale, localeStringW);
 #endif
     } else {
-      fwprintf (stderr, L"%s: failed to set locale.\n", locale->CrtLocaleStrings.W.LcAll);
+      p32_dbg_warning (L"%s: failed to set locale.\n", locale->CrtLocaleStrings.W.LcAll);
     }
 
     p32_freelocale (locale);

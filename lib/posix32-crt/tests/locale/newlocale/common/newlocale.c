@@ -437,17 +437,17 @@ static void TestLocale (Locale *locale, LPCSTR localeString) {
 
   if (testLocale == NULL) {
     if (expectedFailure) {
-      fwprintf (stderr, L"XFAIL: %hs\n", localeString);
+      p32_dbg_message (L"XFAIL: %hs\n", localeString);
     } else {
       TEST_FAILED (exit_code);
-      fwprintf (stderr, L"FAIL: %hs\n", localeString);
+      p32_dbg_error (L"FAIL: %hs\n", localeString);
     }
   } else {
     if (expectedFailure) {
       TEST_FAILED (exit_code);
-      fwprintf (stderr, L"XPASS: %hs\n", localeString);
+      p32_dbg_error (L"XPASS: %hs\n", localeString);
     } else {
-      fwprintf (stdout, L"PASS: %hs\n", localeString);
+      p32_dbg_message (L"PASS: %hs\n", localeString);
     }
 
     freelocale (testLocale);

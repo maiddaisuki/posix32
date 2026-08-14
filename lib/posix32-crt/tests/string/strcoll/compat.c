@@ -72,8 +72,8 @@ static bool __cdecl Test (locale_t locale, const wchar_t *localeName) {
 
   if (asciiDiffCrt != asciiDiffP32 || localeDiffCrt != localeDiffP32 || unicodeDiffCrt != unicodeDiffP32) {
     exit_code = EXIT_SUCCESS;
-    fwprintf (
-      stderr, L"%-24s: (%d|%d) (%d|%d) (%d|%d)\n", localeName, asciiDiffCrt, asciiDiffP32, localeDiffCrt, localeDiffP32,
+    p32_dbg_message (
+      L"%-24s: (%d|%d) (%d|%d) (%d|%d)\n", localeName, asciiDiffCrt, asciiDiffP32, localeDiffCrt, localeDiffP32,
       unicodeDiffCrt, unicodeDiffP32
     );
   }

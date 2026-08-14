@@ -100,7 +100,7 @@ static bool P32LocaleTestFunc2 (Locale *locale, void *localeTestFuncData) {
         tested      = true;
 #endif
       } else {
-        fwprintf (stderr, L"%s: failed to set locale.\n", testLocale->CrtLocaleStrings.W.LcCtype);
+        p32_dbg_warning (L"%s: failed to set locale.\n", testLocale->CrtLocaleStrings.W.LcCtype);
       }
 
       p32_freelocale (testLocale);
@@ -137,7 +137,7 @@ static bool P32LocaleTestFunc2 (Locale *locale, void *localeTestFuncData) {
         tested      = true;
 #endif
       } else {
-        fwprintf (stderr, L"%s: failed to set locale.\n", testLocale->CrtLocaleStrings.W.LcCtype);
+        p32_dbg_warning (L"%s: failed to set locale.\n", testLocale->CrtLocaleStrings.W.LcCtype);
       }
 
       p32_freelocale (testLocale);
@@ -174,7 +174,7 @@ static bool P32LocaleTestFunc2 (Locale *locale, void *localeTestFuncData) {
         tested      = true;
 #endif
       } else {
-        fwprintf (stderr, L"%s: failed to set locale.\n", testLocale->CrtLocaleStrings.W.LcAll);
+        p32_dbg_warning (L"%s: failed to set locale.\n", testLocale->CrtLocaleStrings.W.LcAll);
       }
 
       p32_freelocale (testLocale);
