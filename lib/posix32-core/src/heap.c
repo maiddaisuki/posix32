@@ -29,6 +29,7 @@
 #include <windows.h>
 
 #include "core-atomic.h"
+#include "core-debug.h"
 #include "core-heap.h"
 #include "core-loader.h"
 #include "core-runtime.h"
@@ -401,23 +402,6 @@ static BOOL WINAPI P32HeapSetInformation (HANDLE heap, HEAP_INFORMATION_CLASS in
 #define ZU L"%lu"
 #endif /* _WIN32 */
 
-#ifdef LIBPOSIX32_TEST
-
-#ifdef _DEBUG
-#define P32HeapDbgMsg(format, ...) _CrtDbgReportW (_CRT_WARN, NULL, 0, NULL, format __VA_OPT__ (, ) __VA_ARGS__)
-#define P32HeapDbgErr(format, ...) _CrtDbgReportW (_CRT_ERROR, NULL, 0, NULL, format __VA_OPT__ (, ) __VA_ARGS__)
-#else
-#define P32HeapDbgMsg(format, ...) fwprintf (stdout, format __VA_OPT__ (, ) __VA_ARGS__)
-#define P32HeapDbgErr(format, ...) fwprintf (stderr, format __VA_OPT__ (, ) __VA_ARGS__)
-#endif
-
-#else
-
-#define P32HeapDbgMsg(...) (void) 0
-#define P32HeapDbgErr(...) (void) 0
-
-#endif
-
 /**
  * Enable Low Fragmentation Heap on `heap`.
  */
@@ -446,11 +430,11 @@ static void P32HeapPrintSummary (uintptr_t heap) {
   heapSummary.cb = sizeof (heapSummary);
 
   if (HeapSummary (heapHandle, 0, &heapSummary)) {
-    P32HeapDbgMsg (L"Summary of heap <%p>:\n", heapHandle);
-    P32HeapDbgMsg (L"  MaxReserve: " ZU " (" ZU "KiB)\n", heapSummary.cbMaxReserve, heapSummary.cbMaxReserve / 1024);
-    P32HeapDbgMsg (L"  Reserved:   " ZU " (" ZU "KiB)\n", heapSummary.cbReserved, heapSummary.cbReserved / 1024);
-    P32HeapDbgMsg (L"  Committed:  " ZU " (" ZU "KiB)\n", heapSummary.cbCommitted, heapSummary.cbCommitted / 1024);
-    P32HeapDbgMsg (L"  Allocated:  " ZU " (" ZU "KiB)\n", heapSummary.cbAllocated, heapSummary.cbAllocated / 1024);
+    p32_dbg_message (L"Summary of heap <%p>:\n", heapHandle);
+    p32_dbg_message (L"  MaxReserve: " ZU " (" ZU "KiB)\n", heapSummary.cbMaxReserve, heapSummary.cbMaxReserve / 1024);
+    p32_dbg_message (L"  Reserved:   " ZU " (" ZU "KiB)\n", heapSummary.cbReserved, heapSummary.cbReserved / 1024);
+    p32_dbg_message (L"  Committed:  " ZU " (" ZU "KiB)\n", heapSummary.cbCommitted, heapSummary.cbCommitted / 1024);
+    p32_dbg_message (L"  Allocated:  " ZU " (" ZU "KiB)\n", heapSummary.cbAllocated, heapSummary.cbAllocated / 1024);
   }
 }
 #endif
@@ -501,7 +485,7 @@ uintptr_t p32_heap_create (
    */
   if ((createFlags & P32_HEAP_CREATE_LFH) && (flags & HEAP_NO_SERIALIZE)) {
 #ifdef LIBPOSIX32_TEST
-    P32HeapDbgErr (
+    p32_dbg_error (
       L"%s:%u: p32_heap_create: attempt to create LFH heap with HEAP_NO_SERIALIZE flag.\n", filename, line
     );
     p32_terminate (L"Invalid heap usage has been detected.");
@@ -513,7 +497,7 @@ uintptr_t p32_heap_create (
   HANDLE heapHandle = HeapCreate (flags, initialSize, maxSize);
 
   if (heapHandle == NULL) {
-    P32HeapDbgErr (
+    p32_dbg_error (
       L"%s:%u: p32_heap_create: failed to create heap; Flags=%X, InitialSize=L" ZU L", MaxSize=" ZU L".\n", filename,
       line, flags, initialSize, maxSize
     );
@@ -527,7 +511,7 @@ uintptr_t p32_heap_create (
    */
   if (createFlags & P32_HEAP_CREATE_LFH) {
     if (!P32HeapLowFragmentation (heap)) {
-      P32HeapDbgMsg (
+      p32_dbg_warning (
         L"%s:%u: p32_heap_create: heap <%p>: failed to enable Low Fragmentation Heap.\n", filename, line, heapHandle
       );
     }
@@ -538,7 +522,7 @@ uintptr_t p32_heap_create (
    */
   if (createFlags & P32_HEAP_CREATE_TERMINATE_ON_CORRUPTION) {
     if (!P32HeapTerminateOnCorruption (heap)) {
-      P32HeapDbgMsg (
+      p32_dbg_warning (
         L"%s:%u: p32_heap_create: heap <%p>: failed to enable Terminate on Corruption.\n", filename, line, heapHandle
       );
     }
@@ -559,7 +543,7 @@ bool p32_heap_destroy (
 #ifdef LIBPOSIX32_TEST
 #if WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP
   if (!HeapValidate (heapHandle, 0, NULL)) {
-    P32HeapDbgErr (L"%s:%u: p32_heap_destroy: heap <%p>: heap validation has failed.\n", filename, line, heapHandle);
+    p32_dbg_error (L"%s:%u: p32_heap_destroy: heap <%p>: heap validation has failed.\n", filename, line, heapHandle);
     p32_terminate (L"Heap validation has failed.");
   }
 #endif
@@ -568,7 +552,7 @@ bool p32_heap_destroy (
 #endif
 
   if (!HeapDestroy (heapHandle)) {
-    P32HeapDbgErr (L"%s:%u: p32_heap_destroy: heap <%p>: failed to destroy.\n", filename, line, heapHandle);
+    p32_dbg_error (L"%s:%u: p32_heap_destroy: heap <%p>: failed to destroy.\n", filename, line, heapHandle);
     return false;
   }
 
@@ -596,7 +580,7 @@ void *p32_heap_alloc (
 
 #ifdef LIBPOSIX32_TEST
   if (buffer == NULL) {
-    P32HeapDbgErr (
+    p32_dbg_warning (
       L"%s:%u: p32_heap_alloc: heap <%p>: request to allocate " ZU L" bytes has failed.\n", filename, line, heapHandle,
       size
     );
@@ -636,7 +620,7 @@ void *p32_heap_realloc (
   if (memory == NULL) {
     if (flags & (HEAP_REALLOC_IN_PLACE_ONLY)) {
 #ifdef LIBPOSIX32_TEST
-      P32HeapDbgErr (
+      p32_dbg_error (
         L"%s:%u: p32_heap_realloc: heap <%p>: `NULL` memory block passed with HEAP_REALLOC_IN_PLACE_ONLY flag.\n",
         filename, line, heapHandle
       );
@@ -651,7 +635,7 @@ void *p32_heap_realloc (
 #ifdef LIBPOSIX32_TEST
 #if WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP
     if (!HeapValidate (heapHandle, flags & HEAP_NO_SERIALIZE, memory)) {
-      P32HeapDbgErr (
+      p32_dbg_error (
         L"%s:%u: p32_heap_realloc: heap <%p>: failed to validate memory block <%p>.\n", filename, line, heapHandle,
         memory
       );
@@ -667,7 +651,7 @@ void *p32_heap_realloc (
       size_t memorySize = HeapSize (heapHandle, flags & HEAP_NO_SERIALIZE, memory);
       assert (memorySize != (size_t) -1);
 
-      P32HeapDbgErr (
+      p32_dbg_warning (
         L"%s:%u: p32_heap_realloc: heap <%p>: failed to reallocate memory block <%p> "
         L"(" ZU L" bytes) to " ZU L" bytes.\n",
         filename, line, heapHandle, memory, memorySize, size
@@ -697,7 +681,7 @@ size_t p32_heap_size (
 
 #if WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP
   if (!HeapValidate (heapHandle, flags & HEAP_NO_SERIALIZE, memory)) {
-    P32HeapDbgErr (
+    p32_dbg_error (
       L"%s:%u: p32_heap_size: heap <%p>: failed to validate memory block <%p>.\n", filename, line, heapHandle, memory
     );
     p32_terminate (L"Heap validation has failed.");
@@ -709,7 +693,7 @@ size_t p32_heap_size (
 
 #ifdef LIBPOSIX32_TEST
   if (memorySize == (size_t) -1) {
-    P32HeapDbgErr (
+    p32_dbg_error (
       L"%s:%u: p32_heap_size: heap <%p>: failed to obtain size of memory block <%p>.\n", filename, line, heapHandle,
       memory
     );
@@ -738,7 +722,7 @@ bool p32_heap_free (
 
 #if WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP
   if (memory != NULL && !HeapValidate (heapHandle, flags & HEAP_NO_SERIALIZE, memory)) {
-    P32HeapDbgErr (
+    p32_dbg_error (
       L"%s:%u: p32_heap_free: heap <%p>: failed to validate memory block <%p>.\n", filename, line, heapHandle, memory
     );
     p32_terminate (L"Heap validation has failed.");
@@ -750,7 +734,7 @@ bool p32_heap_free (
 
 #ifdef LIBPOSIX32_TEST
   if (!success) {
-    P32HeapDbgErr (
+    p32_dbg_error (
       L"%s:%u: p32_heap_free: heap <%p>: failed to free memory block <%p>.\n", filename, line, heapHandle, memory
     );
     p32_terminate (L"Potential heap corruption has been detected");
