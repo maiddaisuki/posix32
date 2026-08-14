@@ -222,15 +222,13 @@ static void P32RuntimeApiInit (void) {
 
 static void P32RaiseNonContinuableException (PCONTEXT context) {
   RaiseException (STATUS_FATAL_APP_EXIT, EXCEPTION_NONCONTINUABLE, 0, NULL);
-
-  _RPTW0 (_CRT_ERROR, L"Non-continuable exception failed to terminate process.\n");
+  p32_dbg_error (L"Non-continuable exception failed to terminate process.\n");
 
   /**
    * If non-continuable exception was handled, terminate process the old way.
    */
   TerminateProcess (GetCurrentProcess (), STATUS_FATAL_APP_EXIT);
-
-  _RPTW0 (_CRT_ERROR, L"TerminateProcess failed to terminate process.\n");
+  p32_dbg_error (L"TerminateProcess failed to terminate process.\n");
 
   return;
   UNREFERENCED_PARAMETER (context);
@@ -270,7 +268,7 @@ void p32_terminate_handler (TerminateHandler handler) {
 #endif
 
 void p32_terminate (const wchar_t *message, void *context) {
-  _RPTW1 (_CRT_ERROR, L"%s\n", message);
+  p32_dbg_error (L"%s\n", message);
 
 #ifdef LIBPOSIX32_TEST
   if (P32TerminateHandler != NULL) {
@@ -295,7 +293,7 @@ void p32_terminate (const wchar_t *message, void *context) {
 }
 
 void p32_terminate_safely (const wchar_t *message, void *context) {
-  _RPTW1 (_CRT_ERROR, L"%s\n", message);
+  p32_dbg_error (L"%s\n", message);
 
 #ifdef LIBPOSIX32_TEST
   if (P32TerminateHandler != NULL) {
