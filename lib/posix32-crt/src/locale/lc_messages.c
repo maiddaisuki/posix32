@@ -28,6 +28,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-debug.h"
 #include "core-heap.h"
 
 #include "locale-internal.h"
@@ -170,14 +171,7 @@ bool p32_localeinfo_messages (locale_t locale, uintptr_t heap) {
   LcMessagesInfo *lcMessagesInfo = &locale->LocaleInfo.LcMessages;
 
   if (!P32LcMessagesInfo (lcMessagesInfo, heap, lcMessages, locale)) {
-#ifdef LIBPOSIX32_TEST
-    _RPTW1 (_CRT_ERROR, L"LC_MESSAGES(%s): failed to obtain locale information\n", lcMessages->LocaleName);
-
-    if (IsDebuggerPresent ()) {
-      DebugBreak ();
-    }
-#endif
-
+    p32_dbg_warning (L"LC_MESSAGES(%s): failed to obtain locale information\n", lcMessages->LocaleName);
     goto fail;
   }
 

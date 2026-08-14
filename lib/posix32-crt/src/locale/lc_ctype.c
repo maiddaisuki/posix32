@@ -30,6 +30,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-debug.h"
 #include "core-heap.h"
 
 #include "locale-internal.h"
@@ -339,76 +340,32 @@ bool p32_localeinfo_ctype (locale_t locale, uintptr_t heap) {
   }
 
   if (!P32LcCtypeInfo (lcCtypeInfo, heap, charset)) {
-#ifdef LIBPOSIX32_TEST
-    _RPTW1 (_CRT_ERROR, L"LC_CTYPE(%s): failed to obtain locale information\n", locale->WindowsLocaleStrings.W.LcCtype);
-
-    if (IsDebuggerPresent ()) {
-      DebugBreak ();
-    }
-#endif
-
+    p32_dbg_warning (L"LC_CTYPE(%s): failed to obtain locale information\n", locale->WindowsLocaleStrings.W.LcCtype);
     goto fail;
   }
 
   if (!P32ConvertLcCtypeInfo (lcCtypeInfo, heap, charset)) {
-#ifdef LIBPOSIX32_TEST
-    _RPTW1 (
-      _CRT_ERROR, L"LC_CTYPE(%s): failed to convert locale information\n", locale->WindowsLocaleStrings.W.LcCtype
-    );
-
-    if (IsDebuggerPresent ()) {
-      DebugBreak ();
-    }
-#endif
-
+    p32_dbg_warning (L"LC_CTYPE(%s): failed to convert locale information\n", locale->WindowsLocaleStrings.W.LcCtype);
     goto fail_convert;
   }
 
   if (!P32AsciiMap (&lcCtypeInfo->AsciiMap, locale)) {
-#ifdef LIBPOSIX32_TEST
-    _RPTW1 (_CRT_ERROR, L"LC_CTYPE(%s): failed to create AsciiMap\n", locale->WindowsLocaleStrings.W.LcCtype);
-
-    if (IsDebuggerPresent ()) {
-      DebugBreak ();
-    }
-#endif
-
+    p32_dbg_warning (L"LC_CTYPE(%s): failed to create AsciiMap\n", locale->WindowsLocaleStrings.W.LcCtype);
     goto fail_ascii_map;
   }
 
   if (!P32CharTypeMap (&lcCtypeInfo->CharType, locale)) {
-#ifdef LIBPOSIX32_TEST
-    _RPTW1 (_CRT_ERROR, L"LC_CTYPE(%s): failed to create CharTypeMap\n", locale->WindowsLocaleStrings.W.LcCtype);
-
-    if (IsDebuggerPresent ()) {
-      DebugBreak ();
-    }
-#endif
-
+    p32_dbg_warning (L"LC_CTYPE(%s): failed to create CharTypeMap\n", locale->WindowsLocaleStrings.W.LcCtype);
     goto fail_chartype_map;
   }
 
   if (!P32ToLowerMap (&lcCtypeInfo->ToLower, locale)) {
-#ifdef LIBPOSIX32_TEST
-    _RPTW1 (_CRT_ERROR, L"LC_CTYPE(%s): failed to create LowerMap\n", locale->WindowsLocaleStrings.W.LcCtype);
-
-    if (IsDebuggerPresent ()) {
-      DebugBreak ();
-    }
-#endif
-
+    p32_dbg_warning (L"LC_CTYPE(%s): failed to create LowerMap\n", locale->WindowsLocaleStrings.W.LcCtype);
     goto fail_lower_map;
   }
 
   if (!P32ToUpperMap (&lcCtypeInfo->ToUpper, locale)) {
-#ifdef LIBPOSIX32_TEST
-    _RPTW1 (_CRT_ERROR, L"LC_CTYPE(%s): failed to create UpperMap\n", locale->WindowsLocaleStrings.W.LcCtype);
-
-    if (IsDebuggerPresent ()) {
-      DebugBreak ();
-    }
-#endif
-
+    p32_dbg_warning (L"LC_CTYPE(%s): failed to create UpperMap\n", locale->WindowsLocaleStrings.W.LcCtype);
     goto fail_upper_map;
   }
 

@@ -35,6 +35,7 @@
 #include <windows.h>
 
 #include "core-atomic.h"
+#include "core-debug.h"
 #include "core-heap.h"
 #include "core-runtime.h"
 
@@ -183,10 +184,7 @@ static bool P32SetThreadLocaleState (int state, ThreadLocaleState *threadLocaleS
   int oldState = _configthreadlocale (state);
 
   if (oldState == -1) {
-#ifdef LIBPOSIX32_TEST
-    _RPTW1 (_CRT_ERROR, L"Call to _configthreadlocale(%X) has failed.\n", state);
-#endif
-
+    p32_dbg_error (L"Call to _configthreadlocale(%X) has failed.\n", state);
     return false;
   }
 
@@ -214,10 +212,7 @@ static bool P32RestoreThreadLocaleState (ThreadLocaleState *threadLocaleState) {
   int oldState = _configthreadlocale (threadLocaleState->PreviousState);
 
   if (oldState == -1) {
-#ifdef LIBPOSIX32_TEST
-    _RPTW1 (_CRT_ERROR, L"Call to _configthreadlocale(%X) has failed.\n", threadLocaleState->PreviousState);
-#endif
-
+    p32_dbg_error (L"Call to _configthreadlocale(%X) has failed.\n", threadLocaleState->PreviousState);
     return false;
   }
 
@@ -1018,9 +1013,7 @@ static void P32InitGlobalLocale (void) {
   }
 #endif
 
-#if defined(LIBPOSIX32_TEST)
-  _RPTW1 (_CRT_WARN, L"Initializing Global Locale from \"%s\".\n", globalLocale);
-#endif
+  p32_dbg_message (L"Initializing Global Locale from \"%s\".\n", globalLocale);
 
   /**
    * `P32NewLocale` with `LC_ALL_MASK` requires that second argument is either
@@ -1220,9 +1213,7 @@ static P32_NOINLINE void P32InitThreadLocaleUnsafe (ThreadStorage *tls) {
    */
   const wchar_t *localeString = _wsetlocale (LC_ALL, NULL);
 
-#ifdef LIBPOSIX32_TEST
-  _RPTW1 (_CRT_WARN, L"Initializing Thread Locale from \"%s\"\n", localeString);
-#endif
+  p32_dbg_message (L"Initializing Thread Locale from \"%s\"\n", localeString);
 
   /**
    * See comment regarding `LC_MESSAGES` in `P32InitGlobalLocale`.
@@ -1897,7 +1888,7 @@ static void P32CreateLocale (locale_t locale) {
   );
 
   if (locale->CrtLocale.LcCollate == NULL) {
-    _RPTW1 (_CRT_WARN, L"LC_COLLATE(%s): failed to create _locale_t object.\n", locale->CrtLocaleStrings.W.LcCollate);
+    p32_dbg_warning (L"LC_COLLATE(%s): failed to create _locale_t object.\n", locale->CrtLocaleStrings.W.LcCollate);
   }
 
   locale->CrtLocale.LcCtype = P32CreateLocaleObject (
@@ -1905,7 +1896,7 @@ static void P32CreateLocale (locale_t locale) {
   );
 
   if (locale->CrtLocale.LcCtype == NULL) {
-    _RPTW1 (_CRT_WARN, L"LC_CTYPE(%s): failed to create _locale_t object.\n", locale->CrtLocaleStrings.W.LcCtype);
+    p32_dbg_warning (L"LC_CTYPE(%s): failed to create _locale_t object.\n", locale->CrtLocaleStrings.W.LcCtype);
   }
 
   locale->CrtLocale.LcMonetary = P32CreateLocaleObject (
@@ -1913,7 +1904,7 @@ static void P32CreateLocale (locale_t locale) {
   );
 
   if (locale->CrtLocale.LcMonetary == NULL) {
-    _RPTW1 (_CRT_WARN, L"LC_MONETARY(%s): failed to create _locale_t object.\n", locale->CrtLocaleStrings.W.LcMonetary);
+    p32_dbg_warning (L"LC_MONETARY(%s): failed to create _locale_t object.\n", locale->CrtLocaleStrings.W.LcMonetary);
   }
 
   locale->CrtLocale.LcNumeric = P32CreateLocaleObject (
@@ -1921,7 +1912,7 @@ static void P32CreateLocale (locale_t locale) {
   );
 
   if (locale->CrtLocale.LcNumeric == NULL) {
-    _RPTW1 (_CRT_WARN, L"LC_NUMERIC(%s): failed to create _locale_t object.\n", locale->CrtLocaleStrings.W.LcNumeric);
+    p32_dbg_warning (L"LC_NUMERIC(%s): failed to create _locale_t object.\n", locale->CrtLocaleStrings.W.LcNumeric);
   }
 
   locale->CrtLocale.LcTime = P32CreateLocaleObject (
@@ -1929,7 +1920,7 @@ static void P32CreateLocale (locale_t locale) {
   );
 
   if (locale->CrtLocale.LcTime == NULL) {
-    _RPTW1 (_CRT_WARN, L"LC_TIME(%s): failed to create _locale_t object.\n", locale->CrtLocaleStrings.W.LcTime);
+    p32_dbg_warning (L"LC_TIME(%s): failed to create _locale_t object.\n", locale->CrtLocaleStrings.W.LcTime);
   }
 }
 #endif
@@ -2069,8 +2060,8 @@ static bool P32SetLocale (locale_t locale) {
    * succeeds with the same string converted to locale's default ANSI code page.
    */
   if (ret == NULL) {
-#if P32_CRT >= P32_MSVCRT20 && defined(LIBPOSIX32_TEST)
-    _RPTW1 (_CRT_WARN, L"Call to _wsetlocale(LC_ALL, \"%s\") has failed.\n", locale->CrtLocaleStrings.W.LcAll);
+#if P32_CRT >= P32_MSVCRT20
+    p32_dbg_warning (L"Call to _wsetlocale(LC_ALL, \"%s\") has failed.\n", locale->CrtLocaleStrings.W.LcAll);
 #endif
 
     separator = strrchr (locale->CrtLocaleStrings.A.LcAll, ';');
@@ -2088,10 +2079,7 @@ static bool P32SetLocale (locale_t locale) {
 #endif
 
   if (ret == NULL) {
-#if defined(LIBPOSIX32_TEST)
-    _RPTW1 (_CRT_WARN, L"LC_ALL(%s): failed to set locale\n", locale->CrtLocaleStrings.W.LcAll);
-#endif
-
+    p32_dbg_warning (L"LC_ALL(%s): failed to set locale\n", locale->CrtLocaleStrings.W.LcAll);
     return false;
   }
 
@@ -2115,9 +2103,7 @@ static bool P32SetLocale (locale_t locale) {
    * Set code page used by CRT's multibyte functions.
    */
   if (_setmbcp (codePage) == -1) {
-#if defined(LIBPOSIX32_TEST)
-    _RPTW1 (_CRT_ERROR, L"Call to _setmbcp(%u) has failed.\n", locale->Charset.CodePage);
-#endif
+    p32_dbg_warning (L"Call to _setmbcp(%u) has failed.\n", locale->Charset.CodePage);
 
     /**
      * If we failed to set multibyte code page to `P32_CODEPAGE_POSIX` for

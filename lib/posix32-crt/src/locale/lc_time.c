@@ -31,6 +31,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-debug.h"
 #include "core-heap.h"
 
 #include "locale-internal.h"
@@ -1622,26 +1623,12 @@ bool p32_localeinfo_time (locale_t locale, uintptr_t heap) {
   }
 
   if (!P32LcTimeLocaleInfo (lcTimeInfo, heap, lcTime, locale)) {
-#ifdef LIBPOSIX32_TEST
-    _RPTW1 (_CRT_ERROR, L"LC_TIME(%s): failed to obtain locale information\n", locale->WindowsLocaleStrings.W.LcTime);
-
-    if (IsDebuggerPresent ()) {
-      DebugBreak ();
-    }
-#endif
-
+    p32_dbg_warning (L"LC_TIME(%s): failed to obtain locale information\n", locale->WindowsLocaleStrings.W.LcTime);
     goto fail;
   }
 
   if (!P32LcTimeCalendarInfo (&lcTimeInfo->DefaultCalendar, heap, lcTime, locale, P32_CALENDAR_INFO_REQUEST_DEFAULT)) {
-#ifdef LIBPOSIX32_TEST
-    _RPTW1 (_CRT_ERROR, L"LC_TIME(%s): failed to obtain calendar information\n", locale->WindowsLocaleStrings.W.LcTime);
-
-    if (IsDebuggerPresent ()) {
-      DebugBreak ();
-    }
-#endif
-
+    p32_dbg_warning (L"LC_TIME(%s): failed to obtain calendar information\n", locale->WindowsLocaleStrings.W.LcTime);
     goto fail;
   }
 
@@ -1667,17 +1654,9 @@ bool p32_localeinfo_time (locale_t locale, uintptr_t heap) {
     CalendarInfo *alternativeCalendar = &lcTimeInfo->AlternativeCalendar;
 
     if (!P32LcTimeCalendarInfo (alternativeCalendar, heap, lcTime, locale, P32_CALENDAR_INFO_REQUEST_ALTERNATIVE)) {
-#ifdef LIBPOSIX32_TEST
-      _RPTW1 (
-        _CRT_ERROR, L"LC_TIME(%s): failed to obtain alternative calendar information\n",
-        locale->WindowsLocaleStrings.W.LcTime
+      p32_dbg_warning (
+        L"LC_TIME(%s): failed to obtain alternative calendar information\n", locale->WindowsLocaleStrings.W.LcTime
       );
-
-      if (IsDebuggerPresent ()) {
-        DebugBreak ();
-      }
-#endif
-
       goto fail;
     }
 

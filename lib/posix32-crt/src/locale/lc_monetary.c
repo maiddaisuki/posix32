@@ -28,6 +28,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "core-debug.h"
 #include "core-heap.h"
 
 #include "locale-internal.h"
@@ -128,16 +129,9 @@ bool p32_localeinfo_monetary (locale_t locale, uintptr_t heap) {
   LcMonetaryInfo *lcMonetaryInfo = &locale->LocaleInfo.LcMonetary;
 
   if (!P32LcMonetaryInfo (lcMonetaryInfo, heap, lcMonetary, locale)) {
-#ifdef LIBPOSIX32_TEST
-    _RPTW1 (
-      _CRT_ERROR, L"LC_MONETARY(%s): failed to obtain locale information\n", locale->WindowsLocaleStrings.W.LcMonetary
+    p32_dbg_warning (
+      L"LC_MONETARY(%s): failed to obtain locale information\n", locale->WindowsLocaleStrings.W.LcMonetary
     );
-
-    if (IsDebuggerPresent ()) {
-      DebugBreak ();
-    }
-#endif
-
     goto fail;
   }
 
