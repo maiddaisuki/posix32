@@ -130,7 +130,7 @@ void p32_test_init (void) {
   }
 
   assert (_CrtSetReportMode (_CRT_WARN, reportMode) != -1);
-  assert (_CrtSetReportFile (_CRT_WARN, _CRTDBG_FILE_STDOUT) != _CRTDBG_HFILE_ERROR);
+  assert (_CrtSetReportFile (_CRT_WARN, _CRTDBG_FILE_STDERR) != _CRTDBG_HFILE_ERROR);
 
   assert (_CrtSetReportMode (_CRT_ERROR, reportMode) != -1);
   assert (_CrtSetReportFile (_CRT_ERROR, _CRTDBG_FILE_STDERR) != _CRTDBG_HFILE_ERROR);
