@@ -28,6 +28,7 @@
 #include <windows.h>
 
 #include "core-atomic.h"
+#include "core-debug.h"
 #include "core-loader.h"
 #include "core-winver.h"
 
@@ -168,7 +169,10 @@ static void P32InitLoaderApi (void) {
 static void P32LoaderFreeLibrary (uintptr_t module) {
   HMODULE moduleHandle = (HANDLE) module;
   assert (moduleHandle != NULL);
-  FreeLibrary (moduleHandle);
+
+  if (!FreeLibrary (moduleHandle)) {
+    p32_dbg_error (L"Failed to free library; module=<%p>.\n", moduleHandle);
+  }
 }
 
 #if P32_WINNT < P32_WINNT_WIN8 || P32_WIN9X
@@ -307,11 +311,9 @@ static uintptr_t P32InitLoaderLoadLibrary (ModuleName moduleName) {
 static uintptr_t P32LoaderLoadLibrary (ModuleName moduleName) {
   HMODULE module = LoadLibrary (moduleName);
 
-#ifdef LIBPOSIX32_TEST
   if (module == NULL) {
-    _RPTW1 (_CRT_WARN, L"Failed to load library '" S L"'.\n", moduleName);
+    p32_dbg_warning (L"Failed to load library '" S L"'.\n", moduleName);
   }
-#endif
 
   return (uintptr_t) module;
 }
@@ -331,11 +333,9 @@ static uintptr_t P32LoaderLoadLibrary (ModuleName moduleName) {
 static uintptr_t P32LoaderLoadLibraryEx (ModuleName moduleName) {
   HMODULE module = LoadLibraryEx (moduleName, NULL, LoaderLoadLibraryFlags);
 
-#ifdef LIBPOSIX32_TEST
   if (module == NULL) {
-    _RPTW1 (_CRT_WARN, L"Failed to load library '" S L"'.\n", moduleName);
+    p32_dbg_warning (L"Failed to load library '" S L"'.\n", moduleName);
   }
-#endif
 
   return (uintptr_t) module;
 }
@@ -351,11 +351,9 @@ static uintptr_t P32InitLoaderGetModuleHandle (ModuleName moduleName) {
 static uintptr_t P32LoaderGetModuleHandle (ModuleName moduleName) {
   HMODULE module = GetModuleHandle (moduleName);
 
-#ifdef LIBPOSIX32_TEST
   if (module == NULL) {
-    _RPTW1 (_CRT_WARN, L"Failed to obtain handle for '" S L"'.\n", moduleName);
+    p32_dbg_warning (L"Failed to obtain handle for '" S L"'.\n", moduleName);
   }
-#endif
 
   return (uintptr_t) module;
 }
@@ -367,9 +365,7 @@ static uintptr_t P32LoaderGetModuleHandleEx (ModuleName moduleName) {
   HMODULE module = NULL;
 
   if (!GetModuleHandleEx (GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, moduleName, &module)) {
-#if defined(LIBPOSIX32_TEST)
-    _RPTW1 (_CRT_WARN, L"Failed to obtain handle for '" S L"'.\n", moduleName);
-#endif
+    p32_dbg_warning (L"Failed to obtain handle for '" S L"'.\n", moduleName);
   }
 
   return (uintptr_t) module;
