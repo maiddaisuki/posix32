@@ -222,6 +222,20 @@ P32_TEST_DECL void p32_winlocale_destroy (Locale *locale, uintptr_t heap);
 P32_TEST_DECL bool p32_winlocale_equal (Locale *l1, Locale *l2);
 
 /**
+ * Set process locale to `locale`.
+ *
+ * If `locale` is `NULL`, this function resets process locale to default state.
+ */
+P32_TEST_DECL void p32_winlocale_set_process_locale (Locale *locale, uintptr_t heap);
+
+/**
+ * Set thread locale to `locale`.
+ *
+ * If `locale` is `NULL`, this function resets thread locale to default state.
+ */
+P32_TEST_DECL void p32_winlocale_set_thread_locale (Locale *locale, uintptr_t heap);
+
+/**
  * Retrieve locale information as an `uint32_t` value instead of a string.
  *
  * This flag can be set only when retrieving locale information using

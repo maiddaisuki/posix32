@@ -818,6 +818,14 @@ static INT WINAPI P32ResolveLocaleName (LPCWSTR localeName, LPWSTR buffer, INT b
  * configuration.
  */
 
+/**
+ * Set thread locale to `locale`. When `locale` is `NULL`, this functions
+ * resets current thread's locale to User Default Locale.
+ *
+ * This functions does not report failure to set thread locale.
+ */
+static void P32WinlocaleSetThreadLocale (Locale *locale);
+
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID) && (P32_LOCALE_API & P32_LOCALE_API_LN)
 /**
  * Function type for `WinlocaleGetLocaleInfoW`;
@@ -989,6 +997,48 @@ static void P32InitWinlocaleEnumSystemLocales (EnumSystemLocalesCallback, uintpt
 #endif
 #endif /* LCID and Locale Name APIs */
 
+#if P32_WINNT < P32_WINNT_VISTA
+/**
+ * Function type for `WinlocaleSetThreadUILanguage`;
+ * implementation for `p32_winlocale_set_thread_locale`.
+ */
+typedef void (*FuncWinlocaleSetThreadUILanguage) (Locale *, uintptr_t);
+
+/**
+ * Initialization thunk for `WinlocaleSetThreadUILanguage`.
+ */
+static void P32InitWinlocaleSetThreadUILanguage (Locale *, uintptr_t);
+#endif /* P32_WINNT < Windows Vista */
+
+/**
+ * Implementation for `WinlocaleSetThreadUILanguage`.
+ */
+static void P32WinlocaleSetThreadUILanguage (Locale *, uintptr_t);
+
+#if P32_WINNT < P32_WINNT_WIN7
+/**
+ * Function type for `WinlocaleSetProcessUILanguage`;
+ * implementation for `p32_winlocale_set_process_locale`.
+ */
+typedef void (*FuncWinlocaleSetProcessUILanguage) (Locale *, uintptr_t);
+
+/**
+ * Initialization thunk for `WinlocaleSetProcessUILanguage`.
+ */
+static void P32InitWinlocaleSetProcessUILanguage (Locale *, uintptr_t);
+
+/**
+ * Dummy no-op implementation for `WinlocaleSetThreadUILanguage` and
+ * `WinlocaleSetProcessUILanguage`.
+ */
+static void P32WinlocaleSetUILanguage (Locale *, uintptr_t);
+#endif /* P32_WINNT < Windows 7 */
+
+/**
+ * Implementation for `WinlocaleSetProcessUILanguage`.
+ */
+static void P32WinlocaleSetProcessUILanguage (Locale *, uintptr_t);
+
 #if P32_WINNT < P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI < NTDDI_WIN10_RS3)
 /**
  * Function type for `WinlocaleGeo`;
@@ -1140,6 +1190,14 @@ typedef struct WinlocaleApi {
 #endif
 #endif /* LCID and Locale Name APIs */
 
+#if P32_WINNT < P32_WINNT_VISTA
+  FuncWinlocaleSetThreadUILanguage PtrWinlocaleSetThreadUILanguage;
+#endif /* P32_WINNT < Windows Vista */
+
+#if P32_WINNT < P32_WINNT_WIN7
+  FuncWinlocaleSetProcessUILanguage PtrWinlocaleSetProcessUILanguage;
+#endif /* P32_WINNT < Windows 7 */
+
 #if P32_WINNT < P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI < NTDDI_WIN10_RS3)
   FuncWinlocaleGeo        PtrWinlocaleGeo;
   FuncWinlocaleGeoCopy    PtrWinlocaleGeoCopy;
@@ -1175,6 +1233,14 @@ static WinlocaleApi P32WinlocaleApi = {
   .PtrWinlocaleEnumSystemLocales = P32InitWinlocaleEnumSystemLocales,
 #endif
 #endif /* LCID and Locale Name APIs */
+
+#if P32_WINNT < P32_WINNT_VISTA
+  .PtrWinlocaleSetThreadUILanguage = P32InitWinlocaleSetThreadUILanguage,
+#endif /* P32_WINNT < Windows Vista */
+
+#if P32_WINNT < P32_WINNT_WIN7
+  .PtrWinlocaleSetProcessUILanguage = P32InitWinlocaleSetProcessUILanguage,
+#endif /* P32_WINNT < Windows 7 */
 
 #if P32_WINNT < P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI < NTDDI_WIN10_RS3)
   .PtrWinlocaleGeo        = P32InitWinlocaleGeo,
@@ -1321,6 +1387,22 @@ static void P32InitWinlocaleApi (void) {
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
   P32InitLocaleApiWindowsNt ();
 #endif
+
+#if P32_WINNT < P32_WINNT_VISTA
+  if (P32LocaleApi.PtrSetThreadPreferredUILanguages != NULL) {
+    p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleSetThreadUILanguage, P32WinlocaleSetThreadUILanguage);
+  } else {
+    p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleSetThreadUILanguage, P32WinlocaleSetUILanguage);
+  }
+#endif /* P32_WINNT < Windows Vista */
+
+#if P32_WINNT < P32_WINNT_WIN7
+  if (P32LocaleApi.PtrSetProcessPreferredUILanguages != NULL) {
+    p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleSetProcessUILanguage, P32WinlocaleSetProcessUILanguage);
+  } else {
+    p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleSetProcessUILanguage, P32WinlocaleSetUILanguage);
+  }
+#endif /* P32_WINNT < Windows 7 */
 
 #if P32_WINNT < P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI < NTDDI_WIN10_RS3)
   P32InitGeoApi ();
@@ -1494,6 +1576,34 @@ static void P32InitWinlocaleEnumSystemLocales (EnumSystemLocalesCallback callbac
 
 #endif /* Only one implementation is compiled-in */
 
+#if P32_WINNT < P32_WINNT_VISTA
+#define WinlocaleSetThreadUILanguage P32WinlocaleApi.PtrWinlocaleSetThreadUILanguage
+
+static void P32InitWinlocaleSetThreadUILanguage (Locale *locale, uintptr_t heap) {
+  pthread_once (&P32WinlocaleApi.Init, P32InitWinlocaleApi);
+  WinlocaleSetThreadUILanguage (locale, heap);
+}
+#else /* P32_WINNT >= Windows Vista */
+#define WinlocaleSetThreadUILanguage P32WinlocaleSetThreadUILanguage
+#endif /* P32_WINNT >= Windows Vista */
+
+#if P32_WINNT < P32_WINNT_WIN7
+#define WinlocaleSetProcessUILanguage P32WinlocaleApi.PtrWinlocaleSetProcessUILanguage
+
+static void P32InitWinlocaleSetProcessUILanguage (Locale *locale, uintptr_t heap) {
+  pthread_once (&P32WinlocaleApi.Init, P32InitWinlocaleApi);
+  WinlocaleSetProcessUILanguage (locale, heap);
+}
+
+static void P32WinlocaleSetUILanguage (Locale *locale, uintptr_t heap) {
+  return;
+  UNREFERENCED_PARAMETER (locale);
+  UNREFERENCED_PARAMETER (heap);
+}
+#else /* P32_WINNT >= Windows 7 */
+#define WinlocaleSetProcessUILanguage P32WinlocaleSetProcessUILanguage
+#endif /* P32_WINNT >= Windows 7 */
+
 #if P32_WINNT < P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI < NTDDI_WIN10_RS3)
 #define WinlocaleGeo        P32WinlocaleApi.PtrWinlocaleGeo
 #define WinlocaleGeoCopy    P32WinlocaleApi.PtrWinlocaleGeoCopy
@@ -1518,6 +1628,151 @@ static void P32InitWinlocaleGeoDestroy (Locale *locale, uintptr_t heap) {
 #define WinlocaleGeoCopy    P32WinlocaleRegionNameCopy
 #define WinlocaleGeoDestroy P32WinlocaleRegionNameDestroy
 #endif /* Region Names APIs are always available */
+
+/*******************************************************************************
+ * Functions to manipulate process and thread locale.
+ */
+
+static void P32WinlocaleSetThreadLocale (Locale *locale) {
+  /**
+   * Function `SetThreadLocale` is not available to UWP Applications.
+   */
+#if WINAPI_FAMILY == WINAPI_FAMILY_PC_APP
+  return;
+  UNREFERENCED_PARAMETER (locale);
+#else
+  /**
+   * Locale to set.
+   */
+  LCID localeId = LOCALE_USER_DEFAULT;
+
+  if (locale != NULL) {
+    localeId = locale->LocaleId;
+  }
+
+  if (!SetThreadLocale (localeId)) {
+    p32_dbg_error (L"Call to SetThreadLocale(%X) has failed; error=%X.\n", localeId, GetLastError ());
+  }
+#endif
+}
+
+static void P32WinlocaleSetThreadUILanguage (Locale *locale, uintptr_t heap) {
+  /**
+   * Function `SetThreadPreferredUILanguages` is not available to
+   * UWP Applications.
+   */
+#if WINAPI_FAMILY == WINAPI_FAMILY_PC_APP
+  return;
+  UNREFERENCED_PARAMETER (locale);
+  UNREFERENCED_PARAMETER (heap);
+#else
+  /**
+   * Function `SetThreadPreferredUILanguages` takes a double-NUL-terminated
+   * list of strings.
+   *
+   * In order to reset the list, we need to pass an empty list; we always
+   * need to allocate space for an empty list (two NUL-terminators).
+   *
+   * When setting preferred UI language (`locale` is non-NULL), extend
+   * allocation size by `LOCALE_NAME_MAX_LENGTH` so we always have enough space
+   * for `locale->LocaleName` followed by two NUL-terminators.
+   */
+  size_t bufferSize = 2 * sizeof (wchar_t);
+
+  if (locale != NULL) {
+    bufferSize += LOCALE_NAME_MAX_LENGTH * sizeof (wchar_t);
+  }
+
+  wchar_t *buffer = p32_heap_alloc (heap, HEAP_ZERO_MEMORY, bufferSize);
+
+  if (buffer == NULL) {
+    return;
+  }
+
+  if (locale != NULL) {
+    /**
+     * If using locale names, simply copy `locale->LocaleName` to buffer;
+     * otherwise, convert `locale->LocaleId` to locale name.
+     */
+    if (WinlocaleUsingLocaleNames) {
+      wcsncpy (buffer, locale->LocaleName, LOCALE_NAME_MAX_LENGTH);
+    } else {
+      if (LCIDToLocaleName (locale->LocaleId, buffer, LOCALE_NAME_MAX_LENGTH, 0) == 0) {
+        p32_dbg_error (L"Call to LCIDToLocaleName(%X) has failed; error=%X.\n", locale->LocaleId, GetLastError ());
+        goto fail;
+      }
+    }
+
+    p32_dbg_message (L"Setting thread preferred UI language to '%s'.\n", buffer);
+  }
+
+  if (!SetThreadPreferredUILanguages (MUI_LANGUAGE_NAME, buffer, NULL)) {
+    p32_dbg_error (L"Call to SetThreadPreferredUILanguages has failed; error=%X.\n", GetLastError ());
+  }
+
+fail:
+  p32_heap_free (heap, 0, buffer);
+#endif
+}
+
+static void P32WinlocaleSetProcessUILanguage (Locale *locale, uintptr_t heap) {
+  /**
+   * Function `SetProcessPreferredUILanguages` is not available to
+   * UWP Applications.
+   */
+#if WINAPI_FAMILY == WINAPI_FAMILY_PC_APP
+  return;
+  UNREFERENCED_PARAMETER (locale);
+  UNREFERENCED_PARAMETER (heap);
+#else
+  /**
+   * Function `SetProcessPreferredUILanguages` takes a double-NUL-terminated
+   * list of strings.
+   *
+   * In order to reset the list, we need to pass an empty list; we always
+   * need to allocate space for an empty list (two NUL-terminators).
+   *
+   * When setting preferred UI language (`locale` is non-NULL), extend
+   * allocation size by `LOCALE_NAME_MAX_LENGTH` so we always have enough space
+   * for `locale->LocaleName` followed by two NUL-terminators.
+   */
+  size_t bufferSize = 2 * sizeof (wchar_t);
+
+  if (locale != NULL) {
+    bufferSize += LOCALE_NAME_MAX_LENGTH * sizeof (wchar_t);
+  }
+
+  wchar_t *buffer = p32_heap_alloc (heap, HEAP_ZERO_MEMORY, bufferSize);
+
+  if (buffer == NULL) {
+    return;
+  }
+
+  if (locale != NULL) {
+    /**
+     * If using locale names, simply copy `locale->LocaleName` to buffer;
+     * otherwise, convert `locale->LocaleId` to locale name.
+     */
+    if (WinlocaleUsingLocaleNames) {
+      wcsncpy (buffer, locale->LocaleName, LOCALE_NAME_MAX_LENGTH);
+    } else {
+      if (LCIDToLocaleName (locale->LocaleId, buffer, LOCALE_NAME_MAX_LENGTH, 0) == 0) {
+        p32_dbg_error (L"Call to LCIDToLocaleName(%X) has failed.\n", locale->LocaleId);
+        goto fail;
+      }
+    }
+
+    p32_dbg_message (L"Setting process preferred UI language to '%s'.\n", buffer);
+  }
+
+  if (!SetProcessPreferredUILanguages (MUI_LANGUAGE_NAME, buffer, NULL)) {
+    p32_dbg_error (L"Call to SetProcessPreferredUILanguages has failed; error=%X.\n", GetLastError ());
+  }
+
+fail:
+  p32_heap_free (heap, 0, buffer);
+#endif
+}
 
 /*******************************************************************************
  * Functions to obtain locale information.
@@ -2057,6 +2312,15 @@ bool p32_winlocale_get_calendar_info (CalendarInfoRequest *request, uintptr_t he
   }
 
   return WinlocaleGetTextualCalendarInfo (request, heap, locale);
+}
+
+void p32_winlocale_set_process_locale (Locale *locale, uintptr_t heap) {
+  WinlocaleSetProcessUILanguage (locale, heap);
+}
+
+void p32_winlocale_set_thread_locale (Locale *locale, uintptr_t heap) {
+  P32WinlocaleSetThreadLocale (locale);
+  WinlocaleSetThreadUILanguage (locale, heap);
 }
 
 #ifdef LIBPOSIX32_TEST
