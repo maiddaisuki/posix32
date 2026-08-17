@@ -727,11 +727,29 @@ static INT WINAPI P32InitResolveLocaleName (LPCWSTR localeName, LPWSTR buffer, I
 }
 
 static INT WINAPI P32ResolveLocaleName (LPCWSTR localeName, LPWSTR buffer, INT bufferSize) {
-  SetLastError (ERROR_CALL_NOT_IMPLEMENTED);
-  return 0;
-  UNREFERENCED_PARAMETER (localeName);
-  UNREFERENCED_PARAMETER (buffer);
-  UNREFERENCED_PARAMETER (bufferSize);
+  /**
+   * Provide simple emulation around `LocaleNameToLCID` and `LCIDToLocaleName`;
+   * this emulation only works with locales which have corresponding `LCID`.
+   *
+   * If locale name passed to `LocaleNameToLCID` has corresponding `LCID`
+   * locale, passing that `LCID` locale to `LCIDToLocaleName` will return fully
+   * qualified locale name.
+   *
+   * Similar to real `ResolveLocaleName`, it may give some unexpected results
+   * such as `pt` resolving to `pt-BR`; this is mostly irrelevant as we always
+   * use complete locale names.
+   */
+  LCID localeId = LocaleNameToLCID (localeName, 0);
+
+  switch (localeId) {
+    case 0:
+    case LOCALE_CUSTOM_DEFAULT:
+    case LOCALE_CUSTOM_UI_DEFAULT:
+    case LOCALE_CUSTOM_UNSPECIFIED:
+      return 0;
+  }
+
+  return LCIDToLocaleName (localeId, buffer, bufferSize, 0);
 }
 #endif /* Locale name APIs */
 #endif /* P32_WINNT < Windows 7 */
