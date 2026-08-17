@@ -67,7 +67,7 @@ typedef struct Locale {
    * Country/Region name
    */
   wchar_t *GeoName;
-#if (P32_LOCALE_API & P32_LOCALE_API_LCID)
+#if WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP
   /**
    * LCID
    */

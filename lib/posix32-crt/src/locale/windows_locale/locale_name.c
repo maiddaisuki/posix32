@@ -173,6 +173,43 @@ fail:
   return success;
 }
 
+#if WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP
+/**
+ * Convert `locale->LocaleName` to `LCID` and store it in `locale->LocaleId`.
+ */
+static void P32LNToLCID (Locale *locale) {
+  /**
+   * Convert `locale->LocaleName` to `LCID`.
+   */
+  LCID localeId = LocaleNameToLCID (locale->LocaleName, 0);
+
+  switch (localeId) {
+    /**
+     * Call to `LocaleNameToLCID` has failed.
+     */
+    case 0:
+      p32_dbg_error (L"Call to LocaleNameToLCID(%s) has failed; error=%X\n", locale->LocaleName, GetLastError ());
+      /* FALLTHROUGH */
+    /**
+     * `locale->LocaleName` is default custom locale.
+     */
+    case LOCALE_CUSTOM_DEFAULT:
+    /**
+     * `locale->LocaleName` is default custom locale for MUI.
+     */
+    case LOCALE_CUSTOM_UI_DEFAULT:
+    /**
+     * `locale->LocaleName` does not have assigned `LCID`.
+     */
+    case LOCALE_CUSTOM_UNSPECIFIED:
+      localeId = GetUserDefaultLCID ();
+      break;
+  }
+
+  locale->LocaleId = localeId;
+}
+#endif
+
 /**
  * Return `CountryIndex` for locale `localeName`.
  *
@@ -533,6 +570,17 @@ static bool P32DefaultLocaleName (Locale *locale, uintptr_t heap, DefaultLocaleT
     goto fail_free;
   }
 
+#if WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP
+  /**
+   * Store corresponding `LCID` locale.
+   */
+  if (defaultLocaleType == SystemDefaultLocale) {
+    locale->LocaleId = GetSystemDefaultLCID ();
+  } else if (defaultLocaleType == UserDefaultLocale) {
+    locale->LocaleId = GetUserDefaultLCID ();
+  }
+#endif
+
   return true;
 
 fail_free:
@@ -584,6 +632,10 @@ static bool P32LNKnownLocale (Locale *locale, uintptr_t heap, LocaleMap *localeM
   if (!P32WinlocaleInfo (locale, heap)) {
     goto fail_destroy;
   }
+
+#if WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP
+  P32LNToLCID (locale);
+#endif
 
   locale->Type         = knownLocale.Type;
   locale->KnownLocale  = localeMap->KnownLocale;
@@ -698,6 +750,10 @@ static bool P32WinlocaleLNResolve (Locale *locale, uintptr_t heap, LocaleMap *lo
     goto fail_destroy;
   }
 
+#if WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP
+  P32LNToLCID (locale);
+#endif
+
   locale->Type         = LocaleType_WindowsLocale;
   locale->KnownLocale  = localeMap->KnownLocale;
   locale->Map.Language = resolvedLocale.Language;
@@ -725,6 +781,10 @@ static bool P32WinlocaleLNCopy (Locale *destLocale, uintptr_t heap, Locale *srcL
   if (!WinlocaleGeoCopy (destLocale, heap, srcLocale)) {
     goto fail_destroy;
   }
+
+#if WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP
+  destLocale->LocaleId = srcLocale->LocaleId;
+#endif
 
   destLocale->Type                = srcLocale->Type;
   destLocale->KnownLocale         = srcLocale->KnownLocale;
@@ -755,6 +815,10 @@ static void P32WinlocaleLNDestroy (Locale *locale, uintptr_t heap) {
   locale->Map.Script          = ScriptIndex_invalid;
   locale->Map.Country         = CountryIndex_invalid;
   locale->Map.Modifier        = ModifierIndex_invalid;
+
+#if WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP
+  locale->LocaleId = 0;
+#endif
 
   p32_heap_free (heap, 0, locale->LocaleName);
   locale->LocaleName = NULL;
@@ -899,6 +963,10 @@ static BOOL WINAPI P32LNEnumSystemLocalesW (LPWSTR localeString, DWORD flags, LP
   if (!P32WinlocaleInfo (&locale, data->Heap)) {
     goto done;
   }
+
+#if WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP
+  P32LNToLCID (&locale);
+#endif
 
   keepGoing = data->Callback (&locale, data->Data);
 
