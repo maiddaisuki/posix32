@@ -388,6 +388,7 @@ typedef BOOL (WINAPI *FuncEnumSystemLocalesEx) (LOCALE_ENUMPROCEX, DWORD, LPARAM
 
 #if P32_WINNT < P32_WINNT_VISTA
 #define DYNAMIC_CHECKS
+#define DYNAMIC_IMPLEMENTATION
 
 /**
  * Function type corresponding to `LCIDToLocaleName`.
@@ -418,12 +419,23 @@ static LCID WINAPI P32InitLocaleNameToLCID (LPCWSTR, DWORD);
  * Stub to use if `LocaleNameToLCID` is not available.
  */
 static LCID WINAPI P32LocaleNameToLCID (LPCWSTR, DWORD);
+
+/**
+ * Function type corresponding to `SetThreadPreferredUILanguages`.
+ */
+typedef BOOL (WINAPI *FuncSetThreadPreferredUILanguages) (DWORD, PCZZWSTR, PULONG);
 #endif /* P32_WINNT < Windows Vista */
 
 #if P32_WINNT < P32_WINNT_WIN7
-#if (P32_LOCALE_API & P32_LOCALE_API_LN)
 #define DYNAMIC_CHECKS
+#define DYNAMIC_IMPLEMENTATION
 
+/**
+ * Function type corresponding to `SetProcessPreferredUILanguages`.
+ */
+typedef BOOL (WINAPI *FuncSetProcessPreferredUILanguages) (DWORD, PCZZWSTR, PULONG);
+
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
 /**
  * Function type corresponding to `ResolveLocaleName`.
  */
@@ -484,9 +496,18 @@ typedef struct LocaleApi {
    * `LocaleNameToLCID` is available since Windows Vista.
    */
   FuncLocaleNameToLCID PtrLocaleNameToLCID;
+  /**
+   * `SetThreadPreferredUILanguages` is available since Windows Vista.
+   */
+  FuncSetThreadPreferredUILanguages PtrSetThreadPreferredUILanguages;
 #endif /* P32_WINNT < Windows Vista */
 
 #if P32_WINNT < P32_WINNT_WIN7
+  /**
+   * `SetProcessPreferredUILanguages` is available since Windows 7.
+   */
+  FuncSetProcessPreferredUILanguages PtrSetProcessPreferredUILanguages;
+
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
   /**
    * `ResolveLocaleName` is available since Windows 7.
@@ -525,11 +546,14 @@ static LocaleApi P32LocaleApi = {
 #endif /* LCID and Locale Name APIs */
 
 #if P32_WINNT < P32_WINNT_VISTA
-  .PtrLCIDToLocaleName = P32InitLCIDToLocaleName,
-  .PtrLocaleNameToLCID = P32InitLocaleNameToLCID,
+  .PtrLCIDToLocaleName              = P32InitLCIDToLocaleName,
+  .PtrLocaleNameToLCID              = P32InitLocaleNameToLCID,
+  .PtrSetThreadPreferredUILanguages = NULL,
 #endif /* P32_WINNT < Windows Vista */
 
 #if P32_WINNT < P32_WINNT_WIN7
+  .PtrSetProcessPreferredUILanguages = NULL,
+
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
   .PtrResolveLocaleName = P32InitResolveLocaleName,
 #endif /* Locale Name APIs */
@@ -613,6 +637,10 @@ static void P32InitLocaleApi (void) {
    */
   FuncLCIDToLocaleName ptrLCIDToLocaleName = NULL;
   FuncLocaleNameToLCID ptrLocaleNameToLCID = NULL;
+  /**
+   * Lookup `SetThreadPreferredUILanguages`.
+   */
+  FuncSetThreadPreferredUILanguages ptrSetThreadPreferredUILanguages = NULL;
 
   if (kernel32 != 0) {
     if (P32_WINNT_CHECK (P32_WINNT_VISTA, WindowsNtVista)) {
@@ -620,6 +648,8 @@ static void P32InitLocaleApi (void) {
       assert (ptrLCIDToLocaleName != NULL);
       ptrLocaleNameToLCID = p32_get_proc_address (kernel32, LocaleNameToLCID);
       assert (ptrLocaleNameToLCID != NULL);
+      ptrSetThreadPreferredUILanguages = p32_get_proc_address (kernel32, SetThreadPreferredUILanguages);
+      assert (ptrSetThreadPreferredUILanguages != NULL);
     }
   }
 
@@ -634,22 +664,40 @@ static void P32InitLocaleApi (void) {
   } else {
     p32_atomic_exchange_fpointer (&P32LocaleApi.PtrLocaleNameToLCID, P32LocaleNameToLCID);
   }
+
+  if (ptrSetThreadPreferredUILanguages != NULL) {
+    p32_atomic_exchange_fpointer (&P32LocaleApi.PtrSetThreadPreferredUILanguages, ptrSetThreadPreferredUILanguages);
+  }
 #endif /* P32_WINNT < Windows Vista */
 
 #if P32_WINNT < P32_WINNT_WIN7
+  /**
+   * Lookup `SetProcessPreferredUILanguages`.
+   */
+  FuncSetProcessPreferredUILanguages ptrSetProcessPreferredUILanguages = NULL;
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
   /**
    * Lookup `ResolveLocaleName`.
    */
   FuncResolveLocaleName ptrResolveLocaleName = NULL;
+#endif /* Locale Name APIs */
 
   if (kernel32 != 0) {
     if (P32_WINNT_CHECK (P32_WINNT_WIN7, WindowsNt7)) {
+      ptrSetProcessPreferredUILanguages = p32_get_proc_address (kernel32, SetProcessPreferredUILanguages);
+      assert (ptrSetProcessPreferredUILanguages != NULL);
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
       ptrResolveLocaleName = p32_get_proc_address (kernel32, ResolveLocaleName);
       assert (ptrResolveLocaleName != NULL);
+#endif /* Locale Name APIs */
     }
   }
 
+  if (ptrSetProcessPreferredUILanguages != NULL) {
+    p32_atomic_exchange_fpointer (&P32LocaleApi.PtrSetProcessPreferredUILanguages, ptrSetProcessPreferredUILanguages);
+  }
+
+#if (P32_LOCALE_API & P32_LOCALE_API_LN)
   if (ptrResolveLocaleName != NULL) {
     p32_atomic_exchange_fpointer (&P32LocaleApi.PtrResolveLocaleName, ptrResolveLocaleName);
   } else {
@@ -688,8 +736,9 @@ static void P32InitLocaleApi (void) {
 #endif /* LCID and Locale Name APIs */
 
 #if P32_WINNT < P32_WINNT_VISTA
-#define LCIDToLocaleName P32LocaleApi.PtrLCIDToLocaleName
-#define LocaleNameToLCID P32LocaleApi.PtrLocaleNameToLCID
+#define LCIDToLocaleName              P32LocaleApi.PtrLCIDToLocaleName
+#define LocaleNameToLCID              P32LocaleApi.PtrLocaleNameToLCID
+#define SetThreadPreferredUILanguages P32LocaleApi.PtrSetThreadPreferredUILanguages
 
 static INT WINAPI P32InitLCIDToLocaleName (LCID localeId, LPWSTR buffer, INT bufferSize, DWORD flags) {
   pthread_once (&P32LocaleApi.Init, P32InitLocaleApi);
@@ -719,6 +768,8 @@ static LCID WINAPI P32LocaleNameToLCID (LPCWSTR localeName, DWORD flags) {
 #endif /* P32_WINNT < Windows Vista */
 
 #if P32_WINNT < P32_WINNT_WIN7
+#define SetProcessPreferredUILanguages P32LocaleApi.PtrSetProcessPreferredUILanguages
+
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
 #define ResolveLocaleName P32LocaleApi.PtrResolveLocaleName
 
