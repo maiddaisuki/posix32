@@ -770,17 +770,21 @@ static bool P32WinlocaleLNEqual (Locale *l1, Locale *l2) {
     assert (wcscmp (l2->LocaleName, L"en-US") == 0);
   }
 
+  /**
+   * Allocate stack space for locale names resolved by `ResolveLocaleName`.
+   */
   LPWSTR localeName1 = _alloca (LOCALE_NAME_MAX_LENGTH * sizeof (WCHAR));
   LPWSTR localeName2 = _alloca (LOCALE_NAME_MAX_LENGTH * sizeof (WCHAR));
 
-  if (
-    ResolveLocaleName (l1->LocaleName, localeName1, LOCALE_NAME_MAX_LENGTH) != 0
-    && ResolveLocaleName (l2->LocaleName, localeName2, LOCALE_NAME_MAX_LENGTH) != 0
-  ) {
-    return wcscmp (localeName1, localeName2) == 0;
+  if (ResolveLocaleName (l1->LocaleName, localeName1, LOCALE_NAME_MAX_LENGTH) == 0) {
+    localeName1 = l1->LocaleName;
   }
 
-  return wcscmp (l1->LocaleName, l2->LocaleName) == 0;
+  if (ResolveLocaleName (l2->LocaleName, localeName2, LOCALE_NAME_MAX_LENGTH) == 0) {
+    localeName2 = l2->LocaleName;
+  }
+
+  return wcscmp (localeName1, localeName2) == 0;
 }
 
 static bool P32WinlocaleLNGetLanguageName (wchar_t **address, uintptr_t heap, Locale *locale) {
