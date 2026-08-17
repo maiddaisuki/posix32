@@ -105,28 +105,24 @@ static int P32WinlocaleLNMapStringW (
  * Check whether `localeName` is a valid supported locale.
  *
  * The `IsValidLocaleName` function introduced in Windows Vista cannot be
- * used to determine whether passed locale name is a valid supported locale.
- *
- * This function only verifies that the passed locale name is formed correctly.
+ * used to determine whether passed locale name is a valid supported locale;
+ * that function only verifies that the passed locale name is formed correctly.
  *
  * Thr `ResolveLocaleName` function introduced in Windows 7 helps with above
- * issue but does not solve the problem completely:
+ * issue but does not solve the problem completely: it may discard some parts
+ * of the string, such as sorting order name, or replace invalid country code
+ * with the default for the language.
  *
- * 1. It may discard some parts of the string, such as sorting order name or
- *    replace invalid country code with the default for the language.
- *
- * 2. It resolves "ca-ES-valencia" to "ca-ES" which is a different locale.
- *
- * The behavior in item 1 is desired in case when we supply plain language name
- * (e.g. "en"), but not when we supply an invalid locale and it just replaces
- * the country code with the default for the language.
+ * This behavior is desired in case when we supply plain language code
+ * (e.g. "en"), but not when we supply an invalid locale name and it just
+ * replaces the country code with the default for the language.
  *
  * Instead, we rely on behavior that `GetLocaleInfoEx` function returns
  *
  * - "Unknown Language (`ll[-Ssss]`)", with `LOCALE_SENGLISHLANGUAGENAME`
  * - "Unknown Region (`CC`)", with `LOCALE_SENGLISHCOUNTRYNAME`
  *
- * if passed locale name is not a valid supported locale.
+ * when passed locale name is not a valid supported locale.
  *
  * Return values:
  *
