@@ -2179,6 +2179,8 @@ static locale_t P32UseLocale (ThreadStorage *tls, ThreadLocaleState *threadLocal
     P32FreeLocale (tls->ThreadLocale->Locale, tls->Heap);
   }
 
+  p32_winlocale_set_thread_locale (&newThreadLocale->WinLocale.LcMessages, tls->Heap);
+
   tls->ThreadLocale->Locale = newThreadLocale;
   tls->ThreadLocale->Handle = locale;
 
@@ -2235,6 +2237,8 @@ static locale_t P32UseGlobalLocale (ThreadStorage *tls, ThreadLocaleState *threa
   if (tls != NULL) {
     oldThreadLocale           = tls->ThreadLocale->Handle;
     tls->ThreadLocale->Handle = LC_GLOBAL_LOCALE;
+
+    p32_winlocale_set_thread_locale (NULL, tls->Heap);
 
 #ifdef LIBPOSIX32_DLL
     if (tls->ThreadLocale->Locale != LC_GLOBAL_LOCALE) {
@@ -2763,6 +2767,8 @@ char *p32_setlocale (int category, const char *localeString) {
         ret = P32GlobalLocale.GlobalLocale->WindowsLocaleStrings.A.LcTime;
         break;
     }
+
+    p32_winlocale_set_process_locale (&locale->WinLocale.LcMessages, heap);
   } else {
     P32FreeLocale (locale, heap);
 
