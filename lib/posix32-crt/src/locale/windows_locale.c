@@ -1064,6 +1064,11 @@ typedef struct WinlocaleApi {
   pthread_once_t Init;
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID) && (P32_LOCALE_API & P32_LOCALE_API_LN)
+  /**
+   * Set to `true` if using Locale Name based implementation.
+   */
+  bool UsingLocaleNames;
+
   FuncWinlocaleGetLocaleInfoW   PtrWinlocaleGetLocaleInfoW;
   FuncWinlocaleGetCalendarInfoW PtrWinlocaleGetCalendarInfoW;
   FuncWinlocaleCompareStringW   PtrWinlocaleCompareStringW;
@@ -1098,6 +1103,8 @@ static WinlocaleApi P32WinlocaleApi = {
   .Init = PTHREAD_ONCE_INIT,
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID) && (P32_LOCALE_API & P32_LOCALE_API_LN)
+  .UsingLocaleNames = false,
+
   .PtrWinlocaleGetLocaleInfoW   = P32InitWinlocaleGetLocaleInfoW,
   .PtrWinlocaleGetCalendarInfoW = P32InitWinlocaleGetCalendarInfoW,
   .PtrWinlocaleCompareStringW   = P32InitWinlocaleCompareStringW,
@@ -1142,52 +1149,48 @@ static void P32InitGeoApi (void) {
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
 /**
  * Store pointers to Locale Name based implementation in `P32WinlocaleApi`.
- *
- * This function returns `true` on success.
- *
- * This function returns `false` on failure. This may happen if any required
- * function is missing from `P32LocaleApi`; this should never happen under
- * normal circumstances.
  */
-static bool P32InitLocaleNameApi (void) {
+static void P32InitLocaleNameApi (void) {
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
   if (P32LocaleApi.PtrLCIDToLocaleName == P32LCIDToLocaleName) {
-    return false;
+    return;
   }
 
   if (P32LocaleApi.PtrLocaleNameToLCID == P32LocaleNameToLCID) {
-    return false;
+    return;
   }
 
   if (P32LocaleApi.PtrGetSystemDefaultLocaleName == NULL) {
-    return false;
+    return;
   }
 
   if (P32LocaleApi.PtrGetUserDefaultLocaleName == NULL) {
-    return false;
+    return;
   }
 
   if (P32LocaleApi.PtrCompareStringEx == NULL) {
-    return false;
+    return;
   }
 
   if (P32LocaleApi.PtrGetCalendarInfoEx == NULL) {
-    return false;
+    return;
   }
 
   if (P32LocaleApi.PtrGetLocaleInfoEx == NULL) {
-    return false;
+    return;
   }
 
   if (P32LocaleApi.PtrLCMapStringEx == NULL) {
-    return false;
+    return;
   }
 
 #ifdef LIBPOSIX32_TEST
   if (P32LocaleApi.PtrEnumSystemLocalesEx == NULL) {
-    return false;
+    return;
   }
 #endif
+
+  P32WinlocaleApi.UsingLocaleNames = true;
 
   p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetLocaleInfoW, P32WinlocaleLNGetLocaleInfoW);
   p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetCalendarInfoW, P32WinlocaleLNGetCalendarInfoW);
@@ -1208,12 +1211,6 @@ static bool P32InitLocaleNameApi (void) {
   p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleEnumSystemLocales, P32WinlocaleLNEnumSystemLocalesW);
 #endif
 #endif /* LCID and Locale Name APIs */
-
-#if P32_WINNT < P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI < NTDDI_WIN10_RS3)
-  P32InitGeoApi ();
-#endif /* P32_WINNT < Windows 10 1709 */
-
-  return true;
 }
 #endif /* Locale Name APIs */
 
@@ -1225,6 +1222,13 @@ static bool P32InitLocaleNameApi (void) {
  */
 static void P32InitLocaleApiWindowsNt (void) {
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
+  /**
+   * `P32WinlocaleApi` already contains Locale name based implementation.
+   */
+  if (P32WinlocaleApi.UsingLocaleNames) {
+    return;
+  }
+
   p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetLocaleInfoW, P32WinlocaleLCIDGetLocaleInfoW);
   p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleGetCalendarInfoW, P32WinlocaleLCIDGetCalendarInfoW);
   p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleCompareStringW, P32WinlocaleLCIDCompareStringW);
@@ -1244,10 +1248,6 @@ static void P32InitLocaleApiWindowsNt (void) {
   p32_atomic_exchange_fpointer (&P32WinlocaleApi.PtrWinlocaleEnumSystemLocales, P32WinlocaleLCIDEnumSystemLocalesW);
 #endif
 #endif /* LCID and Locale Name APIs */
-
-#if P32_WINNT < P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI < NTDDI_WIN10_RS3)
-  P32InitGeoApi ();
-#endif /* P32_WINNT < Windows 10 1709 */
 }
 #endif /* LCID APIs */
 
@@ -1260,18 +1260,20 @@ static void P32InitWinlocaleApi (void) {
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
   /**
    * If the code is running on Windows Vista or later, attempt to use
-   * Locale Name APIs.
+   * Locale Name based implementation.
    */
   if (P32_WINNT_CHECK (P32_WINNT_VISTA, WindowsNtVista)) {
-    if (P32InitLocaleNameApi ()) {
-      return;
-    }
+    P32InitLocaleNameApi ();
   }
 #endif
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
   P32InitLocaleApiWindowsNt ();
 #endif
+
+#if P32_WINNT < P32_WINNT_WIN10 || (P32_WINNT == P32_WINNT_WIN10 && P32_NTDDI < NTDDI_WIN10_RS3)
+  P32InitGeoApi ();
+#endif /* P32_WINNT < Windows 10 1709 */
 }
 #endif /* DYNAMIC_IMPLEMENTATION */
 
@@ -1287,6 +1289,7 @@ static void P32InitWinlocaleApi (void) {
 #endif
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID) && (P32_LOCALE_API & P32_LOCALE_API_LN)
+#define WinlocaleUsingLocaleNames  P32WinlocaleApi.UsingLocaleNames
 #define WinlocaleEnumSystemLocales P32WinlocaleApi.PtrWinlocaleEnumSystemLocales
 #define WinlocaleGetLocaleInfoW    P32WinlocaleApi.PtrWinlocaleGetLocaleInfoW
 #define WinlocaleGetCalendarInfoW  P32WinlocaleApi.PtrWinlocaleGetCalendarInfoW
@@ -1403,6 +1406,7 @@ static void P32InitWinlocaleEnumSystemLocales (EnumSystemLocalesCallback callbac
 #else /* Only one implementation is compiled-in */
 
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
+#define WinlocaleUsingLocaleNames  (false)
 #define WinlocaleEnumSystemLocales P32WinlocaleLCIDEnumSystemLocalesW
 #define WinlocaleGetLocaleInfoW    P32WinlocaleLCIDGetLocaleInfoW
 #define WinlocaleGetCalendarInfoW  P32WinlocaleLCIDGetCalendarInfoW
@@ -1419,6 +1423,7 @@ static void P32InitWinlocaleEnumSystemLocales (EnumSystemLocalesCallback callbac
 #define WinlocaleEqual             P32WinlocaleLCIDEqual
 #define WinlocaleDestroy           P32WinlocaleLCIDDestroy
 #else /* Locale Name APIs */
+#define WinlocaleUsingLocaleNames  (true)
 #define WinlocaleEnumSystemLocales P32WinlocaleLNEnumSystemLocalesW
 #define WinlocaleGetLocaleInfoW    P32WinlocaleLNGetLocaleInfoW
 #define WinlocaleGetCalendarInfoW  P32WinlocaleLNGetCalendarInfoW
