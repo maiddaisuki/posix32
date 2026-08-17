@@ -72,7 +72,12 @@ P32_CORE_DECL void p32_dbg_write_message (
 /**
  * Trigger breakpoint exception to transfer control to the debugger.
  */
-#define p32_dbg_break() p32_dbg_break_impl ()
+#define p32_dbg_break()                   \
+  do {                                    \
+    if (p32_dbg_is_debugger_present ()) { \
+      p32_dbg_break_impl ();              \
+    }                                     \
+  } while (0)
 
 /**
  * Write message to `stdout`.
@@ -93,9 +98,7 @@ P32_CORE_DECL void p32_dbg_write_message (
 #define p32_dbg_error(format, ...)                                    \
   do {                                                                \
     p32_dbg_error_impl (NULL, 0, format __VA_OPT__ (, ) __VA_ARGS__); \
-    if (p32_dbg_is_debugger_present ()) {                             \
-      p32_dbg_break ();                                               \
-    }                                                                 \
+    p32_dbg_break ();                                                 \
   } while (0)
 
 #else /* Normal build */
