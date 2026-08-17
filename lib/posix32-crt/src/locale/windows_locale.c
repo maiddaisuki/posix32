@@ -385,6 +385,40 @@ typedef INT (WINAPI *FuncLCMapStringEx) (LPCWSTR, DWORD, LPCWSTR, INT, LPWSTR, I
 typedef BOOL (WINAPI *FuncEnumSystemLocalesEx) (LOCALE_ENUMPROCEX, DWORD, LPARAM, LPVOID);
 #endif /* LCID and Locale Name APIs */
 
+#if P32_WINNT < P32_WINNT_VISTA
+#define DYNAMIC_CHECKS
+
+/**
+ * Function type corresponding to `LCIDToLocaleName`.
+ */
+typedef INT (WINAPI *FuncLCIDToLocaleName) (LCID, LPWSTR, INT, DWORD);
+
+/**
+ * Initialization thunk for `LCIDToLocaleName`.
+ */
+static INT WINAPI P32InitLCIDToLocaleName (LCID, LPWSTR, INT, DWORD);
+
+/**
+ * Stub to use if `LCIDToLocaleName` is not available.
+ */
+static INT WINAPI P32LCIDToLocaleName (LCID, LPWSTR, INT, DWORD);
+
+/**
+ * Function type corresponding to `LocaleNameToLCID`.
+ */
+typedef LCID (WINAPI *FuncLocaleNameToLCID) (LPCWSTR, DWORD);
+
+/**
+ * Initialization thunk for `LocaleNameToLCID`.
+ */
+static LCID WINAPI P32InitLocaleNameToLCID (LPCWSTR, DWORD);
+
+/**
+ * Stub to use if `LocaleNameToLCID` is not available.
+ */
+static LCID WINAPI P32LocaleNameToLCID (LPCWSTR, DWORD);
+#endif /* P32_WINNT < Windows Vista */
+
 #if P32_WINNT < P32_WINNT_WIN7
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
 #define DYNAMIC_CHECKS
@@ -440,6 +474,17 @@ typedef struct LocaleApi {
   FuncEnumSystemLocalesEx        PtrEnumSystemLocalesEx;
 #endif /* LCID and Locale Name APIs */
 
+#if P32_WINNT < P32_WINNT_VISTA
+  /**
+   * `LCIDToLocaleName` is available since Windows Vista.
+   */
+  FuncLCIDToLocaleName PtrLCIDToLocaleName;
+  /**
+   * `LocaleNameToLCID` is available since Windows Vista.
+   */
+  FuncLocaleNameToLCID PtrLocaleNameToLCID;
+#endif /* P32_WINNT < Windows Vista */
+
 #if P32_WINNT < P32_WINNT_WIN7
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
   /**
@@ -477,6 +522,11 @@ static LocaleApi P32LocaleApi = {
   .PtrLCMapStringEx              = NULL,
   .PtrEnumSystemLocalesEx        = NULL,
 #endif /* LCID and Locale Name APIs */
+
+#if P32_WINNT < P32_WINNT_VISTA
+  .PtrLCIDToLocaleName = P32InitLCIDToLocaleName,
+  .PtrLocaleNameToLCID = P32InitLocaleNameToLCID,
+#endif /* P32_WINNT < Windows Vista */
 
 #if P32_WINNT < P32_WINNT_WIN7
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
@@ -556,6 +606,35 @@ static void P32InitLocaleApi (void) {
   }
 #endif /* LCID and Locale Name APIs */
 
+#if P32_WINNT < P32_WINNT_VISTA
+  /**
+   * Lookup `LCIDToLocaleName` and `LocaleNameToLCID`.
+   */
+  FuncLCIDToLocaleName ptrLCIDToLocaleName = NULL;
+  FuncLocaleNameToLCID ptrLocaleNameToLCID = NULL;
+
+  if (kernel32 != 0) {
+    if (P32_WINNT_CHECK (P32_WINNT_VISTA, WindowsNtVista)) {
+      ptrLCIDToLocaleName = p32_get_proc_address (kernel32, LCIDToLocaleName);
+      assert (ptrLCIDToLocaleName != NULL);
+      ptrLocaleNameToLCID = p32_get_proc_address (kernel32, LocaleNameToLCID);
+      assert (ptrLocaleNameToLCID != NULL);
+    }
+  }
+
+  if (ptrLCIDToLocaleName != NULL) {
+    p32_atomic_exchange_fpointer (&P32LocaleApi.PtrLCIDToLocaleName, ptrLCIDToLocaleName);
+  } else {
+    p32_atomic_exchange_fpointer (&P32LocaleApi.PtrLCIDToLocaleName, P32LCIDToLocaleName);
+  }
+
+  if (ptrLocaleNameToLCID != NULL) {
+    p32_atomic_exchange_fpointer (&P32LocaleApi.PtrLocaleNameToLCID, ptrLocaleNameToLCID);
+  } else {
+    p32_atomic_exchange_fpointer (&P32LocaleApi.PtrLocaleNameToLCID, P32LocaleNameToLCID);
+  }
+#endif /* P32_WINNT < Windows Vista */
+
 #if P32_WINNT < P32_WINNT_WIN7
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
   /**
@@ -606,6 +685,37 @@ static void P32InitLocaleApi (void) {
 #define LCMapStringEx              P32LocaleApi.PtrLCMapStringEx
 #define EnumSystemLocalesEx        P32LocaleApi.PtrEnumSystemLocalesEx
 #endif /* LCID and Locale Name APIs */
+
+#if P32_WINNT < P32_WINNT_VISTA
+#define LCIDToLocaleName P32LocaleApi.PtrLCIDToLocaleName
+#define LocaleNameToLCID P32LocaleApi.PtrLocaleNameToLCID
+
+static INT WINAPI P32InitLCIDToLocaleName (LCID localeId, LPWSTR buffer, INT bufferSize, DWORD flags) {
+  pthread_once (&P32LocaleApi.Init, P32InitLocaleApi);
+  return LCIDToLocaleName (localeId, buffer, bufferSize, flags);
+}
+
+static INT WINAPI P32LCIDToLocaleName (LCID localeId, LPWSTR buffer, INT bufferSize, DWORD flags) {
+  SetLastError (ERROR_CALL_NOT_IMPLEMENTED);
+  return 0;
+  UNREFERENCED_PARAMETER (localeId);
+  UNREFERENCED_PARAMETER (buffer);
+  UNREFERENCED_PARAMETER (bufferSize);
+  UNREFERENCED_PARAMETER (flags);
+}
+
+static LCID WINAPI P32InitLocaleNameToLCID (LPCWSTR localeName, DWORD flags) {
+  pthread_once (&P32LocaleApi.Init, P32InitLocaleApi);
+  return LocaleNameToLCID (localeName, flags);
+}
+
+static LCID WINAPI P32LocaleNameToLCID (LPCWSTR localeName, DWORD flags) {
+  SetLastError (ERROR_CALL_NOT_IMPLEMENTED);
+  return 0;
+  UNREFERENCED_PARAMETER (localeName);
+  UNREFERENCED_PARAMETER (flags);
+}
+#endif /* P32_WINNT < Windows Vista */
 
 #if P32_WINNT < P32_WINNT_WIN7
 #if (P32_LOCALE_API & P32_LOCALE_API_LN)
@@ -1022,6 +1132,14 @@ static void P32InitGeoApi (void) {
  */
 static bool P32InitLocaleNameApi (void) {
 #if (P32_LOCALE_API & P32_LOCALE_API_LCID)
+  if (P32LocaleApi.PtrLCIDToLocaleName == P32LCIDToLocaleName) {
+    return false;
+  }
+
+  if (P32LocaleApi.PtrLocaleNameToLCID == P32LocaleNameToLCID) {
+    return false;
+  }
+
   if (P32LocaleApi.PtrGetSystemDefaultLocaleName == NULL) {
     return false;
   }
