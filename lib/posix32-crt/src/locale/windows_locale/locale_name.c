@@ -771,10 +771,30 @@ static bool P32WinlocaleLNEqual (Locale *l1, Locale *l2) {
   }
 
   /**
+   * Function `ResolveLocaleName` discards sorting order from the locale name.
+   *
+   * This has en effect that two equal locale names with different
+   * sorting orders will resolve to the same locale name.
+   *
+   * We treat this distinction as significant, so we have to handle
+   * the sorting order ourselves.
+   */
+  LPWSTR localeName1 = wcschr (l1->LocaleName, L'_');
+  LPWSTR localeName2 = wcschr (l2->LocaleName, L'_');
+
+  if ((localeName1 == NULL) != (localeName2 == NULL)) {
+    return false;
+  }
+
+  if (localeName1 != NULL && wcscmp (localeName1, localeName2) != 0) {
+    return false;
+  }
+
+  /**
    * Allocate stack space for locale names resolved by `ResolveLocaleName`.
    */
-  LPWSTR localeName1 = _alloca (LOCALE_NAME_MAX_LENGTH * sizeof (WCHAR));
-  LPWSTR localeName2 = _alloca (LOCALE_NAME_MAX_LENGTH * sizeof (WCHAR));
+  localeName1 = _alloca (LOCALE_NAME_MAX_LENGTH * sizeof (WCHAR));
+  localeName2 = _alloca (LOCALE_NAME_MAX_LENGTH * sizeof (WCHAR));
 
   if (ResolveLocaleName (l1->LocaleName, localeName1, LOCALE_NAME_MAX_LENGTH) == 0) {
     localeName1 = l1->LocaleName;
